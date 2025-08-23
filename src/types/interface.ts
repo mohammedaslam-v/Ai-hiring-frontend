@@ -20,6 +20,22 @@ export interface ApplicationData {
   resume: File;
 }
 
+export interface Position {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface Day {
+  name: string;
+  highDemand: boolean;
+}
+
+export interface TimeSlot {
+  name: string;
+  highDemand: boolean;
+}
+
 export interface ApplicationResponse {
   id: string;
   status: string;

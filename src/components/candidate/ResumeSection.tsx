@@ -1,8 +1,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, FileText } from "lucide-react";
+import { useState, useCallback } from "react";
 
 interface ResumeSectionProps {
   resume: File | null;
@@ -10,6 +10,8 @@ interface ResumeSectionProps {
 }
 
 const ResumeSection = ({ resume, onFileUpload }: ResumeSectionProps) => {
+  const [isDragOver, setIsDragOver] = useState(false);
+
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -17,6 +19,35 @@ const ResumeSection = ({ resume, onFileUpload }: ResumeSectionProps) => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type === 'application/pdf' || 
+          file.type === 'application/msword' || 
+          file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        // Directly call the file upload handler with the file
+        const event = {
+          target: { files: [file] }
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        onFileUpload(event);
+      }
+    }
+  }, [onFileUpload]);
 
   return (
     <Card className="border-0 shadow-lg bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
@@ -39,15 +70,35 @@ const ResumeSection = ({ resume, onFileUpload }: ResumeSectionProps) => {
             <Label htmlFor="resume" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Resume File *
             </Label>
-            <Input
-              id="resume"
-              name="resume"
-              type="file"
-              accept=".pdf,.doc,.docx"
-              onChange={onFileUpload}
-              className="cursor-pointer file:cursor-pointer file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:dark:bg-blue-900/20 file:dark:text-blue-300"
-              required
-            />
+            <div 
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                isDragOver 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-blue-300 hover:border-blue-400'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <input
+                id="resume"
+                name="resume"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={onFileUpload}
+                className="hidden"
+                required
+              />
+              <label htmlFor="resume" className="cursor-pointer">
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <Upload className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="text-blue-600 font-medium">Click to upload or drag and drop</div>
+                  <div className="text-gray-500 text-sm">PDF, DOC, DOCX (max 10MB) - Required</div>
+                </div>
+              </label>
+            </div>
           </div>
 
           {resume && (

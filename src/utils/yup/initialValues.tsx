@@ -8,7 +8,7 @@ export const applicationInitialValues = {
     lastName: "",
     email: "",
     phone: "",
-    position: "",
+    position: "Role 1 - Educator",
     subjects: [],
     additionalLanguages: [],
     availableDays: [],

@@ -34,6 +34,9 @@ export const candidateApplicationValidation = Yup.object().shape({
     subjects: Yup.array()
         .min(1, "Please select at least one subject")
         .required("Subjects are required"),
+    additionalLanguages: Yup.array()
+        .of(Yup.string())
+        .optional(),
     availableDays: Yup.array()
         .min(1, "Please select at least one available day")
         .required("Available days are required"),

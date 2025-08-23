@@ -12,12 +12,16 @@ interface PositionSectionProps {
 
 const PositionSection = ({ selectedPosition, onPositionChange, error }: PositionSectionProps) => {
   const positions = [
-    "Online Teacher",
-    "Offline Teacher", 
-    "Both Online & Offline",
-    "Subject Matter Expert",
-    "Curriculum Developer",
-    "Assessment Specialist"
+    {
+      id: "Role 1 - Educator",
+      title: "Role 1 - Educator",
+      description: "Regular teaching sessions"
+    },
+    {
+      id: "Role 2 - Assessment Specialist", 
+      title: "Role 2 - Assessment Specialist",
+      description: "Demo classes and assessments"
+    }
   ];
 
   return (
@@ -28,7 +32,7 @@ const PositionSection = ({ selectedPosition, onPositionChange, error }: Position
             <Briefcase className="h-4 w-4 text-white" />
           </div>
           <div>
-            <CardTitle className="text-lg text-gray-900 dark:text-white">Position</CardTitle>
+            <CardTitle className="text-lg text-gray-900 dark:text-white">Position *</CardTitle>
             <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
               Select the position you're applying for
             </CardDescription>
@@ -39,11 +43,16 @@ const PositionSection = ({ selectedPosition, onPositionChange, error }: Position
         <div className="space-y-4">
           <RadioGroup value={selectedPosition} onValueChange={onPositionChange} className="space-y-3">
             {positions.map((position) => (
-              <div key={position} className="flex items-center space-x-3">
-                <RadioGroupItem value={position} id={position} />
-                <Label htmlFor={position} className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
-                  {position}
-                </Label>
+              <div key={position.id} className="flex items-start space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <RadioGroupItem value={position.id} id={position.id} className="mt-1" />
+                <div className="flex-1">
+                  <Label htmlFor={position.id} className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer block">
+                    {position.title}
+                  </Label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {position.description}
+                  </p>
+                </div>
               </div>
             ))}
           </RadioGroup>

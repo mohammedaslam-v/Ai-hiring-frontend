@@ -32,15 +32,15 @@ const SubjectsSection = ({
               <BookOpen className="h-4 w-4 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg text-gray-900 dark:text-white">Subjects</CardTitle>
+              <CardTitle className="text-lg text-gray-900 dark:text-white">Subjects You Can Teach *</CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Select subjects you can teach
+                Please select at least one subject
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {subjects.map((subject) => (
               <div key={subject} className="flex items-center space-x-2">
                 <Checkbox
@@ -71,7 +71,7 @@ const SubjectsSection = ({
             <div>
               <CardTitle className="text-lg text-gray-900 dark:text-white">Additional Languages</CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Select languages you can teach in
+                Do you know any of the below languages other than English?
               </CardDescription>
             </div>
           </div>
