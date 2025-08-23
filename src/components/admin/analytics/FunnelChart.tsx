@@ -1,20 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-
-interface DetailedStats {
-  totalRegistered: number;
-  totalStartedInterview: number;
-  totalCompletedInterview: number;
-  totalLeftMidway: number;
-  neverStartedInterview: number;
-  totalPassed: number;
-  totalFailed: number;
-}
-
-interface FunnelChartProps {
-  detailedStats: DetailedStats;
-}
+import { FunnelChartProps } from '@/types/admin';
 
 const FunnelChart = ({ detailedStats }: FunnelChartProps) => {
   const data = [

@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { BookOpen, Mail, Lock, Shield } from "lucide-react";
@@ -16,12 +17,36 @@ const AdminLogin = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { signIn, user } = useAuth();
+  const { signIn, signOut, user } = useAuth();
+  const [, , , clearAllStorage] = useLocalStorage('authUser', null);
+
+  const handleClearSession = useCallback(async () => {
+    try {
+      await signOut();
+      clearAllStorage(); // Use the custom hook's clearAll method
+      toast.info("Session cleared. You can now log in.");
+    } catch (error) {
+      toast.error("Error clearing session");
+    }
+  }, [signOut, clearAllStorage]);
+
+  // Check for force logout parameter
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('logout') === 'true') {
+      handleClearSession();
+    }
+  }, [handleClearSession]);
 
   // Redirect if already authenticated
   React.useEffect(() => {
     if (user) {
-      navigate('/admin/dashboard');
+      toast.info("You're already logged in! Redirecting to dashboard...");
+      const timer = setTimeout(() => {
+        navigate('/admin/dashboard');
+      }, 2000); // Give user 2 seconds to see the message and potentially clear session
+      
+      return () => clearTimeout(timer);
     }
   }, [user, navigate]);
 
@@ -123,7 +148,7 @@ const AdminLogin = () => {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center space-y-3">
               <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
                 <Button 
@@ -134,6 +159,20 @@ const AdminLogin = () => {
                   Sign up here
                 </Button>
               </p>
+              
+              {user && (
+                <div className="pt-2 border-t border-gray-200">
+                  <p className="text-xs text-amber-600 mb-2">Already logged in? Clear your session first:</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleClearSession}
+                    className="text-amber-600 border-amber-300 hover:bg-amber-50"
+                  >
+                    Clear Session
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

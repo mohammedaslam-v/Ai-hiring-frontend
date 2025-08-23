@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 // Mock data for applications pagination
 const mockApplications = Array.from({ length: 100 }, (_, i) => ({
@@ -19,7 +19,7 @@ export function useApplicationsPagination(pageSize: number = 10) {
   const [totalPages, setTotalPages] = useState(Math.ceil(mockApplications.length / pageSize));
   const [isLoading, setIsLoading] = useState(false);
 
-  const goToPage = (page: number) => {
+  const goToPage = useCallback((page: number) => {
     if (page < 1 || page > totalPages) return;
     
     setIsLoading(true);
@@ -32,14 +32,14 @@ export function useApplicationsPagination(pageSize: number = 10) {
       setCurrentPage(page);
       setIsLoading(false);
     }, 300);
-  };
+  }, [pageSize, totalPages]);
 
   const nextPage = () => goToPage(currentPage + 1);
   const prevPage = () => goToPage(currentPage - 1);
 
   useEffect(() => {
     goToPage(1);
-  }, [pageSize]);
+  }, [pageSize, goToPage]);
 
   return {
     applications,

@@ -9,18 +9,9 @@ import { toast } from 'react-toastify';
 import { getApplicationsPage } from "@/services/applications";
 import { exportApplicationsToCSV } from "@/services/export";
 
-type ApplicationRow = {
-  id: string;
-  createdAt: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  subjects: string[];
-  position: string;
-  status: string;
-  applicationId: string;
-};
+import { SimpleApplicationDetail } from '@/types/admin';
+
+type ApplicationRow = SimpleApplicationDetail;
 
 const PaginatedApplicationsTable = () => {
   const navigate = useNavigate();

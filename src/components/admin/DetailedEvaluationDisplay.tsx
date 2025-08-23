@@ -4,27 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, XCircle, AlertTriangle, MessageSquare } from "lucide-react";
-
-interface RubricScore {
-  grammar_sentence_structure?: number;
-  pronunciation?: number;
-  years_teaching_experience?: number;
-  mode_of_teaching?: number;
-  program_interest?: number;
-  weekday_hours?: number;
-  weekend_hours?: number;
-  highest_qualification?: number;
-  additional_certifications?: number;
-  languages_spoken?: number;
-}
-
-interface DetailedEvaluationProps {
-  score: number;
-  evaluation?: any;
-  strengths?: string[];
-  areas_for_improvement?: string[];
-  feedback?: string;
-}
+import { RubricScore, DetailedEvaluationProps } from '@/types/admin';
 
 const DetailedEvaluationDisplay: React.FC<DetailedEvaluationProps> = ({
   score,

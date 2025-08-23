@@ -10,26 +10,7 @@ import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-
-interface ApplicationFiltersProps {
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
-  statusFilter: string;
-  setStatusFilter: (value: string) => void;
-  subjectFilter: string;
-  setSubjectFilter: (value: string) => void;
-  resultFilter: string;
-  setResultFilter: (value: string) => void;
-  fromDate: Date | undefined;
-  setFromDate: (date: Date | undefined) => void;
-  toDate: Date | undefined;
-  setToDate: (date: Date | undefined) => void;
-  onClearDateFilters: () => void;
-  scoreRange: [number, number];
-  setScoreRange: (value: [number, number]) => void;
-  hasSessionOnly: boolean;
-  setHasSessionOnly: (value: boolean) => void;
-}
+import { ApplicationFiltersProps } from '@/types/admin';
 
 const ApplicationFilters = ({
   searchTerm,

@@ -3,16 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
-interface PaginationControlsProps {
-  currentPage: number;
-  totalPages: number;
-  itemsPerPage: number;
-  totalItems: number;
-  startIndex: number;
-  endIndex: number;
-  onPageChange: (page: number) => void;
-  onItemsPerPageChange: (value: string) => void;
-}
+import { PaginationControlsProps } from '@/types/admin';
 
 const PaginationControls = ({
   currentPage,

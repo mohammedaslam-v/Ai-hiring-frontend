@@ -1,19 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts";
-
-interface TrendsPoint {
-  date: string;
-  registered: number;
-  started: number;
-  completed: number;
-  passed: number;
-  failed: number;
-}
-
-interface TrendsChartProps {
-  data: TrendsPoint[];
-}
+import { TrendsPoint, TrendsChartProps } from '@/types/analytics';
 
 const TrendsChart = ({ data }: TrendsChartProps) => {
   return (

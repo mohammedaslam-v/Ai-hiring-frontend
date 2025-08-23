@@ -8,13 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "react-toastify";
 import { Star, Send } from "lucide-react";
-
-// Mock feedback modal (no Supabase)
-interface FeedbackModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  applicationId?: string;
-}
+import { FeedbackModalProps } from '@/types/admin';
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, applicationId }) => {
   const [formData, setFormData] = useState({

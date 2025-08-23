@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import ApplicantDetailsModal from "@/components/admin/ApplicantDetailsModal";
 import FeedbackModal from "@/components/admin/FeedbackModal";
 import BulkEmailDialog from "@/components/admin/BulkEmailDialog";
@@ -16,44 +16,7 @@ import AuditLog from "@/components/admin/AuditLog";
 import { useApplicationsPagination } from "@/hooks/useApplicationsPagination";
 import PaginatedApplicationsTable from "@/components/admin/PaginatedApplicationsTable";
 
-interface ApplicationDetail {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  subjects: string[];
-  availability: string[];
-  application_status: string;
-  application_date: string;
-  application_date_iso?: string;
-  interview_status?: string;
-  score?: number;
-  interview_started?: string;
-  interview_completed?: string;
-  interview_scheduled?: string;
-  session_id?: string;
-  evaluation?: Record<string, unknown>;
-  strengths?: string[];
-  areas_for_improvement?: string[];
-  feedback?: string;
-  email_status?: string;
-  applicationId?: string;
-}
-
-interface DetailedStats {
-  totalRegistered: number;
-  totalStartedInterview: number;
-  totalCompletedInterview: number;
-  totalLeftMidway: number;
-  neverStartedInterview: number;
-  totalPassed: number;
-  totalFailed: number;
-  interviewStartRate: number;
-  interviewCompletionRate: number;
-  passRate: number;
-  failRate: number;
-  leftMidwayRate: number;
-}
+import { DashboardApplicationDetail, DetailedStats } from '@/types/admin';
 
 type DashboardSummary = {
   total_registered: number;
@@ -71,7 +34,7 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [subjectFilter, setSubjectFilter] = useState("all");
   const [refreshingSession, setRefreshingSession] = useState<string | null>(null);
-  const [selectedApplicant, setSelectedApplicant] = useState<ApplicationDetail | null>(null);
+  const [selectedApplicant, setSelectedApplicant] = useState<DashboardApplicationDetail | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [detailedStats, setDetailedStats] = useState<DetailedStats>({
     totalRegistered: 0,
@@ -88,7 +51,7 @@ const AdminDashboard = () => {
     leftMidwayRate: 0
   });
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [selectedApplicantForFeedback, setSelectedApplicantForFeedback] = useState<ApplicationDetail | null>(null);
+  const [selectedApplicantForFeedback, setSelectedApplicantForFeedback] = useState<DashboardApplicationDetail | null>(null);
   const [showBulkEmailDialog, setShowBulkEmailDialog] = useState(false);
   const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
   const [toDate, setToDate] = useState<Date | undefined>(undefined);
@@ -265,9 +228,25 @@ const AdminDashboard = () => {
     applicationId: app.applicationId,
     // Add required properties for component interfaces
     subjects: [],
+    additionalLanguages: [],
+    availableDays: [],
+    timeSlots: [],
     availability: [],
     application_status: app.status,
     application_date: app.createdAt,
+    updatedAt: app.createdAt, // Use createdAt as updatedAt for mock data
+    // Add optional properties with default values
+    interview_status: undefined,
+    score: undefined,
+    interview_started: undefined,
+    interview_completed: undefined,
+    interview_scheduled: undefined,
+    session_id: undefined,
+    evaluation: undefined,
+    strengths: undefined,
+    areas_for_improvement: undefined,
+    feedback: undefined,
+    email_status: undefined,
   }));
 
   const filteredApplicants = mappedApplications.filter(applicant => {
@@ -324,8 +303,8 @@ const AdminDashboard = () => {
 
   const handleViewDetails = (applicant: { id: string; firstName: string; lastName: string; email: string; phone: string; subjects: string[]; status: string; createdAt: string; applicationId: string }) => {
     console.log('👀 Viewing details for applicant:', applicant);
-    // Convert ApplicationRow to ApplicationDetail format
-    const convertedApplicant: ApplicationDetail = {
+    // Convert ApplicationRow to DashboardApplicationDetail format
+    const convertedApplicant: DashboardApplicationDetail = {
       id: applicant.id,
       name: `${applicant.firstName} ${applicant.lastName}`,
       email: applicant.email,

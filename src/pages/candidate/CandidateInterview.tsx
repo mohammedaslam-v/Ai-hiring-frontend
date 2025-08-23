@@ -46,16 +46,16 @@ const CandidateInterview = () => {
 
   // Timer effect for tracking video duration
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: number | undefined;
     
     if (videoStarted && !videoWatched && interviewStatus === "video-required") {
-      interval = setInterval(() => {
+      interval = window.setInterval(() => {
         setTimeElapsed(prev => prev + 1);
       }, 1000);
     }
     
     return () => {
-      if (interval) clearInterval(interval);
+      if (interval) window.clearInterval(interval);
     };
   }, [videoStarted, videoWatched, interviewStatus]);
 

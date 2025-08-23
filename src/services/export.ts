@@ -1,15 +1,6 @@
 // Mock export service (no Supabase)
-import { ServiceResponse } from '@/types/interface';
-
-// Define filter types
-interface ExportFilters {
-  status?: string;
-  position?: string;
-  dateRange?: {
-    from: string;
-    to: string;
-  };
-}
+import { ServiceResponse } from '@/types';
+import { ExportFilters } from '@/types/analytics';
 
 // Mock data for export
 const mockExportData = Array.from({ length: 25 }, (_, i) => ({

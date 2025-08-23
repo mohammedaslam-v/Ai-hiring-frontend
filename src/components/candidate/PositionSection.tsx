@@ -4,11 +4,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Briefcase } from "lucide-react";
 
-interface PositionSectionProps {
-  selectedPosition: string;
-  onPositionChange: (value: string) => void;
-  error?: string;
-}
+import { PositionSectionProps } from '@/types/candidate';
 
 const PositionSection = ({ selectedPosition, onPositionChange, error }: PositionSectionProps) => {
   const positions = [

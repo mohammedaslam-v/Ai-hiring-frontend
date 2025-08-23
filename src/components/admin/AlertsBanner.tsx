@@ -2,25 +2,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
-
-interface DetailedStats {
-  totalRegistered: number;
-  totalStartedInterview: number;
-  totalCompletedInterview: number;
-  totalLeftMidway: number;
-  neverStartedInterview: number;
-  totalPassed: number;
-  totalFailed: number;
-  interviewStartRate: number;
-  interviewCompletionRate: number;
-  passRate: number;
-  failRate: number;
-  leftMidwayRate: number;
-}
-
-interface AlertsBannerProps {
-  detailedStats: DetailedStats;
-}
+import { AlertsBannerProps } from '@/types/admin';
 
 const AlertsBanner = ({ detailedStats }: AlertsBannerProps) => {
   const [alerts, setAlerts] = useState<string[]>([]);

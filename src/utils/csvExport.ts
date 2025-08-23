@@ -1,5 +1,5 @@
 // Mock CSV export utility (no Supabase)
-import { ServiceResponse } from '@/types/interface';
+import { ServiceResponse } from '@/types';
 
 // Mock data for CSV export
 const mockCsvData = Array.from({ length: 20 }, (_, i) => ({

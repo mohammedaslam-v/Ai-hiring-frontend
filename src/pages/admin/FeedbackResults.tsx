@@ -10,27 +10,7 @@ import { BookOpen, Search, Eye, ArrowLeft } from "lucide-react";
  
 import { toast } from 'react-toastify';
 
-interface FeedbackResult {
-  id: string;
-  applicant_name: string;
-  applicant_email: string;
-  applicant_phone: string;
-  good_to_go: string;
-  demo_status: string;
-  demo_date: string;
-  interviewer_name: string;
-  lesson_clarity: string;
-  student_engagement: string;
-  language_communication: string;
-  teaching_aids: string;
-  creativity_delivery: string;
-  grammar_pronunciation: string;
-  feedback: string;
-  confirmation_email_sent: string;
-  onboarding_call_made: string;
-  remarks: string;
-  created_at: string;
-}
+import { FeedbackResult } from '@/types/analytics';
 
 const FeedbackResults = () => {
   const navigate = useNavigate();

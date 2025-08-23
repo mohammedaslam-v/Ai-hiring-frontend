@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 // import { supabase } from '@/integrations/supabase/client'; // Supabase removed - using mock data
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-toastify';
 import { Shield, User, RefreshCw, Plus } from 'lucide-react';
 

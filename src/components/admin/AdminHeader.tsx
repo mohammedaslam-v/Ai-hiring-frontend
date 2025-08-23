@@ -2,12 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen, LogOut, Mail } from "lucide-react";
 import BulkDeleteApplications from "@/components/admin/BulkDeleteApplications";
-
-interface AdminHeaderProps {
-  onLogout: () => void;
-  onOpenBulkEmail: () => void;
-  onDeleteComplete: () => void;
-}
+import { AdminHeaderProps } from '@/types/admin';
 
 const AdminHeader = ({ onLogout, onOpenBulkEmail, onDeleteComplete }: AdminHeaderProps) => {
   return (

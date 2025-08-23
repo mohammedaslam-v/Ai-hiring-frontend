@@ -1,16 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { BookOpen, LogOut, Users, BarChart3, Settings, Shield, TrendingUp, Clock, Award, UserPlus } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+ 
 import ApplicationFilters from "@/components/admin/ApplicationFilters";
 import PaginationControls from "@/components/admin/PaginationControls";
 
@@ -160,33 +157,33 @@ const SuperAdminDashboard = () => {
       setLoading(true);
       
       // Fetch application details
-      // const { data: applications, error } = await supabase
-      //   .from('application_details')
-      //   .select('*');
+      const { data: applications, error } = await supabase
+        .from('application_details')
+        .select('*');
 
-      // if (error) {
-      //   console.error('Error fetching applications:', error);
-      //   return;
-      // }
+      if (error) {
+        console.error('Error fetching applications:', error);
+        return;
+      }
 
-      // const applicantData = applications?.map(app => ({
-      //   id: app.id,
-      //   name: app.name,
-      //   email: app.email,
-      //   application_status: app.application_status,
-      //   interview_status: app.interview_status,
-      //   score: app.score,
-      //   application_date: new Date(app.application_date).toLocaleDateString()
-      // })) || [];
+      const applicantData = applications?.map(app => ({
+        id: app.id,
+        name: app.name,
+        email: app.email,
+        application_status: app.application_status,
+        interview_status: app.interview_status,
+        score: app.score,
+        application_date: new Date(app.application_date).toLocaleDateString()
+      })) || [];
 
-      // setApplicants(applicantData);
-      // setFilteredApplicants(applicantData);
+      setApplicants(applicantData);
+      setFilteredApplicants(applicantData);
 
       // Calculate statistics
-      const totalApplicants = 100; // Mock data
-      const completedInterviews = 80; // Mock data
-      const passedInterviews = 70; // Mock data
-      const passRate = completedInterviews > 0 ? Math.round((passedInterviews / completedInterviews) * 100) : 0;
+      const totalApplicants = applicantData.length;
+      const completedInterviews = applicantData.filter(app => app.interview_status === 'completed' || app.interview_status === 'failed');
+      const passedInterviews = applicantData.filter(app => app.interview_status === 'completed' && (app.score || 0) >= 70);
+      const passRate = completedInterviews.length > 0 ? Math.round((passedInterviews.length / completedInterviews.length) * 100) : 0;
 
       setStats(prev => ({
         ...prev,
@@ -195,13 +192,13 @@ const SuperAdminDashboard = () => {
       }));
 
       // Update recent activity with real data
-      if (totalApplicants > 0) {
-        const recentApps = Array.from({ length: Math.min(totalApplicants, 3) });
+      if (applicantData.length > 0) {
+        const recentApps = applicantData.slice(0, 3);
         const newActivity = [
-          ...recentApps.map((_, index) => ({
+          ...recentApps.map((app, index) => ({
             time: `${index + 1} hour${index === 0 ? '' : 's'} ago`,
             user: "System",
-            action: `New application received from ${recentApps[index]?.name || 'Applicant'}`
+            action: `New application received from ${app.name}`
           })),
           { time: "2 hours ago", user: "Admin System", action: "Exported monthly analytics report" }
         ];
@@ -210,7 +207,6 @@ const SuperAdminDashboard = () => {
 
     } catch (error) {
       console.error('Error in fetchDashboardData:', error);
-      toast.error('Failed to fetch dashboard data.');
     } finally {
       setLoading(false);
     }
@@ -218,7 +214,6 @@ const SuperAdminDashboard = () => {
 
   const handleLogout = () => {
     navigate('/superadmin/login');
-    toast.success('Logged out successfully!');
   };
 
   if (loading) {

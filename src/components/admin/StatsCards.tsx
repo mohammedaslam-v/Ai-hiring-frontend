@@ -2,24 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, PlayCircle, Target, StopCircle, CheckCircle, XCircle } from "lucide-react";
 
-interface DetailedStats {
-  totalRegistered: number;
-  totalStartedInterview: number;
-  totalCompletedInterview: number;
-  totalLeftMidway: number;
-  neverStartedInterview: number;
-  totalPassed: number;
-  totalFailed: number;
-  interviewStartRate: number;
-  interviewCompletionRate: number;
-  passRate: number;
-  failRate: number;
-  leftMidwayRate: number;
-}
-
-interface StatsCardsProps {
-  detailedStats: DetailedStats;
-}
+import { DetailedStats, StatsCardsProps } from '@/types/admin';
 
 const StatsCards = ({ detailedStats }: StatsCardsProps) => {
   const detailedStatsCards = [

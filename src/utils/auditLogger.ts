@@ -1,5 +1,5 @@
 // Mock audit logger (no Supabase)
-import { ServiceResponse } from '@/types/interface';
+import { ServiceResponse } from '@/types';
 
 // Mock audit log data
 const mockAuditLogs: Array<{

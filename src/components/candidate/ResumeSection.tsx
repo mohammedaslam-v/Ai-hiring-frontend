@@ -4,10 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Upload, FileText } from "lucide-react";
 import { useState, useCallback } from "react";
 
-interface ResumeSectionProps {
-  resume: File | null;
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import { ResumeSectionProps } from '@/types/candidate';
 
 const ResumeSection = ({ resume, onFileUpload }: ResumeSectionProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -87,7 +84,6 @@ const ResumeSection = ({ resume, onFileUpload }: ResumeSectionProps) => {
                 accept=".pdf,.doc,.docx"
                 onChange={onFileUpload}
                 className="hidden"
-                required
               />
               <label htmlFor="resume" className="cursor-pointer">
                 <div className="flex flex-col items-center space-y-3">

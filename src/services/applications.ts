@@ -1,12 +1,5 @@
 // Mock implementations for applications service (no Supabase)
-import { ApplicationData, ApplicationResponse, ServiceResponse } from '@/types/interface';
-
-// Define filter types
-interface ApplicationFilters {
-  status?: string;
-  position?: string;
-  search?: string;
-}
+import { ApplicationData, ApplicationResponse, ServiceResponse, ApplicationsServiceFilters } from '@/types';
 
 // Mock data for applications - more realistic names and data
 const mockApplications = Array.from({ length: 50 }, (_, i) => {
@@ -47,7 +40,7 @@ export const getApplicationsCount = async (): Promise<ServiceResponse<{ count: n
 export const getApplicationsPage = async (
   page: number = 1,
   pageSize: number = 10,
-  filters?: ApplicationFilters
+  filters?: ApplicationsServiceFilters
 ): Promise<ServiceResponse<{ applications: typeof mockApplications; total: number; page: number; pageSize: number }>> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 800));

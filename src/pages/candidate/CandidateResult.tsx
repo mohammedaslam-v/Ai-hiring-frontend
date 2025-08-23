@@ -7,15 +7,7 @@ import { CheckCircle, XCircle, ExternalLink, Laptop } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import DarkModeToggle from "@/components/DarkModeToggle";
-
-interface InterviewResults {
-  score: number;
-  feedback: string;
-  strengths: string[];
-  areas_for_improvement: string[];
-  status: string;
-  interview_completed: boolean;
-}
+import { InterviewResults } from '@/types/candidate';
 
 const CandidateResult = () => {
   const [loading, setLoading] = useState(true);

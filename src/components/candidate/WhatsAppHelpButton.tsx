@@ -2,10 +2,7 @@ import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { MessageCircle } from "lucide-react";
-
-interface WhatsAppHelpButtonProps {
-  phone?: string; // E.164 without + sign preferred by wa.me, e.g., 919886692272
-}
+import { WhatsAppHelpButtonProps } from '@/types/candidate';
 
 const WhatsAppHelpButton: React.FC<WhatsAppHelpButtonProps> = ({ phone = "919886692272" }) => {
   const { url, ariaLabel } = useMemo(() => {

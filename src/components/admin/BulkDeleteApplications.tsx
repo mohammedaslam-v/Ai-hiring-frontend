@@ -6,9 +6,7 @@ import { toast } from "react-toastify";
 // import { supabase } from "@/integrations/supabase/client"; // Supabase removed - using mock data
 import { Trash2, RefreshCw } from "lucide-react";
 
-interface BulkDeleteApplicationsProps {
-  onDeleteComplete: () => void;
-}
+import { BulkDeleteApplicationsProps } from '@/types/admin';
 
 const BulkDeleteApplications = ({ onDeleteComplete }: BulkDeleteApplicationsProps) => {
   const [isDeleting, setIsDeleting] = useState(false);

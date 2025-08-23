@@ -5,20 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Save, Play } from "lucide-react";
 
-interface SavedFiltersProps {
-  searchTerm: string;
-  setSearchTerm: (v: string) => void;
-  statusFilter: string;
-  setStatusFilter: (v: string) => void;
-  subjectFilter: string;
-  setSubjectFilter: (v: string) => void;
-  resultFilter: string;
-  setResultFilter: (v: string) => void;
-  fromDate: Date | undefined;
-  setFromDate: (d: Date | undefined) => void;
-  toDate: Date | undefined;
-  setToDate: (d: Date | undefined) => void;
-}
+import { SavedFiltersProps } from '@/types/admin';
 
 type FilterSnapshot = Omit<SavedFiltersProps, "setSearchTerm"|"setStatusFilter"|"setSubjectFilter"|"setResultFilter"|"setFromDate"|"setToDate">;
 
@@ -32,7 +19,9 @@ const SavedFilters = (props: SavedFiltersProps) => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setSaved(JSON.parse(raw));
-    } catch {}
+    } catch (error) {
+      console.warn('Failed to load saved filters:', error);
+    }
   }, []);
 
   const persist = (next: Record<string, FilterSnapshot>) => {

@@ -5,7 +5,7 @@ import { applicationService } from "@/services";
 import { useFormik } from "formik";
 import { candidateApplicationValidation } from "@/utils/yup/validation";
 import { applicationInitialValues } from "@/utils/yup/initialValues";
-import { FormData } from "@/types/interface";
+import { FormData } from "@/types";
 
 export function useCandidateApplication() {
   const [isLoading, setIsLoading] = useState(false);

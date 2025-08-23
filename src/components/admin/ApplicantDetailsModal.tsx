@@ -8,35 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'react-toastify';
 import { User, Mail, Phone, Calendar, Clock, BookOpen, Download, RefreshCw } from "lucide-react";
 import DetailedEvaluationDisplay from "./DetailedEvaluationDisplay";
-// import { supabase } from "@/integrations/supabase/client"; // Supabase removed - using mock data
-
-interface ApplicationDetail {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  subjects: string[];
-  availability: string[];
-  application_status: string;
-  application_date: string;
-  interview_status?: string;
-  score?: number;
-  interview_started?: string;
-  interview_completed?: string;
-  session_id?: string;
-  evaluation?: any;
-  strengths?: string[];
-  areas_for_improvement?: string[];
-  feedback?: string;
-}
-
-interface ApplicantDetailsModalProps {
-  applicant: ApplicationDetail | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onRefreshToughTongue: (sessionId: string, applicationId?: string) => void;
-  refreshingSession: string | null;
-}
+import { ApplicantDetailsModalProps, DashboardApplicationDetail } from '@/types/admin';
 
 const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
   applicant,

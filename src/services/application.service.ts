@@ -1,4 +1,4 @@
-import { ServiceResponse, ApplicationData, ApplicationResponse } from "@/types/interface";
+import { ServiceResponse, ApplicationData, ApplicationResponse } from "@/types";
 
 class ApplicationService {
 

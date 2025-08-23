@@ -4,14 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Calendar, Clock } from "lucide-react";
 
-interface AvailabilitySectionProps {
-  selectedDays: string[];
-  selectedTimeSlots: string[];
-  onDayChange: (day: string, checked: boolean) => void;
-  onTimeSlotChange: (slot: string, checked: boolean) => void;
-  dayError?: string;
-  timeSlotError?: string;
-}
+import { AvailabilitySectionProps } from '@/types/candidate';
 
 const AvailabilitySection = ({ 
   selectedDays, 

@@ -2,29 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User, Mail, Phone, AlertTriangle } from "lucide-react";
-
-interface PersonalInfoSectionProps {
-  formData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  };
-  duplicateWarnings: {
-    email: boolean;
-    phone: boolean;
-  };
-  fieldErrors?: {
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    phone?: string;
-  };
-  onEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPhoneChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onFirstNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onLastNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import { PersonalInfoSectionProps } from '@/types/candidate';
 
 const PersonalInfoSection = ({ 
   formData, 

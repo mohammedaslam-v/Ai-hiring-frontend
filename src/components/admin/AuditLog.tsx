@@ -2,18 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-// import { supabase } from "@/integrations/supabase/client"; // Supabase removed - using mock data
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-interface AuditLog {
-  id: string;
-  created_at: string;
-  actor: string | null;
-  action: string;
-  entity_type: string;
-  entity_id: string | null;
-  metadata: any | null;
-}
+import { AuditLog } from '@/types/analytics';
 
 const AuditLog = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);

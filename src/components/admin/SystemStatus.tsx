@@ -3,21 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 
-interface ApplicationDetail {
-  id: string;
-  session_id?: string;
-  interview_status?: string;
-  evaluation?: any;
-  score?: number;
-}
-
-interface SystemStatusProps {
-  applicants: ApplicationDetail[];
-  onRefreshData: () => void;
-  onForceRefresh?: () => void;
-  onTestApi?: () => void;
-  onBulkSync?: () => void;
-}
+import { SystemStatusProps } from '@/types/admin';
 
 const SystemStatus = ({ applicants, onRefreshData, onForceRefresh, onTestApi, onBulkSync }: SystemStatusProps) => {
   const calculateAverageScore = () => {

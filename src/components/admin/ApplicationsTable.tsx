@@ -15,56 +15,9 @@ import SavedFilters from "./SavedFilters";
 import PaginationControls from "./PaginationControls";
 import { logAuditEvent } from "@/utils/auditLogger";
 
-interface ApplicationDetail {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  subjects: string[];
-  availability: string[];
-  application_status: string;
-  application_date: string;
-  interview_status?: string;
-  score?: number;
-  interview_started?: string;
-  interview_completed?: string;
-  interview_scheduled?: string;
-  session_id?: string;
-  evaluation?: Record<string, unknown>;
-  strengths?: string[];
-  areas_for_improvement?: string[];
-  feedback?: string;
-  email_status?: string;
-}
+import { AdminApplicationDetail } from '@/types/admin';
 
-interface ApplicationsTableProps {
-  applicants: ApplicationDetail[];
-  filteredApplicants: ApplicationDetail[];
-  searchTerm: string;
-  setSearchTerm: (value: string) => void;
-  statusFilter: string;
-  setStatusFilter: (value: string) => void;
-  subjectFilter: string;
-  setSubjectFilter: (value: string) => void;
-  resultFilter: string;
-  setResultFilter: (value: string) => void;
-  fromDate: Date | undefined;
-  setFromDate: (date: Date | undefined) => void;
-  toDate: Date | undefined;
-  setToDate: (date: Date | undefined) => void;
-  clearDateFilters: () => void;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
-  itemsPerPage: number;
-  setItemsPerPage: (value: number) => void;
-  totalItems: number;
-  onViewDetails: (applicant: ApplicationDetail) => void;
-  onRefreshData: () => void;
-  scoreRange: [number, number];
-  setScoreRange: (value: [number, number]) => void;
-  hasSessionOnly: boolean;
-  setHasSessionOnly: (value: boolean) => void;
-}
+import { ApplicationsTableProps } from '@/types/admin';
 
 const ApplicationsTable = ({
   applicants,

@@ -14,37 +14,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-interface ApplicationDetail {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  subjects: string[];
-  availability: string[];
-  application_status: string;
-  application_date: string;
-  interview_status?: string;
-  score?: number;
-  interview_started?: string;
-  interview_completed?: string;
-  interview_scheduled?: string;
-  session_id?: string;
-}
-
-interface BulkEmailDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  applicants: ApplicationDetail[];
-  filteredApplicants: ApplicationDetail[];
-  statusFilter: string;
-}
-
-interface EmailTemplate {
-  id: string;
-  name: string;
-  subject: string;
-  message: string;
-}
+import { BulkEmailDialogProps, EmailTemplate } from '@/types/admin';
 
 const defaultTemplates: EmailTemplate[] = [
   {
@@ -114,7 +84,7 @@ const BulkEmailDialog = ({
       setSubject(template.subject);
       setMessage(template.message);
     }
-  }, [statusFilter, isOpen]);
+  }, [statusFilter, isOpen, selectedTemplate]);
 
   // Apply template when selected
   const handleTemplateChange = (templateId: string) => {

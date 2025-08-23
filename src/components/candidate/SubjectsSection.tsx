@@ -4,13 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { BookOpen, Languages } from "lucide-react";
 
-interface SubjectsSectionProps {
-  selectedSubjects: string[];
-  selectedLanguages: string[];
-  onSubjectChange: (subject: string, checked: boolean) => void;
-  onLanguageChange: (language: string, checked: boolean) => void;
-  subjectError?: string;
-}
+import { SubjectsSectionProps } from '@/types/candidate';
 
 const SubjectsSection = ({ 
   selectedSubjects, 

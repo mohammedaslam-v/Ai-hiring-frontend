@@ -1,17 +1,11 @@
-import { ServiceResponse } from "@/types/interface";
-
-interface LoginData {
-    refreshToken: string;
-    accessToken: string;
-    phoneNumber: string;
-}
+import { ServiceResponse, AuthServiceLoginData } from "@/types";
 
 class AuthService {
 
-    async login(phoneNumber: string): Promise<ServiceResponse<LoginData>> {
+    async login(phoneNumber: string): Promise<ServiceResponse<AuthServiceLoginData>> {
         try {
             // Mock mode - any phone number works
-            const mockResponse: LoginData = {
+            const mockResponse: AuthServiceLoginData = {
                 refreshToken: "mock-refresh-token-" + Date.now(),
                 accessToken: "mock-access-token-" + Date.now(),
                 phoneNumber: phoneNumber

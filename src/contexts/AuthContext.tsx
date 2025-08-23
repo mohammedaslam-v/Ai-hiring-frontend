@@ -1,34 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // Mock authentication context (no Supabase)
-interface User {
-  id: string;
-  email: string;
-  role: 'admin' | 'superadmin' | 'candidate';
-  name?: string;
-}
+import { User } from '@/types/auth';
 
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signOut: () => Promise<void>;
-  signUp: (email: string, password: string, role: string) => Promise<{ success: boolean; error?: string }>;
-}
+import { AuthContextType } from '@/types/auth';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+
+import { AuthProviderProps } from '@/types/auth';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -105,12 +86,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(false);
   }, []);
 
+  const hasRole = async (requiredRole: string): Promise<boolean> => {
+    if (!user) return false;
+    return user.role === requiredRole;
+  };
+
   const value: AuthContextType = {
     user,
     loading,
     signIn,
     signOut,
-    signUp
+    signUp,
+    hasRole
   };
 
   return (
