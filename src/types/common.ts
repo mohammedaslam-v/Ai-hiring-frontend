@@ -1,9 +1,4 @@
 // Common types used across the application
-export interface ServiceResponse<T = unknown> {
-  status: boolean;
-  message: string;
-  data?: T;
-}
 
 // Generic form field types
 export interface FormFieldError {

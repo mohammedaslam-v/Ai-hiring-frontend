@@ -1,4 +1,6 @@
-import { ServiceResponse, AuthServiceLoginData } from "@/types";
+import { ServiceResponse } from "@/types/interface";
+import axiosInstance from "./instance";
+import { AuthServiceLoginData } from "@/types";
 
 class AuthService {
 

@@ -9,7 +9,7 @@ export interface ApplicationData {
   additionalLanguages: string[];
   availableDays: string[];
   timeSlots: string[];
-  resume: File;
+  resume: File | null;
 }
 
 export interface ApplicationResponse {
@@ -18,16 +18,12 @@ export interface ApplicationResponse {
   message: string;
 }
 
-export interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  position: string;
-  subjects: string[];
-  additionalLanguages: string[];
-  availableDays: string[];
-  resume: File | null;
+// FormData is now an alias for ApplicationData to avoid duplication
+export type FormData = ApplicationData;
+
+// Profile data extends ApplicationData with optional id for updates
+export interface ProfileData extends ApplicationData {
+  id?: string;
 }
 
 export interface Position {
@@ -62,6 +58,7 @@ export interface ApplicationDetail {
   updatedAt: string;
 }
 
+// Main application filters interface
 export interface ApplicationFilters {
   searchTerm?: string;
   statusFilter?: string;
@@ -69,10 +66,11 @@ export interface ApplicationFilters {
   resultFilter?: string;
   fromDate?: string;
   toDate?: string;
-}
-
-export interface ApplicationsServiceFilters {
+  // Service-specific filters
   status?: string;
   position?: string;
   search?: string;
 }
+
+// Alias for backward compatibility
+export type ApplicationsServiceFilters = Pick<ApplicationFilters, 'status' | 'position' | 'search'>;

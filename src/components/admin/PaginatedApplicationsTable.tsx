@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Eye, RefreshCw, Download, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from 'react-toastify';
-import { getApplicationsPage } from "@/services/applications";
+import { applicationService } from "@/services/serviceManager";
 import { exportApplicationsToCSV } from "@/services/export";
 
 import { SimpleApplicationDetail } from '@/types/admin';
@@ -35,7 +35,7 @@ const PaginatedApplicationsTable = () => {
   async function load() {
     setLoading(true);
     try {
-      const response = await getApplicationsPage(page, pageSize, filters);
+      const response = await applicationService.getApplicationsPage(page, pageSize, filters);
       
       if (response.status && response.data) {
         setRows(response.data.applications);

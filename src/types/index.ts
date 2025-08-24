@@ -1,5 +1,8 @@
 // Main types index file - exports all types from organized modules
 
+// Interface types (ServiceResponse)
+export * from './interface';
+
 // Common types
 export * from './common';
 
@@ -8,6 +11,9 @@ export * from './application';
 
 // Authentication types
 export * from './auth';
+
+// Theme types
+export * from './theme';
 
 // Admin types
 export * from './admin';

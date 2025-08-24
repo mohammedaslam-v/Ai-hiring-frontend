@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { applicationService } from "@/services";
+import { candidateService } from "@/services/serviceManager";
 import { useFormik } from "formik";
 import { candidateApplicationValidation } from "@/utils/yup/validation";
 import { applicationInitialValues } from "@/utils/yup/initialValues";
@@ -20,7 +20,7 @@ export function useCandidateApplication() {
       setIsLoading(true);
       
       try {
-        const response = await applicationService.submitApplication({
+        const response = await candidateService.submitApplication({
           ...values,
           resume: values.resume!
         });

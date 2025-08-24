@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, User, Mail, Phone, Calendar, BookOpen, Download, Eye } from "lucide-react";
-import { getApplicationById } from "@/services/applications";
+import { applicationService } from "@/services/serviceManager";
 
 export default function AdminApplicationDetail() {
   const { id } = useParams();
@@ -47,8 +47,8 @@ export default function AdminApplicationDetail() {
       if (!id) return;
       
       setLoading(true);
-      try {
-        const response = await getApplicationById(id);
+          try {
+      const response = await applicationService.getApplicationById(id);
         
         if (response.status && response.data) {
           setRow(response.data);
