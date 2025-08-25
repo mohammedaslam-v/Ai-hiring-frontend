@@ -80,6 +80,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, applicat
                   </button>
                 ))}
               </div>
+
             </div>
 
             <div>
@@ -123,3 +124,4 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, applicat
 };
 
 export default FeedbackModal;
+

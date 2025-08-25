@@ -1,15 +1,18 @@
 
-import React from 'react';
-import { Formik, Form, Field } from 'formik';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ErrorMessage } from '@/components/common/ErrorMessage';
-import { useAdminLogin } from '@/hooks/forms/useAdminLogin';
-import { adminLoginValidation } from '@/utils/yup/validation';
-import { adminLoginInitialValues } from '@/utils/yup/initialValues';
-import { BookOpen, Mail, Lock, Shield } from "lucide-react";
+import React, { useEffect } from "react";
+import { Formik, Form, Field } from "formik";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ErrorMessage } from "@/components/common/ErrorMessage";
+import { useAdminLogin } from "@/hooks/forms/useAdminLogin";
+import { adminLoginInitialValues } from "@/utils/yup/initialValues";
+import { adminLoginValidation } from "@/utils/yup/validation";
+import { Mail, Lock, BookOpen } from "lucide-react";
+import { FORM_LABELS, FORM_PLACEHOLDERS } from "@/utils/constants/form";
+import { APP_CONFIG, APP_CONTENT } from "@/utils/constants/app";
+import { TOAST_MESSAGES } from "@/utils/constants/messages";
 
 const AdminLogin = () => {
   const {
@@ -21,26 +24,36 @@ const AdminLogin = () => {
     navigateToHome,
   } = useAdminLogin();
 
+  useEffect(() => {
+    if (user) {
+      // Redirect logic handled in the hook
+    }
+  }, [user]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bambinos-skin to-bambinos-pink/20 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-12 h-12 bg-bambinos-blue rounded-full flex items-center justify-center">
-              <BookOpen className="h-7 w-7 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <BookOpen className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-bambinos-blue">Bambinos.live</h1>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              {APP_CONFIG.NAME}
+            </span>
           </div>
-          <div className="flex items-center justify-center space-x-2 text-gray-600">
-            <Shield className="h-5 w-5" />
-            <span>Admin Portal</span>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            {FORM_LABELS.ADMIN_ACCESS}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            {APP_CONTENT.FEATURES.SUBTITLE}
+          </p>
         </div>
 
         <Card className="border-bambinos-blue/20 shadow-xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-bambinos-blue">Admin Access</CardTitle>
+            <CardTitle className="text-2xl text-bambinos-blue">{FORM_LABELS.ADMIN_ACCESS}</CardTitle>
             <CardDescription>
               Sign in to access the administration dashboard
               <br />
@@ -57,7 +70,7 @@ const AdminLogin = () => {
                 <Form className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-bambinos-blue font-medium">
-                      Email Address
+                      {FORM_LABELS.EMAIL}
                     </Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -66,7 +79,7 @@ const AdminLogin = () => {
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="admin@bambinos.live"
+                        placeholder={FORM_PLACEHOLDERS.ADMIN_EMAIL}
                         className="pl-10 border-bambinos-blue/30 focus:border-bambinos-blue focus:ring-bambinos-blue"
                       />
                     </div>
@@ -77,7 +90,7 @@ const AdminLogin = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-bambinos-blue font-medium">
-                      Password
+                      {FORM_LABELS.PASSWORD}
                     </Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -86,7 +99,7 @@ const AdminLogin = () => {
                         id="password"
                         name="password"
                         type="password"
-                        placeholder="Enter your password"
+                        placeholder={FORM_PLACEHOLDERS.PASSWORD}
                         className="pl-10 border-bambinos-blue/30 focus:border-bambinos-blue focus:ring-bambinos-blue"
                       />
                     </div>
@@ -97,54 +110,43 @@ const AdminLogin = () => {
 
                   <Button
                     type="submit"
-                    className="w-full bg-bambinos-blue hover:bg-bambinos-blue/90 text-white py-3 text-lg font-semibold transition-all duration-300 hover:shadow-lg"
                     disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-bambinos-blue to-blue-600 hover:from-blue-600 hover:to-bambinos-blue text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                   >
-                    {isLoading ? "Signing In..." : "Sign In"}
+                    {isLoading ? "Signing In..." : FORM_LABELS.SIGN_IN}
                   </Button>
                 </Form>
               )}
             </Formik>
 
-            <div className="mt-6 text-center space-y-3">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{" "}
+            <div className="mt-6 space-y-3">
+              <Button
+                onClick={handleClearSession}
+                variant="outline"
+                className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Clear Session
+              </Button>
+              
+              <div className="flex space-x-2">
                 <Button
-                  variant="link"
                   onClick={navigateToSignup}
-                  className="text-bambinos-blue hover:text-bambinos-blue/80 p-0 h-auto font-semibold"
+                  variant="outline"
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                  Sign up here
+                  {FORM_LABELS.SIGN_UP}
                 </Button>
-              </p>
-
-              {user && (
-                <div className="pt-2 border-t border-gray-200">
-                  <p className="text-xs text-amber-600 mb-2">Already logged in? Clear your session first:</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleClearSession}
-                    className="text-amber-600 border-amber-300 hover:bg-amber-50"
-                  >
-                    Clear Session
-                  </Button>
-                </div>
-              )}
+                <Button
+                  onClick={navigateToHome}
+                  variant="outline"
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Back to Home
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Back to home */}
-        <div className="text-center mt-6">
-          <Button
-            variant="ghost"
-            onClick={navigateToHome}
-            className="text-bambinos-blue hover:text-bambinos-blue/80"
-          >
-            ← Back to Home
-          </Button>
-        </div>
       </div>
     </div>
   );

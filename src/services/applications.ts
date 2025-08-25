@@ -1,31 +1,30 @@
-import { ServiceResponse } from "@/types/interface";
-import { ApplicationsServiceFilters } from "@/types";
-import axiosInstance from "./instance";
+import { ServiceResponse, ApplicationsServiceFilters } from "@/types/interface";
+import { APPLICATION_STATUSES, MOCK_DATA, SUBJECTS, POSITIONS, ADDITIONAL_LANGUAGES, AVAILABLE_DAYS, TIME_SLOTS } from "@/utils/constants/data";
 
 class ApplicationService {
 
     // Mock data for applications - more realistic names and data
     private mockApplications = Array.from({ length: 50 }, (_, i) => {
-        const firstNames = ['Ravi', 'Kavimalar', 'Yamini', 'Ashish', 'Shrushti', 'Madiha', 'Saloni', 'Priya', 'Arjun', 'Neha', 'Rajesh', 'Anjali', 'Vikram', 'Meera', 'Suresh'];
-        const lastNames = ['Kumar', 'Gopinath', 'Bhardwaj', 'Tripathi', 'Rajguru', 'Kausar', 'Sikka', 'Sharma', 'Singh', 'Patel', 'Verma', 'Gupta', 'Malhotra', 'Kapoor', 'Reddy'];
-        const subjects = ['English', 'Maths', 'Science', 'Hindi', 'Bengali', 'Tamil', 'Telugu', 'Marathi', 'Gujarati', 'Punjabi', 'Bhagavad Gita', 'Phonics', 'Art', 'Music', 'Physical Education'];
-        const positions = ['English Teacher', 'Math Teacher', 'Science Teacher', 'Hindi Teacher', 'Bengali Teacher', 'Tamil Teacher', 'Telugu Teacher', 'Marathi Teacher', 'Gujarati Teacher', 'Punjabi Teacher', 'Bhagavad Gita Teacher', 'Phonics Teacher', 'Art Teacher', 'Music Teacher', 'Physical Education Teacher'];
-        const statuses = ['submitted', 'approved', 'rejected', 'pending', 'under_review'];
+        const firstNames = MOCK_DATA.FIRST_NAMES;
+        const lastNames = MOCK_DATA.LAST_NAMES;
+        const domains = MOCK_DATA.DOMAINS;
+        
+        const statuses = APPLICATION_STATUSES;
         
         return {
             id: `app-${i + 1}`,
             firstName: firstNames[i % firstNames.length],
             lastName: lastNames[i % lastNames.length],
-            email: `${firstNames[i % firstNames.length].toLowerCase()}${lastNames[i % lastNames.length].toLowerCase()}${i + 1}@example.com`,
+            email: `${firstNames[i % firstNames.length].toLowerCase()}${lastNames[i % lastNames.length].toLowerCase()}${i + 1}@${domains[i % domains.length]}`,
             phone: `+91${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-            position: positions[i % positions.length],
-            subjects: subjects.slice(0, Math.floor(Math.random() * 3) + 1),
-            additionalLanguages: ['Bengali', 'Malayalam', 'Hindi', 'Tamil', 'Telugu', 'Marathi', 'Gujarati', 'Punjabi'],
-            availableDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-            timeSlots: ['Morning', 'Afternoon', 'Evening'],
+            position: POSITIONS[i % POSITIONS.length],
+            subjects: SUBJECTS.slice(0, Math.floor(Math.random() * 3) + 1),
+            additionalLanguages: ADDITIONAL_LANGUAGES,
+            availableDays: AVAILABLE_DAYS.map(day => day.name),
+            timeSlots: TIME_SLOTS.map(slot => slot.name),
             status: statuses[i % statuses.length],
             createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-            applicationId: `APP-${String(i + 1).padStart(4, '0')}`
+            applicationId: `${MOCK_DATA.APPLICATION_ID_PREFIX}${String(i + 1).padStart(4, '0')}`
         };
     });
 
@@ -54,35 +53,48 @@ class ApplicationService {
         filters?: ApplicationsServiceFilters
     ): Promise<ServiceResponse> {
         try {
-            // For now, simulate successful response (ready for Node.js backend)
-            const startIndex = (page - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
-            const paginatedApplications = this.mockApplications.slice(startIndex, endIndex);
-            
             // Apply filters if provided
-            let filteredApplications = paginatedApplications;
-            if (filters) {
-                if (filters.status && filters.status !== "any" && filters.status !== "all") {
-                    filteredApplications = filteredApplications.filter(app => app.status === filters.status);
-                }
-                if (filters.position && filters.position !== "any" && filters.position !== "all") {
-                    filteredApplications = filteredApplications.filter(app => app.position === filters.position);
-                }
-                if (filters.search) {
-                    const searchTerm = filters.search.toLowerCase();
-                    filteredApplications = filteredApplications.filter(app => 
-                        app.firstName.toLowerCase().includes(searchTerm) ||
-                        app.lastName.toLowerCase().includes(searchTerm) ||
-                        app.email.toLowerCase().includes(searchTerm)
-                    );
-                }
+            let filteredApplications = [...this.mockApplications];
+            
+            if (filters?.searchTerm) {
+                const searchTerm = filters.searchTerm.toLowerCase();
+                filteredApplications = filteredApplications.filter(app => 
+                    app.firstName.toLowerCase().includes(searchTerm) ||
+                    app.lastName.toLowerCase().includes(searchTerm) ||
+                    app.email.toLowerCase().includes(searchTerm) ||
+                    app.position.toLowerCase().includes(searchTerm)
+                );
             }
             
+            if (filters?.status) {
+                filteredApplications = filteredApplications.filter(app => 
+                    app.status === filters.status
+                );
+            }
+            
+            if (filters?.position) {
+                filteredApplications = filteredApplications.filter(app => 
+                    app.position === filters.position
+                );
+            }
+            
+            // Calculate pagination
+            const totalCount = filteredApplications.length;
+            const totalPages = Math.ceil(totalCount / pageSize);
+            const startIndex = (page - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const paginatedApplications = filteredApplications.slice(startIndex, endIndex);
+            
             const mockResponse = {
-                applications: filteredApplications,
-                total: this.mockApplications.length,
-                page,
-                pageSize
+                applications: paginatedApplications,
+                pagination: {
+                    currentPage: page,
+                    pageSize,
+                    totalCount,
+                    totalPages,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1
+                }
             };
             
             return {
@@ -101,7 +113,6 @@ class ApplicationService {
 
     async getApplicationById(id: string): Promise<ServiceResponse> {
         try {
-            // For now, simulate successful response (ready for Node.js backend)
             const application = this.mockApplications.find(app => app.id === id);
             
             if (!application) {
@@ -125,25 +136,22 @@ class ApplicationService {
         }
     }
 
-    async updateApplicationStatus(id: string, status: string): Promise<ServiceResponse> {
+    async deleteApplication(id: string): Promise<ServiceResponse> {
         try {
-            // For now, simulate successful response (ready for Node.js backend)
-            const application = this.mockApplications.find(app => app.id === id);
+            const index = this.mockApplications.findIndex(app => app.id === id);
             
-            if (!application) {
+            if (index === -1) {
                 return {
                     status: false,
                     message: "Application not found",
                 }
             }
             
-            // Update the mock application
-            application.status = status;
+            this.mockApplications.splice(index, 1);
             
             return {
                 status: true,
-                message: "Application status updated successfully",
-                data: application
+                message: "Application deleted successfully",
             }
             
         } catch (error) {
@@ -154,25 +162,22 @@ class ApplicationService {
         }
     }
 
-    async deleteApplication(id: string): Promise<ServiceResponse> {
+    async bulkDeleteApplications(ids: string[]): Promise<ServiceResponse> {
         try {
-            // For now, simulate successful response (ready for Node.js backend)
-            const applicationIndex = this.mockApplications.findIndex(app => app.id === id);
+            let deletedCount = 0;
             
-            if (applicationIndex === -1) {
-                return {
-                    status: false,
-                    message: "Application not found",
+            ids.forEach(id => {
+                const index = this.mockApplications.findIndex(app => app.id === id);
+                if (index !== -1) {
+                    this.mockApplications.splice(index, 1);
+                    deletedCount++;
                 }
-            }
-            
-            // Remove from mock data
-            this.mockApplications.splice(applicationIndex, 1);
+            });
             
             return {
                 status: true,
-                message: "Application deleted successfully",
-                data: { message: "Application deleted successfully" }
+                message: `${deletedCount} applications deleted successfully`,
+                data: { deletedCount }
             }
             
         } catch (error) {

@@ -2,6 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User, Mail, Phone, AlertTriangle } from "lucide-react";
+import { FORM_LABELS, FORM_PLACEHOLDERS, FORM_SECTIONS } from "@/utils/constants/form";
 import { PersonalInfoSectionProps } from '@/types/candidate';
 
 const PersonalInfoSection = ({ 
@@ -19,31 +20,28 @@ const PersonalInfoSection = ({
         <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg md:rounded-xl flex items-center justify-center">
           <User className="h-4 w-4 md:h-5 md:h-5 text-white" />
         </div>
-        <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Personal Information</h3>
+        <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{FORM_SECTIONS.PERSONAL_INFORMATION}</h3>
       </div>
       
       {/* Duplicate Warnings */}
       {(duplicateWarnings.email || duplicateWarnings.phone) && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-xl md:rounded-2xl p-4 md:p-6 mb-4 md:mb-6 flex items-start shadow-lg">
-          <AlertTriangle className="h-5 w-5 md:h-6 md:w-6 text-amber-500 mr-3 mt-0.5 flex-shrink-0" />
-          <div>
-            <h4 className="font-bold text-amber-800 dark:text-amber-200 text-base md:text-lg">Duplicate Application Found</h4>
-            <ul className="text-amber-700 dark:text-amber-300 mt-2 space-y-1 text-sm md:text-base">
-              {duplicateWarnings.email && (
-                <li className="flex items-center"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full mr-2 flex-shrink-0"></span>An application with this email address already exists.</li>
-              )}
-              {duplicateWarnings.phone && (
-                <li className="flex items-center"><span className="w-1.5 h-1.5 bg-amber-500 rounded-full mr-2 flex-shrink-0"></span>An application with this phone number already exists.</li>
-              )}
-            </ul>
-          </div>
+        <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <AlertTriangle className="h-5 w-5 text-amber-600" />
+          <p className="text-amber-800 text-sm">
+            {duplicateWarnings.email && duplicateWarnings.phone 
+              ? 'This email and phone number are already registered. Please use different credentials.'
+              : duplicateWarnings.email 
+                ? 'This email is already registered. Please use a different email address.'
+                : 'This phone number is already registered. Please use a different phone number.'
+            }
+          </p>
         </div>
       )}
       
       <div className="grid gap-6 md:grid-cols-2 md:gap-8">
         <div className="space-y-3">
           <Label htmlFor="firstName" className="text-gray-700 font-semibold dark:text-gray-300 text-sm md:text-base">
-            First Name *
+            {FORM_LABELS.FIRST_NAME}
           </Label>
           <Input
             id="firstName"
@@ -55,7 +53,7 @@ const PersonalInfoSection = ({
                 ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
                 : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
             } dark:border-gray-600 dark:text-gray-300`}
-            placeholder="Enter your first name"
+            placeholder={FORM_PLACEHOLDERS.FIRST_NAME}
             required
           />
           {fieldErrors.firstName && (
@@ -65,7 +63,7 @@ const PersonalInfoSection = ({
 
         <div className="space-y-3">
           <Label htmlFor="lastName" className="text-gray-700 font-semibold dark:text-gray-300 text-sm md:text-base">
-            Last Name *
+            {FORM_LABELS.LAST_NAME}
           </Label>
           <Input
             id="lastName"
@@ -77,7 +75,7 @@ const PersonalInfoSection = ({
                 ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
                 : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
             } dark:border-gray-600 dark:text-gray-300`}
-            placeholder="Enter your last name"
+            placeholder={FORM_PLACEHOLDERS.LAST_NAME}
             required
           />
           {fieldErrors.lastName && (
@@ -87,7 +85,7 @@ const PersonalInfoSection = ({
 
         <div className="space-y-3">
           <Label htmlFor="email" className="text-gray-700 font-semibold dark:text-gray-300 text-sm md:text-base">
-            Email Address *
+            {FORM_LABELS.EMAIL}
           </Label>
           <div className="relative">
             <Mail className="absolute left-3 md:left-4 top-3 md:top-4 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
@@ -104,7 +102,7 @@ const PersonalInfoSection = ({
                     ? 'border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500/20' 
                     : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
               } dark:border-gray-600 dark:text-gray-300`}
-              placeholder="Enter your email address"
+              placeholder={FORM_PLACEHOLDERS.EMAIL}
               required
             />
           </div>
@@ -115,7 +113,7 @@ const PersonalInfoSection = ({
 
         <div className="space-y-3">
           <Label htmlFor="phone" className="text-gray-700 font-semibold dark:text-gray-300 text-sm md:text-base">
-            Phone Number *
+            {FORM_LABELS.PHONE}
           </Label>
           <div className="relative">
             <Phone className="absolute left-3 md:left-4 top-3 md:top-4 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
@@ -132,7 +130,7 @@ const PersonalInfoSection = ({
                     ? 'border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500/20' 
                     : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
               } dark:border-gray-600 dark:text-gray-300`}
-              placeholder="Enter your phone number"
+              placeholder={FORM_PLACEHOLDERS.PHONE}
               required
             />
           </div>

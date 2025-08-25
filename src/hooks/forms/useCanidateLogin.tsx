@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../useLocalStorage";
 import axiosInstance from "@/services/instance";
 import { toast } from "react-toastify";
+import { ROUTES } from "@/utils/constants/navigation";
+import { TOAST_MESSAGES } from "@/utils/constants/messages";
+import { MOCK_DATA, STORAGE_KEYS, TIMEOUTS } from "@/utils/constants/data";
 
 export function useCandidateLogin() {
     const [isLoading, setIsLoading] = useState(false);
@@ -20,8 +23,8 @@ export function useCandidateLogin() {
         setTimeout(() => {
             setIsLoading(false);
             const mockTokens = {
-                refreshToken: "mock-refresh-token-" + Date.now(),
-                accessToken: "mock-access-token-" + Date.now(),
+                refreshToken: MOCK_DATA.TOKEN_PREFIX.REFRESH + Date.now(),
+                accessToken: MOCK_DATA.TOKEN_PREFIX.ACCESS + Date.now(),
             };
             
             setRefreshToken(mockTokens.refreshToken);
@@ -30,12 +33,12 @@ export function useCandidateLogin() {
             axiosInstance.defaults.headers.common['refreshToken'] = mockTokens.refreshToken;
             
             // Store phone number for application form
-            localStorage.setItem('loginPhoneNumber', phoneNumber);
+            localStorage.setItem(STORAGE_KEYS.LOGIN_PHONE_NUMBER, phoneNumber);
             
-            toast.success("Login successful! Redirecting to application form...");
+            toast.success(TOAST_MESSAGES.SUCCESS.LOGIN);
             
-            navigate('/candidate/application');
-        }, 1000);
+            navigate(ROUTES.CANDIDATE.APPLICATION);
+        }, TIMEOUTS.LOGIN_DELAY);
     }
 
     const clearError = () => {

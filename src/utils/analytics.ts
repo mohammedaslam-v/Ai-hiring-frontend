@@ -1,12 +1,32 @@
 
 // Google Analytics tracking functions
-export const gtag = (...args: any[]) => {
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag(...args);
+
+// Define proper types for Google Analytics
+interface GtagFunction {
+  (command: 'config', targetId: string, config?: Record<string, unknown>): void;
+  (command: 'event', action: string, parameters?: Record<string, unknown>): void;
+  (command: 'set', parameters: Record<string, unknown>): void;
+  (command: 'js', date: Date): void;
+  (...args: unknown[]): void; // Fallback for other command patterns
+}
+
+interface WindowWithGtag extends Window {
+  gtag?: GtagFunction;
+}
+
+interface WindowWithClarity extends Window {
+  clarity?: (command: string, ...args: unknown[]) => void;
+}
+
+// Type-safe gtag function
+export const gtag = (...args: Parameters<GtagFunction>) => {
+  if (typeof window !== 'undefined' && (window as WindowWithGtag).gtag) {
+    (window as WindowWithGtag).gtag!(...args);
   }
 };
 
-export const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
+// Type-safe event tracking with proper parameter types
+export const trackEvent = (eventName: string, parameters?: Record<string, string | number | boolean>) => {
   gtag('event', eventName, parameters);
 };
 
@@ -23,21 +43,24 @@ export const trackPageView = (page_path: string, page_title?: string) => {
   });
 };
 
-// Microsoft Clarity tracking functions
+// Microsoft Clarity tracking functions with proper types
 export const clarityIdentify = (userId: string, sessionId?: string, pageId?: string, friendlyName?: string) => {
-  if (typeof window !== 'undefined' && (window as any).clarity) {
-    (window as any).clarity('identify', userId, sessionId, pageId, friendlyName);
+  if (typeof window !== 'undefined' && (window as WindowWithClarity).clarity) {
+    (window as WindowWithClarity).clarity!('identify', userId, sessionId, pageId, friendlyName);
   }
 };
 
-export const clarityCustomEvent = (eventName: string, properties?: Record<string, any>) => {
-  if (typeof window !== 'undefined' && (window as any).clarity) {
-    (window as any).clarity('event', eventName, properties);
+export const clarityCustomEvent = (eventName: string, properties?: Record<string, string | number | boolean>) => {
+  if (typeof window !== 'undefined' && (window as WindowWithClarity).clarity) {
+    (window as WindowWithClarity).clarity!('event', eventName, properties);
   }
 };
+
+// User type union for better type safety
+type UserType = 'candidate' | 'admin' | 'superadmin';
 
 // Combined tracking functions for common events
-export const trackUserLogin = (userType: 'candidate' | 'admin' | 'superadmin', userId?: string) => {
+export const trackUserLogin = (userType: UserType, userId?: string) => {
   trackEvent('login', {
     event_category: 'engagement',
     event_label: userType,

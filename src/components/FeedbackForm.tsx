@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "react-toastify";
 import { Star, Send } from "lucide-react";
+import { FORM_LABELS, FORM_PLACEHOLDERS, FORM_INITIAL_VALUES } from "@/utils/constants/form";
+import { FEEDBACK_CATEGORIES, FEEDBACK_RATINGS, STORAGE_KEYS } from "@/utils/constants/data";
+import { TOAST_MESSAGES } from "@/utils/constants/messages";
 
 // Mock feedback form (no Supabase)
 const FeedbackForm = () => {

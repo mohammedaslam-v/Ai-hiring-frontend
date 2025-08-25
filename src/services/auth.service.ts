@@ -1,6 +1,8 @@
 import { ServiceResponse } from "@/types/interface";
 import axiosInstance from "./instance";
 import { AuthServiceLoginData } from "@/types";
+import { MOCK_DATA } from "@/utils/constants/data";
+import { TOAST_MESSAGES } from "@/utils/constants/messages";
 
 class AuthService {
 
@@ -8,21 +10,21 @@ class AuthService {
         try {
             // Mock mode - any phone number works
             const mockResponse: AuthServiceLoginData = {
-                refreshToken: "mock-refresh-token-" + Date.now(),
-                accessToken: "mock-access-token-" + Date.now(),
+                refreshToken: MOCK_DATA.TOKEN_PREFIX.REFRESH + Date.now(),
+                accessToken: MOCK_DATA.TOKEN_PREFIX.ACCESS + Date.now(),
                 phoneNumber: phoneNumber
             };
 
             return {
                 status: true,
-                message: "Login successful",
+                message: TOAST_MESSAGES.SUCCESS.LOGIN,
                 data: mockResponse
             };
             
         } catch (error: unknown) {
             return {
                 status: false,
-                message: "Something went wrong",
+                message: TOAST_MESSAGES.ERROR.GENERAL_ERROR,
             }
         }
     }

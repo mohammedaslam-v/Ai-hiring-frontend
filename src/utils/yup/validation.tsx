@@ -1,61 +1,62 @@
 import * as Yup from "yup";
+import { VALIDATION_MESSAGES, VALIDATION_RULES, VALIDATION_SCHEMAS } from "@/utils/constants/validation";
 
 export const candidateLoginValidation = Yup.object().shape({
     phoneNumber: Yup.string()
-        .required("Phone number is required")
-        .matches(/^[0-9]+$/, "Phone number must contain only digits")
-        .min(10, "Phone number must be at least 10 digits")
-        .max(15, "Phone number must not exceed 15 digits"),
+        .required(VALIDATION_MESSAGES.PHONE.REQUIRED)
+        .matches(VALIDATION_SCHEMAS.PATTERNS.PHONE, VALIDATION_MESSAGES.PHONE.INVALID)
+        .min(VALIDATION_RULES.MIN_PHONE_LENGTH, VALIDATION_MESSAGES.PHONE.MIN_LENGTH)
+        .max(VALIDATION_RULES.MAX_PHONE_LENGTH, VALIDATION_MESSAGES.PHONE.MAX_LENGTH),
     countryCode: Yup.string()
-        .required("Country code is required")
-        .matches(/^\+[0-9]+$/, "Invalid country code format")
-        .oneOf(["+91", "+1", "+44", "+61", "+81", "+49", "+33", "+86", "+7", "+55"], "Please select a valid country code"),
+        .required(VALIDATION_MESSAGES.COUNTRY_CODE.REQUIRED)
+        .matches(VALIDATION_SCHEMAS.PATTERNS.COUNTRY_CODE, VALIDATION_MESSAGES.COUNTRY_CODE.INVALID_FORMAT)
+        .oneOf(["+91", "+1", "+44", "+61", "+81", "+49", "+33", "+86", "+7", "+55"], VALIDATION_MESSAGES.COUNTRY_CODE.INVALID_VALUE),
 });
 
 export const candidateApplicationValidation = Yup.object().shape({
     firstName: Yup.string()
-        .required("First name is required")
-        .min(2, "First name must be at least 2 characters")
-        .max(50, "First name must not exceed 50 characters"),
+        .required(VALIDATION_MESSAGES.FIRST_NAME.REQUIRED)
+        .min(VALIDATION_RULES.MIN_NAME_LENGTH, VALIDATION_MESSAGES.FIRST_NAME.MIN_LENGTH)
+        .max(VALIDATION_RULES.MAX_NAME_LENGTH, VALIDATION_MESSAGES.FIRST_NAME.MAX_LENGTH),
     lastName: Yup.string()
-        .required("Last name is required")
-        .min(2, "Last name must be at least 2 characters")
-        .max(50, "Last name must not exceed 50 characters"),
+        .required(VALIDATION_MESSAGES.LAST_NAME.REQUIRED)
+        .min(VALIDATION_RULES.MIN_NAME_LENGTH, VALIDATION_MESSAGES.LAST_NAME.MIN_LENGTH)
+        .max(VALIDATION_RULES.MAX_NAME_LENGTH, VALIDATION_MESSAGES.LAST_NAME.MAX_LENGTH),
     email: Yup.string()
-        .required("Email is required")
-        .email("Please enter a valid email address"),
+        .required(VALIDATION_MESSAGES.EMAIL.REQUIRED)
+        .email(VALIDATION_MESSAGES.EMAIL.INVALID),
     phone: Yup.string()
-        .required("Phone number is required")
-        .matches(/^[0-9]+$/, "Phone number must contain only digits")
-        .min(10, "Phone number must be at least 10 digits")
-        .max(15, "Phone number must not exceed 15 digits"),
+        .required(VALIDATION_MESSAGES.PHONE.REQUIRED)
+        .matches(VALIDATION_SCHEMAS.PATTERNS.PHONE, VALIDATION_MESSAGES.PHONE.INVALID)
+        .min(VALIDATION_RULES.MIN_PHONE_LENGTH, VALIDATION_MESSAGES.PHONE.MIN_LENGTH)
+        .max(VALIDATION_RULES.MAX_PHONE_LENGTH, VALIDATION_MESSAGES.PHONE.MAX_LENGTH),
     position: Yup.string()
-        .required("Position is required"),
+        .required(VALIDATION_MESSAGES.POSITION.REQUIRED),
     subjects: Yup.array()
-        .min(1, "Please select at least one subject")
-        .required("Subjects are required"),
+        .min(1, VALIDATION_MESSAGES.SUBJECTS.MIN_SELECTION)
+        .required(VALIDATION_MESSAGES.SUBJECTS.REQUIRED),
     additionalLanguages: Yup.array()
         .of(Yup.string())
         .optional(),
     availableDays: Yup.array()
-        .min(1, "Please select at least one available day")
-        .required("Available days are required"),
+        .min(1, VALIDATION_MESSAGES.AVAILABLE_DAYS.MIN_SELECTION)
+        .required(VALIDATION_MESSAGES.AVAILABLE_DAYS.REQUIRED),
     timeSlots: Yup.array()
-        .min(1, "Please select at least one time slot")
-        .required("Time slots are required"),
+        .min(1, VALIDATION_MESSAGES.TIME_SLOTS.MIN_SELECTION)
+        .required(VALIDATION_MESSAGES.TIME_SLOTS.REQUIRED),
     resume: Yup.mixed()
-        .required("Resume is required")
-        .test("fileSize", "File size must be less than 10MB", (value) => {
+        .required(VALIDATION_MESSAGES.RESUME.REQUIRED)
+        .test("fileSize", VALIDATION_MESSAGES.RESUME.FILE_SIZE, (value) => {
             if (!value) return false;
-            return (value as File).size <= 10 * 1024 * 1024;
+            return (value as File).size <= VALIDATION_RULES.MAX_RESUME_SIZE;
         })
 });
 
 export const adminLoginValidation = Yup.object().shape({
     email: Yup.string()
-        .required("Email is required")
-        .email("Please enter a valid email address"),
+        .required(VALIDATION_MESSAGES.EMAIL.REQUIRED)
+        .email(VALIDATION_MESSAGES.EMAIL.INVALID),
     password: Yup.string()
-        .required("Password is required")
-        .min(6, "Password must be at least 6 characters")
+        .required(VALIDATION_MESSAGES.PASSWORD.REQUIRED)
+        .min(VALIDATION_RULES.MIN_PASSWORD_LENGTH, VALIDATION_MESSAGES.PASSWORD.MIN_LENGTH)
 });
