@@ -4,7 +4,7 @@ import { BookOpen, LogOut, Mail } from "lucide-react";
 import BulkDeleteApplications from "@/components/admin/BulkDeleteApplications";
 import { AdminHeaderProps } from '@/types/admin';
 
-const AdminHeader = ({ onLogout, onOpenBulkEmail, onDeleteComplete }: AdminHeaderProps) => {
+const AdminHeader = ({ onLogout }: AdminHeaderProps) => {
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-bambinos-blue/10">
       <div className="container mx-auto px-4 py-4">
@@ -19,18 +19,10 @@ const AdminHeader = ({ onLogout, onOpenBulkEmail, onDeleteComplete }: AdminHeade
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <Button 
-              onClick={onOpenBulkEmail}
-              variant="outline" 
-              className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              Bulk Email
-            </Button>
-            <BulkDeleteApplications onDeleteComplete={onDeleteComplete} />
-            <Button 
-              onClick={onLogout} 
-              variant="outline" 
+
+            <Button
+              onClick={onLogout}
+              variant="outline"
               className="border-bambinos-blue text-bambinos-blue hover:bg-bambinos-blue hover:text-white"
             >
               <LogOut className="h-4 w-4 mr-2" />

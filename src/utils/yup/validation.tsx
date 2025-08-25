@@ -50,3 +50,12 @@ export const candidateApplicationValidation = Yup.object().shape({
             return (value as File).size <= 10 * 1024 * 1024;
         })
 });
+
+export const adminLoginValidation = Yup.object().shape({
+    email: Yup.string()
+        .required("Email is required")
+        .email("Please enter a valid email address"),
+    password: Yup.string()
+        .required("Password is required")
+        .min(6, "Password must be at least 6 characters")
+});
