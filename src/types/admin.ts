@@ -123,8 +123,6 @@ export interface EmailTemplate {
 // Admin header props
 export interface AdminHeaderProps {
   onLogout: () => void;
-  onOpenBulkEmail: () => void;
-  onDeleteComplete: () => void;
 }
 
 // Re-export ApplicationDetail from application types

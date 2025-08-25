@@ -16,9 +16,13 @@ export function useCandidateApplication() {
     initialValues: applicationInitialValues,
     validationSchema: candidateApplicationValidation,
     onSubmit: async (values) => {
+
+      console.log(values);
+
+
       setValidationError("");
       setIsLoading(true);
-      
+
       try {
         const response = await candidateService.submitApplication({
           ...values,
@@ -29,19 +33,19 @@ export function useCandidateApplication() {
           localStorage.setItem('candidateName', `${values.firstName} ${values.lastName}`);
           localStorage.setItem('candidateEmail', values.email);
           localStorage.setItem('applicationId', response.data.id);
-          
+
           toast.success("Application submitted successfully! Proceeding to the interview stage.");
-          
+
           navigate('/candidate/interview');
         } else {
           setValidationError(response.message);
           toast.error(response.message);
         }
-        
+
       } catch (error: unknown) {
         console.error('Error in application submission:', error);
         setValidationError("Something went wrong. Please try again.");
-        
+
         toast.error("An error occurred while submitting your application. Please try again.");
       } finally {
         setIsLoading(false);
@@ -60,7 +64,7 @@ export function useCandidateApplication() {
   // Generic handler for array fields
   const handleArrayFieldChange = (fieldName: keyof FormData, value: string, checked: boolean) => {
     const currentValues = formik.values[fieldName] as string[];
-    const newValues = checked 
+    const newValues = checked
       ? [...currentValues, value]
       : currentValues.filter(item => item !== value);
     formik.setFieldValue(fieldName, newValues);

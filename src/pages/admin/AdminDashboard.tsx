@@ -61,12 +61,12 @@ const AdminDashboard = () => {
   const [forcingAll, setForcingAll] = useState(false);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
-  
+
   // Enhanced pagination with server-side support
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(100);
   const [totalApplicantsCount, setTotalApplicantsCount] = useState(0);
-  
+
   // Use the new pagination hook
   const {
     applications,
@@ -77,7 +77,7 @@ const AdminDashboard = () => {
     nextPage,
     prevPage
   } = useApplicationsPagination(10);
-  
+
   // Mock dashboard summary data based on your screenshot
   const mockSummary: DashboardSummary = {
     total_registered: 5785,
@@ -153,28 +153,28 @@ const AdminDashboard = () => {
 
       // Calculate detailed statistics from current page
       const totalRegistered = pageData.length;
-      
+
       // Interview participation stats (mock data)
       const totalStartedInterview = Math.floor(totalRegistered * 0.7); // 70% start rate
       const neverStartedInterview = totalRegistered - totalStartedInterview;
-      
+
       // Interview completion stats (mock data)
       const totalCompletedInterview = Math.floor(totalStartedInterview * 0.8); // 80% completion rate
-      
+
       // Left midway = started but not completed
       const totalLeftMidway = totalStartedInterview - totalCompletedInterview;
-      
+
       // Pass/Fail from completed interviews (mock data)
       const totalPassed = Math.floor(totalCompletedInterview * 0.6); // 60% pass rate
       const totalFailed = totalCompletedInterview - totalPassed;
-      
+
       // Calculate percentages (note: these are now based on current page data)
       const interviewStartRate = totalRegistered > 0 ? Math.round((totalStartedInterview / totalRegistered) * 100) : 0;
       const interviewCompletionRate = totalStartedInterview > 0 ? Math.round((totalCompletedInterview / totalStartedInterview) * 100) : 0;
       const passRate = totalCompletedInterview > 0 ? Math.round((totalPassed / totalCompletedInterview) * 100) : 0;
       const failRate = totalCompletedInterview > 0 ? Math.round((totalFailed / totalCompletedInterview) * 100) : 0;
       const leftMidwayRate = totalStartedInterview > 0 ? Math.round((totalLeftMidway / totalStartedInterview) * 100) : 0;
-      
+
       setDetailedStats({
         totalRegistered,
         totalStartedInterview,
@@ -198,7 +198,7 @@ const AdminDashboard = () => {
 
   const isDateInRange = (dateString: string) => {
     const date = new Date(dateString);
-    
+
     if (fromDate && toDate) {
       const endDate = new Date(toDate);
       endDate.setHours(23, 59, 59, 999);
@@ -210,7 +210,7 @@ const AdminDashboard = () => {
       endDate.setHours(23, 59, 59, 999);
       return date <= endDate;
     }
-    
+
     return true;
   };
 
@@ -251,9 +251,9 @@ const AdminDashboard = () => {
 
   const filteredApplicants = mappedApplications.filter(applicant => {
     // Text search filter
-    const matchesSearch = applicant.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         applicant.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = applicant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      applicant.email.toLowerCase().includes(searchTerm.toLowerCase());
+
     // Status filter - using mock data structure
     let matchesStatus = statusFilter === "all";
     if (statusFilter === "pending") {
@@ -267,13 +267,13 @@ const AdminDashboard = () => {
     } else if (statusFilter === "passed") {
       matchesStatus = false; // Mock data doesn't have interview_status
     }
-    
+
     // Result filter - simplified for mock data
     const matchesResult = resultFilter === "all";
-    
+
     // Subject filter - simplified for mock data (no subjects property)
     const matchesSubject = subjectFilter === "all";
-    
+
     // Date filter - using createdAt
     const matchesDate = isDateInRange(applicant.application_date);
 
@@ -324,11 +324,11 @@ const AdminDashboard = () => {
       toast.error("No session ID available to refresh");
       return;
     }
-    
+
     try {
       setRefreshingSession(sessionId);
       console.log('🔄 Refreshing ToughTongue data for session:', sessionId);
-      
+
       // TODO: Replace with Node.js API call when backend is ready
       console.log('Session check temporarily disabled - migrating to Node.js');
       toast.info("Session check temporarily disabled - migrating to Node.js");
@@ -365,7 +365,7 @@ const AdminDashboard = () => {
     try {
       setForcingAll(true);
       console.log('🔄 Force refreshing all data...');
-      
+
       // TODO: Replace with Node.js API call when backend is ready
       console.log('Force refresh temporarily disabled - migrating to Node.js');
       toast.info('Force refresh temporarily disabled - migrating to Node.js');
@@ -410,14 +410,12 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-bambinos-skin to-bambinos-pink/20">
-      <AdminHeader 
+      <AdminHeader
         onLogout={handleLogout}
-        onOpenBulkEmail={handleOpenBulkEmail}
-        onDeleteComplete={fetchApplicationData}
       />
 
       <div className="container mx-auto px-4 py-8">
-        <div style={{padding:'8px 10px',background:'#FFF3CD',border:'1px solid #FFEC99',borderRadius:8,marginBottom:12}}>
+        <div style={{ padding: '8px 10px', background: '#FFF3CD', border: '1px solid #FFEC99', borderRadius: 8, marginBottom: 12 }}>
           <strong>DEBUG:</strong> You are editing <code>AdminDashboard.tsx</code> ✅
         </div>
         {/* Dashboard Summary */}
@@ -433,7 +431,7 @@ const AdminDashboard = () => {
           {/* Started AI Interview */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-bambinos-green">
-              {summaryLoading || !summary ? "—" : `${summary.started_ai} (${Math.round((summary.started_ai / Math.max(summary.total_registered,1)) * 100)}%)`}
+              {summaryLoading || !summary ? "—" : `${summary.started_ai} (${Math.round((summary.started_ai / Math.max(summary.total_registered, 1)) * 100)}%)`}
             </div>
             <div className="text-sm text-gray-600">Started AI interview</div>
           </div>
@@ -441,7 +439,7 @@ const AdminDashboard = () => {
           {/* Completed Interview */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-bambinos-purple">
-              {summaryLoading || !summary ? "—" : `${summary.completed} (${Math.round((summary.completed / Math.max(summary.started_ai,1)) * 100)}%)`}
+              {summaryLoading || !summary ? "—" : `${summary.completed} (${Math.round((summary.completed / Math.max(summary.started_ai, 1)) * 100)}%)`}
             </div>
             <div className="text-sm text-gray-600">Finished full AI interview</div>
           </div>
@@ -449,7 +447,7 @@ const AdminDashboard = () => {
           {/* Left Midway */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-orange-600">
-              {summaryLoading || !summary ? "—" : `${summary.left_midway} (${Math.round((summary.left_midway / Math.max(summary.started_ai,1)) * 100)}%)`}
+              {summaryLoading || !summary ? "—" : `${summary.left_midway} (${Math.round((summary.left_midway / Math.max(summary.started_ai, 1)) * 100)}%)`}
             </div>
             <div className="text-sm text-gray-600">Started but didn't finish</div>
           </div>
@@ -457,7 +455,7 @@ const AdminDashboard = () => {
           {/* Passed */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-green-600">
-              {summaryLoading || !summary ? "—" : `${summary.passed} (${Math.round((summary.passed / Math.max(summary.completed,1)) * 100)}%)`}
+              {summaryLoading || !summary ? "—" : `${summary.passed} (${Math.round((summary.passed / Math.max(summary.completed, 1)) * 100)}%)`}
             </div>
             <div className="text-sm text-gray-600">PASSED</div>
           </div>
@@ -465,7 +463,7 @@ const AdminDashboard = () => {
           {/* Failed */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-red-600">
-              {summaryLoading || !summary ? "—" : `${summary.failed} (${Math.round((summary.failed / Math.max(summary.completed,1)) * 100)}%)`}
+              {summaryLoading || !summary ? "—" : `${summary.failed} (${Math.round((summary.failed / Math.max(summary.completed, 1)) * 100)}%)`}
             </div>
             <div className="text-sm text-gray-600">FAILED</div>
           </div>
@@ -476,11 +474,11 @@ const AdminDashboard = () => {
           <h3 className="text-lg font-semibold text-bambinos-blue mb-4">Summary</h3>
           <ul className="list-disc pl-5 space-y-2 text-gray-700">
             <li>{summary?.total_registered ?? "—"} people filled the application form</li>
-            <li>{summary ? `${summary.started_ai} people (${Math.round((summary.started_ai / Math.max(summary.total_registered,1)) * 100)}%) started the AI interview` : "—"}</li>
+            <li>{summary ? `${summary.started_ai} people (${Math.round((summary.started_ai / Math.max(summary.total_registered, 1)) * 100)}%) started the AI interview` : "—"}</li>
             <li>{summary ? `${(summary.total_registered - summary.started_ai)} people never even started the interview` : "—"}</li>
-            <li>{summary ? `${summary.left_midway} people (${Math.round((summary.left_midway / Math.max(summary.started_ai,1)) * 100)}%) started but left without finishing` : "—"}</li>
-            <li>{summary ? `${summary.completed} people (${Math.round((summary.completed / Math.max(summary.started_ai,1)) * 100)}%) completed the full interview` : "—"}</li>
-            <li>{summary ? `Out of those who completed: ${summary.passed} passed (${Math.round((summary.passed / Math.max(summary.completed,1)) * 100)}%) and ${summary.failed} failed (${Math.round((summary.failed / Math.max(summary.completed,1)) * 100)}%)` : "—"}</li>
+            <li>{summary ? `${summary.left_midway} people (${Math.round((summary.left_midway / Math.max(summary.started_ai, 1)) * 100)}%) started but left without finishing` : "—"}</li>
+            <li>{summary ? `${summary.completed} people (${Math.round((summary.completed / Math.max(summary.started_ai, 1)) * 100)}%) completed the full interview` : "—"}</li>
+            <li>{summary ? `Out of those who completed: ${summary.passed} passed (${Math.round((summary.passed / Math.max(summary.completed, 1)) * 100)}%) and ${summary.failed} failed (${Math.round((summary.failed / Math.max(summary.completed, 1)) * 100)}%)` : "—"}</li>
           </ul>
         </div>
 
@@ -489,7 +487,7 @@ const AdminDashboard = () => {
           <FunnelChart detailedStats={detailedStats} />
         </div>
 
-        <SystemStatus 
+        <SystemStatus
           applicants={applications}
           onRefreshData={fetchApplicationData}
           onForceRefresh={handleForceRefreshAll}
@@ -499,7 +497,7 @@ const AdminDashboard = () => {
 
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-3 text-bambinos-blue">Applications (Paginated)</h2>
-          <div style={{padding:'6px 10px', background:'#eef6ff', border:'1px solid #cde3ff', borderRadius:8, marginTop:12, marginBottom:16}}>
+          <div style={{ padding: '6px 10px', background: '#eef6ff', border: '1px solid #cde3ff', borderRadius: 8, marginTop: 12, marginBottom: 16 }}>
             <small>Loaded <strong>PaginatedApplicationsTable</strong> ✅</small>
           </div>
           <PaginatedApplicationsTable />

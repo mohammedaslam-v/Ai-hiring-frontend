@@ -9,68 +9,8 @@ const Index = () => {
   const handleApplyAsTeacher = () => {
     navigate('/candidate/login');
   };
-  
-  const features = [{
-    icon: Globe,
-    title: "Global Impact",
-    description: "Shape minds across continents and inspire students from diverse cultures worldwide",
-    gradient: "from-blue-500 to-purple-600"
-  }, {
-    icon: Users,
-    title: "Elite Community",
-    description: "Connect with distinguished educators and thought leaders in a prestigious teaching network",
-    gradient: "from-emerald-500 to-teal-600"
-  }, {
-    icon: Award,
-    title: "Premium Resources",
-    description: "Access cutting-edge curriculum materials and state-of-the-art teaching technologies",
-    gradient: "from-orange-500 to-red-600"
-  }, {
-    icon: DollarSign,
-    title: "Premium Compensation",
-    description: "Enjoy industry-leading salaries and comprehensive benefits that recognize your expertise",
-    gradient: "from-green-500 to-emerald-600"
-  }];
 
-  const stats = [{
-    number: "50,000+",
-    label: "Global Students",
-    icon: Users
-  }, {
-    number: "50+",
-    label: "Countries",
-    icon: Globe
-  }, {
-    number: "98%",
-    label: "Success Rate",
-    icon: TrendingUp
-  }, {
-    number: "24/7",
-    label: "Support",
-    icon: Shield
-  }];
-  
-  const hiringSteps = [{
-    step: 1,
-    title: "Apply",
-    description: "Submit your application with relevant details",
-    color: "bg-gradient-to-br from-bambinos-blue to-blue-600"
-  }, {
-    step: 2,
-    title: "AI Assessment",
-    description: "Experience our innovative AI-powered evaluation process",
-    color: "bg-gradient-to-br from-bambinos-yellow to-yellow-500"
-  }, {
-    step: 3,
-    title: "Demo Class",
-    description: "Give demo to our hiring team for final assessment",
-    color: "bg-gradient-to-br from-bambinos-pink to-pink-500"
-  }, {
-    step: 4,
-    title: "Welcome Aboard",
-    description: "Begin your distinguished career with Bambinos.live",
-    color: "bg-gradient-to-br from-bambinos-orange to-orange-500"
-  }];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
@@ -103,16 +43,16 @@ const Index = () => {
               <br />
               <span className="bg-gradient-to-r from-bambinos-blue to-blue-600 bg-clip-text text-transparent">Online Education</span>
             </h2>
-            
+
             <p className="text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
-              Join Bambinos.live's exclusive community of world-class educators. Experience the 
-              future of teaching with cutting-edge technology and premium compensation packages 
+              Join Bambinos.live's exclusive community of world-class educators. Experience the
+              future of teaching with cutting-edge technology and premium compensation packages
               designed for excellence.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Button 
-                onClick={handleApplyAsTeacher} 
+              <Button
+                onClick={handleApplyAsTeacher}
                 className="bg-gradient-to-r from-bambinos-blue to-blue-600 hover:from-blue-600 hover:to-bambinos-blue text-white px-16 py-6 text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105 transform"
               >
                 Apply as a Teacher →
@@ -157,7 +97,7 @@ const Index = () => {
               Experience unparalleled opportunities in a platform designed for educational excellence
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="border-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 bg-white/90 backdrop-blur-sm group overflow-hidden">
@@ -195,7 +135,7 @@ const Index = () => {
               <span className="text-bambinos-blue font-bold text-lg">Application to Selection in 24 Hours</span>
             </div>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
             {hiringSteps.map((step, index) => (
               <div key={index} className="text-center group relative">
@@ -230,11 +170,11 @@ const Index = () => {
               Ready to Transform Education?
             </h3>
             <p className="text-2xl text-gray-300 mb-16 max-w-3xl mx-auto leading-relaxed">
-              Join thousands of distinguished educators who are already shaping the future through 
+              Join thousands of distinguished educators who are already shaping the future through
               innovative online education.
             </p>
-            <Button 
-              onClick={handleApplyAsTeacher} 
+            <Button
+              onClick={handleApplyAsTeacher}
               className="bg-gradient-to-r from-bambinos-blue to-blue-600 hover:from-blue-600 hover:to-bambinos-blue text-white px-16 py-6 text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105 transform"
             >
               Begin Your Journey →

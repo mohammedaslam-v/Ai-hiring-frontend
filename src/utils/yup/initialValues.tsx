@@ -15,3 +15,8 @@ export const applicationInitialValues = {
     timeSlots: [],
     resume: null
 };
+
+export const adminLoginInitialValues = {
+    email: "",
+    password: ""
+};

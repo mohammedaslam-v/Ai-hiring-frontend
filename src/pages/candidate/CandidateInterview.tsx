@@ -19,15 +19,21 @@ const CandidateInterview = () => {
   const candidateEmail = localStorage.getItem('candidateEmail') || 'candidate@email.com';
   const applicationId = localStorage.getItem('applicationId');
 
+
+  const encodedName = encodeURIComponent(candidateName);
+  const encodedEmail = encodeURIComponent(candidateEmail);
+  const iframeUrl = `https://app.toughtongueai.com/embed/683d85841bbc5980f1b565fd?bg=black&skipPrecheck=true&promptUserInfo=false&userName=${encodedName}&userEmail=${encodedEmail}&vars[candidateName]=${encodedName}`;
+
+
   // Check if we have all required data
   useEffect(() => {
     if (!applicationId) {
       // Admin testing mode - check if we're coming from admin dashboard
       const currentPath = window.location.pathname;
       const referer = document.referrer;
-      const isAdminTesting = currentPath.includes('/candidate/interview') && 
-                           (referer.includes('/admin') || referer.includes('admin'));
-      
+      const isAdminTesting = currentPath.includes('/candidate/interview') &&
+        (referer.includes('/admin') || referer.includes('admin'));
+
       if (isAdminTesting) {
         localStorage.setItem('applicationId', 'admin-test-id');
         localStorage.setItem('candidateName', 'Admin Test User');
@@ -35,25 +41,25 @@ const CandidateInterview = () => {
         setInterviewStatus("video-required");
         return;
       }
-      
+
       toast.error("Please complete the application first.");
       navigate('/candidate/application');
       return;
     }
-    
+
     setInterviewStatus("video-required");
   }, [applicationId, candidateName, candidateEmail, navigate]);
 
   // Timer effect for tracking video duration
   useEffect(() => {
     let interval: number | undefined;
-    
+
     if (videoStarted && !videoWatched && interviewStatus === "video-required") {
       interval = window.setInterval(() => {
         setTimeElapsed(prev => prev + 1);
       }, 1000);
     }
-    
+
     return () => {
       if (interval) window.clearInterval(interval);
     };
@@ -75,7 +81,7 @@ const CandidateInterview = () => {
       const mockSessionId = crypto.randomUUID();
       setInterviewSessionId(mockSessionId);
       setInterviewStatus("in-progress");
-      
+
       // Store session info in localStorage for tracking
       localStorage.setItem('currentInterviewSession', JSON.stringify({
         id: mockSessionId,
@@ -83,9 +89,9 @@ const CandidateInterview = () => {
         status: 'in-progress',
         applicationId: applicationId
       }));
-      
+
       toast.success("Your AI interview session has begun. Good luck!");
-      
+
     } catch (error) {
       console.error('Error starting interview:', error);
       toast.error("There was an error starting your interview. Please try again.");
@@ -96,7 +102,7 @@ const CandidateInterview = () => {
     try {
       // Mock interview completion (no database calls)
       setInterviewStatus("completed");
-      
+
       // Store mock result in localStorage
       localStorage.setItem('interviewResult', JSON.stringify({
         sessionId: interviewSessionId,
@@ -104,14 +110,14 @@ const CandidateInterview = () => {
         completedAt: new Date().toISOString(),
         status: 'completed'
       }));
-      
+
       toast.success("Congratulations! Your interview has been completed successfully.");
-      
+
       // Navigate to results page after a short delay
       setTimeout(() => {
         navigate('/candidate/result');
       }, 2000);
-      
+
     } catch (error) {
       console.error('Error completing interview:', error);
       toast.error("There was an error completing your interview. Please try again.");
@@ -128,16 +134,16 @@ const CandidateInterview = () => {
         sessionData.completedAt = new Date().toISOString();
         localStorage.setItem('currentInterviewSession', JSON.stringify(sessionData));
       }
-      
+
       setInterviewStatus("completed");
-      
+
       toast.info("Your interview session has been completed. Processing results...");
-      
+
       // Navigate to results page after a short delay
       setTimeout(() => {
         navigate('/candidate/result');
       }, 3000);
-      
+
     } catch (error) {
       console.error('Error ending interview:', error);
       toast.error("There was an error ending your interview. Please try again.");
@@ -154,7 +160,7 @@ const CandidateInterview = () => {
       toast.error("Please watch the complete video before proceeding.");
       return;
     }
-    
+
     setInterviewStatus("ready");
     toast.info("You can now begin your AI interview session.");
   };
@@ -213,10 +219,10 @@ const CandidateInterview = () => {
               </div>
               <h2 className="text-3xl font-bold text-red-600 mb-4">Mandatory Instructions Video</h2>
               <p className="text-gray-600 text-lg max-w-2xl mx-auto mb-6">
-                <strong>IMPORTANT:</strong> You MUST watch this complete instructional video before proceeding to the AI interview. 
+                <strong>IMPORTANT:</strong> You MUST watch this complete instructional video before proceeding to the AI interview.
                 This video contains essential guidelines that will help you succeed in your interview.
               </p>
-              
+
               {/* Video Alert Box - EXACTLY as shown */}
               <div className="bg-red-50 border-l-4 border-red-500 p-6 mb-8 rounded-r-lg">
                 <div className="flex items-start space-x-3">
@@ -279,14 +285,13 @@ const CandidateInterview = () => {
               </div>
 
               {/* Proceed Button - EXACTLY as shown */}
-              <Button 
+              <Button
                 onClick={handleProceedToInterview}
                 disabled={!videoWatched}
-                className={`px-8 py-4 text-lg font-semibold rounded-2xl transition-all duration-300 ${
-                  videoWatched 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg' 
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
+                className={`px-8 py-4 text-lg font-semibold rounded-2xl transition-all duration-300 ${videoWatched
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
               >
                 {videoWatched ? 'Proceed to AI Interview Setup' : 'Complete Video First'}
               </Button>
@@ -318,13 +323,6 @@ const CandidateInterview = () => {
             </div>
           </div>
 
-          {/* Debug Info */}
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-xs">
-            <p><strong>Debug:</strong> Application ID: {applicationId || 'Not found'}</p>
-            <p><strong>Interview Session ID:</strong> {interviewSessionId || 'Not created'}</p>
-            <p><strong>Candidate:</strong> {candidateName} ({candidateEmail})</p>
-            <p><strong>Video Status:</strong> Completed</p>
-          </div>
 
           <div className="bg-white rounded-3xl shadow-sm border border-blue-600/20 p-12">
             {/* AI Interview Setup Header - EXACTLY as shown */}
@@ -336,7 +334,7 @@ const CandidateInterview = () => {
               </div>
               <h2 className="text-3xl font-bold text-blue-600 mb-4">AI Interview Setup</h2>
               <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                Prepare for your AI-powered interview experience. Ensure you're in an optimal 
+                Prepare for your AI-powered interview experience. Ensure you're in an optimal
                 environment for the best results.
               </p>
             </div>
@@ -352,7 +350,7 @@ const CandidateInterview = () => {
                   Enable high-quality video recording for visual assessment
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="mx-auto w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-4 border border-blue-200">
                   <Mic className="h-8 w-8 text-blue-600" />
@@ -362,7 +360,7 @@ const CandidateInterview = () => {
                   Enable crystal-clear audio recording for speech analysis
                 </p>
               </div>
-              
+
               <div className="text-center">
                 <div className="mx-auto w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-4 border border-red-300">
                   <MapPin className="h-8 w-8 text-red-600" />
@@ -379,7 +377,7 @@ const CandidateInterview = () => {
                 <Clock className="h-6 w-6 text-blue-600" />
                 <h3 className="text-xl font-semibold text-blue-600">Interview Guidelines</h3>
               </div>
-              
+
               {/* Highlighted Important Points - EXACTLY as shown */}
               <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6 rounded-r-lg">
                 <div className="flex items-start space-x-3 mb-3">
@@ -399,7 +397,7 @@ const CandidateInterview = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-3">
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
@@ -481,49 +479,15 @@ const CandidateInterview = () => {
             </CardHeader>
             <CardContent>
               <div className="mb-6">
-                {/* ToughTongue AI Interface - EXACTLY as shown */}
-                <div className="w-full h-[700px] bg-black rounded-lg border border-blue-600/20 relative overflow-hidden">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                    <div className="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full"></div>
-                      </div>
-                    </div>
-                    <h2 className="text-2xl font-bold mb-4">bambinos.live Hiring</h2>
-                    
-                    {/* Your Task Button */}
-                    <div className="bg-gray-800 px-6 py-3 rounded-lg flex items-center space-x-2 mb-8">
-                      <span className="text-gray-300">Your task</span>
-                      <div className="w-4 h-4 border-l-2 border-b-2 border-white transform rotate-45"></div>
-                    </div>
-                    
-                    {/* Control Buttons */}
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
-                        <Mic className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">⋯</span>
-                      </div>
-                      <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-                        <Square className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-                        <Camera className="h-5 w-5 text-white" />
-                      </div>
-                      <Button className="bg-blue-600 hover:bg-blue-700 px-6 py-2">
-                        <Play className="h-4 w-4 mr-2" />
-                        Start
-                      </Button>
-                    </div>
-                    
-                    <div className="absolute bottom-4 right-4 text-xs text-gray-400">
-                      powered by Tough Tongue AI
-                    </div>
-                  </div>
-                </div>
+                <iframe
+                  src={iframeUrl}
+                  width="100%"
+                  height="700px"
+                  frameBorder="0"
+                  allow="microphone; camera; display-capture"
+                ></iframe>
               </div>
-              
+
               {/* Important Instructions - EXACTLY as shown */}
               <div className="mb-6 p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
                 <h3 className="text-lg font-semibold text-orange-700 mb-3">Important Instructions</h3>
@@ -552,9 +516,9 @@ const CandidateInterview = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="text-center">
-                <Button 
+                <Button
                   onClick={handleEndInterview}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-xl"
                 >
