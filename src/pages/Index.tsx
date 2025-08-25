@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Users, Clock, Award, Globe, DollarSign, Star, TrendingUp, Shield } from "lucide-react";
+import { stats, features, hiringSteps } from "@/utils/const";
 
 const Index = () => {
   const navigate = useNavigate();
