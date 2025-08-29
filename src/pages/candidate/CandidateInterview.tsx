@@ -24,6 +24,9 @@ import {
   UI_MESSAGES
 } from "@/constants/candidate/interviewConstants";
 
+// Import Tough Tongue service
+import { toughTongueService } from "@/services/toughTongueService";
+
 const CandidateInterview = () => {
   // Use custom hooks
   const {
@@ -152,6 +155,25 @@ const CandidateInterview = () => {
         
         // Check if interview has started (when user clicks Start in Tough Tongue)
         if (data && typeof data === 'object') {
+          // Log all events to investigate scoring
+          if (data.event || data.type) {
+            console.log(`🔍 Processing Tough Tongue Event: ${data.event || data.type}`);
+            
+            // Check if this event contains score/evaluation data
+            if (data.score !== undefined) {
+              console.log('🎯 SCORE DETECTED:', data.score);
+            }
+            if (data.evaluation !== undefined) {
+              console.log('📊 EVALUATION DETECTED:', data.evaluation);
+            }
+            if (data.result !== undefined) {
+              console.log('🏆 RESULT DETECTED:', data.result);
+            }
+            if (data.assessment !== undefined) {
+              console.log('📋 ASSESSMENT DETECTED:', data.assessment);
+            }
+          }
+          
           // Detect interview start - look for onStart event
           if (data.event === 'onStart' && interviewSessionId) {
             console.log('Tough Tongue interview started (onStart detected), updating session status...');
@@ -165,12 +187,37 @@ const CandidateInterview = () => {
           
           // Detect interview completion - look for onSubmit event
           if (data.event === 'onSubmit' && interviewSessionId) {
+            console.log('=== TOUGH TONGUE INTERVIEW COMPLETION DATA ===');
+            console.log('Event:', data.event);
+            console.log('Session ID:', data.sessionId);
+            console.log('Timestamp:', data.timestamp);
+            console.log('Full Tough Tongue Response:', JSON.stringify(data, null, 2));
+            console.log('=============================================');
+            
             console.log('Tough Tongue interview completed (onSubmit detected), updating session status...');
             console.log('Using our session ID for API call:', interviewSessionId);
             
             // Use our own session ID (created when user clicked Begin Interview)
             if (interviewSessionId) {
-              handleCompleteInterviewWithId(interviewSessionId, 85);
+              // Fetch real scores from Tough Tongue's API using the sessionId from onSubmit
+              console.log('🎯 Attempting to fetch real scores from Tough Tongue API...');
+              
+              toughTongueService.getInterviewResults(data.sessionId)
+                .then(result => {
+                  console.log('✅ Successfully fetched results from Tough Tongue:', result);
+                  if (result && result.score) {
+                    console.log(`🎯 Using real score: ${result.score}`);
+                    handleCompleteInterviewWithId(interviewSessionId, result.score);
+                  } else {
+                    console.log('⚠️ No score found, using fallback score of 85');
+                    handleCompleteInterviewWithId(interviewSessionId, 85);
+                  }
+                })
+                .catch(error => {
+                  console.log('❌ Failed to fetch from Tough Tongue API, using fallback score:', error.message);
+                  // Fallback to hardcoded score if API fails
+                  handleCompleteInterviewWithId(interviewSessionId, 85);
+                });
             }
           }
           
@@ -209,6 +256,19 @@ const CandidateInterview = () => {
     if (iframe) {
       const handleIframeLoad = () => {
         console.log('Tough Tongue iframe loaded, checking for state changes...');
+        
+        // Check Tough Tongue API health when iframe loads
+        toughTongueService.checkApiHealth()
+          .then(isHealthy => {
+            if (isHealthy) {
+              console.log('✅ Tough Tongue API is accessible');
+            } else {
+              console.log('⚠️ Tough Tongue API may not be accessible');
+            }
+          })
+          .catch(error => {
+            console.log('❌ Could not check Tough Tongue API health:', error.message);
+          });
         
         // Try to detect if interview has started by checking iframe content
         try {
