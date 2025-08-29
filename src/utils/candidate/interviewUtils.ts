@@ -27,12 +27,7 @@ export const isAdminTestingMode = (): boolean => {
     (referer.includes('/admin') || referer.includes('admin'));
 };
 
-/**
- * Generate mock interview session ID
- */
-export const generateMockSessionId = (): string => {
-  return crypto.randomUUID();
-};
+
 
 /**
  * Validate interview prerequisites

@@ -5,6 +5,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { INTERVIEW_STATUS, ADMIN_TEST_DEFAULTS } from '@/constants/candidate/interviewConstants';
 import { isAdminTestingMode } from '@/utils/candidate/interviewUtils';
 import type { InterviewStatus } from '@/constants/candidate/interviewConstants';
+import { SessionData } from '@/types/session';
 
 export const useInterviewState = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export const useInterviewState = () => {
   // Local storage hooks for other values
   const [candidateName, setCandidateName] = useLocalStorage('candidateName', 'Candidate Name');
   const [candidateEmail, setCandidateEmail] = useLocalStorage('candidateEmail', 'candidate@email.com');
-  const [currentInterviewSession, setCurrentInterviewSession] = useLocalStorage('currentInterviewSession', null);
+  const [currentInterviewSession, setCurrentInterviewSession] = useLocalStorage<SessionData | null>('currentInterviewSession', null);
   const [interviewResult, setInterviewResult] = useLocalStorage('interviewResult', null);
 
   // Direct localStorage reading function

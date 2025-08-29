@@ -10,7 +10,6 @@ import TrendsChart from "@/components/admin/analytics/TrendsChart";
 import FunnelChart from "@/components/admin/analytics/FunnelChart";
 import AlertsBanner from "@/components/admin/AlertsBanner";
 import AuditLog from "@/components/admin/AuditLog";
-import PaginatedApplicationsTable from "@/components/admin/PaginatedApplicationsTable";
 import ApplicationsManagement from "@/components/admin/ApplicationsManagement";
 
 import { DashboardApplicationDetail, DetailedStats } from '@/types/admin';

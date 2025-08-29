@@ -11,9 +11,7 @@ export const useAdminDashboardData = () => {
     pageSize,
     loading: isLoading,
     updatePage,
-    updatePageSize,
-    filters,
-    updateFilters
+    updatePageSize
   } = usePaginatedApplicationsData();
 
   // Use application data hook
@@ -44,7 +42,6 @@ export const useAdminDashboardData = () => {
     prevPage,
     totalApplicantsCount,
     detailedStats,
-    fetchApplicationData,
-    updateFilters
+    fetchApplicationData
   };
 };

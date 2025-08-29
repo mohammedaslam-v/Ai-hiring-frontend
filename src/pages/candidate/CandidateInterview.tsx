@@ -10,6 +10,8 @@ import { useVideoManagement } from "@/hooks/candidate/useVideoManagement";
 import { useInterviewSession } from "@/hooks/candidate/useInterviewSession";
 import { useInterviewCompletion } from "@/hooks/candidate/useInterviewCompletion";
 import { useInterviewNavigation } from "@/hooks/candidate/useInterviewNavigation";
+import { useSessionManagement } from "@/hooks/useSessionManagement";
+import { useEffect } from "react";
 
 // Import utilities and constants
 import { formatTime, generateInterviewUrl } from "@/utils/candidate/interviewUtils";
@@ -49,9 +51,72 @@ const CandidateInterview = () => {
 
   const {
     interviewSessionId,
+    sessionState,
     handleInterviewStart,
+    handleStartInterview,
+    handleCompleteInterview,
+    handleSkipInterview,
     handleEndInterview
   } = useInterviewSession(applicationId, setCurrentInterviewSession, setInterviewResult);
+
+  // Get session management functions from the hook
+  const { startSession, completeSession, skipSession } = useSessionManagement();
+
+  // Helper functions to call session APIs with our session ID
+  const handleStartInterviewWithId = async (sessionId: string) => {
+    try {
+      console.log('Starting interview with our session ID:', sessionId);
+      const session = await startSession(sessionId);
+      if (session) {
+        toast.success('Interview started successfully!');
+        console.log('Session status updated to started:', session);
+      }
+    } catch (error) {
+      console.error('Error starting interview with our session ID:', error);
+      toast.error('Failed to start interview');
+    }
+  };
+
+  const handleCompleteInterviewWithId = async (sessionId: string, score: number) => {
+    try {
+      console.log('Completing interview with our session ID:', sessionId);
+      const session = await completeSession(sessionId, score);
+      if (session) {
+        toast.success('Interview completed successfully!');
+        console.log('Session status updated to completed:', session);
+      }
+    } catch (error) {
+      console.error('Error completing interview with our session ID:', error);
+      toast.error('Failed to complete interview');
+    }
+  };
+
+  const handleSkipInterviewWithId = async (sessionId: string) => {
+    try {
+      console.log('Skipping interview with our session ID:', sessionId);
+      console.log('Current session status before skip:', sessionState?.status);
+      
+      const session = await skipSession(sessionId);
+      if (session) {
+        // Provide different messages based on when the interview was stopped
+        if (sessionState?.status === 'pending') {
+          toast.info('Interview was stopped before starting');
+          console.log('Interview stopped before starting - status updated to skipped');
+        } else if (sessionState?.status === 'started') {
+          toast.info('Interview was stopped early');
+          console.log('Interview stopped early - status updated to skipped');
+        } else {
+          toast.info('Interview was skipped');
+          console.log('Interview skipped - status updated to skipped');
+        }
+        
+        console.log('Session status updated to skipped:', session);
+      }
+    } catch (error) {
+      console.error('Error skipping interview with our session ID:', error);
+      toast.error('Failed to skip interview');
+    }
+  };
 
   // Generate iframe URL
   const iframeUrl = generateInterviewUrl(candidateName, candidateEmail);
@@ -73,7 +138,94 @@ const CandidateInterview = () => {
     setToInProgress
   );
 
+  // Listen for messages from Tough Tongue iframe to detect interview start
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from Tough Tongue domain
+      if (event.origin !== 'https://app.toughtongueai.com') {
+        return;
+      }
 
+      try {
+        const data = event.data;
+        console.log('Tough Tongue message received:', data);
+        
+        // Check if interview has started (when user clicks Start in Tough Tongue)
+        if (data && typeof data === 'object') {
+          // Detect interview start - look for onStart event
+          if (data.event === 'onStart' && interviewSessionId) {
+            console.log('Tough Tongue interview started (onStart detected), updating session status...');
+            console.log('Using our session ID for API call:', interviewSessionId);
+            
+            // Use our own session ID (created when user clicked Begin Interview)
+            if (interviewSessionId) {
+              handleStartInterviewWithId(interviewSessionId);
+            }
+          }
+          
+          // Detect interview completion - look for onSubmit event
+          if (data.event === 'onSubmit' && interviewSessionId) {
+            console.log('Tough Tongue interview completed (onSubmit detected), updating session status...');
+            console.log('Using our session ID for API call:', interviewSessionId);
+            
+            // Use our own session ID (created when user clicked Begin Interview)
+            if (interviewSessionId) {
+              handleCompleteInterviewWithId(interviewSessionId, 85);
+            }
+          }
+          
+          // Detect interview stop/abandon - look for onStop event
+          if (data.event === 'onStop' && interviewSessionId) {
+            console.log('Tough Tongue interview stopped (onStop detected), updating session status...');
+            console.log('Using our session ID for API call:', interviewSessionId);
+            console.log('Current session status:', sessionState?.status);
+            
+            // Use our own session ID (created when user clicked Begin Interview)
+            if (interviewSessionId) {
+              // Always update to "skipped" when interview is stopped early
+              // This covers both cases: stopping before starting or stopping after starting
+              handleSkipInterviewWithId(interviewSessionId);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error processing Tough Tongue message:', error);
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('message', handleMessage);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [interviewSessionId, sessionState?.status]);
+
+  // Alternative: Monitor iframe load events and detect state changes
+  useEffect(() => {
+    const iframe = document.querySelector('iframe[src*="toughtongueai.com"]') as HTMLIFrameElement;
+    
+    if (iframe) {
+      const handleIframeLoad = () => {
+        console.log('Tough Tongue iframe loaded, checking for state changes...');
+        
+        // Try to detect if interview has started by checking iframe content
+        try {
+          // This is a fallback method - the iframe might not allow access due to CORS
+          console.log('Iframe loaded, but CORS restrictions may prevent content access');
+        } catch (error) {
+          console.log('Cannot access iframe content due to CORS restrictions');
+        }
+      };
+
+      iframe.addEventListener('load', handleIframeLoad);
+      
+      return () => {
+        iframe.removeEventListener('load', handleIframeLoad);
+      };
+    }
+  }, []);
 
   // Loading state
   if (interviewStatus === INTERVIEW_STATUS.LOADING) {
@@ -334,6 +486,29 @@ const CandidateInterview = () => {
               </div>
             </div>
 
+            {/* Session Status Display */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  sessionState?.status === 'pending' ? 'bg-yellow-500' :
+                  sessionState?.status === 'started' ? 'bg-blue-500' :
+                  sessionState?.status === 'completed' ? 'bg-green-500' :
+                  sessionState?.status === 'skipped' ? 'bg-red-500' : 'bg-gray-500'
+                }`}></div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">
+                    Status: <span className="capitalize">{sessionState?.status || 'pending'}</span>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {sessionState?.status === 'pending' ? 'Ready to start interview' :
+                     sessionState?.status === 'started' ? 'Interview in progress' :
+                     sessionState?.status === 'completed' ? 'Interview completed' :
+                     sessionState?.status === 'skipped' ? 'Interview skipped' : 'Unknown status'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Tough Tongue AI Preview */}
             <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-700 mb-4 text-center">Tough Tongue AI Interview Preview</h3>
@@ -392,6 +567,29 @@ const CandidateInterview = () => {
             <p><strong>Video Status:</strong> Completed</p>
           </div>
 
+          {/* Session Status Display */}
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center space-x-3">
+              <div className={`w-3 h-3 rounded-full ${
+                sessionState?.status === 'pending' ? 'bg-yellow-500' :
+                sessionState?.status === 'started' ? 'bg-blue-500' :
+                sessionState?.status === 'completed' ? 'bg-green-500' :
+                sessionState?.status === 'skipped' ? 'bg-red-500' : 'bg-gray-500'
+              }`}></div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">
+                  Status: <span className="capitalize">{sessionState?.status || 'pending'}</span>
+                </p>
+                <p className="text-xs text-gray-500">
+                  {sessionState?.status === 'pending' ? 'Ready to start interview' :
+                   sessionState?.status === 'started' ? 'Interview in progress' :
+                   sessionState?.status === 'completed' ? 'Interview completed' :
+                   sessionState?.status === 'skipped' ? 'Interview skipped' : 'Unknown status'}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <Card className="border-blue-600/20 shadow-xl bg-white">
             <CardHeader className="text-center">
               <div className="flex items-center justify-center space-x-4 mb-4">
@@ -408,6 +606,63 @@ const CandidateInterview = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Session Status Display */}
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      sessionState?.status === 'pending' ? 'bg-yellow-500' :
+                      sessionState?.status === 'started' ? 'bg-blue-500' :
+                      sessionState?.status === 'completed' ? 'bg-green-500' :
+                      sessionState?.status === 'skipped' ? 'bg-red-500' : 'bg-gray-500'
+                    }`}></div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">
+                        Status: <span className="capitalize">{sessionState?.status || 'pending'}</span>
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {sessionState?.status === 'pending' ? 'Ready to start interview' :
+                         sessionState?.status === 'started' ? 'Interview in progress' :
+                         sessionState?.status === 'completed' ? 'Interview completed' :
+                         sessionState?.status === 'skipped' ? 'Interview skipped' : 'Unknown status'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    {sessionState?.status === 'pending' && (
+                      <Button
+                        onClick={handleStartInterview}
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        Mark as Started
+                      </Button>
+                    )}
+                    
+                    {sessionState?.status === 'started' && (
+                      <>
+                        <Button
+                          onClick={() => handleCompleteInterview(85)}
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          Complete Interview
+                        </Button>
+                        <Button
+                          onClick={handleSkipInterview}
+                          size="sm"
+                          variant="outline"
+                          className="border-red-300 text-red-600 hover:bg-red-50"
+                        >
+                          Skip Interview
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Tough Tongue AI Interview Interface */}
               <div className="mb-6">
                 <div className="relative w-full h-[700px] bg-black rounded-lg overflow-hidden border-2 border-blue-600/20">

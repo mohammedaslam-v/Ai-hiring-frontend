@@ -83,14 +83,6 @@ export interface InterviewResult {
   completedAt?: string;
 }
 
-export interface SessionData {
-  id: string;
-  startedAt?: string;
-  status: string;
-  applicationId: string;
-  completedAt?: string;
-}
-
 export interface InterviewResultData {
   score?: number;
   sessionId?: string;
