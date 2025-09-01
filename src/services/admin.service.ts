@@ -58,11 +58,7 @@ class AdminService {
                 rejectedApplications: 27,
                 totalCandidates: 120,
                 activePositions: 15,
-                recentActivity: [
-                    { id: 1, action: "Application submitted", candidate: "Ravi Kumar", time: "2 hours ago" },
-                    { id: 2, action: "Status updated", candidate: "Priya Sharma", time: "4 hours ago" },
-                    { id: 3, action: "Interview scheduled", candidate: "Arjun Singh", time: "6 hours ago" }
-                ]
+
             };
             
             return {

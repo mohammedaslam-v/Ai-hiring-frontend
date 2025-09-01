@@ -203,11 +203,7 @@ const Index = () => {
           <p className="text-gray-400 mb-8 text-lg">
             {APP_CONTENT.FOOTER.DESCRIPTION}
           </p>
-          <div className="flex justify-center space-x-8 mb-8">
-            <button className="text-gray-400 hover:text-bambinos-blue transition-colors duration-300 font-medium">
-              {APP_CONTENT.FOOTER.SUPER_ADMIN_LINK}
-            </button>
-          </div>
+
           <p className="text-gray-500">
             {APP_CONFIG.COMPANY.COPYRIGHT}
           </p>

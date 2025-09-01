@@ -86,7 +86,6 @@ export const USER_MESSAGES = {
   WELCOME: {
     CANDIDATE: 'Welcome to Bambinos.live! Start your teaching journey today.',
     ADMIN: 'Welcome to the admin dashboard. Manage applications and feedback.',
-    SUPER_ADMIN: 'Welcome to the super admin panel. Full system access granted.',
   },
   
   // Instruction messages

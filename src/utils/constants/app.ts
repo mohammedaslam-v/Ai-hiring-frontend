@@ -54,7 +54,6 @@ export const APP_CONTENT = {
   // Footer content
   FOOTER: {
     DESCRIPTION: 'Empowering education, one distinguished teacher at a time.',
-    SUPER_ADMIN_LINK: 'Super Admin',
   },
 } as const;
 

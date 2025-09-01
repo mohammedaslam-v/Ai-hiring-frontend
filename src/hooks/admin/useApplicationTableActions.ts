@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { logAuditEvent } from '@/utils/auditLogger';
+
 import { mapApplicationToCsvFormat, generateCsvFilename } from '@/utils/admin/applicationsTableUtils';
 import { AdminApplicationDetail } from '@/types/admin';
 
@@ -39,12 +39,7 @@ export const useApplicationTableActions = (onRefreshData?: () => void | Promise<
         description: `Application for ${applicantName} has been deleted successfully.`
       });
 
-      // Secure audit log - using utility function
-      const auditResult = await logAuditEvent('DELETE', 'applications', applicationId, {}, {}, 'admin');
-      if (!auditResult.status) {
-        console.error('⚠️ Failed to create audit log:', auditResult.message);
-        // Don't fail the operation if audit logging fails
-      }
+
 
       // Refresh the data
       if (onRefreshData) {

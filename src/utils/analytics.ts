@@ -57,7 +57,7 @@ export const clarityCustomEvent = (eventName: string, properties?: Record<string
 };
 
 // User type union for better type safety
-type UserType = 'candidate' | 'admin' | 'superadmin';
+type UserType = 'candidate' | 'admin';
 
 // Combined tracking functions for common events
 export const trackUserLogin = (userType: UserType, userId?: string) => {

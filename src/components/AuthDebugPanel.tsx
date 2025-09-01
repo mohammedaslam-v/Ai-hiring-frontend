@@ -24,7 +24,7 @@ const AuthDebugPanel = () => {
       // Mock role checking since we removed Supabase
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (user.role === 'admin' || user.role === 'superadmin') {
+      if (user.role === 'admin') {
         setRoleStatus('Admin role confirmed');
         toast.success("Admin role confirmed");
       } else {

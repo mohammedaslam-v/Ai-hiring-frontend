@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const mockUser: User = {
       id: `user-${Date.now()}`,
       email,
-      role: role as 'admin' | 'superadmin' | 'candidate',
+              role: role as 'admin' | 'candidate',
       name: email.split('@')[0]
     };
     

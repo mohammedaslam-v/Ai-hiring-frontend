@@ -41,18 +41,7 @@ export interface ApplicantLike {
   createdAt: string;
 }
 
-export interface AuditLogEntry {
-  id: string;
-  action: string;
-  userId: string;
-  userEmail: string;
-  targetType: string;
-  targetId: string;
-  details: Record<string, unknown>;
-  timestamp: string;
-  ipAddress?: string;
-  userAgent?: string;
-}
+
 
 export interface ExportFilters {
   status?: string;
@@ -84,13 +73,4 @@ export interface FeedbackResult {
   created_at: string;
 }
 
-// Audit log interface
-export interface AuditLog {
-  id: string;
-  created_at: string;
-  actor: string | null;
-  action: string;
-  entity_type: string;
-  entity_id: string | null;
-  metadata: Record<string, unknown> | null;
-}
+

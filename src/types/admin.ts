@@ -145,16 +145,7 @@ export interface AlertsBannerProps {
   detailedStats: DetailedStats;
 }
 
-// Simple application detail for super admin dashboard
-export interface SuperAdminApplicationDetail {
-  id: string;
-  name: string;
-  email: string;
-  application_status: string;
-  interview_status?: string;
-  score?: number;
-  application_date: string;
-}
+
 
 // Detailed evaluation display props
 export interface RubricScore {

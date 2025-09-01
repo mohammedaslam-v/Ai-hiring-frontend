@@ -25,11 +25,7 @@ export const ROUTES = {
     FEEDBACK_RESULTS: '/admin/feedback-results',
   },
   
-  // Super Admin routes
-  SUPER_ADMIN: {
-    LOGIN: '/superadmin/login',
-    DASHBOARD: '/superadmin/dashboard',
-  },
+
   
   // Auth routes
   AUTH: {

@@ -9,7 +9,7 @@ import StatsCards from "@/components/admin/StatsCards";
 import TrendsChart from "@/components/admin/analytics/TrendsChart";
 import FunnelChart from "@/components/admin/analytics/FunnelChart";
 import AlertsBanner from "@/components/admin/AlertsBanner";
-import AuditLog from "@/components/admin/AuditLog";
+
 import ApplicationsManagement from "@/components/admin/ApplicationsManagement";
 
 import { DashboardApplicationDetail, DetailedStats } from '@/types/admin';
@@ -243,10 +243,7 @@ const AdminDashboard = () => {
 
        
 
-        {/* Audit Log */}
-        <div className="mt-8">
-          <AuditLog />
-        </div>
+
       </div>
     </div>
   );
