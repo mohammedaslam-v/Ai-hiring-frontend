@@ -17,8 +17,8 @@ class ApplicationsFilteredService {
       
       if (filters.search) queryParams.append('search', filters.search);
       if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
-      if (filters.minScore !== undefined && filters.minScore !== null && filters.minScore !== 0) queryParams.append('minScore', filters.minScore.toString());
-      if (filters.maxScore !== undefined && filters.maxScore !== null && filters.maxScore !== 100) queryParams.append('maxScore', filters.maxScore.toString());
+      if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
+      if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
       // Date range filters - only append if BOTH dates are complete
       if (filters.fromDate && filters.fromDate.length === 10 && filters.toDate && filters.toDate.length === 10) {
         queryParams.append('fromDate', filters.fromDate);

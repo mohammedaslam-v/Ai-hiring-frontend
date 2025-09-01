@@ -115,7 +115,7 @@ const ApplicationsManagement: React.FC = () => {
         {/* Filter Controls */}
         <div className="mb-6 space-y-4">
           {/* First Row: Search, Status, Score Range, Date Range, Page Size */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
             {/* Search */}
             <div className="lg:col-span-2">
               <Input
@@ -126,7 +126,7 @@ const ApplicationsManagement: React.FC = () => {
               />
             </div>
 
-            {/* Status */}
+            {/* Interview Status */}
             <div>
               <Select
                 value={filters.status || 'all'}
@@ -145,6 +145,8 @@ const ApplicationsManagement: React.FC = () => {
               </Select>
             </div>
 
+
+
                          {/* Score Range */}
              <div className="flex items-center gap-2">
                <Input
@@ -152,7 +154,7 @@ const ApplicationsManagement: React.FC = () => {
                  min="0"
                  max="100"
                  placeholder="Min"
-                 value={filters.minScore || ''}
+                 value={filters.minScore !== undefined ? filters.minScore : ''}
                  onChange={(e) => updateFilters({ minScore: e.target.value ? parseInt(e.target.value) : undefined })}
                  className="w-20"
                />
@@ -162,7 +164,7 @@ const ApplicationsManagement: React.FC = () => {
                  min="0"
                  max="100"
                  placeholder="Max"
-                 value={filters.maxScore || ''}
+                 value={filters.maxScore !== undefined ? filters.maxScore : ''}
                  onChange={(e) => updateFilters({ maxScore: e.target.value ? parseInt(e.target.value) : undefined })}
                  className="w-20"
                />
@@ -327,9 +329,10 @@ const ApplicationsManagement: React.FC = () => {
                  )}
                                    {filters.status && filters.status !== 'all' && (
                     <Badge variant="outline" className="text-xs">
-                      Status: {filters.status === 'no_interview' ? 'No Interview' : filters.status.replace('_', ' ')}
+                      Interview Status: {filters.status === 'no_interview' ? 'No Interview' : filters.status.replace('_', ' ')}
                     </Badge>
                   )}
+
                  {(filters.minScore !== undefined || filters.maxScore !== undefined) && (
                    <Badge variant="outline" className="text-xs">
                      Score: {filters.minScore !== undefined ? `≥${filters.minScore}` : '≥0'} 
@@ -404,7 +407,6 @@ const ApplicationsManagement: React.FC = () => {
                 </TableHead>
                 <TableHead className="w-[150px]">Phone</TableHead>
                 <TableHead className="w-[200px]">Subjects</TableHead>
-                <TableHead className="w-[120px]">App Status</TableHead>
                 <TableHead className="w-[120px]">
                   <Button
                     variant="ghost"
@@ -499,9 +501,6 @@ const ApplicationsManagement: React.FC = () => {
                       <div className="max-w-[200px]">
                         {application.subjects.join(', ')}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      {renderStatusBadge(application.appStatus)}
                     </TableCell>
                     <TableCell>
                       {renderInterviewStatusBadge(application.interviewStatus, application.score)}
