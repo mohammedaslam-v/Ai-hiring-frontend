@@ -39,7 +39,7 @@ export interface ApplicantRow {
 // Status options for the dropdown
 export const STATUS_OPTIONS = [
   { value: 'all', label: 'All Statuses' },
-  { value: 'no_interview', label: 'Pending' },
+  { value: 'no_interview', label: 'No Interview' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'completed', label: 'Completed' },
   { value: 'failed', label: 'Failed' },

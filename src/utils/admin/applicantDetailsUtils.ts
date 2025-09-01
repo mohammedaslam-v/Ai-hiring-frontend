@@ -9,9 +9,23 @@ export const getStatusBadgeConfig = (applicationStatus: string, interviewStatus?
   } else if (interviewStatus === 'failed') {
     return { className: "bg-red-100 text-red-800", text: "Failed" };
   } else if (interviewStatus === 'in_progress') {
-    return { className: "bg-yellow-100 text-yellow-800", text: "In Interview" };
-  } else if (applicationStatus === 'pending') {
+    return { className: "bg-blue-100 text-blue-800", text: "In Progress" };
+  } else if (interviewStatus === 'not_started') {
+    return { className: "bg-gray-100 text-gray-800", text: "No Interview" };
+  } else if (interviewStatus === 'left_midway') {
+    return { className: "bg-yellow-100 text-yellow-800", text: "Left Midway" };
+  } else if (applicationStatus === 'Submitted') {
+    return { className: "bg-blue-100 text-blue-800", text: "Submitted" };
+  } else if (applicationStatus === 'Pending') {
     return { className: "bg-gray-100 text-gray-800", text: "Pending" };
+  } else if (applicationStatus === 'Under Review') {
+    return { className: "bg-blue-100 text-blue-800", text: "Under Review" };
+  } else if (applicationStatus === 'Approved') {
+    return { className: "bg-green-100 text-green-800", text: "Approved" };
+  } else if (applicationStatus === 'Rejected') {
+    return { className: "bg-red-100 text-red-800", text: "Rejected" };
+  } else if (applicationStatus === 'On Hold') {
+    return { className: "bg-yellow-100 text-yellow-800", text: "On Hold" };
   } else {
     return { className: "", text: applicationStatus, variant: "outline" as const };
   }

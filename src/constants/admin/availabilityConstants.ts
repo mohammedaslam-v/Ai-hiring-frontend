@@ -21,4 +21,4 @@ export const TIME_SLOT_KEYWORDS = [
 export const DEFAULT_RESUME_URL = 'https://example.com/resume.pdf';
 
 // Score threshold for pass/fail display
-export const PASS_SCORE_THRESHOLD = 60;
+export const PASS_SCORE_THRESHOLD = 6;

@@ -327,7 +327,7 @@ const ApplicationsManagement: React.FC = () => {
                  )}
                                    {filters.status && filters.status !== 'all' && (
                     <Badge variant="outline" className="text-xs">
-                      Status: {filters.status === 'no_interview' ? 'Pending' : filters.status.replace('_', ' ')}
+                      Status: {filters.status === 'no_interview' ? 'No Interview' : filters.status.replace('_', ' ')}
                     </Badge>
                   )}
                  {(filters.minScore !== undefined || filters.maxScore !== undefined) && (
@@ -448,7 +448,7 @@ const ApplicationsManagement: React.FC = () => {
                            <p className="text-sm mb-3">
                              {isFiltered 
                                ? filters.status && filters.status !== 'all' 
-                                 ? `No applications found with status "${filters.status === 'no_interview' ? 'Pending' : filters.status.replace('_', ' ')}". Try selecting a different status or reset the filters.`
+                                 ? `No applications found with status "${filters.status === 'no_interview' ? 'No Interview' : filters.status.replace('_', ' ')}". Try selecting a different status or reset the filters.`
                                  : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
                                : 'There are no applications in the system yet.'
                              }
@@ -611,14 +611,16 @@ const ApplicationsManagement: React.FC = () => {
 // Helper functions for badge and icon configuration
 function getStatusBadgeConfig(status: string) {
   const configs: Record<string, { variant: 'default' | 'outline'; className: string; text: string }> = {
-    'PENDING': { variant: 'outline', className: 'bg-gray-100 text-gray-700 border-gray-300', text: 'Pending' },
-    'IN_PROGRESS': { variant: 'outline', className: 'bg-blue-100 text-blue-700 border-blue-300', text: 'In Progress' },
-    'COMPLETED': { variant: 'outline', className: 'bg-green-100 text-green-700 border-green-300', text: 'Completed' },
-    'FAILED': { variant: 'outline', className: 'bg-red-100 text-red-700 border-red-300', text: 'Failed' },
-    'LEFT_MIDWAY': { variant: 'outline', className: 'bg-yellow-100 text-yellow-700 border-yellow-300', text: 'Left Midway' },
-    'submitted': { variant: 'outline', className: 'bg-gray-100 text-gray-700 border-gray-300', text: 'Submitted' }
+    'Submitted': { variant: 'outline', className: 'bg-blue-100 text-blue-700 border-blue-300', text: 'Submitted' },
+    'Pending': { variant: 'outline', className: 'bg-gray-100 text-gray-700 border-gray-300', text: 'Pending' },
+    'Under Review': { variant: 'outline', className: 'bg-blue-100 text-blue-700 border-blue-300', text: 'Under Review' },
+    'Approved': { variant: 'outline', className: 'bg-green-100 text-green-700 border-green-300', text: 'Approved' },
+    'Rejected': { variant: 'outline', className: 'bg-red-100 text-red-700 border-red-300', text: 'Rejected' },
+    'On Hold': { variant: 'outline', className: 'bg-yellow-100 text-yellow-700 border-yellow-300', text: 'On Hold' },
+    'PENDING': { variant: 'outline', className: 'bg-gray-100 text-gray-700 border-gray-300', text: 'Pending' }, // Legacy
+    'submitted': { variant: 'outline', className: 'bg-blue-100 text-blue-700 border-blue-300', text: 'Submitted' } // Legacy
   };
-  return configs[status] || configs['PENDING'];
+  return configs[status] || configs['Submitted'];
 }
 
 function getInterviewStatusBadgeConfig(status: string, score?: number | null) {
@@ -627,7 +629,8 @@ function getInterviewStatusBadgeConfig(status: string, score?: number | null) {
     'in_progress': { className: 'bg-blue-100 text-blue-700 border-blue-300', text: 'In Progress' },
     'completed': { className: 'bg-green-100 text-green-700 border-green-300', text: 'Completed' },
     'failed': { className: 'bg-red-100 text-red-700 border-red-300', text: 'Failed' },
-    'passed': { className: 'bg-green-100 text-green-700 border-green-300', text: 'Passed' }
+    'left_midway': { className: 'bg-yellow-100 text-yellow-700 border-yellow-300', text: 'Left Midway' },
+    'passed': { className: 'bg-green-100 text-green-800', text: 'Passed' } // Legacy
   };
   return configs[status] || configs['not_started'];
 }
