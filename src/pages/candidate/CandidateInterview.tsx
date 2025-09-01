@@ -65,10 +65,28 @@ const CandidateInterview = () => {
   // Get session management functions from the hook
   const { startSession, completeSession, skipSession } = useSessionManagement();
 
+  // Debug logging for session ID tracking
+  useEffect(() => {
+    console.log('🔍 DEBUG: Current interviewSessionId:', interviewSessionId);
+    console.log('🔍 DEBUG: Current sessionState:', sessionState);
+  }, [interviewSessionId, sessionState]);
+
   // Helper functions to call session APIs with our session ID
   const handleStartInterviewWithId = async (sessionId: string) => {
     try {
       console.log('Starting interview with our session ID:', sessionId);
+      
+      // Validate that we have a valid session ID
+      if (!sessionId || sessionId.trim() === '') {
+        console.error('Invalid session ID provided:', sessionId);
+        toast.error('Invalid session ID - cannot start interview');
+        return;
+      }
+      
+      // Log the current state for debugging
+      console.log('Current interviewSessionId state:', interviewSessionId);
+      console.log('Current sessionId parameter:', sessionId);
+      
       const session = await startSession(sessionId);
       if (session) {
         toast.success('Interview started successfully!');
@@ -121,8 +139,23 @@ const CandidateInterview = () => {
     }
   };
 
-  // Generate iframe URL
-  const iframeUrl = generateInterviewUrl(candidateName, candidateEmail);
+  // Generate iframe URL with real candidate information from localStorage
+  const realCandidateName = localStorage.getItem('candidateName') || candidateName;
+  const realCandidateEmail = localStorage.getItem('candidateEmail') || candidateEmail;
+  const iframeUrl = generateInterviewUrl(realCandidateName, realCandidateEmail);
+  
+  // Debug: Log when iframe URL is generated
+  useEffect(() => {
+    console.log('🎯 Interview Page - Generated iframe URL:');
+    console.log('🎯 - URL:', iframeUrl);
+    console.log('🎯 - Using candidate name:', realCandidateName);
+    console.log('🎯 - Using candidate email:', realCandidateEmail);
+    console.log('🎯 - localStorage values:', {
+      candidateName: localStorage.getItem('candidateName'),
+      candidateEmail: localStorage.getItem('candidateEmail'),
+      applicationId: localStorage.getItem('applicationId')
+    });
+  }, [iframeUrl, realCandidateName, realCandidateEmail]);
 
   // Use custom hooks for interview logic
   const { handleProceedToInterview, handleBeginInterview } = useInterviewNavigation(
@@ -142,6 +175,13 @@ const CandidateInterview = () => {
   );
 
   // Listen for messages from Tough Tongue iframe to detect interview start
+  // Ensure session ID is properly synchronized
+  useEffect(() => {
+    if (interviewSessionId) {
+      console.log('Interview session ID synchronized:', interviewSessionId);
+    }
+  }, [interviewSessionId]);
+
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       // Only accept messages from Tough Tongue domain
@@ -180,9 +220,8 @@ const CandidateInterview = () => {
             console.log('Using our session ID for API call:', interviewSessionId);
             
             // Use our own session ID (created when user clicked Begin Interview)
-            if (interviewSessionId) {
-              handleStartInterviewWithId(interviewSessionId);
-            }
+            console.log('Calling handleStartInterviewWithId with session ID:', interviewSessionId);
+            handleStartInterviewWithId(interviewSessionId);
           }
           
           // Detect interview completion - look for onSubmit event
@@ -198,27 +237,34 @@ const CandidateInterview = () => {
             console.log('Using our session ID for API call:', interviewSessionId);
             
             // Use our own session ID (created when user clicked Begin Interview)
-            if (interviewSessionId) {
-              // Fetch real scores from Tough Tongue's API using the sessionId from onSubmit
-              console.log('🎯 Attempting to fetch real scores from Tough Tongue API...');
-              
-              toughTongueService.getInterviewResults(data.sessionId)
-                .then(result => {
-                  console.log('✅ Successfully fetched results from Tough Tongue:', result);
-                  if (result && result.score) {
-                    console.log(`🎯 Using real score: ${result.score}`);
-                    handleCompleteInterviewWithId(interviewSessionId, result.score);
-                  } else {
-                    console.log('⚠️ No score found, using fallback score of 85');
-                    handleCompleteInterviewWithId(interviewSessionId, 85);
-                  }
-                })
-                .catch(error => {
-                  console.log('❌ Failed to fetch from Tough Tongue API, using fallback score:', error.message);
-                  // Fallback to hardcoded score if API fails
+            // Fetch real scores from Tough Tongue's API using the sessionId from onSubmit
+            console.log('🎯 Attempting to fetch real scores from Tough Tongue API...');
+            
+            toughTongueService.getInterviewResults(data.sessionId)
+              .then(result => {
+                console.log('✅ Successfully fetched results from Tough Tongue:', result);
+                if (result && result.score && interviewSessionId) {
+                  const score = Number(result.score);
+                  console.log(`🎯 Using real score: ${score}`);
+                  handleCompleteInterviewWithId(interviewSessionId, score);
+                } else if (interviewSessionId) {
+                  console.log('⚠️ No score found, using fallback score of 85');
                   handleCompleteInterviewWithId(interviewSessionId, 85);
-                });
-            }
+                } else {
+                  console.error('❌ No interview session ID available for completion');
+                  toast.error('No interview session found - cannot complete interview');
+                }
+              })
+              .catch(error => {
+                console.log('❌ Failed to fetch from Tough Tongue API, using fallback score:', error.message);
+                // Fallback to hardcoded score if API fails
+                if (interviewSessionId) {
+                  handleCompleteInterviewWithId(interviewSessionId, 85);
+                } else {
+                  console.error('❌ No interview session ID available for fallback completion');
+                  toast.error('No interview session found - cannot complete interview');
+                }
+              });
           }
           
           // Detect interview stop/abandon - look for onStop event
@@ -228,11 +274,9 @@ const CandidateInterview = () => {
             console.log('Current session status:', sessionState?.status);
             
             // Use our own session ID (created when user clicked Begin Interview)
-            if (interviewSessionId) {
-              // Always update to "skipped" when interview is stopped early
-              // This covers both cases: stopping before starting or stopping after starting
-              handleSkipInterviewWithId(interviewSessionId);
-            }
+            // Always update to "skipped" when interview is stopped early
+            // This covers both cases: stopping before starting or stopping after starting
+            handleSkipInterviewWithId(interviewSessionId);
           }
         }
       } catch (error) {

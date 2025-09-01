@@ -22,7 +22,10 @@ export const useSessionManagement = () => {
     setSessionState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
+      console.log('Creating session with data:', sessionData);
       const session = await sessionService.createSession(sessionData);
+      
+      console.log('Session created successfully:', session);
       
       setSessionState(prev => ({
         ...prev,
@@ -31,6 +34,7 @@ export const useSessionManagement = () => {
         isLoading: false
       }));
 
+      console.log('Session state updated with ID:', session.sessionId);
       toast.success('Interview session created successfully!');
       return session;
     } catch (error) {
@@ -54,19 +58,25 @@ export const useSessionManagement = () => {
       return null;
     }
 
+    console.log('Starting session with ID:', sessionId);
     setSessionState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
       const session = await sessionService.startSession(sessionId);
       
-      setSessionState(prev => ({
-        ...prev,
-        status: session.status,
-        isLoading: false
-      }));
+      if (session) {
+        setSessionState(prev => ({
+          ...prev,
+          status: session.status,
+          isLoading: false
+        }));
 
-      toast.success('Interview started successfully!');
-      return session;
+        console.log('Session started successfully with status:', session.status);
+        toast.success('Interview started successfully!');
+        return session;
+      } else {
+        throw new Error('Session not found or could not be started');
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to start interview';
       
@@ -76,6 +86,7 @@ export const useSessionManagement = () => {
         error: errorMessage
       }));
 
+      console.error('Error starting session:', error);
       toast.error(errorMessage);
       return null;
     }

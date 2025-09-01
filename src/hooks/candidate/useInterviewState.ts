@@ -49,6 +49,7 @@ export const useInterviewState = () => {
       const currentApplicationId = getApplicationIdFromStorage();
       
       if (currentApplicationId) {
+        console.log('🎯 Application ID found:', currentApplicationId);
         // Application ID found
         updateApplicationId(currentApplicationId);
         setInterviewStatus(INTERVIEW_STATUS.VIDEO_REQUIRED);

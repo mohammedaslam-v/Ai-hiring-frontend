@@ -55,12 +55,32 @@ export function useCandidateApplication() {
 
         if (response.success) {
           // Store application data in localStorage
-          localStorage.setItem('candidateName', `${values.firstName} ${values.lastName}`);
-          localStorage.setItem('candidateEmail', values.email);
-          localStorage.setItem('applicationId', response.data.id);
+          const candidateNameValue = `${values.firstName} ${values.lastName}`;
+          const candidateEmailValue = values.email;
+          const applicationIdValue = response.data.id;
+          
+          console.log('🎯 Setting localStorage values:');
+          console.log('🎯 - candidateName:', candidateNameValue);
+          console.log('🎯 - candidateEmail:', candidateEmailValue);
+          console.log('🎯 - applicationId:', applicationIdValue);
+          
+          localStorage.setItem('candidateName', candidateNameValue);
+          localStorage.setItem('candidateEmail', candidateEmailValue);
+          localStorage.setItem('applicationId', applicationIdValue);
+          
+          // Verify the values were set
+          console.log('🎯 Verifying localStorage values:');
+          console.log('🎯 - candidateName (read):', localStorage.getItem('candidateName'));
+          console.log('🎯 - candidateEmail (read):', localStorage.getItem('candidateEmail'));
+          console.log('🎯 - applicationId (read):', localStorage.getItem('applicationId'));
 
           toast.success("Application submitted successfully! Proceeding to the interview stage.");
-          navigate('/candidate/interview');
+          
+          // Small delay to ensure localStorage is fully processed
+          setTimeout(() => {
+            console.log('🎯 Navigating to interview page...');
+            navigate('/candidate/interview');
+          }, 100);
         } else {
           setValidationError(response.error || "Something went wrong. Please try again.");
           toast.error(response.error || "An error occurred while submitting your application. Please try again.");

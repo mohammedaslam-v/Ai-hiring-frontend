@@ -80,6 +80,7 @@ class SessionService {
   async completeSession(sessionId: string, score: number, evaluation?: Record<string, unknown>): Promise<SessionData> {
     try {
       const response = await axios.patch<ApiResponse<SessionData>>(`${this.baseURL}/${sessionId}/complete`, {
+        status: 'completed', // Add required status field
         score,
         evaluation
       });

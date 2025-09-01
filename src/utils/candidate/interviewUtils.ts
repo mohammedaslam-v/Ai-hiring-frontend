@@ -14,6 +14,12 @@ export const formatTime = (seconds: number): string => {
 export const generateInterviewUrl = (candidateName: string, candidateEmail: string): string => {
   const encodedName = encodeURIComponent(candidateName);
   const encodedEmail = encodeURIComponent(candidateEmail);
+  
+  // Debug: Log what's being used for ToughTongue
+  console.log('🎯 ToughTongue URL - Candidate Info:');
+  console.log('🎯 - Name:', candidateName);
+  console.log('🎯 - Email:', candidateEmail);
+  
   return `https://app.toughtongueai.com/embed/683d85841bbc5980f1b565fd?bg=black&skipPrecheck=true&promptUserInfo=false&userName=${encodedName}&userEmail=${encodedEmail}&vars[candidateName]=${encodedName}`;
 };
 

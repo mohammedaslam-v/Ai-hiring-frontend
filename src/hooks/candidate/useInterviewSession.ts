@@ -39,12 +39,15 @@ export const useInterviewSession = (
       if (session) {
         console.log('Session created successfully:', session);
         
-        // Store the sessionId for API calls
-        setInterviewSessionId(session.sessionId);
+        // Store the sessionId for API calls - CRITICAL FIX: Use the actual returned session ID
+        const actualSessionId = session.sessionId;
+        setInterviewSessionId(actualSessionId);
+        
+        console.log('Setting interview session ID to:', actualSessionId);
         
         // Store session info in localStorage for tracking
         const sessionData: SessionData = {
-          sessionId: session.sessionId,
+          sessionId: actualSessionId,
           applicationId: applicationId,
           candidateId: applicationId, // Using applicationId as candidateId for now
           status: 'pending', // Start with pending status, will be updated to 'started' when Tough Tongue starts
@@ -55,7 +58,7 @@ export const useInterviewSession = (
         
         setCurrentInterviewSession(sessionData);
         toast.success(UI_MESSAGES.TOAST.INTERVIEW_START);
-        return session.sessionId;
+        return actualSessionId;
       }
       
       throw new Error('Failed to create interview session');
@@ -184,7 +187,9 @@ export const useInterviewSession = (
   };
 
   const resetSession = () => {
+    console.log('Resetting interview session');
     setInterviewSessionId(null);
+    setCurrentInterviewSession(null);
   };
 
   return {

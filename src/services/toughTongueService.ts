@@ -24,10 +24,21 @@ export class ToughTongueService {
       });
 
       if (response.status === 200 && response.data && typeof response.data === 'object' && 'success' in response.data) {
-        const responseData = response.data as { success: boolean; data: Record<string, unknown> };
+        const responseData = response.data as { 
+          success: boolean; 
+          data: Record<string, unknown>; 
+          extractedScore?: number | null;
+        };
+        
         if (responseData.success) {
           console.log('✅ Frontend: Successfully received results from backend:', responseData.data);
-          return responseData.data;
+          console.log('✅ Frontend: Extracted score from backend:', responseData.extractedScore);
+          
+          // Return data with extracted score for easier access
+          return {
+            ...responseData.data,
+            score: responseData.extractedScore
+          };
         } else {
           throw new Error('Backend returned unsuccessful response');
         }
