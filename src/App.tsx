@@ -18,6 +18,7 @@ import SimplifiedSalaryStructure from "./pages/candidate/SimplifiedSalaryStructu
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminSignup from "./pages/admin/AdminSignup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminApplications from "./pages/admin/AdminApplications";
 import AdminApplicationDetail from "./pages/admin/AdminApplicationDetail";
 import NotFound from "./pages/NotFound";
 
@@ -41,6 +42,7 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       {/* <Route path="/admin/signup" element={<AdminSignup />} /> */}
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/applications" element={<AdminApplications />} />
       <Route path="/admin/applications/:id" element={<AdminApplicationDetail />} />
 
 

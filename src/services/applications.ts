@@ -102,7 +102,17 @@ class ApplicationService {
                         score: application.score || null,
                         applicationId: application.applicationId,
                         createdAt: application.createdAt,
-                        updatedAt: application.updatedAt
+                        updatedAt: application.updatedAt,
+                        // Additional fields for AdminApplicationDetail
+                        latest_status: application.interviewStatus || 'not_started',
+                        latest_score: application.score || null,
+                        latest_completed_at: null, // Not available in current backend response
+                        session_id: null, // Not available in current backend response
+                        name: `${application.firstName} ${application.lastName}`,
+                        availability: application.availableDays || [],
+                        application_status: application.status || 'Submitted',
+                        application_date: application.createdAt,
+                        evaluation: null // Not available in current backend response
                     }
                 };
             } else {

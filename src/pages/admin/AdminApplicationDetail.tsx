@@ -53,7 +53,7 @@ export default function AdminApplicationDetail() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => navigate("/admin/applications")}
+              onClick={() => navigate(-1)}
               className="shadow-sm hover:shadow-md transition-shadow"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,6 +11,7 @@ import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
 
 const ApplicationsManagement: React.FC = () => {
+  const navigate = useNavigate();
   const {
     filters,
     applications,
@@ -54,6 +56,12 @@ const ApplicationsManagement: React.FC = () => {
   const handleExportCSV = () => {
     // TODO: Implement CSV export functionality
     console.log('Export CSV clicked');
+  };
+
+  // Handle view application details
+  const handleViewApplication = (applicationId: string) => {
+    console.log('Viewing application:', applicationId);
+    navigate(`/admin/applications/${applicationId}`);
   };
 
   // Format date for display
@@ -519,7 +527,7 @@ const ApplicationsManagement: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => console.log('View application:', application.id)}
+                          onClick={() => handleViewApplication(application.id)}
                           className="h-8 w-8 p-0"
                         >
                           <Eye className="h-4 w-4" />
