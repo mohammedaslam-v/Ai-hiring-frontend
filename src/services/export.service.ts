@@ -1,0 +1,167 @@
+import axiosInstance from './instance';
+import { AppListFilters } from '@/types/admin/applications';
+
+export interface ExportResponse {
+  status: boolean;
+  message: string;
+  error?: string;
+}
+
+/**
+ * Export applications to CSV format
+ */
+export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<ExportResponse> => {
+  try {
+    // Build query parameters from filters
+    const queryParams = new URLSearchParams();
+    
+    if (filters.search) queryParams.append('search', filters.search);
+    if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
+    if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
+    if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
+    if (filters.fromDate) queryParams.append('fromDate', filters.fromDate);
+    if (filters.toDate) queryParams.append('toDate', filters.toDate);
+    if (filters.sortBy) queryParams.append('sortBy', filters.sortBy);
+    if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder);
+
+    // Make API request to backend
+    const response = await axiosInstance.get(`/api/admin/applications/export/csv?${queryParams.toString()}`, {
+      responseType: 'blob', // Important for file download
+      timeout: 60000 // 60 second timeout for large exports
+    });
+
+    // Create download link
+    const blob = new Blob([response.data as BlobPart], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Extract filename from response headers or use default
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = 'applications-export.csv';
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+    
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return {
+      status: true,
+      message: 'CSV export completed successfully'
+    };
+
+  } catch (error: unknown) {
+    console.error('CSV export error:', error);
+    
+    // Handle different types of errors
+    const axiosError = error as any;
+    if (axiosError.response?.status === 400) {
+      return {
+        status: false,
+        message: axiosError.response.data?.message || 'No data available for export',
+        error: 'NO_DATA'
+      };
+    }
+    
+    if (axiosError.code === 'ECONNABORTED') {
+      return {
+        status: false,
+        message: 'Export timed out. Please try with fewer filters or contact support.',
+        error: 'TIMEOUT'
+      };
+    }
+    
+    return {
+      status: false,
+      message: 'Failed to export CSV. Please try again.',
+      error: 'EXPORT_FAILED'
+    };
+  }
+};
+
+/**
+ * Export applications to Excel format
+ */
+export const exportApplicationsToExcel = async (filters: AppListFilters): Promise<ExportResponse> => {
+  try {
+    // Build query parameters from filters
+    const queryParams = new URLSearchParams();
+    
+    if (filters.search) queryParams.append('search', filters.search);
+    if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
+    if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
+    if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
+    if (filters.fromDate) queryParams.append('fromDate', filters.fromDate);
+    if (filters.toDate) queryParams.append('toDate', filters.toDate);
+    if (filters.sortBy) queryParams.append('sortBy', filters.sortBy);
+    if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder);
+
+    // Make API request to backend
+    const response = await axiosInstance.get(`/api/admin/applications/export/excel?${queryParams.toString()}`, {
+      responseType: 'blob', // Important for file download
+      timeout: 60000 // 60 second timeout for large exports
+    });
+
+    // Create download link
+    const blob = new Blob([response.data as BlobPart], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Extract filename from response headers or use default
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = 'applications-export.xlsx';
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
+      }
+    }
+    
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return {
+      status: true,
+      message: 'Excel export completed successfully'
+    };
+
+  } catch (error: any) {
+    console.error('Excel export error:', error);
+    
+    // Handle different types of errors
+    if (error.response?.status === 400) {
+      return {
+        status: false,
+        message: error.response.data?.message || 'No data available for export',
+        error: 'NO_DATA'
+      };
+    }
+    
+    if (error.code === 'ECONNABORTED') {
+      return {
+        status: false,
+        message: 'Export timed out. Please try with fewer filters or contact support.',
+        error: 'TIMEOUT'
+      };
+    }
+    
+    return {
+      status: false,
+      message: 'Failed to export Excel. Please try again.',
+      error: 'EXPORT_FAILED'
+    };
+  }
+};

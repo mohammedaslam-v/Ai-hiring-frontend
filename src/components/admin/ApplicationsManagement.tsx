@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/a
 
 const ApplicationsManagement: React.FC = () => {
   const navigate = useNavigate();
+  const [exporting, setExporting] = useState(false);
   const {
     filters,
     applications,
@@ -53,9 +54,32 @@ const ApplicationsManagement: React.FC = () => {
   };
 
   // Handle CSV export
-  const handleExportCSV = () => {
-    // TODO: Implement CSV export functionality
-    console.log('Export CSV clicked');
+  const handleExportCSV = async () => {
+    try {
+      setExporting(true);
+      console.log('Export CSV clicked with filters:', filters);
+      
+      // Import the export service
+      const { exportApplicationsToCSV } = await import('@/services/export.service');
+      
+      // Call the export service with current filters
+      const result = await exportApplicationsToCSV(filters);
+      
+      if (result.status) {
+        // Show success message
+        console.log('CSV export successful:', result.message);
+        // You can add a toast notification here if you have a toast system
+      } else {
+        // Show error message
+        console.error('CSV export failed:', result.message);
+        // You can add a toast notification here if you have a toast system
+      }
+    } catch (error) {
+      console.error('CSV export error:', error);
+      // You can add a toast notification here if you have a toast system
+    } finally {
+      setExporting(false);
+    }
   };
 
   // Handle view application details
@@ -306,13 +330,14 @@ const ApplicationsManagement: React.FC = () => {
                >
                  Reset All Filters
                </Button>
-               <Button
-                 onClick={handleExportCSV}
-                 className="bg-green-600 hover:bg-green-700 text-white"
-               >
-                 <Download className="h-4 w-4 mr-2" />
-                 Export CSV
-               </Button>
+                               <Button
+                  onClick={handleExportCSV}
+                  disabled={exporting}
+                  className="bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {exporting ? 'Exporting...' : 'Export CSV'}
+                </Button>
              </div>
           </div>
         </div>
