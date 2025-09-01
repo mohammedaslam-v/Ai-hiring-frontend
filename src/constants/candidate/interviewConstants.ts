@@ -6,7 +6,8 @@ export const INTERVIEW_STATUS = {
   VIDEO_REQUIRED: "video-required",
   READY: "ready",
   IN_PROGRESS: "in-progress",
-  COMPLETED: "completed"
+  COMPLETED: "completed",
+  PREPARING_RESULTS: "preparing-results"
 } as const;
 
 export type InterviewStatus = typeof INTERVIEW_STATUS[keyof typeof INTERVIEW_STATUS];
@@ -155,6 +156,12 @@ export const UI_MESSAGES = {
     PROCEED_READY: "You can now begin your AI interview session.",
     VIDEO_REQUIRED: "Please watch the complete video before proceeding.",
     REDIRECTING_RESULTS: "Redirecting to results page..."
+  },
+  ERRORS: {
+    SESSION_CREATION_FAILED: "Failed to create interview session",
+    SESSION_UPDATE_FAILED: "Failed to update interview session",
+    INTERVIEW_START_FAILED: "Failed to start interview",
+    INTERVIEW_COMPLETE_FAILED: "Failed to complete interview"
   }
 };
 
@@ -168,9 +175,10 @@ export const ADMIN_TEST_DEFAULTS = {
 };
 
 /**
- * Navigation delays
+ * Navigation delays for smooth UX
  */
 export const NAVIGATION_DELAYS = {
-  INTERVIEW_COMPLETE: 2000,
-  INTERVIEW_END: 3000
-};
+  INTERVIEW_COMPLETE: 3000, // 3 seconds
+  INTERVIEW_END: 2000, // 2 seconds
+  SESSION_UPDATE: 1000 // 1 second
+} as const;

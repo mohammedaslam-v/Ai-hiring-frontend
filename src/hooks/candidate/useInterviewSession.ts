@@ -11,7 +11,8 @@ import { SessionData } from '@/types/session';
 export const useInterviewSession = (
   applicationId: string,
   setCurrentInterviewSession: (session: SessionData | null) => void,
-  setInterviewResult: (result: InterviewResult | null) => void
+  setInterviewResult: (result: InterviewResult | null) => void,
+  setToPreparingResults: () => void
 ) => {
   const navigate = useNavigate();
   const [interviewSessionId, setInterviewSessionId] = useState<string | null>(null);
@@ -71,6 +72,9 @@ export const useInterviewSession = (
 
   const handleInterviewComplete = async (resultData: InterviewResult = {}) => {
     try {
+      // Show preparing results state
+      setToPreparingResults();
+
       // Store mock result in localStorage
       const result: InterviewResult = {
         sessionId: interviewSessionId,
@@ -82,10 +86,8 @@ export const useInterviewSession = (
       setInterviewResult(result);
       toast.success(UI_MESSAGES.TOAST.INTERVIEW_COMPLETE);
 
-      // Navigate to results page after a short delay
-      setTimeout(() => {
-        navigate('/candidate/result');
-      }, NAVIGATION_DELAYS.INTERVIEW_COMPLETE);
+      // REMOVED: Navigation logic - let CandidateInterview handle this
+      // The preparing results state will handle navigation via ProcessingResultsChecker
 
     } catch (error) {
       console.error('Error completing interview:', error);
@@ -112,10 +114,8 @@ export const useInterviewSession = (
 
       toast.info(UI_MESSAGES.TOAST.INTERVIEW_END);
 
-      // Navigate to results page after a short delay
-      setTimeout(() => {
-        navigate('/candidate/result');
-      }, NAVIGATION_DELAYS.INTERVIEW_END);
+      // REMOVED: Navigation logic - let CandidateInterview handle this
+      // The preparing results state will handle navigation via ProcessingResultsChecker
 
     } catch (error) {
       console.error('Error ending interview:', error);
@@ -153,10 +153,8 @@ export const useInterviewSession = (
       const session = await completeSession(interviewSessionId, score, evaluation);
       if (session) {
         toast.success('Interview completed successfully!');
-        // Navigate to results page
-        setTimeout(() => {
-          navigate('/candidate/result');
-        }, NAVIGATION_DELAYS.INTERVIEW_COMPLETE);
+        // REMOVED: Navigation logic - let CandidateInterview handle this
+        // The preparing results state will handle navigation via ProcessingResultsChecker
       }
     } catch (error) {
       console.error('Error completing interview:', error);
@@ -175,10 +173,8 @@ export const useInterviewSession = (
       const session = await skipSession(interviewSessionId);
       if (session) {
         toast.info('Interview was skipped');
-        // Navigate to results page
-        setTimeout(() => {
-          navigate('/candidate/result');
-        }, NAVIGATION_DELAYS.INTERVIEW_END);
+        // REMOVED: Navigation logic - let CandidateInterview handle this
+        // The preparing results state will handle navigation via ProcessingResultsChecker
       }
     } catch (error) {
       console.error('Error skipping interview:', error);

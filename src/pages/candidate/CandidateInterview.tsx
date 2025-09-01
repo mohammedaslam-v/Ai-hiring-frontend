@@ -12,6 +12,7 @@ import { useInterviewCompletion } from "@/hooks/candidate/useInterviewCompletion
 import { useInterviewNavigation } from "@/hooks/candidate/useInterviewNavigation";
 import { useSessionManagement } from "@/hooks/useSessionManagement";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Import utilities and constants
 import { formatTime, generateInterviewUrl } from "@/utils/candidate/interviewUtils";
@@ -28,6 +29,8 @@ import {
 import { toughTongueService } from "@/services/toughTongueService";
 
 const CandidateInterview = () => {
+  const navigate = useNavigate();
+  
   // Use custom hooks
   const {
     interviewStatus,
@@ -39,7 +42,8 @@ const CandidateInterview = () => {
     setCurrentInterviewSession,
     setInterviewResult,
     setToReady,
-    setToInProgress
+    setToInProgress,
+    setToPreparingResults
   } = useInterviewState();
 
   const {
@@ -60,7 +64,7 @@ const CandidateInterview = () => {
     handleCompleteInterview,
     handleSkipInterview,
     handleEndInterview
-  } = useInterviewSession(applicationId, setCurrentInterviewSession, setInterviewResult);
+  } = useInterviewSession(applicationId, setCurrentInterviewSession, setInterviewResult, setToPreparingResults);
 
   // Get session management functions from the hook
   const { startSession, completeSession, skipSession } = useSessionManagement();
@@ -69,7 +73,9 @@ const CandidateInterview = () => {
   useEffect(() => {
     console.log('🔍 DEBUG: Current interviewSessionId:', interviewSessionId);
     console.log('🔍 DEBUG: Current sessionState:', sessionState);
-  }, [interviewSessionId, sessionState]);
+    console.log('🔍 DEBUG: Current applicationId:', applicationId);
+            console.log('🔍 DEBUG: localStorage applicationId:', localStorage.getItem('applicationId'));
+  }, [interviewSessionId, sessionState, applicationId]);
 
   // Helper functions to call session APIs with our session ID
   const handleStartInterviewWithId = async (sessionId: string) => {
@@ -140,8 +146,8 @@ const CandidateInterview = () => {
   };
 
   // Generate iframe URL with real candidate information from localStorage
-  const realCandidateName = localStorage.getItem('candidateName') || candidateName;
-  const realCandidateEmail = localStorage.getItem('candidateEmail') || candidateEmail;
+  const realCandidateName = JSON.parse(localStorage.getItem('candidateName') || 'null') || candidateName;
+  const realCandidateEmail = JSON.parse(localStorage.getItem('candidateEmail') || 'null') || candidateEmail;
   const iframeUrl = generateInterviewUrl(realCandidateName, realCandidateEmail);
   
   // Debug: Log when iframe URL is generated
@@ -151,9 +157,9 @@ const CandidateInterview = () => {
     console.log('🎯 - Using candidate name:', realCandidateName);
     console.log('🎯 - Using candidate email:', realCandidateEmail);
     console.log('🎯 - localStorage values:', {
-      candidateName: localStorage.getItem('candidateName'),
-      candidateEmail: localStorage.getItem('candidateEmail'),
-      applicationId: localStorage.getItem('applicationId')
+      candidateName: JSON.parse(localStorage.getItem('candidateName') || 'null'),
+      candidateEmail: JSON.parse(localStorage.getItem('candidateEmail') || 'null'),
+              applicationId: localStorage.getItem('applicationId')
     });
   }, [iframeUrl, realCandidateName, realCandidateEmail]);
 
@@ -171,7 +177,8 @@ const CandidateInterview = () => {
   const { handleInterviewComplete } = useInterviewCompletion(
     interviewSessionId,
     setInterviewResult,
-    setToInProgress
+    setToInProgress,
+    setToPreparingResults
   );
 
   // Listen for messages from Tough Tongue iframe to detect interview start
@@ -233,50 +240,66 @@ const CandidateInterview = () => {
             console.log('Full Tough Tongue Response:', JSON.stringify(data, null, 2));
             console.log('=============================================');
             
-            console.log('Tough Tongue interview completed (onSubmit detected), updating session status...');
+            console.log('🎯 VIDEO UPLOAD COMPLETED (onSubmit detected) - Starting evaluation process...');
             console.log('Using our session ID for API call:', interviewSessionId);
             
-            // Use our own session ID (created when user clicked Begin Interview)
-            // Fetch real scores from Tough Tongue's API using the sessionId from onSubmit
-            console.log('🎯 Attempting to fetch real scores from Tough Tongue API...');
+            // Show processing page immediately when video upload completes
+            setToPreparingResults();
+            console.log('✅ Processing page shown - waiting for evaluation...');
+            
+            // Single API call - wait for Tough Tongue result
+            console.log('🎯 Making single API call to Tough Tongue for evaluation results...');
             
             toughTongueService.getInterviewResults(data.sessionId)
               .then(result => {
-                console.log('✅ Successfully fetched results from Tough Tongue:', result);
-                if (result && result.score && interviewSessionId) {
+                console.log('✅ Tough Tongue evaluation completed! Result:', result);
+                
+                if (result && result.score !== undefined && result.score !== null && interviewSessionId) {
                   const score = Number(result.score);
-                  console.log(`🎯 Using real score: ${score}`);
+                  console.log(`🎯 Got real score from Tough Tongue: ${score}`);
+                  
+                  // Update session with real score
                   handleCompleteInterviewWithId(interviewSessionId, score);
-                } else if (interviewSessionId) {
-                  console.log('⚠️ No score found, using fallback score of 85');
-                  handleCompleteInterviewWithId(interviewSessionId, 85);
+                  
+                  // Navigate to results immediately
+                  setTimeout(() => {
+                    console.log('🎯 Navigating to results page with real score...');
+                                console.log('🎯 DEBUG: applicationId before navigation:', applicationId);
+            console.log('🎯 DEBUG: localStorage applicationId before navigation:', localStorage.getItem('applicationId'));
+                    navigate('/candidate/result');
+                  }, 2000);
+                  
                 } else {
-                  console.error('❌ No interview session ID available for completion');
-                  toast.error('No interview session found - cannot complete interview');
+                  // Use fallback score if no score received
+                  console.log('⚠️ No score from Tough Tongue, using fallback score');
+                  handleCompleteInterviewWithId(interviewSessionId, 85);
+                  
+                  setTimeout(() => {
+                    console.log('🎯 Navigating to results page with fallback score...');
+                    navigate('/candidate/result');
+                  }, 2000);
                 }
               })
               .catch(error => {
-                console.log('❌ Failed to fetch from Tough Tongue API, using fallback score:', error.message);
-                // Fallback to hardcoded score if API fails
-                if (interviewSessionId) {
-                  handleCompleteInterviewWithId(interviewSessionId, 85);
-                } else {
-                  console.error('❌ No interview session ID available for fallback completion');
-                  toast.error('No interview session found - cannot complete interview');
-                }
+                // Use fallback score if API fails
+                console.log('❌ Tough Tongue API failed, using fallback score:', error.message);
+                handleCompleteInterviewWithId(interviewSessionId, 85);
+                
+                setTimeout(() => {
+                  console.log('🎯 Navigating to results page with fallback score...');
+                  navigate('/candidate/result');
+                }, 2000);
               });
           }
           
           // Detect interview stop/abandon - look for onStop event
           if (data.event === 'onStop' && interviewSessionId) {
-            console.log('Tough Tongue interview stopped (onStop detected), updating session status...');
+            console.log('Tough Tongue interview stopped (onStop detected), but will wait for onSubmit event...');
             console.log('Using our session ID for API call:', interviewSessionId);
             console.log('Current session status:', sessionState?.status);
             
-            // Use our own session ID (created when user clicked Begin Interview)
-            // Always update to "skipped" when interview is stopped early
-            // This covers both cases: stopping before starting or stopping after starting
-            handleSkipInterviewWithId(interviewSessionId);
+            // Don't do anything here - wait for onSubmit event which will handle both completed and skipped
+            // Both completed and skipped interviews will trigger onSubmit, so we handle them the same way
           }
         }
       } catch (error) {
@@ -860,6 +883,48 @@ const CandidateInterview = () => {
             <CardContent className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
               <p className="text-sm text-gray-600">This may take a few moments</p>
+            </CardContent>
+          </Card>
+        </div>
+        <WhatsAppHelpButton />
+      </div>
+    );
+  }
+
+  // Preparing results state
+  if (interviewStatus === INTERVIEW_STATUS.PREPARING_RESULTS) {
+    return (
+      <div className="min-h-screen bg-white py-8">
+        <div className="container mx-auto px-4 max-w-4xl">
+          {/* Header */}
+          <div className="text-left mb-8">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+                <img src="/lovable-uploads/1bd88e64-73eb-4b2c-8096-218b1fce8646.png" alt="Bambinos.live" className="w-8 h-8 rounded-lg" />
+              </div>
+              <h1 className="text-2xl font-bold text-blue-600">Bambinos.live</h1>
+              <div className="ml-auto">
+                <div className="w-8 h-8 border border-blue-600/30 rounded-lg flex items-center justify-center">
+                  <span className="text-blue-600">☀</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Card className="border-blue-600/20 shadow-xl bg-white">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 border border-green-300">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+              <CardTitle className="text-2xl text-blue-600">Processing Your Results</CardTitle>
+              <CardDescription>
+                We're analyzing your interview responses and calculating your score...
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-sm text-gray-600">Please wait while we prepare your results</p>
+              <p className="text-xs text-gray-500 mt-2">You'll be redirected to your results page shortly</p>
             </CardContent>
           </Card>
         </div>

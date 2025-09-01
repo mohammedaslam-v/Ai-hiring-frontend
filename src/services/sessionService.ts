@@ -91,14 +91,14 @@ class SessionService {
     }
   }
 
-  // Skip interview session
+  // Skip interview session (treat as completed)
   async skipSession(sessionId: string): Promise<SessionData> {
     try {
       const response = await axios.patch<ApiResponse<SessionData>>(`${this.baseURL}/${sessionId}/skip`);
       return response.data.data;
     } catch (error) {
-      console.error('Error skipping session:', error);
-      throw new Error('Failed to skip interview session');
+      console.error('Error completing session:', error);
+      throw new Error('Failed to complete interview session');
     }
   }
 

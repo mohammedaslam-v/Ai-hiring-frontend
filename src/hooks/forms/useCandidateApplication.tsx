@@ -57,21 +57,21 @@ export function useCandidateApplication() {
           // Store application data in localStorage
           const candidateNameValue = `${values.firstName} ${values.lastName}`;
           const candidateEmailValue = values.email;
-          const applicationIdValue = response.data.id;
+          const applicationIdValue = response.data.applicationId; // Use applicationId instead of id
           
           console.log('🎯 Setting localStorage values:');
           console.log('🎯 - candidateName:', candidateNameValue);
           console.log('🎯 - candidateEmail:', candidateEmailValue);
           console.log('🎯 - applicationId:', applicationIdValue);
           
-          localStorage.setItem('candidateName', candidateNameValue);
-          localStorage.setItem('candidateEmail', candidateEmailValue);
+          localStorage.setItem('candidateName', JSON.stringify(candidateNameValue));
+          localStorage.setItem('candidateEmail', JSON.stringify(candidateEmailValue));
           localStorage.setItem('applicationId', applicationIdValue);
           
           // Verify the values were set
           console.log('🎯 Verifying localStorage values:');
-          console.log('🎯 - candidateName (read):', localStorage.getItem('candidateName'));
-          console.log('🎯 - candidateEmail (read):', localStorage.getItem('candidateEmail'));
+          console.log('🎯 - candidateName (read):', JSON.parse(localStorage.getItem('candidateName') || 'null'));
+          console.log('🎯 - candidateEmail (read):', JSON.parse(localStorage.getItem('candidateEmail') || 'null'));
           console.log('🎯 - applicationId (read):', localStorage.getItem('applicationId'));
 
           toast.success("Application submitted successfully! Proceeding to the interview stage.");

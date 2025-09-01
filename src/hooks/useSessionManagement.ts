@@ -130,7 +130,7 @@ export const useSessionManagement = () => {
     }
   }, []);
 
-  // Skip interview session
+  // Skip interview session (treat as completed)
   const skipSession = useCallback(async (sessionId: string): Promise<SessionData | null> => {
     if (!sessionId) {
       toast.error('Session ID is required');
@@ -148,10 +148,10 @@ export const useSessionManagement = () => {
         isLoading: false
       }));
 
-      toast.info('Interview was skipped');
+      toast.info('Interview completed');
       return session;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to skip interview';
+      const errorMessage = error instanceof Error ? error.message : 'Failed to complete interview';
       
       setSessionState(prev => ({
         ...prev,

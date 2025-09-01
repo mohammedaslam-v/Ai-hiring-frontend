@@ -129,6 +129,10 @@ export const useInterviewState = () => {
     setInterviewStatus(INTERVIEW_STATUS.COMPLETED);
   };
 
+  const setToPreparingResults = () => {
+    setInterviewStatus(INTERVIEW_STATUS.PREPARING_RESULTS);
+  };
+
   return {
     interviewStatus,
     updateInterviewStatus,
@@ -136,6 +140,7 @@ export const useInterviewState = () => {
     setToReady,
     setToInProgress,
     setToCompleted,
+    setToPreparingResults,
     candidateName,
     candidateEmail,
     applicationId,
