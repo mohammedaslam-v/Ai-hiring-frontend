@@ -6,6 +6,33 @@ export interface TrendsPoint {
   approvals: number;
 }
 
+// Daily trends data structure matching backend
+export interface DailyTrends {
+  date: string;
+  applications: number;
+  interviewsStarted: number;
+  interviewsCompleted: number;
+  passed: number;
+  failed: number;
+}
+
+// Funnel analytics data structure matching backend
+export interface FunnelAnalytics {
+  stage: string;
+  count: number;
+  percentage: number;
+  dropOffRate: number;
+}
+
+// Chart props interfaces
+export interface TrendsChartProps {
+  data: DailyTrends[];
+}
+
+export interface FunnelChartProps {
+  data: FunnelAnalytics[];
+}
+
 export interface ApplicantLike {
   id: string;
   name: string;

@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts";
-import { TrendsPoint, TrendsChartProps } from '@/types/analytics';
+import { TrendsChartProps } from '@/types/analytics';
 
 const TrendsChart = ({ data }: TrendsChartProps) => {
   return (
@@ -18,9 +18,9 @@ const TrendsChart = ({ data }: TrendsChartProps) => {
             <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="registered" stroke="#3b82f6" name="Registered" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="started" stroke="#f59e0b" name="Started" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="completed" stroke="#10b981" name="Completed" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="applications" stroke="#3b82f6" name="Registered" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="interviewsStarted" stroke="#f59e0b" name="Started" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="interviewsCompleted" stroke="#10b981" name="Completed" strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="passed" stroke="#16a34a" name="Passed" strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="failed" stroke="#ef4444" name="Failed" strokeWidth={2} dot={false} />
           </LineChart>

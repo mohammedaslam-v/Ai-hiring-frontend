@@ -1,53 +1,35 @@
 import { DetailedStats } from '@/types/admin';
 
 /**
- * Calculate detailed statistics from application data
+ * Calculate detailed statistics from real API data
+ * This function now returns empty stats as we use real data from the dashboard API
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const calculateDetailedStats = (pageData: any[]): DetailedStats => {
-  const totalRegistered = pageData.length;
-
-  // Interview participation stats (mock data)
-  const totalStartedInterview = Math.floor(totalRegistered * 0.7); // 70% start rate
-  const neverStartedInterview = totalRegistered - totalStartedInterview;
-
-  // Interview completion stats (mock data)
-  const totalCompletedInterview = Math.floor(totalStartedInterview * 0.8); // 80% completion rate
-
-  // Left midway = started but not completed
-  const totalLeftMidway = totalStartedInterview - totalCompletedInterview;
-
-  // Pass/Fail from completed interviews (mock data)
-  const totalPassed = Math.floor(totalCompletedInterview * 0.6); // 60% pass rate
-  const totalFailed = totalCompletedInterview - totalPassed;
-
-  // Calculate percentages
-  const interviewStartRate = totalRegistered > 0 ? Math.round((totalStartedInterview / totalRegistered) * 100) : 0;
-  const interviewCompletionRate = totalStartedInterview > 0 ? Math.round((totalCompletedInterview / totalStartedInterview) * 100) : 0;
-  const passRate = totalCompletedInterview > 0 ? Math.round((totalPassed / totalCompletedInterview) * 100) : 0;
-  const failRate = totalCompletedInterview > 0 ? Math.round((totalFailed / totalCompletedInterview) * 100) : 0;
-  const leftMidwayRate = totalStartedInterview > 0 ? Math.round((totalLeftMidway / totalStartedInterview) * 100) : 0;
-
+  // Return empty stats - real data comes from dashboard API
   return {
-    totalRegistered,
-    totalStartedInterview,
-    totalCompletedInterview,
-    totalLeftMidway,
-    neverStartedInterview,
-    totalPassed,
-    totalFailed,
-    interviewStartRate,
-    interviewCompletionRate,
-    passRate,
-    failRate,
-    leftMidwayRate
+    totalRegistered: 0,
+    totalStartedInterview: 0,
+    totalCompletedInterview: 0,
+    totalLeftMidway: 0,
+    neverStartedInterview: 0,
+    totalPassed: 0,
+    totalFailed: 0,
+    interviewStartRate: 0,
+    interviewCompletionRate: 0,
+    passRate: 0,
+    failRate: 0,
+    leftMidwayRate: 0
   };
 };
 
 /**
  * Map hook data to match component interfaces
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapApplicationsToComponentFormat = (applications: any[]) => {
-  return applications.map(app => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return applications.map((app: any) => ({
     id: app.id,
     name: `${app.firstName} ${app.lastName}`,
     firstName: app.firstName,

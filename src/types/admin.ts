@@ -25,21 +25,7 @@ export interface DashboardSummary {
   averageInterviewScore: number;
 }
 
-export interface SystemStatusProps {
-  applicants: SystemStatusApplicationDetail[];
-  onRefreshData: () => void;
-  onForceRefresh?: () => void;
-  onTestApi?: () => void;
-  onBulkSync?: () => void;
-}
 
-export interface SystemStatusApplicationDetail {
-  id: string;
-  session_id?: string;
-  interview_status?: string;
-  evaluation?: Record<string, unknown>;
-  score?: number;
-}
 
 export interface StatsCardsProps {
   stats: DetailedStats;

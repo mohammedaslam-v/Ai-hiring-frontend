@@ -1,16 +1,14 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { FunnelChartProps } from '@/types/admin';
+import { FunnelChartProps } from '@/types/analytics';
 
-const FunnelChart = ({ detailedStats }: FunnelChartProps) => {
-  const data = [
-    { stage: 'Registered', value: detailedStats.totalRegistered },
-    { stage: 'Started', value: detailedStats.totalStartedInterview },
-    { stage: 'Completed', value: detailedStats.totalCompletedInterview },
-    { stage: 'Passed', value: detailedStats.totalPassed },
-    { stage: 'Failed', value: detailedStats.totalFailed },
-  ];
+const FunnelChart = ({ data }: FunnelChartProps) => {
+  // Transform the data to match the chart format
+  const chartData = data.map(item => ({
+    stage: item.stage,
+    value: item.count
+  }));
 
   return (
     <Card className="border-bambinos-blue/20">
@@ -20,7 +18,7 @@ const FunnelChart = ({ detailedStats }: FunnelChartProps) => {
       </CardHeader>
       <CardContent className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
+          <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" allowDecimals={false} />
             <YAxis type="category" dataKey="stage" width={90} />
