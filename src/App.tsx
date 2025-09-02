@@ -40,6 +40,10 @@ const AppRoutes = () => {
       <Route path="/candidate/assessment-salary-structure" element={<AssessmentSalaryStructure />} />
       <Route path="/candidate/simplified-salary-structure" element={<SimplifiedSalaryStructure />} />
 
+
+//trigger
+
+
       {/* <Route path="/admin/setup" element={<AuthSetup />} /> */}
       <Route path="/admin/login" element={<AdminLogin />} />
       {/* <Route path="/admin/signup" element={<AdminSignup />} /> */}
