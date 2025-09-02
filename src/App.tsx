@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import CandidateLogin from "./pages/candidate/CandidateLogin";
 import CandidateApplication from "./pages/candidate/CandidateApplication";
@@ -41,9 +43,21 @@ const AppRoutes = () => {
       {/* <Route path="/admin/setup" element={<AuthSetup />} /> */}
       <Route path="/admin/login" element={<AdminLogin />} />
       {/* <Route path="/admin/signup" element={<AdminSignup />} /> */}
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route path="/admin/applications" element={<AdminApplications />} />
-      <Route path="/admin/applications/:id" element={<AdminApplicationDetail />} />
+      <Route path="/admin/dashboard" element={
+        <ProtectedRoute>
+          <AdminDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/applications" element={
+        <ProtectedRoute>
+          <AdminApplications />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/applications/:id" element={
+        <ProtectedRoute>
+          <AdminApplicationDetail />
+        </ProtectedRoute>
+      } />
 
 
 
@@ -55,23 +69,25 @@ const AppRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

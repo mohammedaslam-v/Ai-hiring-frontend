@@ -11,11 +11,15 @@ const DetailedEvaluationDisplay: React.FC<DetailedEvaluationProps> = ({
   evaluation,
   strengths = [],
   areas_for_improvement = [],
-  feedback
+   
 }) => {
   // Extract rubric scores from evaluation data
   const rubricScores: RubricScore = evaluation?.rubric_scores || evaluation?.detailed_breakdown || {};
   
+  // Extract feedback from evaluation data
+  const feedback = (evaluation as any)?.feedback || (evaluation as any)?.analysis?.feedback || '';
+  
+
   const rubricParameters = [
     {
       category: "English Language Proficiency",
