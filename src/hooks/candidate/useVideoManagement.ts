@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { INTERVIEW_STATUS, UI_MESSAGES } from '@/constants/candidate/interviewConstants';
+import { INTERVIEW_STATUS } from '@/constants/candidate/interviewConstants';
 
 export const useVideoManagement = (interviewStatus: string) => {
   const [videoWatched, setVideoWatched] = useState(false);
@@ -24,17 +23,14 @@ export const useVideoManagement = (interviewStatus: string) => {
 
   const handleVideoPlay = () => {
     setVideoStarted(true);
-    toast.info(UI_MESSAGES.TOAST.VIDEO_PLAY);
   };
 
   const handleVideoEnd = () => {
     setVideoWatched(true);
-    toast.success(UI_MESSAGES.TOAST.VIDEO_END);
   };
 
   const handleSkipVideo = () => {
     setVideoWatched(true);
-    toast.info(UI_MESSAGES.TOAST.SKIP_VIDEO);
   };
 
   const resetVideoState = () => {

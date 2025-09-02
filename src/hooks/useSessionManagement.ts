@@ -72,7 +72,6 @@ export const useSessionManagement = () => {
         }));
 
         console.log('Session started successfully with status:', session.status);
-        toast.success('Interview started successfully!');
         return session;
       } else {
         throw new Error('Session not found or could not be started');

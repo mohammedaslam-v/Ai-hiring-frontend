@@ -1,6 +1,4 @@
 import { useCallback } from 'react';
-import { toast } from 'react-toastify';
-import { UI_MESSAGES } from '@/constants/candidate/interviewConstants';
 
 export const useInterviewNavigation = (
   canProceedToInterview: () => boolean,
@@ -8,12 +6,10 @@ export const useInterviewNavigation = (
 ) => {
   const handleProceedToInterview = useCallback(() => {
     if (!canProceedToInterview()) {
-      toast.error(UI_MESSAGES.TOAST.VIDEO_REQUIRED);
       return;
     }
 
     setToReady();
-    toast.info(UI_MESSAGES.TOAST.PROCEED_READY);
   }, [canProceedToInterview, setToReady]);
 
   const handleBeginInterview = useCallback(async (

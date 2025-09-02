@@ -27,7 +27,7 @@ const VALID_COUNTRY_CODES = ["+91", "+1", "+44", "+61", "+81", "+49", "+33", "+8
 export const candidateLoginValidation = Yup.object().shape({
   phone: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.PHONE.REQUIRED)
-    .matches(/^[\+]?[0-9\s\-\(\)]{10,15}$/, VALIDATION_ERROR_MESSAGES.PHONE.INVALID)
+    .matches(/^[+]?[0-9\s\-()]{10,15}$/, VALIDATION_ERROR_MESSAGES.PHONE.INVALID)
     .min(VALIDATION_RULES.MIN_PHONE_LENGTH, VALIDATION_ERROR_MESSAGES.PHONE.MIN_LENGTH)
     .max(VALIDATION_RULES.MAX_PHONE_LENGTH, VALIDATION_ERROR_MESSAGES.PHONE.MAX_LENGTH),
 });
@@ -45,7 +45,7 @@ export const candidateApplicationValidation = Yup.object().shape({
   email: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.EMAIL.REQUIRED)
     .email(VALIDATION_ERROR_MESSAGES.EMAIL.INVALID)
-    .matches(/^[a-zA-Z0-9._%+-]+@bambinos\.live$/, 'Email must be from bambinos.live domain'),
+    .matches(/^[a-zA-Z0-9._%+-]+@(bambinos\.live|gmail\.com)$/, 'Email must be from bambinos.live or gmail.com domain'),
   phone: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.PHONE.REQUIRED)
     .matches(VALIDATION_PATTERNS.PHONE, VALIDATION_ERROR_MESSAGES.PHONE.INVALID)
@@ -84,7 +84,7 @@ export const adminLoginValidation = Yup.object().shape({
   email: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.EMAIL.REQUIRED)
     .email(VALIDATION_ERROR_MESSAGES.EMAIL.INVALID)
-    .matches(/^[a-zA-Z0-9._%+-]+@bambinos\.live$/, 'Email must be from bambinos.live domain'),
+    .matches(/^[a-zA-Z0-9._%+-]+@(bambinos\.live|gmail\.com)$/, 'Email must be from bambinos.live or gmail.com domain'),
   password: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.PASSWORD.REQUIRED),
 });
@@ -102,7 +102,7 @@ export const adminSignupValidation = Yup.object().shape({
   email: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.EMAIL.REQUIRED)
     .email(VALIDATION_ERROR_MESSAGES.EMAIL.INVALID)
-    .matches(/^[a-zA-Z0-9._%+-]+@bambinos\.live$/, 'Email must be from bambinos.live domain'),
+    .matches(/^[a-zA-Z0-9._%+-]+@(bambinos\.live|gmail\.com)$/, 'Email must be from bambinos.live or gmail.com domain'),
   password: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.PASSWORD.REQUIRED)
     .min(VALIDATION_RULES.MIN_PASSWORD_LENGTH, VALIDATION_ERROR_MESSAGES.PASSWORD.MIN_LENGTH)
@@ -127,7 +127,7 @@ export const profileUpdateValidation = Yup.object().shape({
   email: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.EMAIL.REQUIRED)
     .email(VALIDATION_ERROR_MESSAGES.EMAIL.INVALID)
-    .matches(/^[a-zA-Z0-9._%+-]+@bambinos\.live$/, 'Email must be from bambinos.live domain'),
+    .matches(/^[a-zA-Z0-9._%+-]+@(bambinos\.live|gmail\.com)$/, 'Email must be from bambinos.live or gmail.com domain'),
   phone: Yup.string()
     .required(VALIDATION_ERROR_MESSAGES.PHONE.REQUIRED)
     .matches(VALIDATION_PATTERNS.PHONE, VALIDATION_ERROR_MESSAGES.PHONE.INVALID)

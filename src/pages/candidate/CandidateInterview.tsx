@@ -95,7 +95,6 @@ const CandidateInterview = () => {
       
       const session = await startSession(sessionId);
       if (session) {
-        toast.success('Interview started successfully!');
         console.log('Session status updated to started:', session);
       }
     } catch (error) {

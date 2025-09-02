@@ -7,7 +7,7 @@ export const useApplicationManagement = () => {
   const handleDeleteApplication = async (applicationId: string) => {
     try {
       // TODO: Replace with Node.js API call when backend is ready
-      toast.info("Delete function temporarily disabled - migrating to Node.js");
+      console.log("Delete function temporarily disabled - migrating to Node.js");
     } catch (error) {
       console.error('❌ Error deleting application:', error);
       toast.error("Failed to delete application.");
@@ -17,7 +17,7 @@ export const useApplicationManagement = () => {
   const handleExportToExcel = async () => {
     try {
       // TODO: Replace with Node.js API call when backend is ready
-      toast.info("Export function temporarily disabled - migrating to Node.js");
+      console.log("Export function temporarily disabled - migrating to Node.js");
     } catch (error) {
       console.error('❌ Error exporting to Excel:', error);
       toast.error("Failed to export to Excel.");
@@ -31,7 +31,6 @@ export const useApplicationManagement = () => {
 
       // TODO: Replace with Node.js API call when backend is ready
       console.log('Force refresh temporarily disabled - migrating to Node.js');
-      toast.info('Force refresh temporarily disabled - migrating to Node.js');
       return;
     } catch (error) {
       console.error('❌ Force refresh error:', error);
@@ -43,12 +42,12 @@ export const useApplicationManagement = () => {
 
   const handleTestApi = async () => {
     // TODO: Replace with Node.js API call when backend is ready
-    toast.info("API test temporarily disabled - migrating to Node.js");
+    console.log("API test temporarily disabled - migrating to Node.js");
   };
 
   const handleBulkSync = async () => {
     // TODO: Replace with Node.js API call when backend is ready
-    toast.info("Bulk sync temporarily disabled - migrating to Node.js");
+    console.log("Bulk sync temporarily disabled - migrating to Node.js");
   };
 
   return {
