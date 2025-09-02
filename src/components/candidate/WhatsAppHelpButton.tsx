@@ -5,7 +5,7 @@ import { MessageCircle } from "lucide-react";
 import { WhatsAppHelpButtonProps } from '@/types/candidate';
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
-const WhatsAppHelpButton: React.FC<WhatsAppHelpButtonProps> = ({ phone = "919886692272" }) => {
+const WhatsAppHelpButton: React.FC<WhatsAppHelpButtonProps> = ({ phone = "918248322396" }) => {
   const [candidateName] = useLocalStorage("candidateName", "Candidate");
   const [applicationId] = useLocalStorage("applicationId", "");
   
