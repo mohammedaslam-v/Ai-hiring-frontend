@@ -358,53 +358,30 @@ const CandidateResult = () => {
         {/* Main Results Card */}
         <Card className="max-w-2xl mx-auto bg-white dark:bg-gray-800 shadow-lg border-0 rounded-xl mb-8">
           <CardContent className="p-8">
-            {/* Large Circular Progress Indicator */}
+            {/* Result Display */}
             <div className="text-center mb-8">
               <div className="relative inline-flex items-center justify-center">
-                {/* Circular Progress Ring */}
-                <div className="relative w-48 h-48">
-                  <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
-                    {/* Background Circle */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      className="text-gray-200 dark:text-gray-700"
-                    />
-                    {/* Progress Circle */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 45}`}
-                      strokeDashoffset={`${2 * Math.PI * 45 * (1 - results.score / 10)}`}
-                      className={`transition-all duration-1000 ${
-                        results.isPassed 
-                          ? 'text-green-500' 
-                          : 'text-red-500'
-                      }`}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  
-                  {/* Center Content */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className={`text-4xl font-bold ${
+                {/* Result Icon */}
+                <div className="flex flex-col items-center justify-center">
+                  <div className={`w-32 h-32 rounded-full flex items-center justify-center mb-4 ${
+                    results.isPassed 
+                      ? 'bg-green-100 dark:bg-green-900/30' 
+                      : 'bg-red-100 dark:bg-red-900/30'
+                  }`}>
+                    <div className={`text-6xl font-bold ${
                       results.isPassed 
                         ? 'text-green-600 dark:text-green-400' 
                         : 'text-red-600 dark:text-red-400'
                     }`}>
-                      {results.score}
+                      {results.isPassed ? '✓' : '✗'}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                      out of 10
-                    </div>
+                  </div>
+                  <div className={`text-2xl font-bold ${
+                    results.isPassed 
+                      ? 'text-green-600 dark:text-green-400' 
+                      : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {results.isPassed ? 'PASSED' : 'NOT SELECTED'}
                   </div>
                 </div>
               </div>
