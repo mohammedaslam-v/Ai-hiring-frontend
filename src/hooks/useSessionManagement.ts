@@ -113,7 +113,7 @@ export const useSessionManagement = () => {
         isLoading: false
       }));
 
-      toast.success('Interview completed successfully!');
+      // Toast message handled by useInterviewSession hook
       return session;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to complete interview';

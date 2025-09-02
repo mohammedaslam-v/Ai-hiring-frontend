@@ -108,7 +108,7 @@ const CandidateInterview = () => {
       console.log('Completing interview with our session ID:', sessionId);
       const session = await completeSession(sessionId, score);
       if (session) {
-        toast.success('Interview completed successfully!');
+        // Toast message handled by useInterviewSession hook
         console.log('Session status updated to completed:', session);
       }
     } catch (error) {

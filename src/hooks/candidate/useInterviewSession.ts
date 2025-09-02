@@ -152,7 +152,7 @@ export const useInterviewSession = (
     try {
       const session = await completeSession(interviewSessionId, score, evaluation);
       if (session) {
-        toast.success('Interview completed successfully!');
+        // Toast message handled by useInterviewCompletion hook
         // REMOVED: Navigation logic - let CandidateInterview handle this
         // The preparing results state will handle navigation via ProcessingResultsChecker
       }
