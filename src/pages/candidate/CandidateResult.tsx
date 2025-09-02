@@ -6,7 +6,7 @@ import { CheckCircle, XCircle, Mail, Clock, Trophy, ExternalLink, Loader2, Refre
 import DarkModeToggle from "@/components/DarkModeToggle";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { usePreventNavigation } from "@/hooks/candidate/usePreventNavigation";
-import { interviewResultsService, InterviewResultsData } from "@/services/interviewResults";
+import { interviewResultsService, InterviewResultsData, EmailResponse } from "@/services/interviewResults";
 import { toast } from "react-toastify";
 
 const CandidateResult = () => {
@@ -36,6 +36,9 @@ const CandidateResult = () => {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
+   // Email state
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
 
   // Use custom hook to prevent navigation back
   usePreventNavigation();
@@ -90,9 +93,45 @@ const CandidateResult = () => {
     }
   };
 
+  // Email sending function
+  const sendInterviewResultEmail = async () => {
+    if (!applicationId || emailSent || emailLoading) {
+      return;
+    }
+
+    try {
+      setEmailLoading(true);
+      console.log('📧 Sending interview result email for applicationId:', applicationId);
+      
+      const response = await interviewResultsService.sendInterviewResultEmail(applicationId);
+      
+      if (response.status) {
+        setEmailSent(true);
+        console.log('✅ Interview result email sent successfully');
+        toast.success('Interview result email sent successfully!');
+      } else {
+        console.log('❌ Failed to send email:', response.msg);
+        toast.error('Failed to send email: ' + response.msg);
+      }
+    } catch (error) {
+      console.error('❌ Error sending email:', error);
+      toast.error('Failed to send interview result email');
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchResults();
   }, [applicationId]);
+
+  // Trigger email when results are first loaded
+  useEffect(() => {
+    if (results && !emailSent && !emailLoading) {
+      console.log('📧 Results loaded, triggering email send...');
+      sendInterviewResultEmail();
+    }
+  }, [results, emailSent, emailLoading]);
 
   const handleRetry = () => {
     setRetryCount(0);
@@ -250,6 +289,20 @@ const CandidateResult = () => {
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
             Thank you for completing your interview, {results.candidateName}
           </p>
+
+          {/* Email Status Indicator */}
+          {emailSent && (
+            <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg mb-4">
+              <Mail className="h-4 w-4 mr-2" />
+              <span>Results email sent to your inbox</span>
+            </div>
+          )}
+          {emailLoading && (
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-lg mb-4">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <span>Sending results email...</span>
+            </div>
+          )}
         </div>
 
         {/* Results Card */}
