@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Tough Tongue API service for fetching interview results
 export class ToughTongueService {
-  private baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000'; // Use our backend instead
+  private baseURL = import.meta.env.VITE_API_URL; // Use our backend instead
 
   /**
    * Fetch interview score and evaluation from Tough Tongue using sessionId

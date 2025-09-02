@@ -14,6 +14,16 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+// Define axios error type
+interface AxiosError {
+  response?: {
+    status: number;
+    data?: unknown;
+  };
+  request?: unknown;
+  message: string;
+}
+
 // Session service for frontend API calls
 class SessionService {
   private readonly baseURL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/session`;
@@ -46,7 +56,7 @@ class SessionService {
       const response = await axios.get<ApiResponse<SessionData>>(`${this.baseURL}/application/${applicationId}`);
       return response.data.data;
     } catch (error: unknown) {
-      if ((error as any).response?.status === 404) {
+      if ((error as AxiosError).response?.status === 404) {
         return null; // Session not found
       }
       console.error('Error getting session by application ID:', error);

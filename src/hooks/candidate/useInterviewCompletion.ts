@@ -34,7 +34,7 @@ export const useInterviewCompletion = (
       console.error('Error completing interview:', error);
       toast.error("There was an error completing your interview. Please try again.");
     }
-  }, [interviewSessionId, setInterviewResult, setToInProgress, setToPreparingResults]);
+  }, [interviewSessionId, setInterviewResult, setToPreparingResults]);
 
   return {
     handleInterviewComplete

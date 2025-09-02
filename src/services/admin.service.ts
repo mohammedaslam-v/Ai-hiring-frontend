@@ -114,7 +114,7 @@ class AdminService {
             queryParams.append('sortOrder', 'desc');
 
             const response = await axiosInstance.get(`/api/admin/applications?${queryParams.toString()}`);
-            const responseData = response.data as { status: boolean; msg?: string; data: any };
+            const responseData = response.data as BackendResponse;
             
             if (responseData.status) {
                 return {

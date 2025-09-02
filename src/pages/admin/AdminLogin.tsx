@@ -58,7 +58,7 @@ const AdminLogin = () => {
             <CardDescription>
               Sign in to access the administration dashboard
               <br />
-              <span className="text-sm text-blue-600 font-medium">🔐 Use: ashish@bambinos.com / 123456</span>
+       
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance for backend API
 export const axiosInstance = axios.create({
-    baseURL: 'http://localhost:5000', // Backend server URL
+    baseURL: import.meta.env.VITE_API_URL , // Backend server URL from env
     headers: {
         'Content-Type': 'application/json',
     },
