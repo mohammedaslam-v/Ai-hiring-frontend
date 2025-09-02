@@ -145,7 +145,7 @@ export default function AdminApplicationDetail() {
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Score</label>
                   <div className="flex items-center gap-2 mt-2">
                     <p className="text-2xl font-bold text-primary">{application.latest_score ?? "—"}</p>
-                    {application.latest_score && <span className="text-sm text-muted-foreground">/ 100</span>}
+                    {application.latest_score && <span className="text-sm text-muted-foreground">/ 10</span>}
                   </div>
                 </div>
                 <div className="p-4 rounded-lg bg-muted/50 border border-border/50">

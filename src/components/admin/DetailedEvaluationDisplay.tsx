@@ -68,8 +68,8 @@ const DetailedEvaluationDisplay: React.FC<DetailedEvaluationProps> = ({
     }
   };
 
-  const suitabilityPercentage = score;
-  const isPassing = suitabilityPercentage >= 60;
+  const suitabilityPercentage = (score / 10) * 100; // Convert score out of 10 to percentage
+  const isPassing = score >= 6;
 
   return (
     <div className="space-y-6">
@@ -90,11 +90,11 @@ const DetailedEvaluationDisplay: React.FC<DetailedEvaluationProps> = ({
                 {suitabilityPercentage}%
               </div>
               <p className="text-sm text-gray-600">Final Total Score</p>
-              <p className="text-xs text-gray-500 mt-1">Threshold: 60%</p>
+              <p className="text-xs text-gray-500 mt-1">Threshold: 6/10</p>
             </div>
             <div className="text-center">
               <div className="text-2xl font-semibold text-bambinos-blue">
-                {score}/100
+                {score}/10
               </div>
               <p className="text-sm text-gray-600">Total Points</p>
             </div>

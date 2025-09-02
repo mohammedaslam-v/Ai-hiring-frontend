@@ -383,7 +383,7 @@ const CandidateResult = () => {
                       strokeWidth="8"
                       fill="none"
                       strokeDasharray={`${2 * Math.PI * 45}`}
-                      strokeDashoffset={`${2 * Math.PI * 45 * (1 - results.score / 100)}`}
+                      strokeDashoffset={`${2 * Math.PI * 45 * (1 - results.score / 10)}`}
                       className={`transition-all duration-1000 ${
                         results.isPassed 
                           ? 'text-green-500' 
@@ -403,7 +403,7 @@ const CandidateResult = () => {
                       {results.score}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                      out of 100
+                      out of 10
                     </div>
                   </div>
                 </div>

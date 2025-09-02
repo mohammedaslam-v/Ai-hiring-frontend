@@ -78,8 +78,8 @@ export type ScoreFilterOption = typeof SCORE_FILTER_OPTIONS[keyof typeof SCORE_F
  */
 export const SCORE_FILTER_LABELS = {
   [SCORE_FILTER_OPTIONS.ALL]: "All Results",
-  [SCORE_FILTER_OPTIONS.PASSED]: "Passed (Final Total Score ≥ 60%)",
-  [SCORE_FILTER_OPTIONS.FAILED]: "Failed (Final Total Score < 60%)"
+  [SCORE_FILTER_OPTIONS.PASSED]: "Passed (Final Total Score ≥ 6/10)",
+  [SCORE_FILTER_OPTIONS.FAILED]: "Failed (Final Total Score < 6/10)"
 } as const;
 
 /**
@@ -132,7 +132,7 @@ export const BULK_EMAIL_UI_TEXT = {
  * Configuration values
  */
 export const BULK_EMAIL_CONFIG = {
-  MIN_SCORE_PASS: 60,
+  MIN_SCORE_PASS: 6,
   MESSAGE_MIN_HEIGHT: 150,
   DIALOG_MAX_WIDTH: "sm:max-w-[600px]"
 } as const;

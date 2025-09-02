@@ -92,7 +92,7 @@ export const CandidateResultsPage = ({ applicationId }: { applicationId: string 
     <div>
       <h2>Interview Results</h2>
       <p>Status: {result.status}</p>
-      {result.score && <p>Score: {result.score}/100</p>}
+      {result.score && <p>Score: {result.score}/10</p>}
       {result.feedback && <p>Feedback: {result.feedback}</p>}
       {/* Render other result fields as needed */}
     </div>
