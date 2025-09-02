@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Briefcase, User } from "lucide-react";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import CandidateHeader from "@/components/candidate/CandidateHeader";
@@ -40,23 +39,23 @@ const CandidateApplication = () => {
         <CandidateHeader />
         <CandidateHero />
 
-        <Card className="border-0 shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl md:rounded-3xl overflow-hidden mx-2 sm:mx-4 md:mx-0">
-          <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/10"></div>
-            <div className="relative z-10 px-4 md:px-6 py-6 md:py-8">
-              <div className="flex items-center justify-center mb-4 md:mb-6">
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
-                  <User className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                </div>
+        <div className="bg-white rounded-lg shadow-lg mx-2 sm:mx-4 md:mx-0 overflow-hidden">
+          {/* Header Section */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 md:p-8 text-center">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                <User className="h-6 w-6 text-white" />
               </div>
-              <CardTitle className="text-2xl md:text-3xl font-bold text-white mb-2">Application</CardTitle>
-              <CardDescription className="text-blue-100 text-base md:text-lg">
-                Complete your journey to educational excellence
-              </CardDescription>
             </div>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 md:p-10">
-            <form onSubmit={formik.handleSubmit} className="space-y-8 md:space-y-10">
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Application</h1>
+            <p className="text-blue-100 text-base md:text-lg">
+              Complete your journey to educational excellence
+            </p>
+          </div>
+          
+          {/* Form Content */}
+          <div className="p-6 md:p-8">
+            <form onSubmit={formik.handleSubmit} className="space-y-6">
               <PersonalInfoSection
                 formData={{
                   firstName: formik.values.firstName,
@@ -105,28 +104,28 @@ const CandidateApplication = () => {
                 onFileUpload={handleFileUpload}
               />
 
-              <div className="pt-4 pb-2">
+              <div className="pt-4">
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 sm:py-5 md:py-6 text-base sm:text-lg md:text-xl font-bold transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 rounded-xl md:rounded-2xl touch-manipulation min-h-[56px] sm:min-h-[60px] md:min-h-[72px]"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 text-lg font-bold transition-all duration-300 hover:shadow-lg rounded-lg"
                   disabled={isLoading || formik.isSubmitting}
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-3 justify-center">
-                      <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin flex-shrink-0"></div>
-                      <span className="text-sm sm:text-base md:text-lg">Submitting Application...</span>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Submitting Application...</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-3 justify-center">
-                      <Briefcase className="h-5 w-5 md:h-6 md:w-6 flex-shrink-0" />
-                      <span className="text-sm sm:text-base md:text-lg whitespace-nowrap">Submit Application & Start Interview</span>
+                      <Briefcase className="h-5 w-5" />
+                      <span>Submit Application & Start Interview</span>
                     </div>
                   )}
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

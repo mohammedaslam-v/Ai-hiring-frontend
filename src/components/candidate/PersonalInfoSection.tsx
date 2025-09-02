@@ -1,8 +1,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Phone, AlertTriangle } from "lucide-react";
-import { FORM_LABELS, FORM_PLACEHOLDERS, FORM_SECTIONS } from "@/utils/constants/form";
+import { Mail, Phone, AlertTriangle, User } from "lucide-react";
 import { PersonalInfoSectionProps } from '@/types/candidate';
 
 const PersonalInfoSection = ({ 
@@ -15,14 +14,15 @@ const PersonalInfoSection = ({
   onLastNameChange
 }: PersonalInfoSectionProps) => {
   return (
-    <div className="space-y-6 md:space-y-8">
-      <div className="flex items-center gap-3 mb-4 md:mb-6">
-        <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg md:rounded-xl flex items-center justify-center">
-          <User className="h-4 w-4 md:h-5 md:h-5 text-white" />
+    <div className="space-y-4">
+      {/* Section Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+          <User className="h-4 w-4 text-white" />
         </div>
-        <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{FORM_SECTIONS.PERSONAL_INFORMATION}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
       </div>
-      
+
       {/* Duplicate Warnings */}
       {(duplicateWarnings.email || duplicateWarnings.phone) && (
         <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
@@ -38,104 +38,108 @@ const PersonalInfoSection = ({
         </div>
       )}
       
-      <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-        <div className="space-y-3">
-          <Label htmlFor="firstName" className="text-gray-700 font-semibold dark:text-gray-300 text-sm md:text-base">
-            {FORM_LABELS.FIRST_NAME}
+      {/* First Name and Last Name in top row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 mb-1 block">
+            First Name *
           </Label>
           <Input
             id="firstName"
             name="firstName"
             value={formData.firstName}
             onChange={onFirstNameChange}
-            className={`h-11 md:h-12 border-2 rounded-lg md:rounded-xl text-sm md:text-base ${
+            className={`h-10 border border-gray-300 rounded-lg text-sm ${
               fieldErrors.firstName 
                 ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
-                : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
-            } dark:border-gray-600 dark:text-gray-300`}
-            placeholder={FORM_PLACEHOLDERS.FIRST_NAME}
+                : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'
+            }`}
+            placeholder="Enter your first name"
             required
           />
           {fieldErrors.firstName && (
-            <p className="text-red-500 text-sm mt-1">{fieldErrors.firstName}</p>
+            <p className="text-red-500 text-xs mt-1">{fieldErrors.firstName}</p>
           )}
         </div>
 
-        <div className="space-y-3">
-          <Label htmlFor="lastName" className="text-gray-700 font-semibold dark:text-gray-300 text-sm md:text-base">
-            {FORM_LABELS.LAST_NAME}
+        <div>
+          <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 mb-1 block">
+            Last Name *
           </Label>
           <Input
             id="lastName"
             name="lastName"
             value={formData.lastName}
             onChange={onLastNameChange}
-            className={`h-11 md:h-12 border-2 rounded-lg md:rounded-xl text-sm md:text-base ${
+            className={`h-10 border border-gray-300 rounded-lg text-sm ${
               fieldErrors.lastName 
                 ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
-                : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
-            } dark:border-gray-600 dark:text-gray-300`}
-            placeholder={FORM_PLACEHOLDERS.LAST_NAME}
+                : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'
+            }`}
+            placeholder="Enter your last name"
             required
           />
           {fieldErrors.lastName && (
-            <p className="text-red-500 text-sm mt-1">{fieldErrors.lastName}</p>
+            <p className="text-red-500 text-xs mt-1">{fieldErrors.lastName}</p>
           )}
         </div>
+      </div>
 
-        <div className="space-y-3">
-          <Label htmlFor="email" className="text-gray-700 font-semibold dark:text-gray-300 text-sm md:text-base">
-            {FORM_LABELS.EMAIL}
+      {/* Email and Phone in second row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-1 block">
+            Email Address *
           </Label>
           <div className="relative">
-            <Mail className="absolute left-3 md:left-4 top-3 md:top-4 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
+            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
               id="email"
               name="email"
               type="email"
               value={formData.email}
               onChange={onEmailChange}
-              className={`pl-10 md:pl-12 h-11 md:h-12 border-2 rounded-lg md:rounded-xl text-sm md:text-base ${
+              className={`pl-10 h-10 border border-gray-300 rounded-lg text-sm ${
                 fieldErrors.email 
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
                   : duplicateWarnings.email 
                     ? 'border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500/20' 
-                    : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
-              } dark:border-gray-600 dark:text-gray-300`}
-              placeholder={FORM_PLACEHOLDERS.EMAIL}
+                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'
+              }`}
+              placeholder="Enter your email address"
               required
             />
           </div>
           {fieldErrors.email && (
-            <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+            <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>
           )}
         </div>
 
-        <div className="space-y-3">
-          <Label htmlFor="phone" className="text-gray-700 font-semibold dark:text-gray-300 text-sm md:text-base">
-            {FORM_LABELS.PHONE}
+        <div>
+          <Label htmlFor="phone" className="text-sm font-medium text-gray-700 mb-1 block">
+            Phone Number *
           </Label>
           <div className="relative">
-            <Phone className="absolute left-3 md:left-4 top-3 md:top-4 h-4 w-4 md:h-5 md:w-5 text-gray-400" />
+            <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
               id="phone"
               name="phone"
               type="tel"
               value={formData.phone}
               onChange={onPhoneChange}
-              className={`pl-10 md:pl-12 h-11 md:h-12 border-2 rounded-lg md:rounded-xl text-sm md:text-base ${
+              className={`pl-10 h-10 border border-gray-300 rounded-lg text-sm ${
                 fieldErrors.phone 
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
                   : duplicateWarnings.phone 
                     ? 'border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500/20' 
-                    : 'border-gray-200 focus:border-blue-500 focus:ring-blue-500/20'
-              } dark:border-gray-600 dark:text-gray-300`}
-              placeholder={FORM_PLACEHOLDERS.PHONE}
+                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'
+              }`}
+              placeholder="Enter your phone number"
               required
             />
           </div>
           {fieldErrors.phone && (
-            <p className="text-red-500 text-sm mt-1">{fieldErrors.phone}</p>
+            <p className="text-red-500 text-xs mt-1">{fieldErrors.phone}</p>
           )}
         </div>
       </div>
