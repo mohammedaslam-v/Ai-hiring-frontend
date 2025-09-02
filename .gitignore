@@ -109,3 +109,5 @@ test-*.js
 !package.json
 !tsconfig.json
 !.gitignore
+
+.vercel

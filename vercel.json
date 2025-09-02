@@ -28,6 +28,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "@vite_api_url"
+    "VITE_API_URL":"http://34.47.252.229:5000"
   }
 }
