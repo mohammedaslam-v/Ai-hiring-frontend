@@ -25,7 +25,7 @@ export const useInterviewCompletion = (
         status: 'completed'
       });
 
-      toast.success(UI_MESSAGES.TOAST.INTERVIEW_COMPLETE);
+      // Toast handled by useSessionManagement hook
 
       // REMOVED: Navigation logic - let CandidateInterview handle this
       // The preparing results state will handle navigation via ProcessingResultsChecker

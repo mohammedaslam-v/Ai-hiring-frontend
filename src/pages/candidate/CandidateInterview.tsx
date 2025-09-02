@@ -613,28 +613,7 @@ const CandidateInterview = () => {
               </div>
             </div>
 
-            {/* Session Status Display */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className={`w-3 h-3 rounded-full ${
-                  sessionState?.status === 'pending' ? 'bg-yellow-500' :
-                  sessionState?.status === 'started' ? 'bg-blue-500' :
-                  sessionState?.status === 'completed' ? 'bg-green-500' :
-                  sessionState?.status === 'skipped' ? 'bg-red-500' : 'bg-gray-500'
-                }`}></div>
-                <div>
-                  <p className="text-sm font-medium text-gray-700">
-                    Status: <span className="capitalize">{sessionState?.status || 'pending'}</span>
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {sessionState?.status === 'pending' ? 'Ready to start interview' :
-                     sessionState?.status === 'started' ? 'Interview in progress' :
-                     sessionState?.status === 'completed' ? 'Interview completed' :
-                     sessionState?.status === 'skipped' ? 'Interview skipped' : 'Unknown status'}
-                  </p>
-                </div>
-              </div>
-            </div>
+
 
             {/* Tough Tongue AI Preview */}
             <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded-lg">
@@ -694,28 +673,7 @@ const CandidateInterview = () => {
             <p><strong>Video Status:</strong> Completed</p>
           </div>
 
-          {/* Session Status Display */}
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className={`w-3 h-3 rounded-full ${
-                sessionState?.status === 'pending' ? 'bg-yellow-500' :
-                sessionState?.status === 'started' ? 'bg-blue-500' :
-                sessionState?.status === 'completed' ? 'bg-green-500' :
-                sessionState?.status === 'skipped' ? 'bg-red-500' : 'bg-gray-500'
-              }`}></div>
-              <div>
-                <p className="text-sm font-medium text-gray-700">
-                  Status: <span className="capitalize">{sessionState?.status || 'pending'}</span>
-                </p>
-                <p className="text-xs text-gray-500">
-                  {sessionState?.status === 'pending' ? 'Ready to start interview' :
-                   sessionState?.status === 'started' ? 'Interview in progress' :
-                   sessionState?.status === 'completed' ? 'Interview completed' :
-                   sessionState?.status === 'skipped' ? 'Interview skipped' : 'Unknown status'}
-                </p>
-              </div>
-            </div>
-          </div>
+
 
           <Card className="border-blue-600/20 shadow-xl bg-white">
             <CardHeader className="text-center">
@@ -733,62 +691,7 @@ const CandidateInterview = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Session Status Display */}
-              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      sessionState?.status === 'pending' ? 'bg-yellow-500' :
-                      sessionState?.status === 'started' ? 'bg-blue-500' :
-                      sessionState?.status === 'completed' ? 'bg-green-500' :
-                      sessionState?.status === 'skipped' ? 'bg-red-500' : 'bg-gray-500'
-                    }`}></div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-700">
-                        Status: <span className="capitalize">{sessionState?.status || 'pending'}</span>
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {sessionState?.status === 'pending' ? 'Ready to start interview' :
-                         sessionState?.status === 'started' ? 'Interview in progress' :
-                         sessionState?.status === 'completed' ? 'Interview completed' :
-                         sessionState?.status === 'skipped' ? 'Interview skipped' : 'Unknown status'}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex space-x-2">
-                    {sessionState?.status === 'pending' && (
-                      <Button
-                        onClick={handleStartInterview}
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        Mark as Started
-                      </Button>
-                    )}
-                    
-                    {sessionState?.status === 'started' && (
-                      <>
-                        <Button
-                          onClick={() => handleCompleteInterview(85)}
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          Complete Interview
-                        </Button>
-                        <Button
-                          onClick={handleSkipInterview}
-                          size="sm"
-                          variant="outline"
-                          className="border-red-300 text-red-600 hover:bg-red-50"
-                        >
-                          Skip Interview
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+
 
               {/* Tough Tongue AI Interview Interface */}
               <div className="mb-6">
