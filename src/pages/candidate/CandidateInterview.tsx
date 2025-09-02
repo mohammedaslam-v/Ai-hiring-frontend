@@ -11,7 +11,7 @@ import { useInterviewSession } from "@/hooks/candidate/useInterviewSession";
 import { useInterviewCompletion } from "@/hooks/candidate/useInterviewCompletion";
 import { useInterviewNavigation } from "@/hooks/candidate/useInterviewNavigation";
 import { useSessionManagement } from "@/hooks/useSessionManagement";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Import utilities and constants
@@ -78,7 +78,7 @@ const CandidateInterview = () => {
   }, [interviewSessionId, sessionState, applicationId]);
 
   // Helper functions to call session APIs with our session ID
-  const handleStartInterviewWithId = async (sessionId: string) => {
+  const handleStartInterviewWithId = useCallback(async (sessionId: string) => {
     try {
       console.log('Starting interview with our session ID:', sessionId);
       
@@ -102,9 +102,9 @@ const CandidateInterview = () => {
       console.error('Error starting interview with our session ID:', error);
       toast.error('Failed to start interview');
     }
-  };
+  }, [interviewSessionId, startSession]);
 
-  const handleCompleteInterviewWithId = async (sessionId: string, score: number) => {
+  const handleCompleteInterviewWithId = useCallback(async (sessionId: string, score: number) => {
     try {
       console.log('Completing interview with our session ID:', sessionId);
       const session = await completeSession(sessionId, score);
@@ -116,7 +116,7 @@ const CandidateInterview = () => {
       console.error('Error completing interview with our session ID:', error);
       toast.error('Failed to complete interview');
     }
-  };
+  }, [completeSession]);
 
   const handleSkipInterviewWithId = async (sessionId: string) => {
     try {
@@ -314,7 +314,7 @@ const CandidateInterview = () => {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [interviewSessionId, sessionState?.status]);
+  }, [interviewSessionId, sessionState?.status, applicationId, handleCompleteInterviewWithId, handleStartInterviewWithId, navigate, setToPreparingResults]);
 
   // Alternative: Monitor iframe load events and detect state changes
   useEffect(() => {
@@ -814,7 +814,7 @@ const CandidateInterview = () => {
                     <p><strong>Be in a quiet place</strong> with <strong>no background noise</strong> before starting.</p>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <span className="text-blue-600 text-xl">▶️</span>
+                    <span className="text-blue-600 text-xl">→</span>
                     <p><strong>Click "Your Task"</strong> to begin reading <strong>only when instructed by the AI</strong>.</p>
                   </div>
                   <div className="flex items-start space-x-3">
@@ -894,40 +894,92 @@ const CandidateInterview = () => {
   // Preparing results state
   if (interviewStatus === INTERVIEW_STATUS.PREPARING_RESULTS) {
     return (
-      <div className="min-h-screen bg-white py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-4 max-w-4xl py-12">
           {/* Header */}
-          <div className="text-left mb-8">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-                <img src="/lovable-uploads/1bd88e64-73eb-4b2c-8096-218b1fce8646.png" alt="Bambinos.live" className="w-8 h-8 rounded-lg" />
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center space-x-3 mb-4">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white shadow-sm border">
+                <img src="/lovable-uploads/1bd88e64-73eb-4b2c-8096-218b1fce8646.png" alt="Bambinos.live" className="w-6 h-6 rounded" />
               </div>
-              <h1 className="text-2xl font-bold text-blue-600">Bambinos.live</h1>
-              <div className="ml-auto">
-                <div className="w-8 h-8 border border-blue-600/30 rounded-lg flex items-center justify-center">
-                  <span className="text-blue-600">☀</span>
-                </div>
-              </div>
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Bambinos.live</h1>
             </div>
           </div>
 
-          <Card className="border-blue-600/20 shadow-xl bg-white">
-            <CardHeader className="text-center">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 border border-green-300">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+          {/* Main Processing Card */}
+          <Card className="max-w-2xl mx-auto bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700">
+            <CardHeader className="text-center pb-6 pt-8">
+              {/* Simple Success Icon */}
+              <div className="mx-auto w-16 h-16 mb-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
-              <CardTitle className="text-2xl text-blue-600">Processing Your Results</CardTitle>
-              <CardDescription>
+
+              <CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                Processing Your Results
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
                 We're analyzing your interview responses and calculating your score...
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-sm text-gray-600">Please wait while we prepare your results</p>
-              <p className="text-xs text-gray-500 mt-2">You'll be redirected to your results page shortly</p>
+
+            <CardContent className="text-center pb-8">
+              {/* Simple Loading Animation */}
+              <div className="mb-6">
+                <div className="flex justify-center items-center space-x-1 mb-4">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse delay-100"></div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse delay-200"></div>
+                </div>
+                
+                {/* Simple Progress Bar */}
+                <div className="w-full max-w-xs mx-auto">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-1 overflow-hidden">
+                    <div className="bg-blue-600 h-full rounded-full transition-all duration-1000" style={{width: '75%'}}></div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Analyzing responses...</p>
+                </div>
+              </div>
+
+              {/* Simple Processing Steps */}
+              <div className="space-y-3 max-w-sm mx-auto">
+                <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
+                      <CheckCircle className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="text-sm text-green-800 dark:text-green-200">Video Upload Complete</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                    <span className="text-sm text-blue-800 dark:text-blue-200">AI Analysis in Progress</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-5 h-5 bg-gray-400 rounded-full"></div>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Generating Results</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Please wait while we prepare your results
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                  This usually takes 2-3 minutes
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
+        
         <WhatsAppHelpButton />
       </div>
     );
