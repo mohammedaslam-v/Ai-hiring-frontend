@@ -20,24 +20,31 @@ const PositionSection = ({ selectedPosition, onPositionChange, error }: Position
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-          <Briefcase className="h-4 w-4 text-white" />
+    <div className="space-y-5 animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-xl p-5 border border-purple-100 shadow-lg hover:shadow-xl transition-all duration-400" style={{animationDelay: '0.1s'}}>
+      <div className="flex items-center gap-3 group">
+        <div className="w-10 h-10 bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-400 group-hover:rotate-12 group-hover:shadow-xl">
+          <Briefcase className="h-5 w-5 text-white group-hover:animate-bounce" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900">Position *</h3>
+        <div>
+          <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">Position *</h3>
+          <p className="text-sm text-gray-600 mt-1">Choose your preferred role</p>
+        </div>
       </div>
       
       <div className="space-y-3">
         <RadioGroup value={selectedPosition} onValueChange={onPositionChange} className="space-y-3">
-          {positions.map((position) => (
-            <div key={position.id} className="flex items-start space-x-3 p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-              <RadioGroupItem value={position.id} id={position.id} className="mt-1" />
+          {positions.map((position, index) => (
+            <div 
+              key={position.id} 
+              className={`flex items-start space-x-3 p-4 bg-gradient-to-r from-white to-purple-50/30 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-400 hover:-translate-y-1 hover:border-purple-300 group cursor-pointer animate-fade-in-up hover:scale-[1.01]`}
+              style={{animationDelay: `${0.2 + index * 0.1}s`}}
+            >
+              <RadioGroupItem value={position.id} id={position.id} className="mt-1 group-hover:scale-110 transition-transform duration-400" />
               <div className="flex-1">
-                <Label htmlFor={position.id} className="text-sm font-medium text-gray-700 cursor-pointer block">
+                <Label htmlFor={position.id} className="text-base font-semibold text-gray-700 cursor-pointer block group-hover:text-purple-600 transition-colors duration-300">
                   {position.title}
                 </Label>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-600 mt-1 group-hover:text-gray-700 transition-colors duration-300">
                   {position.description}
                 </p>
               </div>
@@ -46,7 +53,7 @@ const PositionSection = ({ selectedPosition, onPositionChange, error }: Position
         </RadioGroup>
         
         {error && (
-          <p className="text-red-500 text-sm mt-2">{error}</p>
+          <p className="text-red-500 text-sm mt-2 animate-fade-in">{error}</p>
         )}
       </div>
     </div>
