@@ -15,8 +15,9 @@ export class ToughTongueService {
       console.log('🔍 Frontend: Requesting Tough Tongue results through our backend for session:', sessionId);
       
       // Call our backend endpoint which will proxy the request to Tough Tongue
+      // The backend will wait for evaluation to complete before returning results
       const response = await axios.get(`${this.baseURL}/api/session/tough-tongue/${sessionId}/results`, {
-        timeout: 300000, // 🔧 FIXED: Increased to 5 minutes (300 seconds) for maximum timeout
+        timeout: 210000, // 3.5 minutes timeout to allow for evaluation processing
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -33,6 +34,7 @@ export class ToughTongueService {
         if (responseData.success) {
           console.log('✅ Frontend: Successfully received results from backend:', responseData.data);
           console.log('✅ Frontend: Extracted score from backend:', responseData.extractedScore);
+          console.log('🔍 Frontend: Full response data:', JSON.stringify(responseData, null, 2));
           
           // Return data with extracted score for easier access
           return {

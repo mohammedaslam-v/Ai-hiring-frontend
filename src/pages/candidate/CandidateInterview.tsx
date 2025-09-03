@@ -252,6 +252,14 @@ const CandidateInterview = () => {
             toughTongueService.getInterviewResults(data.sessionId)
               .then(result => {
                 console.log('✅ Tough Tongue evaluation completed! Result:', result);
+                console.log('🔍 Frontend: Result score check:', {
+                  result: result,
+                  score: result?.score,
+                  scoreType: typeof result?.score,
+                  isUndefined: result?.score === undefined,
+                  isNull: result?.score === null,
+                  interviewSessionId: interviewSessionId
+                });
                 
                 if (result && result.score !== undefined && result.score !== null && interviewSessionId) {
                   const score = Number(result.score);
@@ -271,6 +279,7 @@ const CandidateInterview = () => {
                 } else {
                   // Use fallback score if no score received
                   console.log('⚠️ No score from Tough Tongue, using fallback score');
+                  console.log('🔍 Frontend: Result object for debugging:', result);
                   handleCompleteInterviewWithId(interviewSessionId, 85);
                   
                   setTimeout(() => {
