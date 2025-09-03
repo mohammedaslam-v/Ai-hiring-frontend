@@ -10,7 +10,7 @@ import {
 
 // Dashboard analytics service for frontend API calls
 class DashboardAnalyticsService {
-  private readonly baseURL = 'http://localhost:5000/api/admin/dashboard';
+  private readonly baseURL = `${import.meta.env.VITE_API_URL}/api/admin/dashboard`;
 
   constructor() {
     // Ensure baseURL is properly set

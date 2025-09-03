@@ -97,7 +97,7 @@ class CandidateService {
                 message: "Resume upload handled during application submission",
                 data: {
                     filePath: `resumes/${applicationId}/${Date.now()}-${file.name}`,
-                    fileUrl: `http://localhost:5000/uploads/${applicationId}/${Date.now()}-${file.name}`,
+                    fileUrl: `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${applicationId}/${Date.now()}-${file.name}`,
                     message: 'Resume uploaded successfully',
                     uploadedAt: new Date().toISOString()
                 }
