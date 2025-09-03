@@ -87,7 +87,7 @@ export function useCandidateLogin() {
       if (existingApp) {
         // Application exists - set localStorage and navigate based on interview status
         localStorage.setItem('applicationId', existingApp.applicationId);
-git         localStorage.setItem('candidateName', JSON.stringify(`${existingApp.firstName} ${existingApp.lastName}`));
+       localStorage.setItem('candidateName', JSON.stringify(`${existingApp.firstName} ${existingApp.lastName}`));
         localStorage.setItem('candidateEmail', JSON.stringify(existingApp.email));
         
         // Store phone number for reference
