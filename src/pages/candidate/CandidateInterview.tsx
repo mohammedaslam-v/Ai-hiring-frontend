@@ -703,7 +703,7 @@ const CandidateInterview = () => {
 
               {/* Tough Tongue AI Interview Interface */}
               <div className="mb-6">
-                <div className="relative w-full h-[700px] bg-black rounded-lg overflow-hidden border-2 border-blue-600/20">
+                <div className="relative w-full h-[950px] bg-black rounded-lg overflow-hidden border-2 border-blue-600/20">
                   <iframe
                     src={iframeUrl}
                     width="100%"
