@@ -111,6 +111,62 @@ class CandidateService {
         }
     }
 
+    async getApplicationByPhone(phoneNumber: string): Promise<ServiceResponse> {
+        try {
+            const response = await axiosInstance.get(`/api/candidate/application/${phoneNumber}`);
+            
+            // Type the response data
+            const responseData = response.data as BackendApiResponse<{
+                id: string;
+                applicationId: string;
+                firstName: string;
+                lastName: string;
+                email: string;
+                phoneNumber: string;
+                position: string;
+                subjects: string[];
+                additionalLanguages: string[];
+                availableDays: string[];
+                availableTimeSlots: string[];
+                resumeUrl?: string;
+                status: string;
+                interviewStatus: string;
+                score?: number;
+                submittedAt: string;
+                updatedAt: string;
+            }>;
+            
+            if (responseData.status) {
+                return {
+                    status: true,
+                    message: responseData.msg || "Application found successfully",
+                    data: responseData.data
+                };
+            } else {
+                return {
+                    status: false,
+                    message: responseData.msg || "No application found with this phone number",
+                };
+            }
+            
+        } catch (error: unknown) {
+            console.error('Get application by phone error:', error);
+            
+            if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response) {
+                const responseData = (error as AxiosErrorResponse).response!.data;
+                return {
+                    status: false,
+                    message: responseData.msg || responseData.error || "No application found with this phone number",
+                };
+            }
+            
+            return {
+                status: false,
+                message: "No application found with this phone number",
+            };
+        }
+    }
+
     async getApplicationStatus(applicationId: string): Promise<ServiceResponse> {
         try {
             const response = await axiosInstance.get(`/api/candidate/applications/${applicationId}`);

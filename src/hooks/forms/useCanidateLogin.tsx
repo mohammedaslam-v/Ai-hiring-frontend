@@ -9,6 +9,7 @@ import { TOAST_MESSAGES } from "@/utils/constants/messages";
 import { MOCK_DATA, STORAGE_KEYS, TIMEOUTS } from "@/utils/constants/data";
 import { useApi } from "../useApi";
 import { MockLoginResponse } from "@/types/candidate";
+import CandidateService from "@/services/candidate.service";
 
 /**
  * Custom hook for candidate login functionality
@@ -19,6 +20,7 @@ export function useCandidateLogin() {
   const navigate = useNavigate();
   const [refreshToken, setRefreshToken] = useLocalStorage(LocalStorageKeys.REFRESH_TOKEN, "");
   const [accessToken, setAccessToken] = useLocalStorage(LocalStorageKeys.ACCESS_TOKEN, "");
+  const candidateService = new CandidateService();
 
   // Mock login operation using the base useApi hook
   const mockLogin = useApi<MockLoginResponse>(
@@ -63,10 +65,58 @@ export function useCandidateLogin() {
     }
   );
 
+  // Check for existing application by phone number
+  async function checkExistingApplication(phoneNumber: string) {
+    try {
+      const response = await candidateService.getApplicationByPhone(phoneNumber);
+      return response.status ? response.data : null;
+    } catch (error) {
+      console.error('Error checking existing application:', error);
+      return null;
+    }
+  }
+
   // Main login handler
   async function handleLogin(phone: string) {
     setValidationError("");
-    await mockLogin.execute(phone);
+    
+    try {
+      // First, check if application exists
+      const existingApp = await checkExistingApplication(phone);
+      
+      if (existingApp) {
+        // Application exists - set localStorage and navigate based on interview status
+        localStorage.setItem('applicationId', existingApp.applicationId);
+git         localStorage.setItem('candidateName', JSON.stringify(`${existingApp.firstName} ${existingApp.lastName}`));
+        localStorage.setItem('candidateEmail', JSON.stringify(existingApp.email));
+        
+        // Store phone number for reference
+        localStorage.setItem(STORAGE_KEYS.LOGIN_PHONE_NUMBER, phone);
+        
+        // Check interview status and navigate accordingly
+        if (existingApp.interviewStatus === 'not_started') {
+          toast.success("Welcome back! You can now proceed to your interview.");
+          navigate('/candidate/interview');
+        } else if (existingApp.interviewStatus === 'completed' || existingApp.interviewStatus === 'failed') {
+          toast.success("Welcome back! Your interview has been completed.");
+          navigate('/candidate/result');
+        } else if (existingApp.interviewStatus === 'in_progress') {
+          toast.success("Welcome back! You can resume your interview.");
+          navigate('/candidate/interview');
+        } else {
+          // Default to interview page for any other status
+          toast.success("Welcome back! You can proceed to your interview.");
+          navigate('/candidate/interview');
+        }
+      } else {
+        // No application found - proceed with normal flow (mock login)
+        await mockLogin.execute(phone);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setValidationError("Login failed. Please try again.");
+      toast.error("Login failed. Please try again.");
+    }
   }
 
   const clearError = () => {
