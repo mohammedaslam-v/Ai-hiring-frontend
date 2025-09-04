@@ -75,10 +75,15 @@ export const useInterviewSession = (
       // Show preparing results state
       setToPreparingResults();
 
-      // Store mock result in localStorage
+      // Store result in localStorage - only if we have a valid score
+      if (!resultData?.score) {
+        console.warn('No score available from result data');
+        return;
+      }
+      
       const result: InterviewResult = {
         sessionId: interviewSessionId,
-        score: resultData?.score || 85,
+        score: resultData.score,
         completedAt: new Date().toISOString(),
         status: 'completed'
       };

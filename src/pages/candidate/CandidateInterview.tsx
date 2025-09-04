@@ -277,26 +277,27 @@ const CandidateInterview = () => {
                   }, 2000);
                   
                 } else {
-                  // Use fallback score if no score received
-                  console.log('⚠️ No score from Tough Tongue, using fallback score');
+                  // No score received - show error and don't use fake score
+                  console.log('⚠️ No score from Tough Tongue API');
                   console.log('🔍 Frontend: Result object for debugging:', result);
-                  handleCompleteInterviewWithId(interviewSessionId, 85);
                   
-                  setTimeout(() => {
-                    console.log('🎯 Navigating to results page with fallback score...');
-                    navigate('/candidate/result');
-                  }, 2000);
+                  // Show error to user instead of using fake score
+                  toast.error('Unable to retrieve interview score. Please contact support.');
+                  
+                  // Don't complete the interview with a fake score
+                  // Instead, let the user retry or contact support
+                  return;
                 }
               })
               .catch(error => {
-                // Use fallback score if API fails
-                console.log('❌ Tough Tongue API failed, using fallback score:', error.message);
-                handleCompleteInterviewWithId(interviewSessionId, 85);
+                // API failed - show error instead of using fake score
+                console.log('❌ Tough Tongue API failed:', error.message);
                 
-                setTimeout(() => {
-                  console.log('🎯 Navigating to results page with fallback score...');
-                  navigate('/candidate/result');
-                }, 2000);
+                // Show error to user instead of using fake score
+                toast.error('Failed to retrieve interview results. Please try again or contact support.');
+                
+                // Don't complete the interview with a fake score
+                // Instead, let the user retry or contact support
               });
           }
           

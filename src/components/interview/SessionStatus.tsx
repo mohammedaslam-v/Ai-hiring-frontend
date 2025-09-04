@@ -149,12 +149,18 @@ export const SessionStatus: React.FC<SessionStatusProps> = ({
           <div className="flex gap-2">
             {onCompleteInterview && (
               <button
-                onClick={() => onCompleteInterview(85)} // Default score of 85
+                onClick={() => {
+                  // Don't use hardcoded score - let the interview completion logic handle scoring
+                  console.warn('Manual completion triggered - this should not use hardcoded scores');
+                  // This button should probably be removed or disabled in production
+                  // as interview completion should be automatic based on Tough Tongue results
+                }}
                 disabled={isLoading}
-                className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-xs font-medium rounded-md transition-colors duration-200 flex items-center space-x-1"
+                className="px-3 py-1.5 bg-gray-400 text-white text-xs font-medium rounded-md transition-colors duration-200 flex items-center space-x-1 cursor-not-allowed"
+                title="Interview completion is automatic based on results"
               >
                 <CheckCircle className="h-3 w-3" />
-                <span>Complete</span>
+                <span>Auto-Complete</span>
               </button>
             )}
             
