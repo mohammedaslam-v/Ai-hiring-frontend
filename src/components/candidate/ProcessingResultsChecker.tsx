@@ -37,14 +37,10 @@ const ProcessingResultsChecker = ({ applicationId, onResultsReady }: ProcessingR
           const score = response.data.score;
           console.log('ProcessingResultsChecker: Score found:', score);
           
-          // Wait for real evaluation score (not 0 from skip)
-          // Score 0 means skipped interview, any other score means evaluation completed
-          if (score > 0) {
-            console.log('ProcessingResultsChecker: Real evaluation score found, navigating to results...');
-            onResultsReady();
-            return;
-          } else if (score === 0) {
-            console.log('ProcessingResultsChecker: Skipped interview detected (score=0), navigating to results...');
+          // Wait for evaluation score (0 means failed evaluation from Tough Tongue, >0 means passed)
+          // Score 0 means failed evaluation (Tough Tongue returned null), any other score means evaluation completed
+          if (score !== null && score !== undefined) {
+            console.log(`ProcessingResultsChecker: Evaluation score found: ${score} (0 means failed evaluation), navigating to results...`);
             onResultsReady();
             return;
           } else {

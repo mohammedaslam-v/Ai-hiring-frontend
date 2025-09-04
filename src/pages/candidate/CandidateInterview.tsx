@@ -263,9 +263,9 @@ const CandidateInterview = () => {
                 
                 if (result && result.score !== undefined && result.score !== null && interviewSessionId) {
                   const score = Number(result.score);
-                  console.log(`🎯 Got real score from Tough Tongue: ${score}`);
+                  console.log(`🎯 Got real score from Tough Tongue: ${score} (0 means failed evaluation)`);
                   
-                  // Update session with real score
+                  // Update session with real score (0 is valid - means Tough Tongue returned null for failed evaluation)
                   handleCompleteInterviewWithId(interviewSessionId, score);
                   
                   // Navigate to results immediately
