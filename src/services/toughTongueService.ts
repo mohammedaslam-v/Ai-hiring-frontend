@@ -24,6 +24,7 @@ export class ToughTongueService {
         }
       });
 
+      // Handle different response status codes
       if (response.status === 200 && response.data && typeof response.data === 'object' && 'success' in response.data) {
         const responseData = response.data as { 
           success: boolean; 
@@ -44,6 +45,17 @@ export class ToughTongueService {
         } else {
           throw new Error('Backend returned unsuccessful response');
         }
+      } else if (response.status === 202) {
+        // Handle timeout response - evaluation still processing
+        const timeoutData = response.data as {
+          error: string;
+          message: string;
+          details: string;
+          retryAfter?: number;
+        };
+        
+        console.log('⏰ Frontend: Evaluation timeout - still processing:', timeoutData.message);
+        throw new Error(`EVALUATION_TIMEOUT: ${timeoutData.message}`);
       } else {
         throw new Error('Backend returned invalid response format');
       }

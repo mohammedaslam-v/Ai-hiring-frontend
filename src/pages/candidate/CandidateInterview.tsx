@@ -193,7 +193,7 @@ const CandidateInterview = () => {
   }, [interviewSessionId]);
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
+    const handleMessage = async (event: MessageEvent) => {
       // Only accept messages from Tough Tongue domain
       if (event.origin !== 'https://app.toughtongueai.com') {
         return;
@@ -254,7 +254,7 @@ const CandidateInterview = () => {
             console.log('🎯 Making single API call to Tough Tongue for evaluation results...');
             
             toughTongueService.getInterviewResults(data.sessionId)
-              .then(result => {
+              .then(async (result) => {
                 console.log('✅ Tough Tongue evaluation completed! Result:', result);
                 console.log('🔍 Frontend: Result score check:', {
                   result: result,
@@ -271,15 +271,25 @@ const CandidateInterview = () => {
                   console.log(`🎯 About to call handleCompleteInterviewWithId with sessionId: ${interviewSessionId} and score: ${score}`);
                   
                   // Update session with real score (0 is valid - means Tough Tongue returned null for failed evaluation)
-                  handleCompleteInterviewWithId(interviewSessionId, score);
-                  
-                  // Navigate to results immediately
-                  setTimeout(() => {
-                    console.log('🎯 Navigating to results page with real score...');
-                                console.log('🎯 DEBUG: applicationId before navigation:', applicationId);
-            console.log('🎯 DEBUG: localStorage applicationId before navigation:', localStorage.getItem('applicationId'));
-                    navigate('/candidate/result');
-                  }, 2000);
+                  try {
+                    await handleCompleteInterviewWithId(interviewSessionId, score);
+                    console.log('🎯 handleCompleteInterviewWithId completed successfully');
+                    
+                    // Navigate to results after score is saved
+                    setTimeout(() => {
+                      console.log('🎯 Navigating to results page with real score...');
+                      console.log('🎯 DEBUG: applicationId before navigation:', applicationId);
+                      console.log('🎯 DEBUG: localStorage applicationId before navigation:', localStorage.getItem('applicationId'));
+                      navigate('/candidate/result');
+                    }, 2000);
+                  } catch (error) {
+                    console.error('🎯 Error in handleCompleteInterviewWithId:', error);
+                    // Still navigate even if there's an error, but show error to user
+                    toast.error('Failed to save interview results, but you can still view them');
+                    setTimeout(() => {
+                      navigate('/candidate/result');
+                    }, 2000);
+                  }
                   
                 } else {
                   // No score received - show error and don't use fake score
@@ -295,14 +305,27 @@ const CandidateInterview = () => {
                 }
               })
               .catch(error => {
-                // API failed - show error instead of using fake score
                 console.log('❌ Tough Tongue API failed:', error.message);
                 
-                // Show error to user instead of using fake score
-                toast.error('Failed to retrieve interview results. Please try again or contact support.');
-                
-                // Don't complete the interview with a fake score
-                // Instead, let the user retry or contact support
+                // Check if it's a timeout error
+                if (error.message.includes('EVALUATION_TIMEOUT')) {
+                  console.log('⏰ Frontend: Evaluation timeout - still processing');
+                  toast.info('Evaluation is taking longer than expected. Please check back in a few minutes.');
+                  
+                  // Navigate to results page to show "pending" state
+                  setTimeout(() => {
+                    navigate('/candidate/result');
+                  }, 2000);
+                } else {
+                  // Other API errors
+                  console.log('❌ Other API error:', error.message);
+                  toast.error('Failed to retrieve interview results. Please try again or contact support.');
+                  
+                  // Navigate to results page even if error, to show "pending" or "error" state
+                  setTimeout(() => {
+                    navigate('/candidate/result');
+                  }, 2000);
+                }
               });
           }
           
