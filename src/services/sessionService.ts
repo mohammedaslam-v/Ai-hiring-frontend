@@ -89,14 +89,20 @@ class SessionService {
   // Complete interview session
   async completeSession(sessionId: string, score: number, evaluation?: Record<string, unknown>): Promise<SessionData> {
     try {
+      console.log('🎯 SessionService: completeSession called with sessionId:', sessionId, 'score:', score);
+      console.log('🎯 SessionService: Making PATCH request to:', `${this.baseURL}/${sessionId}/complete`);
+      console.log('🎯 SessionService: Request body:', { status: 'completed', score, evaluation });
+      
       const response = await axios.patch<ApiResponse<SessionData>>(`${this.baseURL}/${sessionId}/complete`, {
         status: 'completed', // Add required status field
         score,
         evaluation
       });
+      
+      console.log('🎯 SessionService: Response received:', response.data);
       return response.data.data;
     } catch (error) {
-      console.error('Error completing session:', error);
+      console.error('❌ SessionService: Error completing session:', error);
       throw new Error('Failed to complete interview session');
     }
   }

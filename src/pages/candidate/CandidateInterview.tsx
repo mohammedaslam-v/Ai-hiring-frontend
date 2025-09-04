@@ -105,14 +105,18 @@ const CandidateInterview = () => {
 
   const handleCompleteInterviewWithId = useCallback(async (sessionId: string, score: number) => {
     try {
-      console.log('Completing interview with our session ID:', sessionId);
+      console.log('🎯 handleCompleteInterviewWithId called with sessionId:', sessionId, 'score:', score);
+      console.log('🎯 About to call completeSession with sessionId:', sessionId, 'score:', score);
       const session = await completeSession(sessionId, score);
+      console.log('🎯 completeSession returned:', session);
       if (session) {
         // Toast message handled by useInterviewSession hook
-        console.log('Session status updated to completed:', session);
+        console.log('✅ Session status updated to completed:', session);
+      } else {
+        console.log('⚠️ completeSession returned null/undefined');
       }
     } catch (error) {
-      console.error('Error completing interview with our session ID:', error);
+      console.error('❌ Error completing interview with our session ID:', error);
       toast.error('Failed to complete interview');
     }
   }, [completeSession]);
@@ -264,6 +268,7 @@ const CandidateInterview = () => {
                 if (result && result.score !== undefined && result.score !== null && interviewSessionId) {
                   const score = Number(result.score);
                   console.log(`🎯 Got real score from Tough Tongue: ${score} (0 means failed evaluation)`);
+                  console.log(`🎯 About to call handleCompleteInterviewWithId with sessionId: ${interviewSessionId} and score: ${score}`);
                   
                   // Update session with real score (0 is valid - means Tough Tongue returned null for failed evaluation)
                   handleCompleteInterviewWithId(interviewSessionId, score);
