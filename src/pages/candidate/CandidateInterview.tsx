@@ -265,31 +265,20 @@ const CandidateInterview = () => {
                   interviewSessionId: interviewSessionId
                 });
                 
-                if (result && result.score !== undefined && result.score !== null && interviewSessionId) {
+                if (result && result.score !== undefined && result.score !== null) {
                   const score = Number(result.score);
                   console.log(`🎯 Got real score from Tough Tongue: ${score} (0 means failed evaluation)`);
-                  console.log(`🎯 About to call handleCompleteInterviewWithId with sessionId: ${interviewSessionId} and score: ${score}`);
+                  console.log(`🎯 Backend has already completed the session and sent email - no need to complete again`);
                   
-                  // Update session with real score (0 is valid - means Tough Tongue returned null for failed evaluation)
-                  try {
-                    await handleCompleteInterviewWithId(interviewSessionId, score);
-                    console.log('🎯 handleCompleteInterviewWithId completed successfully');
-                    
-                    // Navigate to results after score is saved
-                    setTimeout(() => {
-                      console.log('🎯 Navigating to results page with real score...');
-                      console.log('🎯 DEBUG: applicationId before navigation:', applicationId);
-                      console.log('🎯 DEBUG: localStorage applicationId before navigation:', localStorage.getItem('applicationId'));
-                      navigate('/candidate/result');
-                    }, 2000);
-                  } catch (error) {
-                    console.error('🎯 Error in handleCompleteInterviewWithId:', error);
-                    // Still navigate even if there's an error, but show error to user
-                    toast.error('Failed to save interview results, but you can still view them');
-                    setTimeout(() => {
-                      navigate('/candidate/result');
-                    }, 2000);
-                  }
+                  // Backend already completed the session and sent email
+                  // Just navigate to results page
+                  console.log('🎯 Navigating to results page - session already completed by backend...');
+                  console.log('🎯 DEBUG: applicationId before navigation:', applicationId);
+                  console.log('🎯 DEBUG: localStorage applicationId before navigation:', localStorage.getItem('applicationId'));
+                  
+                  setTimeout(() => {
+                    navigate('/candidate/result');
+                  }, 2000);
                   
                 } else {
                   // No score received - show error and don't use fake score
