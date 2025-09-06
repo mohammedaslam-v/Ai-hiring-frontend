@@ -14,6 +14,14 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+// Define Tough Tongue linking response
+interface ToughTongueLinkResponse {
+  success: boolean;
+  message: string;
+  data: SessionData;
+  error?: string;
+}
+
 // Define axios error type
 interface AxiosError {
   response?: {
@@ -145,6 +153,36 @@ class SessionService {
     } catch (error) {
       console.error('Error getting active sessions count:', error);
       throw new Error('Failed to get active sessions count');
+    }
+  }
+
+  /**
+   * Link Tough Tongue session ID to internal session
+   */
+  async linkToughTongueSession(sessionId: string, toughTongueSessionId: string): Promise<SessionData> {
+    try {
+      console.log('Linking Tough Tongue session:', { sessionId, toughTongueSessionId });
+      
+      const response = await axios.post<ToughTongueLinkResponse>(`${this.baseURL}/link-tough-tongue`, {
+        sessionId,
+        toughTongueSessionId
+      }, {
+        timeout: 10000,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+
+      if (response.status === 200 && response.data?.success) {
+        console.log('✅ Tough Tongue session linked successfully');
+        return response.data.data;
+      } else {
+        throw new Error(response.data?.message || 'Failed to link Tough Tongue session');
+      }
+    } catch (error) {
+      console.error('❌ Error linking Tough Tongue session:', error);
+      throw new Error(`Failed to link Tough Tongue session: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }

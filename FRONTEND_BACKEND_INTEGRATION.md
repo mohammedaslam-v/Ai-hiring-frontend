@@ -186,7 +186,7 @@ Check the Network tab in browser DevTools:
 2. Select a resume file (PDF, DOC, or DOCX)
 3. Submit the form
 4. Check browser console for API logs
-5. Verify data is stored in MongoDB
+5. Verify data is stored in MySQL
 
 ### **3. Handle Edge Cases**
 - Test with invalid file types
@@ -197,7 +197,7 @@ Check the Network tab in browser DevTools:
 ## 🚨 **Important Notes**
 
 ### **1. Backend Requirements**
-- MongoDB must be running and accessible
+- MySQL must be running and accessible
 - Backend server must be running on port 5000
 - CORS must be configured for `localhost:8080`
 
@@ -216,7 +216,7 @@ Check the Network tab in browser DevTools:
 
 Your integration is working when:
 - ✅ Backend health check returns success
-- ✅ Application submission creates records in MongoDB
+- ✅ Application submission creates records in MySQL
 - ✅ Resume files are uploaded and stored
 - ✅ Error messages are properly displayed
 - ✅ Form validation works with backend constraints
@@ -225,4 +225,4 @@ Your integration is working when:
 
 **You're all set! 🚀** 
 
-Your frontend is now fully integrated with the backend. The candidate application form will automatically send data to MongoDB through your Node.js API. Test it out and let me know if you need any adjustments!
+Your frontend is now fully integrated with the backend. The candidate application form will automatically send data to MySQL through your Node.js API. Test it out and let me know if you need any adjustments!

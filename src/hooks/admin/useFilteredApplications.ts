@@ -40,10 +40,10 @@ export const useFilteredApplications = () => {
       console.log('🔍 Hook - Service response:', response);
       
       if (response.status && response.data) {
-        console.log('🔍 Hook - Setting applications:', response.data.data);
+        console.log('🔍 Hook - Setting applications:', response.data.applications);
   
-        setApplications(response.data.data);
-        setTotal(response.data.total);
+        setApplications(response.data.applications || []);
+        setTotal(response.data.pagination?.total || 0);
       } else {
         console.log('🔍 Hook - Error response:', response);
  
@@ -144,7 +144,7 @@ export const useFilteredApplications = () => {
     paginationInfo,
     
     // Computed values
-    isEmpty: applications.length === 0 && !loading,
+    isEmpty: applications?.length === 0 && !loading,
     isFiltered: Object.keys(filters).some(key => 
       key !== 'page' && key !== 'limit' && 
       filters[key as keyof AppListFilters] !== DEFAULT_FILTERS[key as keyof AppListFilters]

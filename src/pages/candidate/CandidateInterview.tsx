@@ -67,7 +67,7 @@ const CandidateInterview = () => {
   } = useInterviewSession(applicationId, setCurrentInterviewSession, setInterviewResult, setToPreparingResults);
 
   // Get session management functions from the hook
-  const { startSession, completeSession, skipSession } = useSessionManagement();
+  const { startSession, completeSession, skipSession, linkToughTongueSession } = useSessionManagement();
 
   // Debug logging for session ID tracking
   useEffect(() => {
@@ -226,10 +226,21 @@ const CandidateInterview = () => {
           
           // Detect interview start - look for onStart event
           if (data.event === 'onStart' && interviewSessionId) {
-            console.log('Tough Tongue interview started (onStart detected), updating session status...');
-            console.log('Using our session ID for API call:', interviewSessionId);
+            console.log('Tough Tongue interview started (onStart detected)');
+            console.log('Tough Tongue Session ID:', data.sessionId);
+            console.log('Our Session ID:', interviewSessionId);
             
-            // Use our own session ID (created when user clicked Begin Interview)
+            // Link Tough Tongue session ID to our session
+            try {
+              await linkToughTongueSession(interviewSessionId, data.sessionId);
+              console.log('✅ Sessions linked successfully');
+            } catch (error) {
+              console.error('❌ Failed to link sessions:', error);
+              toast.error('Failed to link interview session. Please refresh and try again.');
+              return;
+            }
+            
+            // Start our session
             console.log('Calling handleStartInterviewWithId with session ID:', interviewSessionId);
             handleStartInterviewWithId(interviewSessionId);
           }
@@ -340,7 +351,7 @@ const CandidateInterview = () => {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [interviewSessionId, sessionState?.status, applicationId, handleCompleteInterviewWithId, handleStartInterviewWithId, navigate, setToPreparingResults]);
+  }, [interviewSessionId, sessionState?.status, applicationId, handleCompleteInterviewWithId, handleStartInterviewWithId, navigate, setToPreparingResults, linkToughTongueSession]);
 
   // Alternative: Monitor iframe load events and detect state changes
   useEffect(() => {

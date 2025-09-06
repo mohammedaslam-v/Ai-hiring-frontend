@@ -230,6 +230,35 @@ export const useSessionManagement = () => {
     setSessionState(prev => ({ ...prev, error: null }));
   }, []);
 
+  // Link Tough Tongue session ID
+  const linkToughTongueSession = useCallback(async (sessionId: string, toughTongueSessionId: string): Promise<SessionData | null> => {
+    setSessionState(prev => ({ ...prev, isLoading: true, error: null }));
+    
+    try {
+      console.log('Linking Tough Tongue session:', { sessionId, toughTongueSessionId });
+      const session = await sessionService.linkToughTongueSession(sessionId, toughTongueSessionId);
+      
+      setSessionState(prev => ({
+        ...prev,
+        isLoading: false
+      }));
+
+      console.log('Tough Tongue session linked successfully');
+      return session;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to link Tough Tongue session';
+      
+      setSessionState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage
+      }));
+
+      console.error('Error linking Tough Tongue session:', error);
+      return null;
+    }
+  }, []);
+
   return {
     // State
     sessionState,
@@ -242,6 +271,7 @@ export const useSessionManagement = () => {
     updateSessionStatus,
     getSessionByApplicationId,
     resetSession,
-    clearError
+    clearError,
+    linkToughTongueSession
   };
 };

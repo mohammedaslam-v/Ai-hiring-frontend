@@ -15,7 +15,7 @@ class ApplicationsFilteredService {
       // Convert dd-mm-yyyy to ISO format for backend
       const queryParams = new URLSearchParams();
       
-      if (filters.search) queryParams.append('search', filters.search);
+      if (filters.search && filters.search.trim().length > 0) queryParams.append('search', filters.search.trim());
       if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
       if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
       if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
@@ -67,10 +67,31 @@ class ApplicationsFilteredService {
       console.error('Error fetching filtered applications:', error);
       
       if (error && typeof error === 'object' && 'response' in error && error.response) {
-        const responseError = error as { response: { data: { msg?: string; error?: string } } };
+        const responseError = error as { 
+          response: { 
+            data: { 
+              message?: string; 
+              msg?: string; 
+              error?: string; 
+              details?: Array<{ field: string; message: string; value?: string }> 
+            } 
+          } 
+        };
+        
+        // Handle validation errors with details
+        if (responseError.response.data?.details && Array.isArray(responseError.response.data.details)) {
+          const errorMessages = responseError.response.data.details.map(detail => detail.message).join('; ');
+          return {
+            status: false,
+            message: errorMessages,
+            error: responseError.response.data?.error || 'VALIDATION_ERROR'
+          };
+        }
+        
+        // Handle other backend errors
         return {
           status: false,
-          message: responseError.response.data?.msg || 'Backend error occurred',
+          message: responseError.response.data?.message || responseError.response.data?.msg || 'Backend error occurred',
           error: responseError.response.data?.error || 'BACKEND_ERROR'
         };
       } else if (error && typeof error === 'object' && 'request' in error) {

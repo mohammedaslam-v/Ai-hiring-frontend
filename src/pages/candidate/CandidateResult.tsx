@@ -31,7 +31,16 @@ const CandidateResult = () => {
   // Debug logging
   console.log('🔍 CandidateResult: Final applicationId to use:', applicationId);
   
-  const [results, setResults] = useState<InterviewResultsData | null>(null);
+  const [results, setResults] = useState<{
+    candidateName: string;
+    candidateEmail: string;
+    position: string;
+    score: number;
+    status: string;
+    interviewDate: string;
+    applicationId: string;
+    isPassed: boolean;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
@@ -66,7 +75,19 @@ const CandidateResult = () => {
       const response = await interviewResultsService.getInterviewResults(fallbackApplicationId);
       
       if (response.status && response.data) {
-        setResults(response.data);
+        // Map the backend response to the expected frontend format
+        const backendData = response.data;
+        const mappedResults = {
+          candidateName: `${backendData.firstName} ${backendData.lastName}`,
+          candidateEmail: backendData.email,
+          position: backendData.position,
+          score: backendData.results.score,
+          status: backendData.results.status,
+          interviewDate: backendData.submittedAt,
+          applicationId: backendData.applicationId,
+          isPassed: backendData.results.isPassed
+        };
+        setResults(mappedResults);
         setRetryCount(0); // Reset retry count on success
       } else {
         // Check if it's an evaluation in progress error

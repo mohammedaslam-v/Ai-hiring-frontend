@@ -48,7 +48,7 @@ class ApplicationService {
             const queryParams = new URLSearchParams();
             queryParams.append('page', page.toString());
             queryParams.append('limit', pageSize.toString());
-            queryParams.append('sortBy', 'createdAt');
+            queryParams.append('sortBy', 'appliedDate');
             queryParams.append('sortOrder', 'desc');
 
             const response = await axiosInstance.get(`/api/admin/applications?${queryParams.toString()}`);
@@ -69,6 +69,35 @@ class ApplicationService {
             
         } catch (error: unknown) {
             console.error('Error fetching applications page:', error);
+            
+            if (error && typeof error === 'object' && 'response' in error && error.response) {
+                const responseError = error as { 
+                    response: { 
+                        data: { 
+                            message?: string; 
+                            msg?: string; 
+                            error?: string; 
+                            details?: Array<{ field: string; message: string; value?: string }> 
+                        } 
+                    } 
+                };
+                
+                // Handle validation errors with details
+                if (responseError.response.data?.details && Array.isArray(responseError.response.data.details)) {
+                    const errorMessages = responseError.response.data.details.map(detail => detail.message).join('; ');
+                    return {
+                        status: false,
+                        message: errorMessages,
+                    };
+                }
+                
+                // Handle other backend errors
+                return {
+                    status: false,
+                    message: responseError.response.data?.message || responseError.response.data?.msg || "Something went wrong",
+                };
+            }
+            
             return {
                 status: false,
                 message: "Something went wrong",
@@ -124,6 +153,35 @@ class ApplicationService {
             
         } catch (error: unknown) {
             console.error('Error fetching application by ID:', error);
+            
+            if (error && typeof error === 'object' && 'response' in error && error.response) {
+                const responseError = error as { 
+                    response: { 
+                        data: { 
+                            message?: string; 
+                            msg?: string; 
+                            error?: string; 
+                            details?: Array<{ field: string; message: string; value?: string }> 
+                        } 
+                    } 
+                };
+                
+                // Handle validation errors with details
+                if (responseError.response.data?.details && Array.isArray(responseError.response.data.details)) {
+                    const errorMessages = responseError.response.data.details.map(detail => detail.message).join('; ');
+                    return {
+                        status: false,
+                        message: errorMessages,
+                    };
+                }
+                
+                // Handle other backend errors
+                return {
+                    status: false,
+                    message: responseError.response.data?.message || responseError.response.data?.msg || "Something went wrong",
+                };
+            }
+            
             return {
                 status: false,
                 message: "Something went wrong",
@@ -169,6 +227,35 @@ class ApplicationService {
             
         } catch (error: unknown) {
             console.error('Error updating application status:', error);
+            
+            if (error && typeof error === 'object' && 'response' in error && error.response) {
+                const responseError = error as { 
+                    response: { 
+                        data: { 
+                            message?: string; 
+                            msg?: string; 
+                            error?: string; 
+                            details?: Array<{ field: string; message: string; value?: string }> 
+                        } 
+                    } 
+                };
+                
+                // Handle validation errors with details
+                if (responseError.response.data?.details && Array.isArray(responseError.response.data.details)) {
+                    const errorMessages = responseError.response.data.details.map(detail => detail.message).join('; ');
+                    return {
+                        status: false,
+                        message: errorMessages,
+                    };
+                }
+                
+                // Handle other backend errors
+                return {
+                    status: false,
+                    message: responseError.response.data?.message || responseError.response.data?.msg || "Something went wrong",
+                };
+            }
+            
             return {
                 status: false,
                 message: "Something went wrong",
@@ -196,6 +283,35 @@ class ApplicationService {
             
         } catch (error: unknown) {
             console.error('Error fetching applications count:', error);
+            
+            if (error && typeof error === 'object' && 'response' in error && error.response) {
+                const responseError = error as { 
+                    response: { 
+                        data: { 
+                            message?: string; 
+                            msg?: string; 
+                            error?: string; 
+                            details?: Array<{ field: string; message: string; value?: string }> 
+                        } 
+                    } 
+                };
+                
+                // Handle validation errors with details
+                if (responseError.response.data?.details && Array.isArray(responseError.response.data.details)) {
+                    const errorMessages = responseError.response.data.details.map(detail => detail.message).join('; ');
+                    return {
+                        status: false,
+                        message: errorMessages,
+                    };
+                }
+                
+                // Handle other backend errors
+                return {
+                    status: false,
+                    message: responseError.response.data?.message || responseError.response.data?.msg || "Something went wrong",
+                };
+            }
+            
             return {
                 status: false,
                 message: "Something went wrong",

@@ -6,7 +6,7 @@ export class ToughTongueService {
 
   /**
    * Fetch interview score and evaluation from Tough Tongue using sessionId
-   * This calls our backend which then calls Tough Tongue to avoid CORS issues
+   * This creates a job and polls for completion using the new job system
    * @param sessionId - The session ID received from Tough Tongue's onSubmit event
    * @returns Promise with score and evaluation data
    */
@@ -14,48 +14,41 @@ export class ToughTongueService {
     try {
       console.log('🔍 Frontend: Requesting Tough Tongue results through our backend for session:', sessionId);
       
-      // Call our backend endpoint which will proxy the request to Tough Tongue
-      // The backend will wait for evaluation to complete before returning results
-      const response = await axios.get(`${this.baseURL}/api/session/tough-tongue/${sessionId}/results`, {
-        timeout: 210000, // 3.5 minutes timeout to allow for evaluation processing
+      // Step 1: Create job
+      const createResponse = await axios.get(`${this.baseURL}/api/session/tough-tongue/${sessionId}/results`, {
+        timeout: 30000,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         }
       });
 
-      // Handle different response status codes
-      if (response.status === 200 && response.data && typeof response.data === 'object' && 'success' in response.data) {
-        const responseData = response.data as { 
+      if (createResponse.status === 200 && createResponse.data && typeof createResponse.data === 'object' && 'success' in createResponse.data) {
+        const responseData = createResponse.data as { 
           success: boolean; 
-          data: Record<string, unknown>; 
-          extractedScore?: number | null;
+          data: {
+            jobId: string;
+            status: string;
+            sessionId: string;
+            createdAt: string;
+            estimatedCompletion: string;
+          }
         };
         
         if (responseData.success) {
-          console.log('✅ Frontend: Successfully received results from backend:', responseData.data);
-          console.log('✅ Frontend: Extracted score from backend:', responseData.extractedScore);
-          console.log('🔍 Frontend: Full response data:', JSON.stringify(responseData, null, 2));
+          console.log('✅ Frontend: Job created successfully:', responseData.data.jobId);
+          console.log('📊 Frontend: Job status:', responseData.data.status);
+          console.log('⏰ Frontend: Estimated completion:', responseData.data.estimatedCompletion);
           
-          // Return data with extracted score for easier access
-          return {
-            ...responseData.data,
-            score: responseData.extractedScore
-          };
+          // Step 2: Wait for job completion
+          console.log('🔄 Frontend: Starting job polling...');
+          const results = await this.waitForJobCompletion(responseData.data.jobId);
+          
+          console.log('✅ Frontend: Job completed with results:', results);
+          return results;
         } else {
-          throw new Error('Backend returned unsuccessful response');
+          throw new Error('Failed to create job for Tough Tongue processing');
         }
-      } else if (response.status === 202) {
-        // Handle timeout response - evaluation still processing
-        const timeoutData = response.data as {
-          error: string;
-          message: string;
-          details: string;
-          retryAfter?: number;
-        };
-        
-        console.log('⏰ Frontend: Evaluation timeout - still processing:', timeoutData.message);
-        throw new Error(`EVALUATION_TIMEOUT: ${timeoutData.message}`);
       } else {
         throw new Error('Backend returned invalid response format');
       }
@@ -77,6 +70,101 @@ export class ToughTongueService {
       console.log('❌ Frontend: Backend Tough Tongue proxy health check failed:', error instanceof Error ? error.message : 'Unknown error');
       return false;
     }
+  }
+
+  /**
+   * Poll job status for Tough Tongue results
+   * @param jobId - The job ID returned from createJob
+   * @returns Promise with job status and results
+   */
+  async pollJobStatus(jobId: string) {
+    try {
+      console.log('🔍 Frontend: Polling job status for job:', jobId);
+      
+      const response = await axios.get(`${this.baseURL}/api/session/job/${jobId}/status`, {
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+
+      if (response.status === 200 && response.data && typeof response.data === 'object' && 'success' in response.data) {
+        const responseData = response.data as { 
+          success: boolean; 
+          data: {
+            jobId: string;
+            status: string;
+            results?: Record<string, unknown>;
+            error?: string;
+            createdAt: string;
+            updatedAt: string;
+          }
+        };
+        
+        if (responseData.success) {
+          const jobData = responseData.data;
+          console.log('✅ Frontend: Job status received:', jobData.status);
+          
+          return {
+            jobId: jobData.jobId,
+            status: jobData.status,
+            results: jobData.results,
+            error: jobData.error,
+            createdAt: jobData.createdAt,
+            updatedAt: jobData.updatedAt
+          };
+        } else {
+          throw new Error('Invalid job status response');
+        }
+      } else {
+        throw new Error('Invalid job status response');
+      }
+    } catch (error) {
+      console.error('❌ Frontend: Error polling job status:', error);
+      throw new Error(`Failed to poll job status: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Wait for job completion with polling
+   * @param jobId - The job ID to poll
+   * @param maxAttempts - Maximum polling attempts (default: 40)
+   * @param intervalMs - Polling interval in milliseconds (default: 30000)
+   * @returns Promise with final results
+   */
+  async waitForJobCompletion(jobId: string, maxAttempts: number = 40, intervalMs: number = 30000) {
+    console.log(`🔄 Frontend: Starting job polling for job ${jobId} (max ${maxAttempts} attempts, ${intervalMs}ms interval)`);
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const jobStatus = await this.pollJobStatus(jobId);
+        
+        if (jobStatus.status === 'completed') {
+          console.log(`✅ Frontend: Job ${jobId} completed successfully on attempt ${attempt}`);
+          return jobStatus.results;
+        } else if (jobStatus.status === 'failed') {
+          console.error(`❌ Frontend: Job ${jobId} failed:`, jobStatus.error);
+          throw new Error(`Job failed: ${jobStatus.error}`);
+        } else if (jobStatus.status === 'processing' || jobStatus.status === 'pending') {
+          console.log(`⏳ Frontend: Job ${jobId} still ${jobStatus.status} (attempt ${attempt}/${maxAttempts})`);
+          
+          if (attempt < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, intervalMs));
+          }
+        }
+      } catch (error) {
+        console.error(`❌ Frontend: Error on attempt ${attempt}:`, error);
+        
+        if (attempt === maxAttempts) {
+          throw error;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, intervalMs));
+      }
+    }
+    
+    throw new Error(`Job ${jobId} did not complete within ${maxAttempts} attempts`);
   }
 }
 

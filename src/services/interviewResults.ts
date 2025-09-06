@@ -1,14 +1,23 @@
 import { axiosInstance } from './instance';
 
 export interface InterviewResultsData {
-  candidateName: string;
-  candidateEmail: string;
-  position: string;
-  score: number;
-  status: 'passed' | 'failed';
-  interviewDate: string;
+  id: string;
   applicationId: string;
-  isPassed: boolean;
+  firstName: string;
+  lastName: string;
+  email: string;
+  position: string;
+  interviewStatus: string;
+  score: number;
+  submittedAt: string;
+  updatedAt: string;
+  results: {
+    score: number;
+    status: string;
+    passed: boolean;
+    isPassed: boolean;
+    feedback: string;
+  };
 }
 
 export interface InterviewResultsResponse {

@@ -15,7 +15,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     // Build query parameters from filters
     const queryParams = new URLSearchParams();
     
-    if (filters.search) queryParams.append('search', filters.search);
+    if (filters.search && filters.search.trim().length > 0) queryParams.append('search', filters.search.trim());
     if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
     if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
     if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
@@ -63,6 +63,16 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     // Handle different types of errors
     const axiosError = error as any;
     if (axiosError.response?.status === 400) {
+      // Handle validation errors with details
+      if (axiosError.response.data?.details && Array.isArray(axiosError.response.data.details)) {
+        const errorMessages = axiosError.response.data.details.map((detail: any) => detail.message).join('; ');
+        return {
+          status: false,
+          message: errorMessages,
+          error: 'VALIDATION_ERROR'
+        };
+      }
+      
       return {
         status: false,
         message: axiosError.response.data?.message || 'No data available for export',
@@ -94,7 +104,7 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
     // Build query parameters from filters
     const queryParams = new URLSearchParams();
     
-    if (filters.search) queryParams.append('search', filters.search);
+    if (filters.search && filters.search.trim().length > 0) queryParams.append('search', filters.search.trim());
     if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
     if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
     if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
