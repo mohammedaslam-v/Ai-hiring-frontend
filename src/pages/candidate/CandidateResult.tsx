@@ -89,6 +89,8 @@ const CandidateResult = () => {
         };
         setResults(mappedResults);
         setRetryCount(0); // Reset retry count on success
+        setLoading(false);
+        return; // Stop polling on success
       } else {
         // Check if it's an evaluation in progress error
         if (response.error === 'EVALUATION_IN_PROGRESS' || response.error === 'INTERVIEW_NOT_COMPLETED') {
@@ -100,16 +102,54 @@ const CandidateResult = () => {
               setRetryCount(prev => prev + 1);
               fetchResults(true);
             }, 5000); // Wait 5 seconds before retry
+          } else {
+            setLoading(false);
+            setError('Maximum retry attempts reached. Please refresh the page.');
           }
         } else {
           setError(response.msg || 'Failed to fetch results');
+          setLoading(false);
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error fetching results:', err);
-      setError('Failed to load interview results');
+      
+      // Handle different error types
+      if (err && typeof err === 'object' && 'response' in err) {
+        const error = err as { response?: { status?: number } };
+        if (error.response?.status === 400) {
+          setError('Interview results not available yet. Please try again later.');
+          setLoading(false);
+          return; // Stop polling on 400 errors
+        }
+      }
+      
+      if (err && typeof err === 'object' && 'code' in err) {
+        const error = err as { code?: string; message?: string };
+        if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+          setError('Backend server is not responding. Please check if the server is running.');
+          setLoading(false);
+          return; // Stop polling on network errors
+        }
+      }
+      
+      // For other errors, continue polling but with backoff
+      setError('Failed to fetch results. Retrying...');
+      
+      // Auto-retry after 5 seconds if we haven't retried too many times
+      if (retryCount < 10) {
+        setTimeout(() => {
+          setRetryCount(prev => prev + 1);
+          fetchResults(true);
+        }, 5000);
+      } else {
+        setLoading(false);
+        setError('Maximum retry attempts reached. Please refresh the page.');
+      }
     } finally {
-      setLoading(false);
+      if (!isRetry) {
+        setLoading(false);
+      }
       setIsRetrying(false);
     }
   }, [applicationId, retryCount]);
