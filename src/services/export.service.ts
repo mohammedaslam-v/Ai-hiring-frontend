@@ -61,11 +61,11 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     console.error('CSV export error:', error);
     
     // Handle different types of errors
-    const axiosError = error as any;
+    const axiosError = error as { response?: { status: number; data?: { message?: string; details?: Array<{ message: string }> } }; code?: string };
     if (axiosError.response?.status === 400) {
       // Handle validation errors with details
       if (axiosError.response.data?.details && Array.isArray(axiosError.response.data.details)) {
-        const errorMessages = axiosError.response.data.details.map((detail: any) => detail.message).join('; ');
+        const errorMessages = axiosError.response.data.details.map((detail: { message: string }) => detail.message).join('; ');
         return {
           status: false,
           message: errorMessages,
@@ -148,19 +148,20 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
       message: 'Excel export completed successfully'
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Excel export error:', error);
     
     // Handle different types of errors
-    if (error.response?.status === 400) {
+    const axiosError = error as { response?: { status: number; data?: { message?: string } }; code?: string };
+    if (axiosError.response?.status === 400) {
       return {
         status: false,
-        message: error.response.data?.message || 'No data available for export',
+        message: axiosError.response.data?.message || 'No data available for export',
         error: 'NO_DATA'
       };
     }
     
-    if (error.code === 'ECONNABORTED') {
+    if (axiosError.code === 'ECONNABORTED') {
       return {
         status: false,
         message: 'Export timed out. Please try with fewer filters or contact support.',
