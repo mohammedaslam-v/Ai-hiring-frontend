@@ -10,6 +10,7 @@ import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar } from
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
 import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableActions';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 const ApplicationsManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const ApplicationsManagement: React.FC = () => {
     isFiltered
   } = useFilteredApplications();
   const { deletingId, handleDeleteApplication } = useApplicationTableActions(() => updateFilters({ page: 1 }));
+  const { confirm, ConfirmDialog } = useConfirmDialog();
 
   // Helper function to render status badge
   const renderStatusBadge = (status: string) => {
@@ -88,6 +90,21 @@ const ApplicationsManagement: React.FC = () => {
   const handleViewApplication = (applicationId: string) => {
     console.log('Viewing application:', applicationId);
     navigate(`/admin/applications/${applicationId}`);
+  };
+
+  // Handle delete with confirmation
+  const handleDeleteWithConfirmation = async (applicationId: string, applicantName: string) => {
+    const confirmed = await confirm({
+      title: "Delete Application",
+      description: `Are you sure you want to delete the application for ${applicantName}? This action cannot be undone and will permanently remove all application data including interview records.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "destructive"
+    });
+
+    if (confirmed) {
+      await handleDeleteApplication(applicationId, applicantName);
+    }
   };
 
   // Format date for display
@@ -570,7 +587,7 @@ const ApplicationsManagement: React.FC = () => {
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => handleDeleteApplication(application.id, application.name)}
+                          onClick={() => handleDeleteWithConfirmation(application.id, application.name)}
                           className="h-8 px-2 text-xs"
                           disabled={deletingId === application.id}
                         >
@@ -648,6 +665,7 @@ const ApplicationsManagement: React.FC = () => {
            </div>
          </div>
       </CardContent>
+      <ConfirmDialog />
     </Card>
   );
 };
