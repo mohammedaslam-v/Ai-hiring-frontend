@@ -158,7 +158,7 @@ const AdminDashboard = () => {
           {/* Started AI Interview */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-bambinos-green">
-              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.startedInterview} (${dashboardSummary.startedInterviewPercentage}%)`}
+              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.startedInterview} (${dashboardSummary.startedInterviewPercentage.toFixed(1)}%)`}
             </div>
             <div className="text-sm text-gray-600">Started AI interview</div>
           </div>
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
           {/* Completed Interview */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-bambinos-purple">
-              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.completedInterview} (${dashboardSummary.completedInterviewPercentage}%)`}
+              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.completedInterview} (${dashboardSummary.completedInterviewPercentage.toFixed(1)}%)`}
             </div>
             <div className="text-sm text-gray-600">Finished full AI interview</div>
           </div>
@@ -174,7 +174,7 @@ const AdminDashboard = () => {
           {/* Left Midway */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-orange-600">
-              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.leftMidway} (${dashboardSummary.leftMidwayPercentage}%)`}
+              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.leftMidway} (${dashboardSummary.leftMidwayPercentage.toFixed(1)}%)`}
             </div>
             <div className="text-sm text-gray-600">Started but didn't finish</div>
           </div>
@@ -182,7 +182,7 @@ const AdminDashboard = () => {
           {/* Passed */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-green-600">
-              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.passed} (${dashboardSummary.passedPercentage}%)`}
+              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.passed} (${dashboardSummary.passedPercentage.toFixed(1)}%)`}
             </div>
             <div className="text-sm text-gray-600">PASSED</div>
           </div>
@@ -190,7 +190,7 @@ const AdminDashboard = () => {
           {/* Failed */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-red-600">
-              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.failed} (${dashboardSummary.failedPercentage}%)`}
+              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.failed} (${dashboardSummary.failedPercentage.toFixed(1)}%)`}
             </div>
             <div className="text-sm text-gray-600">FAILED</div>
           </div>

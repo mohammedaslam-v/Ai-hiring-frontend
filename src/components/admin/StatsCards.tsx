@@ -51,7 +51,7 @@ const StatsCards = ({ stats, isLoading }: StatsCardsProps) => {
     },
     { 
       title: "✅ Completed Interview", 
-      value: `${stats.totalCompletedInterview} (${stats.interviewCompletionRate}%)`, 
+      value: `${stats.totalCompletedInterview} (${stats.interviewCompletionRate.toFixed(1)}%)`, 
       subtitle: "Finished full AI interview",
       icon: Target, 
       color: "text-green-600",
@@ -59,7 +59,7 @@ const StatsCards = ({ stats, isLoading }: StatsCardsProps) => {
     },
     { 
       title: "❌ Left Midway", 
-      value: `${stats.totalLeftMidway} (${stats.leftMidwayRate}%)`, 
+      value: `${stats.totalLeftMidway} (${stats.leftMidwayRate.toFixed(1)}%)`, 
       subtitle: "Started but didn't finish",
       icon: StopCircle, 
       color: "text-red-600",
@@ -67,7 +67,7 @@ const StatsCards = ({ stats, isLoading }: StatsCardsProps) => {
     },
     { 
       title: "🎉 PASSED", 
-      value: `${stats.totalPassed} (${stats.passRate}%)`, 
+      value: `${stats.totalPassed} (${stats.passRate.toFixed(1)}%)`, 
       subtitle: "Out of completed interviews",
       icon: CheckCircle, 
       color: "text-green-700",
@@ -75,7 +75,7 @@ const StatsCards = ({ stats, isLoading }: StatsCardsProps) => {
     },
     { 
       title: "❌ FAILED", 
-      value: `${stats.totalFailed} (${stats.failRate}%)`, 
+      value: `${stats.totalFailed} (${stats.failRate.toFixed(1)}%)`, 
       subtitle: "Out of completed interviews",
       icon: XCircle, 
       color: "text-red-700",
@@ -112,11 +112,11 @@ const StatsCards = ({ stats, isLoading }: StatsCardsProps) => {
           <h3 className="text-lg font-bold text-bambinos-blue mb-2">🎯 Quick Summary</h3>
           <div className="text-gray-700 space-y-1">
             <p>• <strong>{stats.totalRegistered} people</strong> filled the application form</p>
-            <p>• <strong>{stats.totalStartedInterview} people ({stats.interviewStartRate}%)</strong> started the AI interview</p>
+            <p>• <strong>{stats.totalStartedInterview} people ({stats.interviewStartRate.toFixed(1)}%)</strong> started the AI interview</p>
             <p>• <strong>{stats.neverStartedInterview} people</strong> never even started the interview</p>
-            <p>• <strong>{stats.totalLeftMidway} people ({stats.leftMidwayRate}%)</strong> started but left without finishing</p>
-            <p>• <strong>{stats.totalCompletedInterview} people ({stats.interviewCompletionRate}%)</strong> completed the full interview</p>
-            <p>• Out of those who completed: <strong>{stats.totalPassed} passed ({stats.passRate}%)</strong> and <strong>{stats.totalFailed} failed ({stats.failRate}%)</strong></p>
+            <p>• <strong>{stats.totalLeftMidway} people ({stats.leftMidwayRate.toFixed(1)}%)</strong> started but left without finishing</p>
+            <p>• <strong>{stats.totalCompletedInterview} people ({stats.interviewCompletionRate.toFixed(1)}%)</strong> completed the full interview</p>
+            <p>• Out of those who completed: <strong>{stats.totalPassed} passed ({stats.passRate.toFixed(1)}%)</strong> and <strong>{stats.totalFailed} failed ({stats.failRate.toFixed(1)}%)</strong></p>
           </div>
         </div>
       </CardContent>
