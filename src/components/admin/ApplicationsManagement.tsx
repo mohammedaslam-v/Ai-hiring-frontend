@@ -6,9 +6,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, Download, ArrowUpDown, ArrowUp, ArrowDown, Calendar } from "lucide-react";
+import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar } from "lucide-react";
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
+import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableActions';
 
 const ApplicationsManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const ApplicationsManagement: React.FC = () => {
     isEmpty,
     isFiltered
   } = useFilteredApplications();
+  const { deletingId, handleDeleteApplication } = useApplicationTableActions(() => updateFilters({ page: 1 }));
 
   // Helper function to render status badge
   const renderStatusBadge = (status: string) => {
@@ -462,7 +464,7 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('score')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="w-[160px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -564,6 +566,16 @@ const ApplicationsManagement: React.FC = () => {
                           className="h-8 px-2 text-xs"
                         >
                           Result
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteApplication(application.id, application.name)}
+                          className="h-8 px-2 text-xs"
+                          disabled={deletingId === application.id}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          {deletingId === application.id ? 'Deleting...' : 'Delete'}
                         </Button>
                       </div>
                     </TableCell>

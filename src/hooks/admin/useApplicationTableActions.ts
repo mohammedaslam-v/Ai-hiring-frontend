@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 import { mapApplicationToCsvFormat, generateCsvFilename } from '@/utils/admin/applicationsTableUtils';
+import AdminService from '@/services/admin.service';
 import { AdminApplicationDetail } from '@/types/admin';
 
 export const useApplicationTableActions = (onRefreshData?: () => void | Promise<void>) => {
@@ -14,13 +15,16 @@ export const useApplicationTableActions = (onRefreshData?: () => void | Promise<
       setDeletingId(applicationId);
       console.log('🗑️ Deleting application:', applicationId);
 
-      // TODO: Replace with Node.js API calls when backend is ready
-      console.log('Application deletion temporarily disabled - migrating to Node.js');
-      toast({
-        title: "Info",
-        description: "Application deletion temporarily disabled - migrating to Node.js",
-      });
-      return;
+      const adminService = new AdminService();
+      const result = await adminService.deleteApplication(applicationId);
+      if (!result.status) {
+        toast({
+          title: "Failed",
+          description: result.message || "Failed to delete application",
+          variant: "destructive"
+        });
+        return;
+      }
       
       // Note: application_details is now a secure function, not a direct table
       // application_details data comes from applications + interview_sessions tables

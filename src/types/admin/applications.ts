@@ -25,6 +25,7 @@ export interface AppListResponse {
 
 export interface ApplicantRow {
   id: string;
+  applicationId?: string;
   name: string;
   email: string;
   phone: string;

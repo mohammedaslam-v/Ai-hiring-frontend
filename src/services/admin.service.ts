@@ -185,17 +185,18 @@ class AdminService {
 
     async deleteApplication(id: string): Promise<ServiceResponse> {
         try {
-            // For now, simulate successful response (ready for Node.js backend)
-            const mockResponse = {
-                id,
-                message: "Application deleted successfully",
-                deletedAt: new Date().toISOString()
-            };
-            
+            const response = await axiosInstance.delete(`/api/admin/applications/${id}`);
+            const responseData = response.data as { status: boolean; msg?: string; data?: { applicationId: string } };
+            if (responseData.status) {
+                return {
+                    status: true,
+                    message: responseData.msg || "Application deleted successfully",
+                    data: responseData.data
+                }
+            }
             return {
-                status: true,
-                message: "Application deleted successfully",
-                data: mockResponse
+                status: false,
+                message: responseData.msg || "Failed to delete application",
             }
             
         } catch (error) {
