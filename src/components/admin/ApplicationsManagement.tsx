@@ -162,7 +162,7 @@ const ApplicationsManagement: React.FC = () => {
             <div>
               <Select
                 value={filters.status || 'all'}
-                                 onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'left_midway' })}
+                                 onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway' })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -362,7 +362,7 @@ const ApplicationsManagement: React.FC = () => {
                  )}
                                    {filters.status && filters.status !== 'all' && (
                     <Badge variant="outline" className="text-xs">
-                      Interview Status: {filters.status === 'no_interview' ? 'No Interview' : filters.status.replace('_', ' ')}
+                      Interview Status: {filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}
                     </Badge>
                   )}
 
@@ -384,7 +384,7 @@ const ApplicationsManagement: React.FC = () => {
                   )}
                  {filters.sortBy && (
                    <Badge variant="outline" className="text-xs">
-                     Sort: {filters.sortBy.replace(/([A-Z])/g, ' $1').toLowerCase()} ({filters.sortOrder})
+                     Sort: {filters.sortBy?.replace(/([A-Z])/g, ' $1').toLowerCase() || ''} ({filters.sortOrder})
                    </Badge>
                  )}
                </div>
@@ -483,7 +483,7 @@ const ApplicationsManagement: React.FC = () => {
                            <p className="text-sm mb-3">
                              {isFiltered 
                                ? filters.status && filters.status !== 'all' 
-                                 ? `No applications found with status "${filters.status === 'no_interview' ? 'No Interview' : filters.status.replace('_', ' ')}". Try selecting a different status or reset the filters.`
+                                 ? `No applications found with status "${filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}". Try selecting a different status or reset the filters.`
                                  : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
                                : 'There are no applications in the system yet.'
                              }

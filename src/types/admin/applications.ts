@@ -2,7 +2,7 @@
 
 export interface AppListFilters {
   search?: string;              // name or email
-  status?: 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'left_midway';
+  status?: 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway';
   minScore?: number;
   maxScore?: number;
   fromDate?: string;            // dd-mm-yyyy
@@ -45,7 +45,7 @@ export const STATUS_OPTIONS = [
   { value: 'in_progress', label: 'In Progress' },
   { value: 'completed', label: 'Completed' },
   { value: 'failed', label: 'Failed' },
-  { value: 'left_midway', label: 'Left Midway' }
+  { value: 'leftMidway', label: 'Left Midway' }
 ] as const;
 
 
