@@ -41,7 +41,7 @@ const AppRoutes = () => {
       <Route path="/candidate/simplified-salary-structure" element={<SimplifiedSalaryStructure />} />
 
 
-//triggerrr
+//triggerrrr
 
 
       {/* <Route path="/admin/setup" element={<AuthSetup />} /> */}
