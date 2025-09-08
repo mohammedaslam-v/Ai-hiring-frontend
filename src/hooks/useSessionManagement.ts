@@ -17,12 +17,30 @@ export const useSessionManagement = () => {
     error: null
   });
 
-  // Create new interview session
+  // Create new interview session (with idempotency check)
   const createSession = useCallback(async (sessionData: CreateSessionRequest): Promise<SessionData | null> => {
     setSessionState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
       console.log('Creating session with data:', sessionData);
+      
+      // First check if an active session already exists for this application
+      const existingSession = await sessionService.getSessionByApplicationId(sessionData.applicationId);
+      if (existingSession && (existingSession.status === 'pending' || existingSession.status === 'started')) {
+        console.log('Reusing existing active session:', existingSession.sessionId, 'with status:', existingSession.status);
+        
+        setSessionState(prev => ({
+          ...prev,
+          sessionId: existingSession.sessionId,
+          status: existingSession.status,
+          isLoading: false
+        }));
+
+        toast.success('Using existing interview session!');
+        return existingSession;
+      }
+      
+      // Create new session if no active session exists
       const session = await sessionService.createSession(sessionData);
       
       console.log('Session created successfully:', session);
