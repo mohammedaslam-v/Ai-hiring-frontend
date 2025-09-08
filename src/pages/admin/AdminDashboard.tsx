@@ -23,8 +23,8 @@ import { useDashboardAnalytics } from "@/hooks/admin/useDashboardAnalytics";
  
 import { useAdminAuth } from "@/hooks/admin/useAdminAuth";
 import { useAdminDashboardData } from "@/hooks/admin/useAdminDashboardData";
-import { EMPTY_TRENDS_DATA } from "@/constants/admin/dashboardConstants";
 import { mapApplicationsToComponentFormat } from "@/utils/admin/dashboardUtils";
+import { EMPTY_TRENDS_DATA } from "@/constants/admin/dashboardConstants";
 
 const AdminDashboard = () => {
   // Use the new dashboard analytics hook for real-time data
@@ -201,11 +201,11 @@ const AdminDashboard = () => {
           <h3 className="text-lg font-semibold text-bambinos-blue mb-4">Summary</h3>
           <ul className="list-disc pl-5 space-y-2 text-gray-700">
             <li>{dashboardSummary?.totalApplicants ?? "—"} people filled the application form</li>
-            <li>{dashboardSummary ? `${dashboardSummary.startedInterview} people (${dashboardSummary.startedInterviewPercentage}%) started the AI interview` : "—"}</li>
+            <li>{dashboardSummary ? `${dashboardSummary.startedInterview} people (${dashboardSummary.startedInterviewPercentage.toFixed(1)}%) started the AI interview` : "—"}</li>
             <li>{dashboardSummary ? `${dashboardSummary.neverStartedInterview} people never even started the interview` : "—"}</li>
-            <li>{dashboardSummary ? `${dashboardSummary.leftMidway} people (${dashboardSummary.leftMidwayPercentage}%) started but left without finishing` : "—"}</li>
-            <li>{dashboardSummary ? `${dashboardSummary.completedInterview} people (${dashboardSummary.completedInterviewPercentage}%) completed the full interview` : "—"}</li>
-            <li>{dashboardSummary ? `Out of those who completed: ${dashboardSummary.passed} passed (${dashboardSummary.passedPercentage}%) and ${dashboardSummary.failed} failed (${dashboardSummary.failedPercentage}%)` : "—"}</li>
+            <li>{dashboardSummary ? `${dashboardSummary.leftMidway} people (${dashboardSummary.leftMidwayPercentage.toFixed(1)}%) started but left without finishing` : "—"}</li>
+            <li>{dashboardSummary ? `${dashboardSummary.completedInterview} people (${dashboardSummary.completedInterviewPercentage.toFixed(1)}%) completed the full interview` : "—"}</li>
+            <li>{dashboardSummary ? `Out of those who completed: ${dashboardSummary.passed} passed (${dashboardSummary.passedPercentage.toFixed(1)}%) and ${dashboardSummary.failed} failed (${dashboardSummary.failedPercentage.toFixed(1)}%)` : "—"}</li>
           </ul>
         </div>
 
