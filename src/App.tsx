@@ -14,6 +14,8 @@ import CandidateLogin from "./pages/candidate/CandidateLogin";
 import CandidateApplication from "./pages/candidate/CandidateApplication";
 import CandidateInterview from "./pages/candidate/CandidateInterview";
 import CandidateResult from "./pages/candidate/CandidateResult";
+import ProcessingPage from "./pages/candidate/ProcessingPage";
+import ResultsPage from "./pages/candidate/ResultsPage";
 import SalaryStructure from "./pages/candidate/SalaryStructure";
 import AssessmentSalaryStructure from "./pages/candidate/AssessmentSalaryStructure";
 import SimplifiedSalaryStructure from "./pages/candidate/SimplifiedSalaryStructure";
@@ -22,6 +24,7 @@ import AdminSignup from "./pages/admin/AdminSignup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminApplications from "./pages/admin/AdminApplications";
 import AdminApplicationDetail from "./pages/admin/AdminApplicationDetail";
+import MaintenancePage from "./pages/MaintenancePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,11 +34,15 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
+      <Route path="/" element={<MaintenancePage />} />
+      <Route path="/maintenance" element={<MaintenancePage />} />
+      <Route path="/home" element={<Index />} />
       <Route path="/candidate/login" element={<CandidateLogin />} />
       <Route path="/candidate/application" element={<CandidateApplication />} />
       <Route path="/candidate/interview" element={<CandidateInterview />} />
       <Route path="/candidate/result" element={<CandidateResult />} />
+      <Route path="/candidate/processing/:sessionId" element={<ProcessingPage />} />
+      <Route path="/candidate/results" element={<ResultsPage />} />
       <Route path="/candidate/salary-structure" element={<SalaryStructure />} />
       <Route path="/candidate/assessment-salary-structure" element={<AssessmentSalaryStructure />} />
       <Route path="/candidate/simplified-salary-structure" element={<SimplifiedSalaryStructure />} />

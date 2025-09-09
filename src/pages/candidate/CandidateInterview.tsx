@@ -261,82 +261,38 @@ const CandidateInterview = () => {
             setToPreparingResults();
             console.log('✅ Processing page shown - waiting for evaluation...');
             
-            // Single API call - wait for Tough Tongue result
-            console.log('🎯 Making single API call to Tough Tongue for evaluation results...');
+            // Navigate to processing page - it will handle polling and navigation to results
+            console.log('🎯 Navigating to processing page - it will handle the evaluation flow...');
+            console.log('🎯 DEBUG: applicationId before navigation:', applicationId);
+            console.log('🎯 DEBUG: localStorage applicationId before navigation:', localStorage.getItem('applicationId'));
             
-            toughTongueService.getInterviewResults(data.sessionId)
-              .then(async (result) => {
-                console.log('✅ Tough Tongue evaluation completed! Result:', result);
-                console.log('🔍 Frontend: Result score check:', {
-                  result: result,
-                  score: result?.score,
-                  scoreType: typeof result?.score,
-                  isUndefined: result?.score === undefined,
-                  isNull: result?.score === null,
-                  interviewSessionId: interviewSessionId
-                });
-                
-                if (result && result.score !== undefined && result.score !== null) {
-                  const score = Number(result.score);
-                  console.log(`🎯 Got real score from Tough Tongue: ${score} (0 means failed evaluation)`);
-                  console.log(`🎯 Backend has already completed the session and sent email - no need to complete again`);
-                  
-                  // Backend already completed the session and sent email
-                  // Just navigate to results page
-                  console.log('🎯 Navigating to results page - session already completed by backend...');
-                  console.log('🎯 DEBUG: applicationId before navigation:', applicationId);
-                  console.log('🎯 DEBUG: localStorage applicationId before navigation:', localStorage.getItem('applicationId'));
-                  
-                  setTimeout(() => {
-                    navigate('/candidate/result');
-                  }, 2000);
-                  
-                } else {
-                  // No score received - show error and don't use fake score
-                  console.log('⚠️ No score from Tough Tongue API');
-                  console.log('🔍 Frontend: Result object for debugging:', result);
-                  
-                  // Show error to user instead of using fake score
-                  toast.error('Unable to retrieve interview score. Please contact support.');
-                  
-                  // Don't complete the interview with a fake score
-                  // Instead, let the user retry or contact support
-                  return;
-                }
-              })
-              .catch(error => {
-                console.log('❌ Tough Tongue API failed:', error.message);
-                
-                // Check if it's a timeout error
-                if (error.message.includes('EVALUATION_TIMEOUT')) {
-                  console.log('⏰ Frontend: Evaluation timeout - still processing');
-                  toast.info('Evaluation is taking longer than expected. Please check back in a few minutes.');
-                  
-                  // Navigate to results page to show "pending" state
-                  setTimeout(() => {
-                    navigate('/candidate/result');
-                  }, 2000);
-                } else {
-                  // Other API errors
-                  console.log('❌ Other API error:', error.message);
-                  toast.error('Failed to retrieve interview results. Please try again or contact support.');
-                  
-                  // Navigate to results page even if error, to show "pending" or "error" state
-                  setTimeout(() => {
-                    navigate('/candidate/result');
-                  }, 2000);
-                }
-              });
+            // Navigate to processing page immediately
+            navigate(`/candidate/processing/${interviewSessionId}`, {
+              state: { applicationId }
+            });
           }
           
           // Detect interview stop/abandon - look for onStop event
           if (data.event === 'onStop' && interviewSessionId) {
-            console.log('Tough Tongue interview stopped (onStop detected), but will wait for onSubmit event...');
+            console.log('=== TOUGH TONGUE INTERVIEW STOPPED DATA ===');
+            console.log('Event:', data.event);
+            console.log('Session ID:', data.sessionId);
+            console.log('Timestamp:', data.timestamp);
+            console.log('Full Tough Tongue Response:', JSON.stringify(data, null, 2));
+            console.log('==========================================');
+            
+            console.log('🛑 INTERVIEW STOPPED (onStop detected) - Processing partial results...');
             console.log('Using our session ID for API call:', interviewSessionId);
             console.log('Current session status:', sessionState?.status);
             
-            // Don't do anything here - wait for onSubmit event which will handle both completed and skipped
-            // Both completed and skipped interviews will trigger onSubmit, so we handle them the same way
+            // Process onStop event - Tough Tongue may still provide evaluation results
+            setToPreparingResults();
+            console.log('✅ Processing page shown - waiting for evaluation...');
+            
+            // Navigate to processing page - it will handle polling and navigation to results
+            navigate(`/candidate/processing/${interviewSessionId}`, {
+              state: { applicationId }
+            });
           }
         }
       } catch (error) {
@@ -352,6 +308,67 @@ const CandidateInterview = () => {
       window.removeEventListener('message', handleMessage);
     };
   }, [interviewSessionId, sessionState?.status, applicationId, handleCompleteInterviewWithId, handleStartInterviewWithId, navigate, setToPreparingResults, linkToughTongueSession]);
+
+  // Browser close detection - mark as left midway if user closes browser during interview
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      // Only mark as left midway if interview is actually in progress
+      if (sessionState?.status === 'started' && interviewSessionId) {
+        console.log('🚨 Browser closing during interview - marking as left midway');
+        
+        // Try to mark as left midway before page unloads
+        // Use sendBeacon for reliable delivery even during page unload
+        if (navigator.sendBeacon) {
+          const data = JSON.stringify({
+            sessionId: interviewSessionId,
+            action: 'mark_left_midway',
+            timestamp: new Date().toISOString()
+          });
+          
+          // Send to a special endpoint that marks session as skipped
+          navigator.sendBeacon(`${import.meta.env.VITE_API_URL}/api/session/${interviewSessionId}/skip`, data);
+        }
+        
+        // Also try to call skipSession directly (may not complete due to page unload)
+        try {
+          skipSession(interviewSessionId);
+        } catch (error) {
+          console.log('Could not call skipSession during unload:', error);
+        }
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [sessionState?.status, interviewSessionId, skipSession]);
+
+  // Network connectivity detection
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log('🌐 Network connection restored');
+      // Could trigger retry logic here if needed
+    };
+
+    const handleOffline = () => {
+      console.log('📡 Network connection lost');
+      // Could show offline message or pause processing
+    };
+
+    // Add event listeners
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Alternative: Monitor iframe load events and detect state changes
   useEffect(() => {
