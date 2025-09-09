@@ -24,7 +24,6 @@ import AdminSignup from "./pages/admin/AdminSignup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminApplications from "./pages/admin/AdminApplications";
 import AdminApplicationDetail from "./pages/admin/AdminApplicationDetail";
-import MaintenancePage from "./pages/MaintenancePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,9 +33,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<MaintenancePage />} />
-      <Route path="/maintenance" element={<MaintenancePage />} />
-      <Route path="/home" element={<Index />} />
+      <Route path="/" element={<Index />} />
       <Route path="/candidate/login" element={<CandidateLogin />} />
       <Route path="/candidate/application" element={<CandidateApplication />} />
       <Route path="/candidate/interview" element={<CandidateInterview />} />

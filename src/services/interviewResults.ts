@@ -27,16 +27,6 @@ export interface InterviewResultsResponse {
   error?: string;
 }
 
-export interface EmailResponse {
-  status: boolean;
-  msg: string;
-  data: {
-    emailSent: boolean;
-    messageId?: string;
-    sentAt?: string;
-  };
-  error?: string;
-}
 
 class InterviewResultsService {
   /**
@@ -68,34 +58,6 @@ class InterviewResultsService {
     }
   }
 
-  /**
-   * Send interview result email to candidate
-   * @param applicationId - The application ID to send email for
-   * @returns Promise with email sending result
-   */
-  async sendInterviewResultEmail(applicationId: string): Promise<EmailResponse> {
-    try {
-      const response = await axiosInstance.post(`/api/candidate/send-result-email/${applicationId}`);
-      return response.data as EmailResponse;
-    } catch (error: unknown) {
-      console.error('Error sending interview result email:', error);
-      
-      // Handle different error scenarios
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { data: EmailResponse } };
-        if (axiosError.response?.data) {
-          return axiosError.response.data as EmailResponse;
-        }
-      }
-      
-      return {
-        status: false,
-        msg: 'Failed to send interview result email',
-        data: { emailSent: false },
-        error: 'NETWORK_ERROR'
-      };
-    }
-  }
 }
 
 export const interviewResultsService = new InterviewResultsService();

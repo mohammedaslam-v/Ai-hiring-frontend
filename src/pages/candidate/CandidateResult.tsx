@@ -2,12 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, Mail, Clock, Trophy, ExternalLink, Loader2, RefreshCw } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Trophy, ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import DarkModeToggle from "@/components/DarkModeToggle";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { usePreventNavigation } from "@/hooks/candidate/usePreventNavigation";
-import { interviewResultsService, InterviewResultsData, EmailResponse } from "@/services/interviewResults";
-import { toast } from "react-toastify";
+import { interviewResultsService, InterviewResultsData } from "@/services/interviewResults";
 
 const CandidateResult = () => {
   const [candidateName] = useLocalStorage('candidateName', 'Candidate');
@@ -45,9 +44,6 @@ const CandidateResult = () => {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
-   // Email state
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailLoading, setEmailLoading] = useState(false);
 
   // Use custom hook to prevent navigation back
   usePreventNavigation();
@@ -81,7 +77,7 @@ const CandidateResult = () => {
           candidateName: `${backendData.firstName} ${backendData.lastName}`,
           candidateEmail: backendData.email,
           position: backendData.position,
-          score: backendData.results.score,
+          score: backendData.results.score ?? 0, // Default to 0 if null/undefined
           status: backendData.results.status,
           interviewDate: backendData.submittedAt,
           applicationId: backendData.applicationId,
@@ -154,45 +150,11 @@ const CandidateResult = () => {
     }
   }, [applicationId, retryCount]);
 
-  // Email sending function
-  const sendInterviewResultEmail = useCallback(async () => {
-    if (!applicationId || emailSent || emailLoading) {
-      return;
-    }
-
-    try {
-      setEmailLoading(true);
-      console.log('📧 Sending interview result email for applicationId:', applicationId);
-      
-      const response = await interviewResultsService.sendInterviewResultEmail(applicationId);
-      
-      if (response.status) {
-        setEmailSent(true);
-        console.log('✅ Interview result email sent successfully');
-        toast.success('Interview result email sent successfully!');
-      } else {
-        console.log('❌ Failed to send email:', response.msg);
-        toast.error('Failed to send email: ' + response.msg);
-      }
-    } catch (error) {
-      console.error('❌ Error sending email:', error);
-      toast.error('Failed to send interview result email');
-    } finally {
-      setEmailLoading(false);
-    }
-  }, [applicationId, emailSent, emailLoading]);
 
   useEffect(() => {
     fetchResults();
   }, [applicationId, fetchResults]);
 
-  // Trigger email when results are first loaded
-  useEffect(() => {
-    if (results && !emailSent && !emailLoading) {
-      console.log('📧 Results loaded, triggering email send...');
-      sendInterviewResultEmail();
-    }
-  }, [results, emailSent, emailLoading, sendInterviewResultEmail]);
 
   const handleRetry = () => {
     setRetryCount(0);
@@ -397,23 +359,6 @@ const CandidateResult = () => {
             Thank you for completing your interview, <span className="font-semibold text-gray-900 dark:text-gray-100">{results.candidateName}</span>
           </p>
 
-          {/* Email Status Alert Banner */}
-          {emailSent && (
-            <div className="max-w-md mx-auto mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg shadow-sm">
-              <div className="flex items-center justify-center space-x-2">
-                <Mail className="h-5 w-5 text-green-600 dark:text-green-400" />
-                <span className="text-sm font-medium text-green-800 dark:text-green-200">Results email sent to your inbox</span>
-              </div>
-            </div>
-          )}
-          {emailLoading && (
-            <div className="max-w-md mx-auto mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm">
-              <div className="flex items-center justify-center space-x-2">
-                <Loader2 className="h-5 w-5 text-blue-600 dark:text-blue-400 animate-spin" />
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Sending results email...</span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Main Results Card */}
@@ -485,7 +430,9 @@ const CandidateResult = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center space-x-2">
-                  <Mail className="w-4 h-4" />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
                   <span>Email</span>
                 </label>
                 <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{results.candidateEmail}</p>
@@ -566,7 +513,9 @@ const CandidateResult = () => {
           <CardContent className="p-6">
             <div className="flex items-center mb-4">
               <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-3">
-                <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
               <h3 className="text-xl font-semibold text-blue-800 dark:text-blue-200">
                 What's Next?

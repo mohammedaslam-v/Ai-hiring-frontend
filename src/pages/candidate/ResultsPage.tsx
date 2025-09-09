@@ -33,21 +33,15 @@ const ResultsPage: React.FC = () => {
   
   const [results, setResults] = useState(stateResults);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEmailSent, setIsEmailSent] = useState(false);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
-  const [emailError, setEmailError] = useState<string | null>(null);
 
   const recoverResults = useCallback(async () => {
     try {
       setIsLoading(true);
       console.log('🔍 ResultsPage: Attempting to recover results...');
       
-      // Get application ID from localStorage if not in state
-      const storedApplicationId = applicationId || localStorage.getItem('currentApplicationId');
-      
-      if (storedApplicationId) {
+      if (applicationId) {
         console.log('🔍 ResultsPage: Fetching results from backend...');
-        const response = await interviewResultsService.getInterviewResults(storedApplicationId);
+        const response = await interviewResultsService.getInterviewResults(applicationId);
         
         if (response.status && response.data) {
           console.log('✅ ResultsPage: Results recovered successfully');
@@ -69,42 +63,12 @@ const ResultsPage: React.FC = () => {
   }, [navigate, applicationId]);
 
   useEffect(() => {
-    // If no results from state, try to recover from localStorage or fetch from backend
+    // If no results from state, try to recover from backend
     if (!results) {
       recoverResults();
     }
-    
-    // Clean up localStorage when component unmounts (user navigates away)
-    return () => {
-      // Only clean up if we're not going to another page in the flow
-      const currentPath = window.location.pathname;
-      if (!currentPath.includes('/candidate/processing') && !currentPath.includes('/candidate/results')) {
-        localStorage.removeItem('currentSessionId');
-        localStorage.removeItem('currentApplicationId');
-      }
-    };
   }, [results, recoverResults]);
 
-  const handleSendEmail = async () => {
-    try {
-      setIsSendingEmail(true);
-      setEmailError(null);
-      
-      console.log('📧 ResultsPage: Sending results email...');
-      
-      // Simulate email sending (replace with actual API call)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setIsEmailSent(true);
-      console.log('✅ ResultsPage: Email sent successfully');
-      
-    } catch (error) {
-      console.error('❌ ResultsPage: Error sending email:', error);
-      setEmailError(error instanceof Error ? error.message : 'Failed to send email');
-    } finally {
-      setIsSendingEmail(false);
-    }
-  };
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
@@ -194,89 +158,6 @@ const ResultsPage: React.FC = () => {
             </Card>
           );
         })()}
-
-        {/* Email Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-gray-900 flex items-center">
-              <span className="text-2xl mr-2">📧</span>
-              Email Results
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isEmailSent ? (
-              <div className="text-center text-green-600">
-                <div className="text-4xl mb-2">✅</div>
-                <p className="text-lg font-semibold">Results sent to your email!</p>
-                <p className="text-sm text-gray-600 mt-2">
-                  Check your inbox for a detailed copy of your interview results.
-                </p>
-              </div>
-            ) : (
-              <div className="text-center">
-                <p className="text-gray-600 mb-4">
-                  Would you like to receive a copy of your results via email?
-                </p>
-                
-                {emailError && (
-                  <div className="text-red-600 mb-4 p-3 bg-red-50 rounded border border-red-200">
-                    {emailError}
-                  </div>
-                )}
-                
-                <Button 
-                  onClick={handleSendEmail}
-                  disabled={isSendingEmail}
-                  className="w-full md:w-auto"
-                >
-                  {isSendingEmail ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                      Sending...
-                    </>
-                  ) : (
-                    'Send Results to Email'
-                  )}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button 
-            onClick={() => navigate('/candidate/dashboard')}
-            variant="outline"
-            className="flex-1 sm:flex-none"
-          >
-            Back to Dashboard
-          </Button>
-          
-          <Button 
-            onClick={() => window.print()}
-            variant="outline"
-            className="flex-1 sm:flex-none"
-          >
-            Print Results
-          </Button>
-
-          <Button 
-            onClick={() => {
-              const dataStr = JSON.stringify(results, null, 2);
-              const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-              const exportFileDefaultName = `interview-results-${sessionId}.json`;
-              const linkElement = document.createElement('a');
-              linkElement.setAttribute('href', dataUri);
-              linkElement.setAttribute('download', exportFileDefaultName);
-              linkElement.click();
-            }}
-            variant="outline"
-            className="flex-1 sm:flex-none"
-          >
-            Download Results
-          </Button>
-        </div>
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-gray-500">
