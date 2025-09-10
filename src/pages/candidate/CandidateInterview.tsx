@@ -658,7 +658,7 @@ const CandidateInterview = () => {
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-orange-600 font-medium">Wait for the interview to complete fully before clicking 'Stop Interview' - only click after the AI analysis is done</p>
+                  <p className="text-orange-600 font-medium">Wait for the interview to complete fully - the system will automatically process your results after the AI analysis is done</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
@@ -784,14 +784,14 @@ const CandidateInterview = () => {
                   <div className="flex items-start space-x-3">
                     <span className="text-red-600 text-xl">🚫</span>
                     <div>
-                      <p><strong>Do NOT click "End Interview"</strong> before this message appears.</p>
+                      <p><strong>Do NOT close the browser or leave the page</strong> before this message appears.</p>
                       <p className="ml-4">Doing so will <strong>make you ineligible</strong> for the next step.</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="text-center">
+              <div className="text-center" style={{ display: 'none' }}>
                 <Button
                   onClick={handleEndInterview}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
