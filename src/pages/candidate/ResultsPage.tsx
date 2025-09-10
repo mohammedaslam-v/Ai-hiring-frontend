@@ -159,6 +159,23 @@ const ResultsPage: React.FC = () => {
           );
         })()}
 
+        {/* Email Notification */}
+        <Card className="mb-8 bg-blue-50 border-blue-200">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">Email Sent!</h3>
+              <p className="text-blue-700">
+               The report has been sent to your email address with your interview results and next steps.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-gray-500">
           <p>Session ID: {sessionId}</p>
