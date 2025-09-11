@@ -259,6 +259,7 @@ const CandidateInterview = () => {
             
             // Show processing page immediately when video upload completes
             setToPreparingResults();
+            // Proceed to processing page
             console.log('✅ Processing page shown - waiting for evaluation...');
             
             // Navigate to processing page - it will handle polling and navigation to results
@@ -272,8 +273,8 @@ const CandidateInterview = () => {
             });
           }
           
-          // Detect interview stop/abandon - look for onStop event
-          if (data.event === 'onStop' && interviewSessionId) {
+          // Detect interview stop/abandon - look for onStop/onTerminated events
+          if ((data.event === 'onStop' || data.event === 'onTerminated') && interviewSessionId) {
             console.log('=== TOUGH TONGUE INTERVIEW STOPPED DATA ===');
             console.log('Event:', data.event);
             console.log('Session ID:', data.sessionId);
@@ -281,18 +282,11 @@ const CandidateInterview = () => {
             console.log('Full Tough Tongue Response:', JSON.stringify(data, null, 2));
             console.log('==========================================');
             
-            console.log('🛑 INTERVIEW STOPPED (onStop detected) - Processing partial results...');
+            console.log('🛑 INTERVIEW STOPPED (onStop/onTerminated detected) - Waiting for final submit/upload completion...');
             console.log('Using our session ID for API call:', interviewSessionId);
             console.log('Current session status:', sessionState?.status);
             
-            // Process onStop event - Tough Tongue may still provide evaluation results
-            setToPreparingResults();
-            console.log('✅ Processing page shown - waiting for evaluation...');
-            
-            // Navigate to processing page - it will handle polling and navigation to results
-            navigate(`/candidate/processing/${interviewSessionId}`, {
-              state: { applicationId }
-            });
+            // Do NOT navigate on onStop/onTerminated.
           }
         }
       } catch (error) {
