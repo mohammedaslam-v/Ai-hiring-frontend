@@ -276,7 +276,6 @@ const ProcessingPage: React.FC = () => {
         {/* Status Text */}
         <div className="text-sm text-gray-500 mb-4">
           <div className="font-medium text-blue-600 mb-1">{processingStage}</div>
-          <div className="font-mono">{formatTime(timeElapsed)}</div>
           <div className="mt-1">{Math.round(progress)}% complete</div>
         </div>
 

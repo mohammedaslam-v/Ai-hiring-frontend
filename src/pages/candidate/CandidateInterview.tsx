@@ -445,7 +445,7 @@ const CandidateInterview = () => {
             <p><strong>Debug:</strong> Application ID: {applicationId || 'Not found'}</p>
             <p><strong>Interview Session ID:</strong> {interviewSessionId || 'Not created'}</p>
             <p><strong>Candidate:</strong> {candidateName} ({candidateEmail})</p>
-            <p><strong>Video Status:</strong> {videoWatched ? 'Completed' : videoStarted ? 'In Progress' : 'Not Started'}</p>
+            {/* Video Status removed as per requirements */}
           </div>
 
           <div className="bg-white rounded-3xl shadow-sm border border-blue-600/20 p-12">
@@ -724,22 +724,17 @@ const CandidateInterview = () => {
             <p><strong>Application ID:</strong> {applicationId || 'Not found'}</p>
             <p><strong>Interview Session ID:</strong> {interviewSessionId || 'Not created'}</p>
             <p><strong>Candidate:</strong> {candidateName} ({candidateEmail})</p>
-            <p><strong>Video Status:</strong> Completed</p>
+            {/* Video Status removed as per requirements */}
           </div>
 
 
 
           <Card className="border-blue-600/20 shadow-xl bg-white">
             <CardHeader className="text-center">
-              <div className="flex items-center justify-center space-x-4 mb-4">
+              <div className="flex items-center justify-center mb-4">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-600">Recording</span>
-                <div className="flex items-center text-blue-600">
-                  <Clock className="h-4 w-4 mr-1" />
-                  {formatTime(timeElapsed)}
-                </div>
               </div>
-              <CardTitle className="text-2xl text-blue-600">Interview in Progress</CardTitle>
+              <CardTitle className="text-2xl text-blue-600">AI Interview</CardTitle>
               <CardDescription>
                 Candidate: {candidateName} ({candidateEmail})
               </CardDescription>
