@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { log, error as logError } from '@/utils/logger';
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Clock, Trophy, ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import DarkModeToggle from "@/components/DarkModeToggle";
@@ -20,15 +21,15 @@ const CandidateResult = () => {
       const interviewResult = JSON.parse(interviewResultStr);
       if (interviewResult.applicationId) {
         applicationId = interviewResult.applicationId;
-        console.log('🔍 CandidateResult: Using applicationId from interview result:', applicationId);
+        log('🔍 CandidateResult: Using applicationId from interview result');
       }
     } catch (error) {
-      console.log('🔍 CandidateResult: Error parsing interview result, using fallback applicationId');
+      log('🔍 CandidateResult: Error parsing interview result, using fallback applicationId');
     }
   }
   
   // Debug logging
-  console.log('🔍 CandidateResult: Final applicationId to use:', applicationId);
+  log('🔍 CandidateResult: Final applicationId to use');
   
   const [results, setResults] = useState<{
     candidateName: string;
@@ -58,7 +59,7 @@ const CandidateResult = () => {
       return;
     }
     
-    console.log('🔍 Using applicationId for results:', fallbackApplicationId);
+    log('🔍 Using applicationId for results');
 
     try {
       if (isRetry) {
@@ -108,7 +109,7 @@ const CandidateResult = () => {
         }
       }
     } catch (err: unknown) {
-      console.error('Error fetching results:', err);
+      logError('Error fetching results:', err instanceof Error ? err.message : err);
       
       // Handle different error types
       if (err && typeof err === 'object' && 'response' in err) {

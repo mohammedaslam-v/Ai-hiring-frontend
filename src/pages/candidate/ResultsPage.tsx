@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { interviewResultsService } from '../../services/interviewResults';
+import { log, error as logError } from '@/utils/logger';
 
 interface ResultsData {
   score: number;
@@ -37,25 +38,25 @@ const ResultsPage: React.FC = () => {
   const recoverResults = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.log('🔍 ResultsPage: Attempting to recover results...');
+      log('🔍 ResultsPage: Attempting to recover results...');
       
       if (applicationId) {
-        console.log('🔍 ResultsPage: Fetching results from backend...');
+        log('🔍 ResultsPage: Fetching results from backend...');
         const response = await interviewResultsService.getInterviewResults(applicationId);
         
         if (response.status && response.data) {
-          console.log('✅ ResultsPage: Results recovered successfully');
+          log('✅ ResultsPage: Results recovered successfully');
           setResults(response.data);
           return;
         }
       }
       
       // If no results found, redirect to dashboard
-      console.log('❌ ResultsPage: No results found, redirecting to dashboard');
+      log('❌ ResultsPage: No results found, redirecting to dashboard');
       navigate('/candidate/dashboard');
       
     } catch (error) {
-      console.error('❌ ResultsPage: Error recovering results:', error);
+      logError('❌ ResultsPage: Error recovering results:', error instanceof Error ? error.message : error);
       navigate('/candidate/dashboard');
     } finally {
       setIsLoading(false);

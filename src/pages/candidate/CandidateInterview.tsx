@@ -14,6 +14,7 @@ import { useSessionManagement } from "@/hooks/useSessionManagement";
 import { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { log, error as logError } from "@/utils/logger";
 
 // Import utilities and constants
 import { formatTime, generateInterviewUrl } from "@/utils/candidate/interviewUtils";
@@ -72,10 +73,10 @@ const CandidateInterview = () => {
 
   // Debug logging for session ID tracking
   useEffect(() => {
-    console.log('🔍 DEBUG: Current interviewSessionId:', interviewSessionId);
-    console.log('🔍 DEBUG: Current sessionState:', sessionState);
-    console.log('🔍 DEBUG: Current applicationId:', applicationId);
-            console.log('🔍 DEBUG: localStorage applicationId:', localStorage.getItem('applicationId'));
+    log('🔍 DEBUG: Current interviewSessionId:', interviewSessionId);
+    log('🔍 DEBUG: Current sessionState:', sessionState);
+    log('🔍 DEBUG: Current applicationId:', applicationId);
+            log('🔍 DEBUG: localStorage applicationId:', localStorage.getItem('applicationId'));
   }, [interviewSessionId, sessionState, applicationId]);
 
   // Guard navigation only while the interview is active or we are handing off to processing
@@ -87,70 +88,70 @@ const CandidateInterview = () => {
   // Helper functions to call session APIs with our session ID
   const handleStartInterviewWithId = useCallback(async (sessionId: string) => {
     try {
-      console.log('Starting interview with our session ID:', sessionId);
+      log('Starting interview with our session ID:', sessionId);
       
       // Validate that we have a valid session ID
       if (!sessionId || sessionId.trim() === '') {
-        console.error('Invalid session ID provided:', sessionId);
+        logError('Invalid session ID provided');
         toast.error('Invalid session ID - cannot start interview');
         return;
       }
       
       // Log the current state for debugging
-      console.log('Current interviewSessionId state:', interviewSessionId);
-      console.log('Current sessionId parameter:', sessionId);
+      log('Current interviewSessionId state:', interviewSessionId);
+      log('Current sessionId parameter:', sessionId);
       
       const session = await startSession(sessionId);
       if (session) {
-        console.log('Session status updated to started:', session);
+        log('Session status updated to started');
       }
     } catch (error) {
-      console.error('Error starting interview with our session ID:', error);
+      logError('Error starting interview with our session ID:', error instanceof Error ? error.message : error);
       toast.error('Failed to start interview');
     }
   }, [interviewSessionId, startSession]);
 
   const handleCompleteInterviewWithId = useCallback(async (sessionId: string, score: number) => {
     try {
-      console.log('🎯 handleCompleteInterviewWithId called with sessionId:', sessionId, 'score:', score);
-      console.log('🎯 About to call completeSession with sessionId:', sessionId, 'score:', score);
+      log('🎯 handleCompleteInterviewWithId called');
+      log('🎯 About to call completeSession');
       const session = await completeSession(sessionId, score);
-      console.log('🎯 completeSession returned:', session);
+      log('🎯 completeSession returned');
       if (session) {
         // Toast message handled by useInterviewSession hook
-        console.log('✅ Session status updated to completed:', session);
+        log('✅ Session status updated to completed');
       } else {
-        console.log('⚠️ completeSession returned null/undefined');
+        log('⚠️ completeSession returned null/undefined');
       }
     } catch (error) {
-      console.error('❌ Error completing interview with our session ID:', error);
+      logError('❌ Error completing interview with our session ID:', error instanceof Error ? error.message : error);
       toast.error('Failed to complete interview');
     }
   }, [completeSession]);
 
   const handleSkipInterviewWithId = async (sessionId: string) => {
     try {
-      console.log('Skipping interview with our session ID:', sessionId);
-      console.log('Current session status before skip:', sessionState?.status);
+      log('Skipping interview with our session ID');
+      log('Current session status before skip:', sessionState?.status);
       
       const session = await skipSession(sessionId);
       if (session) {
         // Provide different messages based on when the interview was stopped
         if (sessionState?.status === 'pending') {
           toast.info('Interview was stopped before starting');
-          console.log('Interview stopped before starting - status updated to skipped');
+          log('Interview stopped before starting - status updated to skipped');
         } else if (sessionState?.status === 'started') {
           toast.info('Interview was stopped early');
-          console.log('Interview stopped early - status updated to skipped');
+          log('Interview stopped early - status updated to skipped');
         } else {
           toast.info('Interview was skipped');
-          console.log('Interview skipped - status updated to skipped');
+          log('Interview skipped - status updated to skipped');
         }
         
-        console.log('Session status updated to skipped:', session);
+        log('Session status updated to skipped');
       }
     } catch (error) {
-      console.error('Error skipping interview with our session ID:', error);
+      logError('Error skipping interview with our session ID:', error instanceof Error ? error.message : error);
       toast.error('Failed to skip interview');
     }
   };
@@ -162,11 +163,10 @@ const CandidateInterview = () => {
   
   // Debug: Log when iframe URL is generated
   useEffect(() => {
-    console.log('🎯 Interview Page - Generated iframe URL:');
-    console.log('🎯 - URL:', iframeUrl);
-    console.log('🎯 - Using candidate name:', realCandidateName);
-    console.log('🎯 - Using candidate email:', realCandidateEmail);
-    console.log('🎯 - localStorage values:', {
+    log('🎯 Interview Page - Generated iframe URL');
+    log('🎯 - Using candidate name');
+    log('🎯 - Using candidate email');
+    log('🎯 - localStorage values:', {
       candidateName: JSON.parse(localStorage.getItem('candidateName') || 'null'),
       candidateEmail: JSON.parse(localStorage.getItem('candidateEmail') || 'null'),
               applicationId: localStorage.getItem('applicationId')
@@ -195,7 +195,7 @@ const CandidateInterview = () => {
   // Ensure session ID is properly synchronized
   useEffect(() => {
     if (interviewSessionId) {
-      console.log('Interview session ID synchronized:', interviewSessionId);
+      log('Interview session ID synchronized:', interviewSessionId);
     }
   }, [interviewSessionId]);
 
@@ -208,71 +208,61 @@ const CandidateInterview = () => {
 
       try {
         const data = event.data;
-        console.log('Tough Tongue message received:', data);
+        log('Tough Tongue message received');
         
         // Check if interview has started (when user clicks Start in Tough Tongue)
         if (data && typeof data === 'object') {
           // Log all events to investigate scoring
           if (data.event || data.type) {
-            console.log(`🔍 Processing Tough Tongue Event: ${data.event || data.type}`);
+            log(`🔍 Processing Tough Tongue Event: ${data.event || data.type}`);
             
             // Check if this event contains score/evaluation data
             if (data.score !== undefined) {
-              console.log('🎯 SCORE DETECTED:', data.score);
+              log('🎯 SCORE DETECTED');
             }
             if (data.evaluation !== undefined) {
-              console.log('📊 EVALUATION DETECTED:', data.evaluation);
+              log('📊 EVALUATION DETECTED');
             }
             if (data.result !== undefined) {
-              console.log('🏆 RESULT DETECTED:', data.result);
+              log('🏆 RESULT DETECTED');
             }
             if (data.assessment !== undefined) {
-              console.log('📋 ASSESSMENT DETECTED:', data.assessment);
+              log('📋 ASSESSMENT DETECTED');
             }
           }
           
           // Detect interview start - look for onStart event
           if (data.event === 'onStart' && interviewSessionId) {
-            console.log('Tough Tongue interview started (onStart detected)');
-            console.log('Tough Tongue Session ID:', data.sessionId);
-            console.log('Our Session ID:', interviewSessionId);
+            log('Tough Tongue interview started (onStart detected)');
             
             // Link Tough Tongue session ID to our session
             try {
               await linkToughTongueSession(interviewSessionId, data.sessionId);
-              console.log('✅ Sessions linked successfully');
+              log('✅ Sessions linked successfully');
             } catch (error) {
-              console.error('❌ Failed to link sessions:', error);
+              logError('❌ Failed to link sessions:', error instanceof Error ? error.message : error);
               toast.error('Failed to link interview session. Please refresh and try again.');
               return;
             }
             
             // Start our session
-            console.log('Calling handleStartInterviewWithId with session ID:', interviewSessionId);
+            log('Calling handleStartInterviewWithId');
             handleStartInterviewWithId(interviewSessionId);
           }
           
           // Detect interview completion - look for onSubmit event
           if (data.event === 'onSubmit' && interviewSessionId) {
-            console.log('=== TOUGH TONGUE INTERVIEW COMPLETION DATA ===');
-            console.log('Event:', data.event);
-            console.log('Session ID:', data.sessionId);
-            console.log('Timestamp:', data.timestamp);
-            console.log('Full Tough Tongue Response:', JSON.stringify(data, null, 2));
-            console.log('=============================================');
+            log('=== TOUGH TONGUE INTERVIEW COMPLETION (summary) ===');
             
-            console.log('🎯 VIDEO UPLOAD COMPLETED (onSubmit detected) - Starting evaluation process...');
-            console.log('Using our session ID for API call:', interviewSessionId);
+            log('🎯 VIDEO UPLOAD COMPLETED (onSubmit detected) - Starting evaluation process...');
             
             // Show processing page immediately when video upload completes
             setToPreparingResults();
             // Proceed to processing page
-            console.log('✅ Processing page shown - waiting for evaluation...');
+            log('✅ Processing page shown - waiting for evaluation...');
             
             // Navigate to processing page - it will handle polling and navigation to results
-            console.log('🎯 Navigating to processing page - it will handle the evaluation flow...');
-            console.log('🎯 DEBUG: applicationId before navigation:', applicationId);
-            console.log('🎯 DEBUG: localStorage applicationId before navigation:', localStorage.getItem('applicationId'));
+            log('🎯 Navigating to processing page - it will handle the evaluation flow...');
             
             // Navigate to processing page immediately
             navigate(`/candidate/processing/${interviewSessionId}`, {
@@ -282,22 +272,15 @@ const CandidateInterview = () => {
           
           // Detect interview stop/abandon - look for onStop/onTerminated events
           if ((data.event === 'onStop' || data.event === 'onTerminated') && interviewSessionId) {
-            console.log('=== TOUGH TONGUE INTERVIEW STOPPED DATA ===');
-            console.log('Event:', data.event);
-            console.log('Session ID:', data.sessionId);
-            console.log('Timestamp:', data.timestamp);
-            console.log('Full Tough Tongue Response:', JSON.stringify(data, null, 2));
-            console.log('==========================================');
+            log('=== TOUGH TONGUE INTERVIEW STOPPED (summary) ===');
             
-            console.log('🛑 INTERVIEW STOPPED (onStop/onTerminated detected) - Waiting for final submit/upload completion...');
-            console.log('Using our session ID for API call:', interviewSessionId);
-            console.log('Current session status:', sessionState?.status);
+            log('🛑 INTERVIEW STOPPED (onStop/onTerminated detected)');
             
             // Do NOT navigate on onStop/onTerminated.
           }
         }
       } catch (error) {
-        console.error('Error processing Tough Tongue message:', error);
+        logError('Error processing Tough Tongue message:', error instanceof Error ? error.message : error);
       }
     };
 
@@ -315,7 +298,7 @@ const CandidateInterview = () => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       // Only mark as left midway if interview is actually in progress
       if (sessionState?.status === 'started' && interviewSessionId) {
-        console.log('🚨 Browser closing during interview - marking as left midway');
+        log('🚨 Browser closing during interview - marking as left midway');
         
         // Try to mark as left midway before page unloads
         // Use sendBeacon for reliable delivery even during page unload
@@ -334,7 +317,7 @@ const CandidateInterview = () => {
         try {
           skipSession(interviewSessionId);
         } catch (error) {
-          console.log('Could not call skipSession during unload:', error);
+          logError('Could not call skipSession during unload:', error instanceof Error ? error.message : error);
         }
       }
     };
@@ -351,12 +334,12 @@ const CandidateInterview = () => {
   // Network connectivity detection
   useEffect(() => {
     const handleOnline = () => {
-      console.log('🌐 Network connection restored');
+      log('🌐 Network connection restored');
       // Could trigger retry logic here if needed
     };
 
     const handleOffline = () => {
-      console.log('📡 Network connection lost');
+      log('📡 Network connection lost');
       // Could show offline message or pause processing
     };
 
@@ -377,27 +360,27 @@ const CandidateInterview = () => {
     
     if (iframe) {
       const handleIframeLoad = () => {
-        console.log('Tough Tongue iframe loaded, checking for state changes...');
+        log('Tough Tongue iframe loaded, checking for state changes...');
         
         // Check Tough Tongue API health when iframe loads
         toughTongueService.checkApiHealth()
           .then(isHealthy => {
             if (isHealthy) {
-              console.log('✅ Tough Tongue API is accessible');
+              log('✅ Tough Tongue API is accessible');
             } else {
-              console.log('⚠️ Tough Tongue API may not be accessible');
+              log('⚠️ Tough Tongue API may not be accessible');
             }
           })
           .catch(error => {
-            console.log('❌ Could not check Tough Tongue API health:', error.message);
+            logError('❌ Could not check Tough Tongue API health:', error instanceof Error ? error.message : error);
           });
         
         // Try to detect if interview has started by checking iframe content
         try {
           // This is a fallback method - the iframe might not allow access due to CORS
-          console.log('Iframe loaded, but CORS restrictions may prevent content access');
+          log('Iframe loaded, but CORS restrictions may prevent content access');
         } catch (error) {
-          console.log('Cannot access iframe content due to CORS restrictions');
+          log('Cannot access iframe content due to CORS restrictions');
         }
       };
 

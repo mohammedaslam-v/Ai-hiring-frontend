@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useNavigationGuard } from '@/hooks/useNavigationGuard';
+import { log, error as logError } from '@/utils/logger';
 import { toughTongueService } from '../../services/toughTongueService';
 import { interviewResultsService } from '../../services/interviewResults';
 import { Button } from '../../components/ui/button';
@@ -28,13 +29,13 @@ const ProcessingPage: React.FC = () => {
   const startProcessing = useCallback(async () => {
     // Prevent re-entry during processing
     if (startingRef.current) {
-      console.log('🔄 ProcessingPage: Already starting processing, skipping...');
+      log('🔄 ProcessingPage: Already starting processing, skipping...');
       return;
     }
     startingRef.current = true;
 
     try {
-      console.log('🔄 ProcessingPage: Starting Tough Tongue processing for session:', sessionId);
+      log('🔄 ProcessingPage: Starting Tough Tongue processing for session:', sessionId);
       
       if (!applicationId) {
         throw new Error('Application ID is required. Please restart the interview process.');
@@ -46,14 +47,14 @@ const ProcessingPage: React.FC = () => {
       // Start the processing and poll for results
       const results = await toughTongueService.getInterviewResults(sessionId!);
       
-      console.log('✅ ProcessingPage: Tough Tongue processing completed, now polling for processed results...');
+      log('✅ ProcessingPage: Tough Tongue processing completed, now polling for processed results...');
       setProcessingStage('AI evaluation complete, finalizing results...');
       setProgress(70);
       
       // Now poll for the processed results from our database
       const processedResults = await pollForProcessedResults(applicationId);
       
-      console.log('✅ ProcessingPage: Processed results received:', processedResults);
+      log('✅ ProcessingPage: Processed results received');
       
       // Results are ready!
       setStatus('completed');
@@ -73,7 +74,7 @@ const ProcessingPage: React.FC = () => {
       }, 2000); // 2 second delay to show completion
       
     } catch (error) {
-      console.error('❌ ProcessingPage: Error getting results:', error);
+      logError('❌ ProcessingPage: Error getting results:', error instanceof Error ? error.message : error);
       setStatus('failed');
       setProgress(0);
       
@@ -111,7 +112,7 @@ const ProcessingPage: React.FC = () => {
 
     // React 18 StrictMode guard - prevent double initialization
     if (initOnceRef.current) {
-      console.log('🔄 ProcessingPage: Already initialized, skipping...');
+      log('🔄 ProcessingPage: Already initialized, skipping...');
       return;
     }
     initOnceRef.current = true;
@@ -133,23 +134,23 @@ const ProcessingPage: React.FC = () => {
     const perAttemptIntervalMs = 15000; // 15 seconds
     const maxAttempts = 12; // 30s + 11×15s = 195s total
 
-    console.log(`🔄 ProcessingPage: Polling for processed results for application ${applicationId} (first check after 30s, then every 15s, max ${maxAttempts} attempts)`);
+    log(`🔄 ProcessingPage: Polling for processed results for application ${applicationId}`);
 
     // Wait before first check to reduce unnecessary calls
     await new Promise(resolve => setTimeout(resolve, initialWaitMs));
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        console.log(`🔍 ProcessingPage: Polling attempt ${attempt}/${maxAttempts} for processed results`);
+        log(`🔍 ProcessingPage: Polling attempt ${attempt}/${maxAttempts} for processed results`);
         setProcessingStage(`Finalizing results... (${attempt}/${maxAttempts})`);
         
         const response = await interviewResultsService.getInterviewResults(applicationId);
         
         if (response.status && response.data) {
-          console.log(`✅ ProcessingPage: Processed results ready on attempt ${attempt}`);
+          log(`✅ ProcessingPage: Processed results ready on attempt ${attempt}`);
           return response.data;
         } else if (response.error === 'INTERVIEW_NOT_COMPLETED') {
-          console.log(`⏳ ProcessingPage: Interview still processing... (attempt ${attempt}/${maxAttempts})`);
+          log(`⏳ ProcessingPage: Interview still processing... (attempt ${attempt}/${maxAttempts})`);
           
           // Update progress based on polling attempts
           const progressIncrement = Math.min(20 / maxAttempts, 2); // Max 2% per attempt
@@ -162,7 +163,7 @@ const ProcessingPage: React.FC = () => {
           throw new Error(response.msg || 'Failed to get processed results');
         }
       } catch (error) {
-        console.error(`❌ ProcessingPage: Error on attempt ${attempt}:`, error);
+        logError(`❌ ProcessingPage: Error on attempt ${attempt}:`, error instanceof Error ? error.message : error);
         
         if (attempt === maxAttempts) {
           throw error;

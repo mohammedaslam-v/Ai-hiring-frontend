@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { log, error as logError } from '@/utils/logger';
 
 // API Response interfaces
 interface ApiResponse<T = unknown> {
@@ -28,7 +29,7 @@ export class ToughTongueService {
    */
   async getInterviewResults(sessionId: string) {
     try {
-      console.log('🔍 Frontend: Getting Tough Tongue results for session:', sessionId);
+      log('🔍 Frontend: Getting Tough Tongue results for session');
       
       // Start processing
       const startResponse = await axios.get(`${this.baseURL}/api/session/tough-tongue/${sessionId}/results`, {
@@ -40,7 +41,7 @@ export class ToughTongueService {
       });
 
       if ((startResponse.data as ApiResponse).success) {
-        console.log('✅ Frontend: Processing started, beginning polling...');
+        log('✅ Frontend: Processing started, beginning polling...');
         
         // Poll for results with improved strategy
         const results = await this.pollForResults(sessionId);
@@ -50,7 +51,7 @@ export class ToughTongueService {
       }
 
     } catch (error) {
-      console.error('❌ Frontend: Error getting results:', error);
+      logError('❌ Frontend: Error getting results:', error instanceof Error ? error.message : error);
       throw new Error(`Failed to fetch interview results: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -66,14 +67,14 @@ export class ToughTongueService {
     const perAttemptIntervalMs = 15000; // 15 seconds
     const maxAttempts = 20; // Up to 6 minutes total (20s + 19 × 15s = 305s)
 
-    console.log(`🔄 Frontend: Starting polling for session ${sessionId} (first check after 20s, then every 15s, max ${maxAttempts} attempts)`);
+    log(`🔄 Frontend: Starting polling for session ${sessionId}`);
 
     // Wait before first check to allow backend processing to start
     await new Promise(resolve => setTimeout(resolve, initialWaitMs));
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        console.log(`🔍 Frontend: Polling attempt ${attempt}/${maxAttempts}`);
+        log(`🔍 Frontend: Polling attempt ${attempt}/${maxAttempts}`);
         
         const response = await axios.get(`${this.baseURL}/api/session/tough-tongue/${sessionId}/status`, {
           timeout: 45000, // Increased timeout
@@ -86,21 +87,20 @@ export class ToughTongueService {
         if ((response.data as ApiResponse<ProcessingStatus>).success) {
           const data = (response.data as ApiResponse<ProcessingStatus>).data;
           
-          console.log(`🔍 Frontend: Status check ${attempt}/${maxAttempts} - Status: ${data.status}`);
+          log(`🔍 Frontend: Status check ${attempt}/${maxAttempts} - Status: ${data.status}`);
           
           if (data.status === 'completed') {
-            console.log(`✅ Frontend: Results ready on attempt ${attempt}`);
-            console.log(`🎯 Frontend: Final results:`, data.results ? 'Present' : 'Missing');
+            log(`✅ Frontend: Results ready on attempt ${attempt}`);
             return data; // Return the full ProcessingStatus object
           } else if (data.status === 'failed') {
-            console.error(`❌ Frontend: Processing failed:`, data.error);
+            logError(`❌ Frontend: Processing failed:`, data.error);
             throw new Error(`Processing failed: ${data.error || 'Unknown error during evaluation'}`);
           } else if (data.status === 'processing') {
-            console.log(`⏳ Frontend: Still processing... (attempt ${attempt}/${maxAttempts})`);
+            log(`⏳ Frontend: Still processing... (attempt ${attempt}/${maxAttempts})`);
             
             // Show progress indication for longer waits
             if (attempt > 10) {
-              console.log(`⏰ Frontend: Extended processing time - this may take a few more minutes...`);
+              log(`⏰ Frontend: Extended processing time - this may take a few more minutes...`);
             }
             
             if (attempt < maxAttempts) {
@@ -108,18 +108,18 @@ export class ToughTongueService {
             }
           }
         } else {
-          console.error(`❌ Frontend: Invalid response from server:`, response.data);
+          logError(`❌ Frontend: Invalid response from server`);
           throw new Error('Invalid response from server');
         }
       } catch (error) {
-        console.error(`❌ Frontend: Error on attempt ${attempt}:`, error);
+        logError(`❌ Frontend: Error on attempt ${attempt}:`, error instanceof Error ? error.message : error);
         
         // Handle different types of errors
         if (error instanceof Error) {
           if (error.message.includes('timeout')) {
-            console.log(`⏰ Frontend: Timeout on attempt ${attempt}, retrying...`);
+            log(`⏰ Frontend: Timeout on attempt ${attempt}, retrying...`);
           } else if (error.message.includes('Network Error')) {
-            console.log(`🌐 Frontend: Network error on attempt ${attempt}, retrying...`);
+            log(`🌐 Frontend: Network error on attempt ${attempt}, retrying...`);
           }
         }
         
@@ -152,10 +152,10 @@ export class ToughTongueService {
         }
       });
       
-      console.log('✅ Frontend: API health check passed');
+      log('✅ Frontend: API health check passed');
       return response.status === 200;
     } catch (error) {
-      console.log('❌ Frontend: Health check failed:', error instanceof Error ? error.message : 'Unknown error');
+      log('❌ Frontend: Health check failed:', error instanceof Error ? error.message : 'Unknown error');
       return false;
     }
   }
@@ -167,7 +167,7 @@ export class ToughTongueService {
    */
   async getProcessingStatus(sessionId: string) {
     try {
-      console.log(`🔍 Frontend: Getting processing status for session: ${sessionId}`);
+      log(`🔍 Frontend: Getting processing status for session: ${sessionId}`);
       
       const response = await axios.get(`${this.baseURL}/api/session/tough-tongue/${sessionId}/status`, {
         timeout: 15000,
@@ -179,14 +179,14 @@ export class ToughTongueService {
 
       if ((response.data as ApiResponse<ProcessingStatus>).success) {
         const data = (response.data as ApiResponse<ProcessingStatus>).data;
-        console.log(`📊 Frontend: Status retrieved - ${data.status}`);
+        log(`📊 Frontend: Status retrieved - ${data.status}`);
         return data;
       } else {
-        console.error('❌ Frontend: Failed to get status:', response.data);
+        logError('❌ Frontend: Failed to get status');
         throw new Error('Failed to get status');
       }
     } catch (error) {
-      console.error('❌ Frontend: Error getting status:', error);
+      logError('❌ Frontend: Error getting status:', error instanceof Error ? error.message : error);
       
       // Provide more specific error messages
       if (error instanceof Error) {
@@ -209,7 +209,7 @@ export class ToughTongueService {
    */
   async getSessionDetails(sessionId: string) {
     try {
-      console.log(`🔍 Frontend: Getting session details for: ${sessionId}`);
+      log(`🔍 Frontend: Getting session details for: ${sessionId}`);
       
       const response = await axios.get(`${this.baseURL}/api/session/${sessionId}`, {
         timeout: 10000,
@@ -221,7 +221,7 @@ export class ToughTongueService {
 
       return response.data;
     } catch (error) {
-      console.error('❌ Frontend: Error getting session details:', error);
+      logError('❌ Frontend: Error getting session details:', error instanceof Error ? error.message : error);
       throw new Error(`Failed to get session details: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -232,7 +232,7 @@ export class ToughTongueService {
    */
   async cancelProcessing(sessionId: string) {
     try {
-      console.log(`🛑 Frontend: Attempting to cancel processing for session: ${sessionId}`);
+      log(`🛑 Frontend: Attempting to cancel processing for session: ${sessionId}`);
       
       // This would depend on your backend implementing a cancel endpoint
       const response = await axios.post(`${this.baseURL}/api/session/tough-tongue/${sessionId}/cancel`, {}, {
@@ -245,7 +245,7 @@ export class ToughTongueService {
 
       return response.data;
     } catch (error) {
-      console.error('❌ Frontend: Error canceling processing:', error);
+      logError('❌ Frontend: Error canceling processing:', error instanceof Error ? error.message : error);
       throw new Error(`Failed to cancel processing: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

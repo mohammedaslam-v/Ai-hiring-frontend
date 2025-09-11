@@ -164,8 +164,6 @@ export const useSessionManagement = () => {
         status: session.status,
         isLoading: false
       }));
-
-      toast.info('Interview completed');
       return session;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to complete interview';
