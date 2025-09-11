@@ -13,6 +13,7 @@ import { useInterviewNavigation } from "@/hooks/candidate/useInterviewNavigation
 import { useSessionManagement } from "@/hooks/useSessionManagement";
 import { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 // Import utilities and constants
 import { formatTime, generateInterviewUrl } from "@/utils/candidate/interviewUtils";
@@ -76,6 +77,12 @@ const CandidateInterview = () => {
     console.log('🔍 DEBUG: Current applicationId:', applicationId);
             console.log('🔍 DEBUG: localStorage applicationId:', localStorage.getItem('applicationId'));
   }, [interviewSessionId, sessionState, applicationId]);
+
+  // Guard navigation only while the interview is active or we are handing off to processing
+  const blockInterviewLeave =
+    interviewStatus === INTERVIEW_STATUS.IN_PROGRESS ||
+    interviewStatus === INTERVIEW_STATUS.PREPARING_RESULTS;
+  useNavigationGuard(blockInterviewLeave, "Your interview is in progress. Leaving will interrupt it.");
 
   // Helper functions to call session APIs with our session ID
   const handleStartInterviewWithId = useCallback(async (sessionId: string) => {

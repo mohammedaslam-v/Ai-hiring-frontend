@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 import { toughTongueService } from '../../services/toughTongueService';
 import { interviewResultsService } from '../../services/interviewResults';
 import { Button } from '../../components/ui/button';
@@ -98,6 +99,9 @@ const ProcessingPage: React.FC = () => {
       startingRef.current = false;
     }
   }, [sessionId, applicationId, navigate]);
+
+  // Guard navigation while processing is active
+  useNavigationGuard(status === 'processing', 'Processing is running. Are you sure you want to leave?');
 
   useEffect(() => {
     if (!sessionId) {
