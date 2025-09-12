@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar } from "lucide-react";
+import { PASS_SCORE_THRESHOLD } from '@/constants/admin/availabilityConstants';
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
 import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableActions';
@@ -43,9 +44,20 @@ const ApplicationsManagement: React.FC = () => {
     return <Badge className={config.className}>{config.text}</Badge>;
   };
 
-  // Helper function to render interview status badge
+  // Helper function to render interview status: show only outcome when completed
   const renderInterviewStatusBadge = (status: string, score?: number | null) => {
     const config = getInterviewStatusBadgeConfig(status, score);
+    const isCompletedWithScore = status === 'completed' && typeof score === 'number';
+    const passed = isCompletedWithScore && score >= PASS_SCORE_THRESHOLD;
+
+    if (isCompletedWithScore) {
+      return (
+        <Badge variant="outline" className={passed ? 'bg-green-100 text-green-700 border-green-300' : 'bg-red-100 text-red-700 border-red-300'}>
+          {passed ? 'Passed' : 'Failed'}
+        </Badge>
+      );
+    }
+
     return <Badge variant="outline" className={config.className}>{config.text}</Badge>;
   };
 
@@ -559,8 +571,8 @@ const ApplicationsManagement: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       {application.score !== null ? (
-                        <span className={`font-medium ${application.score >= 70 ? 'text-green-600' : 'text-red-600'}`}>
-                          {application.score}%
+                        <span className={`font-medium ${application.score >= PASS_SCORE_THRESHOLD ? 'text-green-600' : 'text-red-600'}`}>
+                          {(application.score * 10)}%
                         </span>
                       ) : (
                         <span className="text-gray-400">—</span>

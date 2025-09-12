@@ -28,8 +28,9 @@ export const buildDailyTrends = (applicants: ApplicantLike[]): TrendsPoint[] => 
     row.registered += 1;
     if (a.session_id) row.started += 1;
     if (a.interview_status === 'completed' || a.interview_status === 'failed') row.completed += 1;
-    if (a.interview_status === 'completed' && (a.score || 0) >= 60) row.passed += 1;
-    if (a.interview_status === 'failed' || (a.interview_status === 'completed' && (a.score || 0) < 60)) row.failed += 1;
+    // Scores are 0–10; treat >= 6 as pass
+    if (a.interview_status === 'completed' && (a.score || 0) >= 6) row.passed += 1;
+    if (a.interview_status === 'failed' || (a.interview_status === 'completed' && (a.score || 0) < 6)) row.failed += 1;
   }
 
   return Array.from(byDate.values()).sort((a, b) => a.date.localeCompare(b.date));

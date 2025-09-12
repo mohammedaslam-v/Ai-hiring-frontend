@@ -170,7 +170,7 @@ const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
                     {typeof applicant.score === 'number' ? (
                       <p><strong>Final Total Score:</strong> 
                         <span className={`ml-2 font-semibold ${getScoreColorClass(applicant.score as number)}`}>
-                          {applicant.score}%
+                          {(applicant.score * 10)}%
                         </span>
                       </p>
                     ) : null}
