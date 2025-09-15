@@ -20,7 +20,6 @@ import SalaryStructure from "./pages/candidate/SalaryStructure";
 import AssessmentSalaryStructure from "./pages/candidate/AssessmentSalaryStructure";
 import SimplifiedSalaryStructure from "./pages/candidate/SimplifiedSalaryStructure";
 import AdminLogin from "./pages/admin/AdminLogin";
-import AdminSignup from "./pages/admin/AdminSignup";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminApplications from "./pages/admin/AdminApplications";
 import AdminApplicationDetail from "./pages/admin/AdminApplicationDetail";

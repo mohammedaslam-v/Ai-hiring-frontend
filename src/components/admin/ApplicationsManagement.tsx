@@ -698,15 +698,16 @@ function getStatusBadgeConfig(status: string) {
 }
 
 function getInterviewStatusBadgeConfig(status: string, score?: number | null) {
+  const key = status ? status.replace(/_/g, '').toLowerCase() : 'notstarted';
   const configs: Record<string, { className: string; text: string }> = {
-    'not_started': { className: 'bg-gray-100 text-gray-700 border-gray-300', text: 'No Interview' },
-    'in_progress': { className: 'bg-blue-100 text-blue-700 border-blue-300', text: 'In Progress' },
+    'notstarted': { className: 'bg-gray-100 text-gray-700 border-gray-300', text: 'No Interview' },
+    'inprogress': { className: 'bg-blue-100 text-blue-700 border-blue-300', text: 'In Progress' },
     'completed': { className: 'bg-green-100 text-green-700 border-green-300', text: 'Completed' },
     'failed': { className: 'bg-red-100 text-red-700 border-red-300', text: 'Failed' },
-    'left_midway': { className: 'bg-yellow-100 text-yellow-700 border-yellow-300', text: 'Left Midway' },
+    'leftmidway': { className: 'bg-yellow-100 text-yellow-700 border-yellow-300', text: 'Left Midway' },
     'passed': { className: 'bg-green-100 text-green-800', text: 'Passed' } // Legacy
   };
-  return configs[status] || configs['not_started'];
+  return configs[key] || configs['notstarted'];
 }
 
 function getSortIconConfig(currentKey: string, sortKey: string, sortDir: string) {

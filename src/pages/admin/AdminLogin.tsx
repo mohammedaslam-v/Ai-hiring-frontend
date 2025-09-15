@@ -4,7 +4,7 @@ import { Formik, Form, Field } from "formik";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ErrorMessage } from "@/components/common/ErrorMessage";
 import { useAdminLogin } from "@/hooks/forms/useAdminLogin";
 import { adminLoginInitialValues } from "@/utils/yup/initialValues";
@@ -23,10 +23,6 @@ const AdminLogin = () => {
   } = useAdminLogin();
 
   const navigate = useNavigate();
-
-  const navigateToSignup = () => {
-    navigate('/admin/signup');
-  };
 
   const navigateToHome = () => {
     navigate('/');
@@ -47,20 +43,11 @@ const AdminLogin = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {FORM_LABELS.ADMIN_ACCESS}
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            {APP_CONTENT.FEATURES.SUBTITLE}
-          </p>
+          
         </div>
 
         <Card className="border-bambinos-blue/20 shadow-xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-bambinos-blue">{FORM_LABELS.ADMIN_ACCESS}</CardTitle>
-            <CardDescription>
-              Sign in to access the administration dashboard
-              <br />
-       
-            </CardDescription>
-          </CardHeader>
+          <CardHeader className="text-center" />
           <CardContent>
             {validationError && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -94,6 +81,7 @@ const AdminLogin = () => {
                         id="email"
                         name="email"
                         type="email"
+                        autoComplete="username"
                         placeholder={FORM_PLACEHOLDERS.ADMIN_EMAIL}
                         className="pl-10 border-bambinos-blue/30 focus:border-bambinos-blue focus:ring-bambinos-blue"
                       />
@@ -114,9 +102,10 @@ const AdminLogin = () => {
                         id="password"
                         name="password"
                         type="password"
+                        autoComplete="current-password"
                         placeholder={FORM_PLACEHOLDERS.PASSWORD}
                         className="pl-10 border-bambinos-blue/30 focus:border-bambinos-blue focus:ring-bambinos-blue"
- />
+                      />
                     </div>
                     {errors.password && touched.password && (
                       <ErrorMessage message={errors.password} variant="destructive" />
@@ -134,23 +123,14 @@ const AdminLogin = () => {
               )}
             </Formik>
 
-            <div className="mt-6 space-y-3">
-              <div className="flex space-x-2">
-                <Button
-                  onClick={navigateToSignup}
-                  variant="outline"
-                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  {FORM_LABELS.SIGN_UP}
-                </Button>
-                <Button
-                  onClick={navigateToHome}
-                  variant="outline"
-                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  Back to Home
-                </Button>
-              </div>
+            <div className="mt-6">
+              <Button
+                onClick={navigateToHome}
+                variant="outline"
+                className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Back to Home
+              </Button>
             </div>
           </CardContent>
         </Card>
