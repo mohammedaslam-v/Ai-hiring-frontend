@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
 import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableActions';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { fetchSecondRoundStatus, SecondRoundMap } from '@/services/secondRound.service';
 
 const ApplicationsManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -34,6 +35,24 @@ const ApplicationsManagement: React.FC = () => {
   } = useFilteredApplications();
   const { deletingId, handleDeleteApplication } = useApplicationTableActions(() => updateFilters({ page: 1 }));
   const { confirm, ConfirmDialog } = useConfirmDialog();
+
+  const [secondRoundMap, setSecondRoundMap] = useState<SecondRoundMap>({});
+  const [srLoading, setSrLoading] = useState(false);
+
+  useEffect(() => {
+    const emails = Array.from(new Set(applications.map(a => (a.email || '').toLowerCase()).filter(Boolean)));
+    if (!emails.length) {
+      setSecondRoundMap({});
+      return;
+    }
+    let cancelled = false;
+    setSrLoading(true);
+    fetchSecondRoundStatus(emails)
+      .then(map => { if (!cancelled) setSecondRoundMap(map); })
+      .catch(() => { if (!cancelled) setSecondRoundMap({}); })
+      .finally(() => { if (!cancelled) setSrLoading(false); });
+    return () => { cancelled = true; };
+  }, [applications]);
 
   // Helper function to render status badge
   const renderStatusBadge = (status: string) => {
@@ -470,7 +489,6 @@ const ApplicationsManagement: React.FC = () => {
                   </Button>
                 </TableHead>
                 <TableHead className="w-[150px]">Phone</TableHead>
-                <TableHead className="w-[200px]">Subjects</TableHead>
                 <TableHead className="w-[120px]">
                   <Button
                     variant="ghost"
@@ -482,6 +500,7 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('interviewStatus')}
                   </Button>
                 </TableHead>
+                <TableHead className="w-[160px]">Second Round</TableHead>
                 <TableHead className="w-[100px]">
                   <Button
                     variant="ghost"
@@ -499,7 +518,7 @@ const ApplicationsManagement: React.FC = () => {
             <TableBody>
                              {isEmpty ? (
                  <TableRow>
-                   <TableCell colSpan={9} className="text-center py-8">
+                   <TableCell colSpan={8} className="text-center py-8">
                      <div className="text-gray-500">
                        {loading ? (
                          <div className="flex items-center justify-center gap-2">
@@ -562,12 +581,30 @@ const ApplicationsManagement: React.FC = () => {
                       <div className="max-w-[150px] truncate">{application.phone}</div>
                     </TableCell>
                     <TableCell>
-                      <div className="max-w-[200px]">
-                        {application.subjects.join(', ')}
-                      </div>
+                      {renderInterviewStatusBadge(application.interviewStatus, application.score)}
                     </TableCell>
                     <TableCell>
-                      {renderInterviewStatusBadge(application.interviewStatus, application.score)}
+                      {(() => {
+                        const key = (application.email || '').toLowerCase();
+                        const data = secondRoundMap[key];
+                        if (srLoading && !data) {
+                          return <span className="text-gray-400 text-xs">Loading…</span>;
+                        }
+                        if (!data) {
+                          return <span className="text-gray-400">—</span>;
+                        }
+                        const isYes = data.attended === 'Yes';
+                        return (
+                          <div className="flex flex-col gap-1">
+                            <Badge className={isYes ? 'bg-green-100 text-green-700 border-green-300' : 'bg-red-100 text-red-700 border-red-300'} variant="outline">
+                              {data.attended}
+                            </Badge>
+                            <span className="text-xs text-gray-600">
+                              {formatDate(data.scheduledDate || '')}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell>
                       {application.score !== null ? (
