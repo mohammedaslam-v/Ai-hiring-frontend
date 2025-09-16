@@ -75,6 +75,7 @@ export interface ApplicationDetail {
   additionalLanguages: string[];
   availableDays: string[];
   timeSlots: string[];
+  availableTimeSlots: string[]; // Added for backend compatibility
   status: string;
   createdAt: string;
   updatedAt: string;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Mail, Phone, Calendar, BookOpen, Eye } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, Calendar, BookOpen, Eye, Globe, Clock, GraduationCap } from "lucide-react";
 import { useApplicationDetail } from "@/hooks/admin/useApplicationDetail";
 import { getStatusBadge } from "@/components/admin/StatusBadge";
 
@@ -66,7 +66,6 @@ export default function AdminApplicationDetail() {
               <p className="text-muted-foreground mt-1">Comprehensive candidate evaluation</p>
             </div>
           </div>
-
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
@@ -138,24 +137,17 @@ export default function AdminApplicationDetail() {
                 <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Status</label>
                   <div className="mt-2">
-                    {getStatusBadge(application.latest_status || "no_interview")}
+                    {getStatusBadge((application.latest_status || application.interview_status || "no_interview"))}
                   </div>
                 </div>
                 <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Score</label>
                   <div className="flex items-center gap-2 mt-2">
-                    <p className="text-2xl font-bold text-primary">{application.latest_score ?? "—"}</p>
-                    {application.latest_score && <span className="text-sm text-muted-foreground">/ 10</span>}
+                    <p className="text-2xl font-bold text-primary">{application.score ?? "N/A"}</p>
+                    {typeof application.score === "number" && <span className="text-sm text-muted-foreground">/ 10</span>}
                   </div>
                 </div>
-                <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Session ID</label>
-                  <p className="font-mono text-sm mt-2 bg-background/50 p-2 rounded border">{application.session_id ?? "—"}</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Completed At</label>
-                  <p className="font-medium mt-2">{application.latest_completed_at ? new Date(application.latest_completed_at).toLocaleString() : "—"}</p>
-                </div>
+                {null}
               </div>
             </CardContent>
           </Card>
@@ -187,55 +179,101 @@ export default function AdminApplicationDetail() {
             </CardContent>
           </Card>
 
-          {/* Availability */}
+          {/* Additional Languages */}
           <Card className="shadow-lg border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-3 text-xl">
                 <div className="p-2 rounded-lg bg-primary/10">
-                  <Calendar className="h-5 w-5 text-primary" />
+                  <Globe className="h-5 w-5 text-primary" />
                 </div>
-                Availability
+                Additional Languages
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Available Days:</h4>
-                  <div className="flex flex-wrap gap-3">
-                    {Array.isArray(application.availableDays) && application.availableDays.length > 0 ? (
-                      application.availableDays.map((day: string, index: number) => (
-                        <Badge key={index} variant="secondary" className="px-3 py-1.5 font-medium shadow-sm">
-                          {day}
-                        </Badge>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground italic">No days specified</p>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Time Slots:</h4>
-                  <div className="flex flex-wrap gap-3">
-                    {Array.isArray(application.timeSlots) && application.timeSlots.length > 0 ? (
-                      application.timeSlots.map((slot: string, index: number) => (
-                        <Badge key={index} variant="outline" className="px-3 py-1.5 font-medium shadow-sm">
-                          {slot}
-                        </Badge>
-                      ))
-                    ) : (
-                      <p className="text-muted-foreground italic">No time slots specified</p>
-                    )}
-                  </div>
-                </div>
+              <div className="flex flex-wrap gap-3">
+                {Array.isArray(application.additionalLanguages) && application.additionalLanguages.length > 0 ? (
+                  application.additionalLanguages.map((language: string, index: number) => (
+                    <Badge key={index} variant="secondary" className="px-3 py-1.5 font-medium shadow-sm">
+                      {language}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground italic">No additional languages specified</p>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
 
+        {/* Availability Section */}
+        <Card className="shadow-lg border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+              Availability
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Available Days
+                </h4>
+                <div className="flex flex-wrap gap-3">
+                  {Array.isArray(application.availableDays) && application.availableDays.length > 0 ? (
+                    application.availableDays.map((day: string, index: number) => (
+                      <Badge key={index} variant="secondary" className="px-3 py-1.5 font-medium shadow-sm">
+                        {day}
+                      </Badge>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground italic">No days specified</p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Time Slots
+                </h4>
+                <div className="flex flex-wrap gap-3">
+                  {application.timeSlots && application.timeSlots.length ? (
+                    application.timeSlots.map((slot: string, index: number) => (
+                      <Badge key={index} variant="outline" className="px-3 py-1.5 font-medium shadow-sm">
+                        {slot}
+                      </Badge>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground italic">No time slots specified</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
- 
-
+        {/* Position Information */}
+        <Card className="shadow-lg border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <GraduationCap className="h-5 w-5 text-primary" />
+              </div>
+              Position Applied For
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
+              <Badge variant="default" className="px-4 py-2 text-base font-medium">
+                {application.position || "N/A"}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
-} 
+}

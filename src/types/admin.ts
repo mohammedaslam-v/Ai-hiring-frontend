@@ -25,8 +25,6 @@ export interface DashboardSummary {
   averageInterviewScore: number;
 }
 
-
-
 export interface StatsCardsProps {
   stats: DetailedStats;
   isLoading: boolean;
@@ -46,8 +44,6 @@ export interface PaginationControlsProps {
 export interface BulkDeleteApplicationsProps {
   onDeleteComplete: () => void;
 }
-
- 
 
 export interface EmailTemplate {
   id: string;
@@ -97,6 +93,9 @@ export interface SimpleApplicationDetail {
   email: string;
   phone: string;
   subjects: string[];
+  additionalLanguages: string[];
+  availableDays: string[];
+  availableTimeSlots: string[];
   position: string;
   status: string;
   applicationId: string;
@@ -109,6 +108,9 @@ export interface DashboardApplicationDetail {
   email: string;
   phone: string;
   subjects: string[];
+  additionalLanguages: string[];
+  availableDays: string[];
+  availableTimeSlots: string[];
   availability: string[];
   application_status: string;
   application_date: string;
@@ -144,8 +146,6 @@ export interface FunnelChartProps {
 export interface AlertsBannerProps {
   detailedStats: DetailedStats;
 }
-
-
 
 // Detailed evaluation display props
 export interface RubricScore {
@@ -237,4 +237,3 @@ export interface AdminApplicationsResponse {
   pageSize: number;
   totalPages: number;
 }
-
