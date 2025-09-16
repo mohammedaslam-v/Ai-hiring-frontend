@@ -235,30 +235,6 @@ export default function AdminApplicationDetail() {
 
  
 
-        {/* Quick Actions */}
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Eye className="h-5 w-5 text-primary" />
-              </div>
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4">
-              <Button
-                variant="default"
-                onClick={() => window.open(`/candidate/result?app=${application.id}`, "_blank")}
-                className="shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                View Candidate Result
-              </Button>
-
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
