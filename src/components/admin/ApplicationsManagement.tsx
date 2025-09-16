@@ -88,29 +88,29 @@ const ApplicationsManagement: React.FC = () => {
     return <IconComponent className={config.className} />;
   };
 
-  // Handle CSV export
+  // Handle Excel export
   const handleExportCSV = async () => {
     try {
       setExporting(true);
       console.log('Export CSV clicked with filters:', filters);
       
       // Import the export service
-      const { exportApplicationsToCSV } = await import('@/services/export.service');
+      const { exportApplicationsToExcel } = await import('@/services/export.service');
       
       // Call the export service with current filters
-      const result = await exportApplicationsToCSV(filters);
+      const result = await exportApplicationsToExcel(filters);
       
       if (result.status) {
         // Show success message
-        console.log('CSV export successful:', result.message);
+        console.log('Excel export successful:', result.message);
         // You can add a toast notification here if you have a toast system
       } else {
         // Show error message
-        console.error('CSV export failed:', result.message);
+        console.error('Excel export failed:', result.message);
         // You can add a toast notification here if you have a toast system
       }
     } catch (error) {
-      console.error('CSV export error:', error);
+      console.error('Excel export error:', error);
       // You can add a toast notification here if you have a toast system
     } finally {
       setExporting(false);
@@ -176,10 +176,7 @@ const ApplicationsManagement: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <CardTitle className="text-2xl font-bold text-blue-600">Applications Management</CardTitle>
-            <CardDescription className="text-gray-600">
-              Server-side paginated applications with fast filtering and CSV export
-            </CardDescription>
-                         <div className="text-sm text-gray-500 mt-1">
+            <div className="text-sm text-gray-500 mt-1">
                {loading ? (
                  <span className="flex items-center gap-2">
                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
@@ -194,8 +191,8 @@ const ApplicationsManagement: React.FC = () => {
       </CardHeader>
 
       <CardContent>
-        {/* Filter Controls */}
-        <div className="mb-6 space-y-4">
+        {/* Filters - redesigned container */}
+        <div className="mb-6 space-y-4 bg-white border border-gray-200 rounded-2xl shadow-md p-5">
           {/* First Row: Search, Status, Score Range, Date Range, Page Size */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
             {/* Search */}
@@ -204,7 +201,7 @@ const ApplicationsManagement: React.FC = () => {
                 placeholder="Search name or email..."
                 value={filters.search || ''}
                 onChange={(e) => updateFilters({ search: e.target.value })}
-                className="w-full"
+                className="w-full transition-all duration-200 hover:shadow-md"
               />
             </div>
 
@@ -212,9 +209,9 @@ const ApplicationsManagement: React.FC = () => {
             <div>
               <Select
                 value={filters.status || 'all'}
-                onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway' })}
+                                 onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway' })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="transition-all duration-200 hover:shadow-md">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,60 +227,44 @@ const ApplicationsManagement: React.FC = () => {
 
 
                          {/* Score Range */}
-             <div className="flex items-center gap-2">
-               <Input
-                 type="number"
-                 min="0"
-                 max="100"
-                 placeholder="Min"
-                 value={filters.minScore !== undefined ? filters.minScore : ''}
-                 onChange={(e) => updateFilters({ minScore: e.target.value ? parseInt(e.target.value) : undefined })}
-                 className="w-20"
-               />
-               <span className="text-gray-500">to</span>
-               <Input
-                 type="number"
-                 min="0"
-                 max="100"
-                 placeholder="Max"
-                 value={filters.maxScore !== undefined ? filters.maxScore : ''}
-                 onChange={(e) => updateFilters({ maxScore: e.target.value ? parseInt(e.target.value) : undefined })}
-                 className="w-20"
-               />
-               <Button
-                 variant="ghost"
-                 size="sm"
-                 onClick={() => updateFilters({ minScore: undefined, maxScore: undefined })}
-                 className="text-xs text-gray-500 hover:text-gray-700"
-               >
-                 Clear
-               </Button>
-             </div>
-
-            {/* Page Size */}
-            <div>
-              <Select
-                value={filters.limit?.toString() || '10'}
-                onValueChange={(value) => updatePageSize(parseInt(value))}
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                placeholder="Min"
+                value={filters.minScore !== undefined ? filters.minScore : ''}
+                onChange={(e) => updateFilters({ minScore: e.target.value ? parseInt(e.target.value) : undefined })}
+                className="w-20 transition-all duration-200 hover:shadow-md"
+              />
+              <span className="text-gray-500">to</span>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                placeholder="Max"
+                value={filters.maxScore !== undefined ? filters.maxScore : ''}
+                onChange={(e) => updateFilters({ maxScore: e.target.value ? parseInt(e.target.value) : undefined })}
+                className="w-20 transition-all duration-200 hover:shadow-md"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => updateFilters({ minScore: undefined, maxScore: undefined })}
+                className="text-xs text-gray-600 hover:text-gray-800"
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAGE_SIZE_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value.toString()}>
-                      {option.value} per page
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                Clear
+              </Button>
             </div>
+
+            {/* Page Size placeholder removed from filter rows */}
+            {null}
           </div>
 
-          {/* Second Row: Date Range, Sort Controls, Export Button */}
+          {/* Second Row: Date Range, Export/Reset */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                                                    {/* Date Range */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Calendar className="h-4 w-4 text-gray-500" />
                 <Input
                   type="text"
@@ -294,7 +275,7 @@ const ApplicationsManagement: React.FC = () => {
                     console.log('📅 Date Input - fromDate changed:', { value, length: value.length });
                     updateFilters({ fromDate: value });
                   }}
-                  className="w-32"
+                  className="w-32 transition-all duration-200 hover:shadow-md"
                 />
                 <span className="text-gray-500">to</span>
                 <Input
@@ -306,26 +287,12 @@ const ApplicationsManagement: React.FC = () => {
                     console.log('📅 Date Input - toDate changed:', { value, length: value.length });
                     updateFilters({ toDate: value });
                   }}
-                  className="w-32"
+                  className="w-32 transition-all duration-200 hover:shadow-md"
                 />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    console.log('📅 Date Filter - Submit clicked with dates:', { 
-                      fromDate: filters.fromDate, 
-                      toDate: filters.toDate,
-                      fromLength: filters.fromDate?.length,
-                      toLength: filters.toDate?.length
-                    });
-                    // Force a refresh to trigger the API call
-                    updateFilters({ page: 1 });
-                  }}
-                  disabled={!filters.fromDate || !filters.toDate || filters.fromDate.length < 10 || filters.toDate.length < 10}
-                  className="text-xs bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  Apply Dates
-                </Button>
+                {/* Date format hint placed before action buttons */}
+                <span className="text-xs text-gray-500 ml-2 shrink-0 whitespace-normal md:whitespace-nowrap">
+                  Format: dd-mm-yyyy
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -333,62 +300,80 @@ const ApplicationsManagement: React.FC = () => {
                     console.log('📅 Date Filter - Clear clicked');
                     updateFilters({ fromDate: '', toDate: '' });
                   }}
-                  className="text-xs text-gray-500 hover:text-gray-700"
+                  className="text-xs text-gray-600 hover:text-gray-800"
                 >
                   Clear
                 </Button>
               </div>
-              <div className="text-xs text-gray-500 -mt-1">
-                💡 Format: dd-mm-yyyy (e.g., 27-08-2025)
-              </div>
+              {null}
 
-            {/* Sort Controls */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Sort by:</span>
-              <Select
-                value={filters.sortBy || 'appliedDate'}
-                                 onValueChange={(value) => updateSort(value as 'appliedDate' | 'name' | 'email' | 'interviewStatus' | 'score', filters.sortOrder || 'desc')}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleSortOrder}
-                className="flex items-center gap-2"
-              >
-                {filters.sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
-              </Button>
-            </div>
+            {/* Sort controls removed from here; moved to top controls below */}
+            {null}
 
                          {/* Export Button */}
-             <div className="flex justify-end gap-2">
+             <div className="flex justify-between gap-2">
                <Button
                  variant="outline"
                  size="sm"
                  onClick={resetFilters}
-                 className="text-gray-600 hover:text-gray-800"
+                 className="text-gray-700 hover:text-gray-900 transition-all duration-200 hover:shadow-md"
                >
-                 Reset All Filters
+                 <span className="mr-1">🔄</span> Reset Filters
                </Button>
                                <Button
                   onClick={handleExportCSV}
                   disabled={exporting}
-                  className="bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400"
+                  className="bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400 rounded-full transition-all duration-200 hover:shadow-md"
                 >
-                  <Download className="h-4 w-4 mr-2" />
+                  <span className="mr-2">📤</span>
                   {exporting ? 'Exporting...' : 'Export CSV'}
                 </Button>
              </div>
+          </div>
+        </div>
+
+        {/* Top controls: Sort, Order, Items per page */}
+        <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Sort by:</span>
+            <Select
+              value={filters.sortBy || 'appliedDate'}
+                               onValueChange={(value) => updateSort(value as 'appliedDate' | 'name' | 'email' | 'interviewStatus' | 'score', filters.sortOrder || 'desc')}
+            >
+              <SelectTrigger className="w-40 transition-all duration-200 hover:shadow-md">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleSortOrder}
+              className="flex items-center gap-2 transition-all duration-200 hover:shadow-md"
+            >
+              {filters.sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
+            </Button>
+            <Select
+              value={filters.limit?.toString() || '10'}
+              onValueChange={(value) => updatePageSize(parseInt(value))}
+            >
+              <SelectTrigger className="w-[160px] transition-all duration-200 hover:shadow-md">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_SIZE_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value.toString()}>
+                    {option.value} per page
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -451,11 +436,11 @@ const ApplicationsManagement: React.FC = () => {
          )}
 
         {/* Applications Table */}
-        <div className="rounded-md border">
+        <div className="rounded-lg shadow-md border overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-[120px]">
+              <TableRow className="bg-gray-50">
+                <TableHead className="w-[140px] uppercase tracking-wide text-gray-600 text-xs">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -466,7 +451,7 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('appliedDate')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[200px]">
+                <TableHead className="w-[220px] uppercase tracking-wide text-gray-600 text-xs">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -477,7 +462,7 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('name')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[200px]">
+                <TableHead className="w-[320px] uppercase tracking-wide text-gray-600 text-xs">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -488,8 +473,8 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('email')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[150px]">Phone</TableHead>
-                <TableHead className="w-[120px]">
+                <TableHead className="w-[160px] uppercase tracking-wide text-gray-600 text-xs">Phone</TableHead>
+                <TableHead className="w-[140px] uppercase tracking-wide text-gray-600 text-xs text-center">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -500,8 +485,8 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('interviewStatus')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[160px]">Second Round</TableHead>
-                <TableHead className="w-[100px]">
+                <TableHead className="w-[160px] uppercase tracking-wide text-gray-600 text-xs text-center">Second Round</TableHead>
+                <TableHead className="w-[120px] uppercase tracking-wide text-gray-600 text-xs text-center">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -512,7 +497,7 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('score')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[120px]">Actions</TableHead>
+                <TableHead className="w-[120px] uppercase tracking-wide text-gray-600 text-xs text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -565,8 +550,8 @@ const ApplicationsManagement: React.FC = () => {
                  </TableRow>
                ) : (
                                  applications.map((application, index) => (
-                   <TableRow key={application.id}>
-                     <TableCell className="font-mono text-xs">
+                   <TableRow key={application.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-all duration-200`}>
+                    <TableCell className="font-mono text-xs">
                        {formatDate(application.appliedDate)}
                      </TableCell>
                      <TableCell>
@@ -574,16 +559,16 @@ const ApplicationsManagement: React.FC = () => {
                          <div className="font-medium">{application.name}</div>
                        </div>
                      </TableCell>
-                    <TableCell className="max-w-[200px]">
+                   <TableCell className="max-w-[320px]">
                       <div className="truncate">{application.email}</div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="max-w-[160px]">
                       <div className="max-w-[150px] truncate">{application.phone}</div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       {renderInterviewStatusBadge(application.interviewStatus, application.score)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       {(() => {
                         const key = (application.email || '').toLowerCase();
                         const data = secondRoundMap[key];
@@ -613,7 +598,7 @@ const ApplicationsManagement: React.FC = () => {
                         );
                       })()}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       {application.score !== null && application.score !== undefined ? (
                         <span className={`font-medium ${application.score >= PASS_SCORE_THRESHOLD ? 'text-green-600' : 'text-red-600'}`}>
                           {(application.score * 10)}%
@@ -622,13 +607,13 @@ const ApplicationsManagement: React.FC = () => {
                         <span className="text-gray-400">N/A</span>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
+                    <TableCell className="text-right">
+                      <div className="inline-flex gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleViewApplication(application.id)}
-                          className="h-8 w-8 p-0"
+                          className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -637,11 +622,11 @@ const ApplicationsManagement: React.FC = () => {
                           variant="destructive"
                           size="sm"
                           onClick={() => handleDeleteWithConfirmation(application.id, application.name)}
-                          className="h-8 px-2 text-xs"
+                          className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
                           disabled={deletingId === application.id}
+                          aria-label="Delete"
                         >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          {deletingId === application.id ? 'Deleting...' : 'Delete'}
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

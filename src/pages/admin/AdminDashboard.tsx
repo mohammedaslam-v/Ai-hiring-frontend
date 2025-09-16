@@ -100,7 +100,7 @@ const AdminDashboard = () => {
 
   if (hookLoading || dashboardLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-bambinos-skin to-bambinos-pink/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/30 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bambinos-blue mx-auto mb-4"></div>
           <p className="text-bambinos-blue">Loading admin dashboard...</p>
@@ -110,17 +110,14 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bambinos-skin to-bambinos-pink/20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/30">
       <AdminHeader
         onLogout={handleLogout}
       />
 
       <div className="container mx-auto px-4 py-8">
-        <div style={{ padding: '8px 10px', background: '#FFF3CD', border: '1px solid #FFEC99', borderRadius: 8, marginBottom: 12 }}>
-          <div className="flex justify-between items-center">
-            <div>
-              <strong>DEBUG:</strong> You are editing <code>AdminDashboard.tsx</code> ✅
-            </div>
+        <div className="mb-4">
+          <div className="flex justify-end items-center">
             <div className="flex items-center space-x-2">
               {dashboardError && (
                 <button
@@ -139,55 +136,55 @@ const AdminDashboard = () => {
               </button>
             </div>
           </div>
-          {dashboardError && (
-            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-xs">
-              <strong>Error:</strong> {dashboardError}
-            </div>
-          )}
         </div>
+        {dashboardError && (
+          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-xs">
+            <strong>Error:</strong> {dashboardError}
+          </div>
+        )}
         {/* Dashboard Summary - Now using real-time data */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           {/* Total Registered */}
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
             <div className="text-2xl font-bold text-bambinos-blue">
               {dashboardLoading || !dashboardSummary ? "—" : dashboardSummary.totalApplicants}
             </div>
-            <div className="text-sm text-gray-600">Applicants filled form</div>
+            <div className="text-xs text-gray-600">Applicants filled form</div>
           </div>
 
           {/* Started AI Interview */}
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
             <div className="text-2xl font-bold text-bambinos-green">
               {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.startedInterview} (${dashboardSummary.startedInterviewPercentage.toFixed(1)}%)`}
             </div>
-            <div className="text-sm text-gray-600">Started AI interview</div>
+            <div className="text-xs text-gray-600">Started AI interview</div>
           </div>
 
           {/* Completed Interview */}
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
             <div className="text-2xl font-bold text-bambinos-purple">
               {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.completedInterview} (${dashboardSummary.completedInterviewPercentage.toFixed(1)}%)`}
             </div>
-            <div className="text-sm text-gray-600">Finished full AI interview</div>
+            <div className="text-xs text-gray-600">Finished full AI interview</div>
           </div>
 
           {/* Left Midway intentionally hidden */}
           {null}
 
           {/* Passed */}
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
             <div className="text-2xl font-bold text-green-600">
               {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.passed} (${dashboardSummary.passedPercentage.toFixed(1)}%)`}
             </div>
-            <div className="text-sm text-gray-600">PASSED</div>
+            <div className="text-xs text-gray-600">PASSED</div>
           </div>
 
           {/* Failed */}
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
             <div className="text-2xl font-bold text-red-600">
               {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.failed} (${dashboardSummary.failedPercentage.toFixed(1)}%)`}
             </div>
-            <div className="text-sm text-gray-600">FAILED</div>
+            <div className="text-xs text-gray-600">FAILED</div>
           </div>
         </div>
 
@@ -212,18 +209,10 @@ const AdminDashboard = () => {
 
 
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-3 text-bambinos-blue">Applications Management</h2>
-          <div style={{ padding: '6px 10px', background: '#eef6ff', border: '1px solid #cde3ff', borderRadius: 8, marginTop: 12, marginBottom: 16 }}>
-            <small>Loaded <strong>ApplicationsManagement</strong> ✅</small>
-          </div>
           <ApplicationsManagement />
         </div>
 
-        {/* Keep existing legacy table for comparison - remove this section once satisfied */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 mt-6">
-          <h3 className="text-sm font-medium text-yellow-800 mb-2">Legacy Table (for comparison)</h3>
-          <p className="text-xs text-yellow-700">This old table will be removed once the new paginated table is verified to work correctly.</p>
-        </div>
+        {null}
 
         {/* Applicant Details Modal */}
         <ApplicantDetailsModal

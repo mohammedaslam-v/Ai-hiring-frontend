@@ -128,13 +128,13 @@ class ApplicationService {
                         timeSlots: application.availableTimeSlots || [],
                         status: application.status || 'Submitted',
                         interviewStatus: application.interviewStatus || 'not_started',
-                        score: application.score || null,
+                        score: application.score ?? null,
                         applicationId: application.applicationId,
                         createdAt: application.createdAt,
                         updatedAt: application.updatedAt,
                         // Additional fields for AdminApplicationDetail
                         latest_status: application.interviewStatus || 'not_started',
-                        latest_score: application.score || null,
+                        latest_score: application.score ?? null,
                         latest_completed_at: null, // Not available in current backend response
                         session_id: null, // Not available in current backend response
                         name: `${application.firstName} ${application.lastName}`,
@@ -212,7 +212,7 @@ class ApplicationService {
                         timeSlots: application.availableTimeSlots || [],
                         status: application.status || 'Submitted',
                         interviewStatus: application.interviewStatus || 'not_started',
-                        score: application.score || null,
+                        score: application.score ?? null,
                         applicationId: application.applicationId,
                         createdAt: application.createdAt,
                         updatedAt: application.updatedAt
