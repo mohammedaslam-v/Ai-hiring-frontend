@@ -512,7 +512,7 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('score')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[160px]">Actions</TableHead>
+                <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -632,14 +632,7 @@ const ApplicationsManagement: React.FC = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => console.log('View result:', application.id)}
-                          className="h-8 px-2 text-xs"
-                        >
-                          Result
-                        </Button>
+                        {null}
                         <Button
                           variant="destructive"
                           size="sm"
