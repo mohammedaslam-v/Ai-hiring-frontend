@@ -35,8 +35,14 @@ export const getStatusBadgeConfig = (applicationStatus: string, interviewStatus?
  * Format date string to localized string
  */
 export const formatDateTime = (dateString?: string) => {
-  if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleString();
+  if (!dateString || dateString.trim() === '') return 'N/A';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'N/A';
+    return date.toLocaleString();
+  } catch {
+    return 'N/A';
+  }
 };
 
 /**

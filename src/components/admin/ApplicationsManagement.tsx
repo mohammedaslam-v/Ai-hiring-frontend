@@ -140,17 +140,17 @@ const ApplicationsManagement: React.FC = () => {
 
   // Format date for display
   const formatDate = (dateString: string) => {
-    if (!dateString) return '—';
+    if (!dateString || dateString.trim() === '') return 'N/A';
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return '—';
+      if (isNaN(date.getTime())) return 'N/A';
       return date.toLocaleDateString('en-GB', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
       });
     } catch {
-      return '—';
+      return 'N/A';
     }
   };
 
@@ -591,8 +591,15 @@ const ApplicationsManagement: React.FC = () => {
                           return <span className="text-gray-400 text-xs">Loading…</span>;
                         }
                         if (!data) {
-                          return <span className="text-gray-400">—</span>;
+                          return <span className="text-gray-400">N/A</span>;
                         }
+                        
+                        // Check if attended status is valid
+                        const hasValidAttendedStatus = data.attended === 'Yes' || data.attended === 'No';
+                        if (!hasValidAttendedStatus) {
+                          return <span className="text-gray-400">N/A</span>;
+                        }
+                        
                         const isYes = data.attended === 'Yes';
                         return (
                           <div className="flex flex-col gap-1">
@@ -607,12 +614,12 @@ const ApplicationsManagement: React.FC = () => {
                       })()}
                     </TableCell>
                     <TableCell>
-                      {application.score !== null ? (
+                      {application.score !== null && application.score !== undefined ? (
                         <span className={`font-medium ${application.score >= PASS_SCORE_THRESHOLD ? 'text-green-600' : 'text-red-600'}`}>
                           {(application.score * 10)}%
                         </span>
                       ) : (
-                        <span className="text-gray-400">—</span>
+                        <span className="text-gray-400">N/A</span>
                       )}
                     </TableCell>
                     <TableCell>
