@@ -44,7 +44,7 @@ export const STATUS_OPTIONS = [
   { value: 'all', label: 'All Interview Statuses' },
   { value: 'no_interview', label: 'No Interview' },
   { value: 'in_progress', label: 'In Progress' },
-  { value: 'completed', label: 'Completed' },
+  { value: 'completed', label: 'Passed' },
   { value: 'failed', label: 'Failed' },
   { value: 'leftMidway', label: 'Left Midway' }
 ] as const;

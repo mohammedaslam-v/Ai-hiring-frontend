@@ -57,14 +57,7 @@ const StatsCards = ({ stats, isLoading }: StatsCardsProps) => {
       color: "text-green-600",
       bgColor: "bg-green-50"
     },
-    { 
-      title: "❌ Left Midway", 
-      value: `${stats.totalLeftMidway} (${stats.leftMidwayRate.toFixed(1)}%)`, 
-      subtitle: "Started but didn't finish",
-      icon: StopCircle, 
-      color: "text-red-600",
-      bgColor: "bg-red-50"
-    },
+    // Left Midway removed per request
     { 
       title: "🎉 PASSED", 
       value: `${stats.totalPassed} (${stats.passRate.toFixed(1)}%)`, 
@@ -114,7 +107,7 @@ const StatsCards = ({ stats, isLoading }: StatsCardsProps) => {
             <p>• <strong>{stats.totalRegistered} people</strong> filled the application form</p>
             <p>• <strong>{stats.totalStartedInterview} people ({stats.interviewStartRate.toFixed(1)}%)</strong> started the AI interview</p>
             <p>• <strong>{stats.neverStartedInterview} people</strong> never even started the interview</p>
-            <p>• <strong>{stats.totalLeftMidway} people ({stats.leftMidwayRate.toFixed(1)}%)</strong> started but left without finishing</p>
+            {null}
             <p>• <strong>{stats.totalCompletedInterview} people ({stats.interviewCompletionRate.toFixed(1)}%)</strong> completed the full interview</p>
             <p>• Out of those who completed: <strong>{stats.totalPassed} passed ({stats.passRate.toFixed(1)}%)</strong> and <strong>{stats.totalFailed} failed ({stats.failRate.toFixed(1)}%)</strong></p>
           </div>

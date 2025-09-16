@@ -146,7 +146,7 @@ const AdminDashboard = () => {
           )}
         </div>
         {/* Dashboard Summary - Now using real-time data */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           {/* Total Registered */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
             <div className="text-2xl font-bold text-bambinos-blue">
@@ -171,13 +171,8 @@ const AdminDashboard = () => {
             <div className="text-sm text-gray-600">Finished full AI interview</div>
           </div>
 
-          {/* Left Midway */}
-          <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-            <div className="text-2xl font-bold text-orange-600">
-              {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.leftMidway} (${dashboardSummary.leftMidwayPercentage.toFixed(1)}%)`}
-            </div>
-            <div className="text-sm text-gray-600">Started but didn't finish</div>
-          </div>
+          {/* Left Midway intentionally hidden */}
+          {null}
 
           {/* Passed */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
@@ -203,7 +198,7 @@ const AdminDashboard = () => {
             <li>{dashboardSummary?.totalApplicants ?? "—"} people filled the application form</li>
             <li>{dashboardSummary ? `${dashboardSummary.startedInterview} people (${dashboardSummary.startedInterviewPercentage.toFixed(1)}%) started the AI interview` : "—"}</li>
             <li>{dashboardSummary ? `${dashboardSummary.neverStartedInterview} people never even started the interview` : "—"}</li>
-            <li>{dashboardSummary ? `${dashboardSummary.leftMidway} people (${dashboardSummary.leftMidwayPercentage.toFixed(1)}%) started but left without finishing` : "—"}</li>
+            {null}
             <li>{dashboardSummary ? `${dashboardSummary.completedInterview} people (${dashboardSummary.completedInterviewPercentage.toFixed(1)}%) completed the full interview` : "—"}</li>
             <li>{dashboardSummary ? `Out of those who completed: ${dashboardSummary.passed} passed (${dashboardSummary.passedPercentage.toFixed(1)}%) and ${dashboardSummary.failed} failed (${dashboardSummary.failedPercentage.toFixed(1)}%)` : "—"}</li>
           </ul>

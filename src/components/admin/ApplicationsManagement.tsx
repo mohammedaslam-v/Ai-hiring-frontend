@@ -212,7 +212,7 @@ const ApplicationsManagement: React.FC = () => {
             <div>
               <Select
                 value={filters.status || 'all'}
-                                 onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway' })}
+                onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway' })}
               >
                 <SelectTrigger>
                   <SelectValue />
