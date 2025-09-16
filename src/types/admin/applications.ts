@@ -81,5 +81,5 @@ export const DEFAULT_FILTERS: AppListFilters = {
   sortBy: 'appliedDate',
   sortOrder: 'desc',
   page: 1,
-  limit: 500
+  limit: 10
 };

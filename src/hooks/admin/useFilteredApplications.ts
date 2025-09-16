@@ -109,7 +109,7 @@ export const useFilteredApplications = () => {
   // Calculate pagination info
   const paginationInfo = useMemo(() => {
     const currentPage = filters.page || 1;
-    const currentLimit = filters.limit || 500;
+    const currentLimit = filters.limit || 10;
     const startIndex = (currentPage - 1) * currentLimit + 1;
     const endIndex = Math.min(currentPage * currentLimit, total);
     

@@ -263,7 +263,7 @@ const ApplicationsManagement: React.FC = () => {
             {/* Page Size */}
             <div>
               <Select
-                value={filters.limit?.toString() || '500'}
+                value={filters.limit?.toString() || '10'}
                 onValueChange={(value) => updatePageSize(parseInt(value))}
               >
                 <SelectTrigger>
@@ -658,7 +658,7 @@ const ApplicationsManagement: React.FC = () => {
              <div className="flex items-center space-x-2">
                <p className="text-sm font-medium">Rows per page</p>
                <Select
-                 value={filters.limit?.toString() || '500'}
+                 value={filters.limit?.toString() || '10'}
                  onValueChange={(value) => updatePageSize(parseInt(value))}
                >
                  <SelectTrigger className="w-[100px]">
