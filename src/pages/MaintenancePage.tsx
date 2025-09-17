@@ -45,9 +45,9 @@ const MaintenancePage = () => {
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
               <div className="flex items-center justify-center space-x-3 mb-4">
                 <Clock className="h-6 w-6 text-blue-600" />
-                <span className="text-lg font-semibold text-blue-800">Estimated Duration</span>
+                <span className="text-lg font-semibold text-blue-800">Back Online At</span>
               </div>
-              <div className="text-2xl font-bold text-blue-900">2 Hours</div>
+              <div className="text-2xl font-bold text-blue-900">12:30</div>
             </div>
 
 
