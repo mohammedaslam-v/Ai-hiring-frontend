@@ -47,7 +47,7 @@ const MaintenancePage = () => {
                 <Clock className="h-6 w-6 text-blue-600" />
                 <span className="text-lg font-semibold text-blue-800">Back Online At</span>
               </div>
-              <div className="text-2xl font-bold text-blue-900">12:30</div>
+              <div className="text-2xl font-bold text-blue-900">12:30 PM</div>
             </div>
 
 
