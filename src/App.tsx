@@ -9,6 +9,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import MaintenancePage from "./pages/MaintenancePage";
 import Index from "./pages/Index";
 import CandidateLogin from "./pages/candidate/CandidateLogin";
 import CandidateApplication from "./pages/candidate/CandidateApplication";
@@ -32,7 +33,8 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
+      <Route path="/" element={<MaintenancePage />} />
+      <Route path="/home" element={<Index />} />
       <Route path="/candidate/login" element={<CandidateLogin />} />
       <Route path="/candidate/application" element={<CandidateApplication />} />
       <Route path="/candidate/interview" element={<CandidateInterview />} />
