@@ -453,6 +453,8 @@ const CandidateInterview = () => {
                     <ul className="text-red-700 space-y-1">
                       <li>• Watch the complete video (no skipping allowed)</li>
                       <li>• Take notes of important instructions</li>
+                      <li>• Dress professionally for a formal interview</li>
+                      <li>• Ensure proper camera position and good lighting</li>
                       <li>• Ensure you understand all guidelines</li>
                       <li>• Only then you can proceed to the AI interview</li>
                     </ul>
@@ -639,6 +641,14 @@ const CandidateInterview = () => {
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-gray-700">Maintain eye contact with the camera</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-gray-700">Dress professionally as you would for a formal interview</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-gray-700">Position camera at eye level and ensure good front lighting</p>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
