@@ -11,7 +11,6 @@ export const ROUTES = {
     INTERVIEW: '/candidate/interview',
     RESULT: '/candidate/result',
     SALARY_STRUCTURE: '/candidate/salary-structure',
-    ASSESSMENT_SALARY_STRUCTURE: '/candidate/assessment-salary-structure',
     SIMPLIFIED_SALARY_STRUCTURE: '/candidate/simplified-salary-structure',
   },
   

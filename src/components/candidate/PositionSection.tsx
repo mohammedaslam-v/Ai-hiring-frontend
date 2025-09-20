@@ -11,11 +11,6 @@ const PositionSection = ({ selectedPosition, onPositionChange, error }: Position
       id: "Role 1 - Educator",
       title: "Role 1 - Educator",
       description: "Regular teaching sessions"
-    },
-    {
-      id: "Role 2 - Assessment Specialist", 
-      title: "Role 2 - Assessment Specialist",
-      description: "Demo classes and assessments"
     }
   ];
 
