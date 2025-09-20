@@ -9,15 +9,9 @@ const CandidateHero = () => {
   const positions = [
     { 
       id: "educator", 
-      label: "Role 1 - Educator", 
-      description: "Regular teaching sessions",
+      label: "Role - Educator", 
+      description: "",
       color: "bg-blue-500"
-    },
-    { 
-      id: "assessment-specialist", 
-      label: "Role 2 - Assessment Specialist", 
-      description: "Demo classes and assessments",
-      color: "bg-purple-500"
     }
   ];
 
@@ -44,18 +38,19 @@ const CandidateHero = () => {
         <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3 md:mb-4">Opportunities</h3>
         <p className="text-gray-600 dark:text-gray-300 mb-8 md:mb-10 text-base md:text-lg">Choose your path to educational excellence</p>
         
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 md:gap-8">
-          {positions.map((position) => (
-            <div key={position.id} className="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 gap-3">
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 ${position.color} rounded-lg md:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0`}>
-                  <User className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+        <div className="flex justify-center items-center">
+          <div className="w-full max-w-xs">
+            {positions.map((position) => (
+              <div key={position.id} className="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-800 rounded-xl md:rounded-2xl p-6 md:p-8 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className={`w-16 h-16 ${position.color} rounded-xl flex items-center justify-center shadow-lg`}>
+                    <User className="h-8 w-8 text-white" />
+                  </div>
+                  <h4 className="font-bold text-lg md:text-xl text-gray-900 dark:text-white">{position.label}</h4>
                 </div>
-                <h4 className="font-bold text-base sm:text-lg md:text-xl text-gray-900 dark:text-white leading-tight">{position.label}</h4>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-4 md:mb-6 text-sm md:text-base">{position.description}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         
         {/* Mobile-First Payment Structure Button with Double Line for Mobile */}
