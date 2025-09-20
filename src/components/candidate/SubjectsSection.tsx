@@ -13,7 +13,7 @@ const SubjectsSection = ({
   subjectError
 }: SubjectsSectionProps) => {
   const subjects = ["English", "Phonics", "Maths", "Bhagavad Gita"];
-  const additionalLanguages = ["Bangali", "Tamil", "Marathi", "Malayalam", "Telugu", "Kannada"];
+  const additionalLanguages = ["Bengali", "Tamil", "Marathi", "Malayalam", "Telugu", "Kannada"];
 
   return (
     <div className="space-y-6 animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-xl p-5 border border-green-100 shadow-lg hover:shadow-xl transition-all duration-400" style={{animationDelay: '0.2s'}}>
