@@ -59,10 +59,6 @@ export const VALIDATION_MESSAGES = {
     MIN_SELECTION: 'Please select at least one time slot',
   },
   
-  RESUME: {
-    REQUIRED: 'Resume is required',
-    FILE_SIZE: 'File size must be less than 10MB',
-  },
   
   PASSWORD: {
     REQUIRED: 'Password is required',

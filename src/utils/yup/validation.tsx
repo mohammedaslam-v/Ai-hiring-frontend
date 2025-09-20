@@ -8,7 +8,6 @@ const VALIDATION_RULES = {
   MIN_NAME_LENGTH: 2,
   MAX_NAME_LENGTH: 50,
   MIN_PASSWORD_LENGTH: 8,
-  MAX_RESUME_SIZE: 5 * 1024 * 1024, // 5MB
   MIN_FEEDBACK_LENGTH: 10,
   MAX_FEEDBACK_LENGTH: 500,
 } as const;
@@ -66,18 +65,6 @@ export const candidateApplicationValidation = Yup.object().shape({
   timeSlots: Yup.array()
     .min(1, VALIDATION_ERROR_MESSAGES.TIME_SLOTS.MIN_SELECTION)
     .required(VALIDATION_ERROR_MESSAGES.TIME_SLOTS.REQUIRED),
-  resume: Yup.mixed()
-    .required(VALIDATION_ERROR_MESSAGES.RESUME.REQUIRED)
-    .test("fileSize", VALIDATION_ERROR_MESSAGES.RESUME.FILE_SIZE, (value) => {
-      if (!value) return false;
-      return (value as File).size <= VALIDATION_RULES.MAX_RESUME_SIZE;
-    })
-    .test("fileType", VALIDATION_ERROR_MESSAGES.RESUME.FILE_TYPE, (value) => {
-      if (!value) return false;
-      const file = value as File;
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      return allowedTypes.includes(file.type);
-    }),
 });
 
 // Admin Login Validation Schema

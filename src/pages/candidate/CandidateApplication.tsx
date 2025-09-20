@@ -8,7 +8,6 @@ import PersonalInfoSection from "@/components/candidate/PersonalInfoSection";
 import PositionSection from "@/components/candidate/PositionSection";
 import SubjectsSection from "@/components/candidate/SubjectsSection";
 import AvailabilitySection from "@/components/candidate/AvailabilitySection";
-import ResumeSection from "@/components/candidate/ResumeSection";
 import { useCandidateApplication } from "@/hooks/forms/useCandidateApplication";
 import React from "react";
 
@@ -18,7 +17,6 @@ const CandidateApplication = () => {
     isLoading,
     validationError,
     handleArrayFieldChange,
-    handleFileUpload,
     clearError
   } = useCandidateApplication();
 
@@ -123,10 +121,6 @@ const CandidateApplication = () => {
                 timeSlotError={formik.touched.timeSlots && formik.errors.timeSlots ? String(formik.errors.timeSlots) : undefined}
               />
 
-              <ResumeSection
-                resume={formik.values.resume}
-                onFileUpload={handleFileUpload}
-              />
 
               <div className="pt-6">
                 <Button 

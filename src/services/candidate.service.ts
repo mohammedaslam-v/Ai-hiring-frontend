@@ -25,7 +25,6 @@ class CandidateService {
                 additionalLanguages: applicationData.additionalLanguages || [],
                 availableDays: applicationData.availableDays,
                 availableTimeSlots: applicationData.timeSlots,
-                resumeUrl: applicationData.resume ? `https://example.com/resumes/${Date.now()}-${applicationData.resume.name}` : undefined
             };
             
             // Debug: Log what's being sent
@@ -88,28 +87,6 @@ class CandidateService {
         }
     }
 
-    async uploadResume(file: File, applicationId: string): Promise<ServiceResponse> {
-        try {
-            // Resume upload is now handled in submitApplication
-            // This method is kept for backward compatibility
-            return {
-                status: true,
-                message: "Resume upload handled during application submission",
-                data: {
-                    filePath: `resumes/${applicationId}/${Date.now()}-${file.name}`,
-                    fileUrl: `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${applicationId}/${Date.now()}-${file.name}`,
-                    message: 'Resume uploaded successfully',
-                    uploadedAt: new Date().toISOString()
-                }
-            };
-            
-        } catch (error) {
-            return {
-                status: false,
-                message: "Something went wrong",
-            };
-        }
-    }
 
     async getApplicationByPhone(phoneNumber: string): Promise<ServiceResponse> {
         try {
@@ -128,7 +105,6 @@ class CandidateService {
                 additionalLanguages: string[];
                 availableDays: string[];
                 availableTimeSlots: string[];
-                resumeUrl?: string;
                 status: string;
                 interviewStatus: string;
                 score?: number;

@@ -24,7 +24,6 @@ export const useBackendIntegration = () => {
     if (!applicationData.subjects?.length) errors.push('At least one subject must be selected');
     if (!applicationData.availableDays?.length) errors.push('At least one available day must be selected');
     if (!applicationData.timeSlots?.length) errors.push('At least one time slot must be selected');
-    if (!applicationData.resume) errors.push('Resume file is required');
     
     return errors;
   };

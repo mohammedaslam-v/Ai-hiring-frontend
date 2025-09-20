@@ -17,8 +17,6 @@ export const TIME_SLOT_KEYWORDS = [
   'night'
 ];
 
-// Default resume URL for mock data
-export const DEFAULT_RESUME_URL = 'https://example.com/resume.pdf';
 
 // Score threshold for pass/fail display
 export const PASS_SCORE_THRESHOLD = 6;

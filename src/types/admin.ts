@@ -81,7 +81,6 @@ export interface AdminApplicationDetail extends ApplicationDetail {
   latest_status?: string;
   latest_score?: number;
   latest_completed_at?: string;
-  resume_filename?: string;
 }
 
 // Alternative ApplicationDetail for components that use different structure

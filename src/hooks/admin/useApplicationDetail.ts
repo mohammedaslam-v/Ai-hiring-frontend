@@ -47,20 +47,8 @@ export const useApplicationDetail = () => {
     fetchApplication();
   }, [id, navigate]);
 
-  const handleDownloadResume = async () => {
-    try {
-      // Mock download logic
-      toast.info(`Simulating download of resume for ${state.application?.firstName} ${state.application?.lastName}...`);
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
-      toast.success(`Resume downloaded successfully!`);
-    } catch (error) {
-      console.error('Error downloading resume:', error);
-      toast.error('Failed to download resume.');
-    }
-  };
 
   return {
-    ...state,
-    handleDownloadResume
+    ...state
   };
 };

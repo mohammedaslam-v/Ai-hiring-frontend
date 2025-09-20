@@ -17,8 +17,6 @@ export const FORM_LABELS = {
   AVAILABLE_DAYS: 'Available Days *',
   TIME_SLOTS: 'Available Time Slots *',
   
-  // Resume
-  RESUME: 'Resume *',
   
   // Authentication
   PASSWORD: 'Password *',
@@ -52,8 +50,6 @@ export const FORM_PLACEHOLDERS = {
   AVAILABLE_DAYS: 'Select your available days',
   TIME_SLOTS: 'Select your available time slots',
   
-  // Resume
-  RESUME: 'Upload your resume (PDF, DOC, DOCX)',
   
   // Authentication
   PASSWORD: 'Enter your password',
@@ -70,7 +66,6 @@ export const FORM_SECTIONS = {
   PERSONAL_INFORMATION: 'Personal Information',
   TEACHING_INFORMATION: 'Teaching Information',
   AVAILABILITY: 'Availability',
-  RESUME_UPLOAD: 'Resume Upload',
   AUTHENTICATION: 'Authentication',
   FEEDBACK: 'Feedback',
 } as const;

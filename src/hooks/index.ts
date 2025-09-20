@@ -22,7 +22,6 @@ export type { ApplicationDetail } from '@/types/application';
 export { useCandidate } from './useCandidate';
 export type { 
   ApplicationSubmissionResponse, 
-  ResumeUploadResponse, 
   ApplicationStatusResponse, 
   CandidateProfileResponse 
 } from '@/types/candidate';

@@ -3,7 +3,6 @@ import { candidateService } from '@/services/serviceManager';
 import { ApplicationData, ProfileData } from '@/types';
 import { 
   ApplicationSubmissionResponse, 
-  ResumeUploadResponse, 
   ApplicationStatusResponse, 
   CandidateProfileResponse 
 } from '@/types/candidate';
@@ -18,10 +17,6 @@ export const useCandidate = () => {
     candidateService.submitApplication
   );
 
-  // Resume upload hook
-  const resumeUpload = useApi<ResumeUploadResponse>(
-    candidateService.uploadResume
-  );
 
   // Application status hook
   const applicationStatus = useApi<ApplicationStatusResponse>(
@@ -43,9 +38,6 @@ export const useCandidate = () => {
     return applicationSubmission.execute(applicationData);
   };
 
-  const uploadResume = async (file: File, applicationId: string) => {
-    return resumeUpload.execute(file, applicationId);
-  };
 
   const getApplicationStatus = async (applicationId: string) => {
     return applicationStatus.execute(applicationId);
@@ -61,14 +53,12 @@ export const useCandidate = () => {
 
   // Combined loading state
   const isLoading = applicationSubmission.loading || 
-                   resumeUpload.loading || 
                    applicationStatus.loading || 
                    profileUpdate.loading || 
                    profileRetrieval.loading;
 
   // Combined error state
   const error = applicationSubmission.error || 
-                resumeUpload.error || 
                 applicationStatus.error || 
                 profileUpdate.error || 
                 profileRetrieval.error;
@@ -76,7 +66,6 @@ export const useCandidate = () => {
   // Clear all errors
   const clearAllErrors = () => {
     applicationSubmission.clearError();
-    resumeUpload.clearError();
     applicationStatus.clearError();
     profileUpdate.clearError();
     profileRetrieval.clearError();
@@ -92,11 +81,6 @@ export const useCandidate = () => {
       loading: applicationSubmission.loading,
       error: applicationSubmission.error,
       clearError: applicationSubmission.clearError,
-    },
-    resumeUpload: {
-      loading: resumeUpload.loading,
-      error: resumeUpload.error,
-      clearError: resumeUpload.clearError,
     },
     applicationStatus: {
       loading: applicationStatus.loading,
@@ -116,7 +100,6 @@ export const useCandidate = () => {
 
     // Operations
     submitApplication,
-    uploadResume,
     getApplicationStatus,
     updateCandidateProfile,
     getCandidateProfile,

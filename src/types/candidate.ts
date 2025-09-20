@@ -22,10 +22,6 @@ export interface AvailabilitySectionProps {
   timeSlotError?: string;
 }
 
-export interface ResumeSectionProps {
-  resume: File | null;
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
 
 export interface PersonalInfoSectionProps {
   formData: {
@@ -124,12 +120,6 @@ export interface ApplicationSubmissionResponse {
 }
 
 // Additional candidate response interfaces
-export interface ResumeUploadResponse {
-  id: string;
-  filename: string;
-  url: string;
-  uploadedAt: string;
-}
 
 export interface ApplicationStatusResponse {
   id: string;

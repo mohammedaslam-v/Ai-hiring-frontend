@@ -9,7 +9,6 @@ export const candidateApplicationInitialValues = {
   additionalLanguages: [],
   availableDays: [],
   timeSlots: [],
-  resume: null as File | null,
 };
 
 export const adminLoginInitialValues = {

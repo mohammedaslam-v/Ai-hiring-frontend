@@ -61,12 +61,6 @@ export const VALIDATION_ERROR_MESSAGES = {
     MIN_SELECTION: 'Please select at least one time slot',
   },
   
-  // Resume validation
-  RESUME: {
-    REQUIRED: 'Please upload your resume',
-    FILE_SIZE: 'Resume file size must not exceed 5MB',
-    FILE_TYPE: 'Please upload a valid file type (PDF, DOC, DOCX)',
-  },
   
   // Password validation
   PASSWORD: {
@@ -87,5 +81,4 @@ export const POSITION_ERRORS = VALIDATION_ERROR_MESSAGES.POSITION;
 export const SUBJECTS_ERRORS = VALIDATION_ERROR_MESSAGES.SUBJECTS;
 export const AVAILABLE_DAYS_ERRORS = VALIDATION_ERROR_MESSAGES.AVAILABLE_DAYS;
 export const TIME_SLOTS_ERRORS = VALIDATION_ERROR_MESSAGES.TIME_SLOTS;
-export const RESUME_ERRORS = VALIDATION_ERROR_MESSAGES.RESUME;
 export const PASSWORD_ERRORS = VALIDATION_ERROR_MESSAGES.PASSWORD;

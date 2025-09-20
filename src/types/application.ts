@@ -9,7 +9,6 @@ export interface ApplicationData {
   additionalLanguages: string[];
   availableDays: string[];
   timeSlots: string[]; // This will be mapped to availableTimeSlots in backend
-  resume: File | null;
 }
 
 export interface ApplicationResponse {

@@ -10,7 +10,6 @@ import DetailedEvaluationDisplay from "./DetailedEvaluationDisplay";
 import { ApplicantDetailsModalProps, DashboardApplicationDetail } from '@/types/admin';
 
 // Import new hooks and utilities
-import { useResumeViewer } from "@/hooks/admin/useResumeViewer";
 import { useTranscriptProcessor } from "@/hooks/admin/useTranscriptProcessor";
 import { 
   formatDateTime, 
@@ -30,13 +29,11 @@ const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
   onRefreshToughTongue,
   refreshingSession
 }) => {
-  const { loading, handleViewResume } = useResumeViewer();
   const { transcriptData, hasTranscript, formatTranscriptMessage } = useTranscriptProcessor(applicant?.evaluation);
 
   // Early return if applicant is null or undefined
   if (!applicant) return null;
 
-  const onViewResume = () => handleViewResume(applicant.id);
 
   // Helper function to render status badge
   const renderStatusBadge = (applicationStatus: string, interviewStatus?: string) => {
@@ -233,37 +230,6 @@ const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
             return null;
           })()}
 
-          {/* Resume Section */}
-          <Card className="border-orange-200 bg-orange-50">
-            <CardHeader>
-              <CardTitle className="text-orange-800 flex items-center">
-                <Download className="h-5 w-5 mr-2" />
-                Resume
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-orange-700">
-                    Resume uploaded with application
-                  </p>
-                  <p className="text-xs text-orange-600 mt-1">
-                    Applied on {applicant.application_date}
-                  </p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white"
-                  onClick={onViewResume}
-                  disabled={loading}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  {loading ? 'Opening...' : 'View Resume'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* ToughTongue Evaluation Section */}
           {applicant.score || applicant.evaluation ? (

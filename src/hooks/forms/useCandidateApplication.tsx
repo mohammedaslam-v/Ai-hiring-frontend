@@ -25,17 +25,9 @@ export function useCandidateApplication() {
       setValidationError("");
       
       try {
-        // Validate that resume file is selected
-        if (!values.resume) {
-          setValidationError("Please select a resume file");
-          toast.error("Please select a resume file");
-          return;
-        }
-
         // Log the exact data being sent
         const submissionData = {
-          ...values,
-          resume: values.resume
+          ...values
         };
         
         console.log('Submitting application data:', submissionData);
@@ -48,7 +40,6 @@ export function useCandidateApplication() {
           subjects: submissionData.subjects?.length || 0,
           availableDays: submissionData.availableDays?.length || 0,
           timeSlots: submissionData.timeSlots?.length || 0,
-          resume: !!submissionData.resume
         });
 
         const response = await submitApplication(submissionData);
@@ -133,27 +124,6 @@ export function useCandidateApplication() {
     console.log(`Array field ${fieldName} changed:`, { value, checked, newValues });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error('Please select a valid file type (PDF, DOC, or DOCX)');
-        return;
-      }
-      
-      // Validate file size (10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('File size must be less than 10MB');
-        return;
-      }
-      
-      formik.setFieldValue('resume', file);
-      console.log('Resume file selected:', { name: file.name, size: file.size, type: file.type });
-      toast.success('Resume file selected successfully');
-    }
-  };
 
   const clearValidationError = () => setValidationError("");
 
@@ -168,7 +138,6 @@ export function useCandidateApplication() {
     
     // Form handlers
     handleArrayFieldChange,
-    handleFileUpload,
     clearError: clearValidationError,
     
     // API operations
