@@ -8,8 +8,8 @@ import { PositionSectionProps } from '@/types/candidate';
 const PositionSection = ({ selectedPosition, onPositionChange, error }: PositionSectionProps) => {
   const positions = [
     {
-      id: "Role 1 - Educator",
-      title: "Role 1 - Educator",
+      id: "Educator",
+      title: "Educator",
       description: "Regular teaching sessions"
     }
   ];

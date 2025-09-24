@@ -52,7 +52,7 @@ export const SUBJECTS = [
 ] as const;
 
 export const POSITIONS = [
-  'Role 1 - Educator',
+  'Educator',
   'Role 2 - Senior Educator',
   'Role 3 - Lead Educator',
   'Role 4 - Subject Specialist',

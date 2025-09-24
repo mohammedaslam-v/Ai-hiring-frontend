@@ -83,7 +83,7 @@ export const FORM_INITIAL_VALUES = {
   EMPTY_STRING: '',
   EMPTY_ARRAY: [],
   DEFAULT_COUNTRY_CODE: '+91',
-  DEFAULT_POSITION: 'Role 1 - Educator',
+  DEFAULT_POSITION: 'Educator',
   DEFAULT_RATING: 5,
   DEFAULT_CATEGORY: 'general',
 } as const;

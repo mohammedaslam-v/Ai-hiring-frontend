@@ -11,15 +11,9 @@ export const useSalaryStructure = () => {
       icon: <Star className="h-5 w-5" />
     },
     {
-      type: "Private 1:1 Class",
+      type: "Paid Classes",
       day: "₹250",
       night: "₹300",
-      icon: <Users className="h-5 w-5" />
-    },
-    {
-      type: "Group Class",
-      day: "₹175 (1st) + ₹50 per additional",
-      night: "₹200 (1st) + ₹100 per additional",
       icon: <Users className="h-5 w-5" />
     },
     {

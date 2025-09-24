@@ -51,15 +51,9 @@ export const getClassPayments = (): ClassPayment[] => [
     iconType: 'star'
   },
   {
-    type: "Private 1:1 Class",
+    type: "Paid Classes",
     day: "₹250",
     night: "₹300",
-    iconType: 'users'
-  },
-  {
-    type: "Group Class",
-    day: "₹175 (1st) + ₹50 per additional",
-    night: "₹200 (1st) + ₹100 per additional",
     iconType: 'users'
   },
   {

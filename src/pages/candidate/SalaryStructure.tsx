@@ -67,22 +67,16 @@ const SalaryStructure = () => {
                     <td className="py-3 text-bambinos-blue font-medium">10:00 PM - 8:00 AM</td>
                   </tr>
                   <tr className="border-b border-bambinos-pink/20">
-                    <td className="py-3 text-gray-700">Private Session (1:1)</td>
+                    <td className="py-3 text-gray-700">Paid Classes (25 min)</td>
                     <td className="py-3 text-gray-700">25 min</td>
                     <td className="py-3 text-bambinos-orange font-medium">₹125</td>
                     <td className="py-3 text-bambinos-blue font-medium">₹150</td>
                   </tr>
                   <tr className="border-b border-bambinos-pink/20">
-                    <td className="py-3 text-gray-700">Private Session (1:1)</td>
+                    <td className="py-3 text-gray-700">Paid Classes (45 min)</td>
                     <td className="py-3 text-gray-700">45 min</td>
                     <td className="py-3 text-bambinos-orange font-medium">₹225</td>
                     <td className="py-3 text-bambinos-blue font-medium">₹300</td>
-                  </tr>
-                  <tr className="border-b border-bambinos-pink/20">
-                    <td className="py-3 text-gray-700">Group Session (Max 6 students)</td>
-                    <td className="py-3 text-gray-700">45 min</td>
-                    <td className="py-3 text-bambinos-orange font-medium">₹150 + ₹50/student</td>
-                    <td className="py-3 text-bambinos-blue font-medium">₹200 + ₹100/student</td>
                   </tr>
                   <tr>
                     <td className="py-3 text-gray-700">No-Show</td>
