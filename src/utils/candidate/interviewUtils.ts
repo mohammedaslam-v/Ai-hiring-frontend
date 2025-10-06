@@ -20,7 +20,8 @@ export const generateInterviewUrl = (candidateName: string, candidateEmail: stri
   console.log('🎯 - Name:', candidateName);
   console.log('🎯 - Email:', candidateEmail);
   
-  return `https://app.toughtongueai.com/embed/683d85841bbc5980f1b565fd?bg=black&hidePoweredBy=true&skipPrecheck=false&tools=true&userName=${encodedName}&userEmail=${encodedEmail}&vars[candidateName]=${encodedName}`;
+  // Using provided embed with tools enabled
+  return `https://app.toughtongueai.com/embed/68c2e3b6da9d0bce43d62234?bg=black&hidePoweredBy=true&skipPrecheck=false&tools=true&userName=${encodedName}&userEmail=${encodedEmail}&vars[candidateName]=${encodedName}`;
 };
 
 /**
