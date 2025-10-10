@@ -60,3 +60,30 @@ export const validateInterviewPrerequisites = (
   
   return { isValid: true };
 };
+
+/**
+ * The required allow attribute for the interview iframe
+ */
+export const TOUGHTONGUE_IFRAME_ALLOW = 'microphone; camera; display-capture';
+
+/**
+ * Generate a complete iframe HTML string for embedding the interview
+ * Includes the required allow attributes for mic, camera, and display capture
+ */
+export const generateInterviewIframeHtml = (
+  candidateName: string,
+  candidateEmail: string,
+  options?: {
+    width?: string;
+    height?: string;
+    style?: string;
+    title?: string;
+  }
+): string => {
+  const src = generateInterviewUrl(candidateName, candidateEmail);
+  const width = options?.width ?? '100%';
+  const height = options?.height ?? '100%';
+  const style = options?.style ?? 'border:0;';
+  const title = options?.title ?? 'ToughTongue Interview';
+  return `<iframe src="${src}" allow="${TOUGHTONGUE_IFRAME_ALLOW}" width="${width}" height="${height}" style="${style}" title="${title}"></iframe>`;
+};
