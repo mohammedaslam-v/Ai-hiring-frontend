@@ -13,11 +13,16 @@ const DetailedEvaluationDisplay: React.FC<DetailedEvaluationProps> = ({
   areas_for_improvement = [],
    
 }) => {
+  // Ensure strengths and areas_for_improvement are arrays
+  const safeStrengths = Array.isArray(strengths) ? strengths : [];
+  const safeImprovements = Array.isArray(areas_for_improvement) ? areas_for_improvement : [];
   // Extract rubric scores from evaluation data
   const rubricScores: RubricScore = evaluation?.rubric_scores || evaluation?.detailed_breakdown || {};
   
   // Extract feedback from evaluation data
-  const feedback = (evaluation as any)?.feedback || (evaluation as any)?.analysis?.feedback || '';
+  const evaluationData = evaluation as Record<string, unknown>;
+  const analysisData = evaluationData?.analysis as Record<string, unknown>;
+  const feedback = (evaluationData?.feedback as string) || (analysisData?.feedback as string) || '';
   
 
   const rubricParameters = [
@@ -126,7 +131,7 @@ const DetailedEvaluationDisplay: React.FC<DetailedEvaluationProps> = ({
             <div className="bg-white p-6 rounded-lg border border-blue-200 shadow-sm">
               <div className="prose prose-sm max-w-none">
                 <p className="text-gray-800 whitespace-pre-wrap leading-relaxed text-base">
-                  {feedback}
+                  {String(feedback)}
                 </p>
               </div>
             </div>
@@ -178,47 +183,51 @@ const DetailedEvaluationDisplay: React.FC<DetailedEvaluationProps> = ({
 
       {/* Strengths and Improvements */}
       <div className="grid md:grid-cols-2 gap-6">
-        {strengths.length > 0 && (
-          <Card className="border-green-200 bg-green-50">
-            <CardHeader>
-              <CardTitle className="text-green-800 flex items-center">
-                <CheckCircle className="h-5 w-5 mr-2" />
-                Strengths
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Card className="border-green-200 bg-green-50">
+          <CardHeader>
+            <CardTitle className="text-green-800 flex items-center">
+              <CheckCircle className="h-5 w-5 mr-2" />
+              Strengths
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {safeStrengths.length > 0 ? (
               <ul className="space-y-2">
-                {strengths.map((strength, index) => (
+                {safeStrengths.map((strength, index) => (
                   <li key={index} className="text-sm text-green-700 flex items-start">
                     <span className="text-green-500 mr-2">•</span>
                     {strength}
                   </li>
                 ))}
               </ul>
-            </CardContent>
-          </Card>
-        )}
+            ) : (
+              <p className="text-sm text-gray-500 italic">No specific strengths identified in this evaluation.</p>
+            )}
+          </CardContent>
+        </Card>
 
-        {areas_for_improvement.length > 0 && (
-          <Card className="border-orange-200 bg-orange-50">
-            <CardHeader>
-              <CardTitle className="text-orange-800 flex items-center">
-                <AlertTriangle className="h-5 w-5 mr-2" />
-                Areas for Improvement
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Card className="border-orange-200 bg-orange-50">
+          <CardHeader>
+            <CardTitle className="text-orange-800 flex items-center">
+              <AlertTriangle className="h-5 w-5 mr-2" />
+              Areas for Improvement
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {safeImprovements.length > 0 ? (
               <ul className="space-y-2">
-                {areas_for_improvement.map((area, index) => (
+                {safeImprovements.map((area, index) => (
                   <li key={index} className="text-sm text-orange-700 flex items-start">
                     <span className="text-orange-500 mr-2">•</span>
                     {area}
                   </li>
                 ))}
               </ul>
-            </CardContent>
-          </Card>
-        )}
+            ) : (
+              <p className="text-sm text-gray-500 italic">No specific areas for improvement identified in this evaluation.</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Technical Data (Collapsible) */}
