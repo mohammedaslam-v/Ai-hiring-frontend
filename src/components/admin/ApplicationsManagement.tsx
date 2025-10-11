@@ -6,13 +6,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar } from "lucide-react";
+import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, MessageSquare } from "lucide-react";
 import { PASS_SCORE_THRESHOLD } from '@/constants/admin/availabilityConstants';
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
 import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableActions';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { fetchSecondRoundStatus, SecondRoundMap } from '@/services/secondRound.service';
+import FeedbackModal from './FeedbackModal';
 
 const ApplicationsManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -38,6 +39,19 @@ const ApplicationsManagement: React.FC = () => {
 
   const [secondRoundMap, setSecondRoundMap] = useState<SecondRoundMap>({});
   const [srLoading, setSrLoading] = useState(false);
+  
+  // Feedback modal state
+  const [selectedFeedback, setSelectedFeedback] = useState<{
+    score: number;
+    evaluation: Record<string, unknown>;
+    strengths: string[];
+    improvements: string[];
+    feedback?: string;
+    sessionId?: string;
+    applicationId?: string;
+  } | null>(null);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [refreshingFeedback, setRefreshingFeedback] = useState(false);
 
   useEffect(() => {
     const emails = Array.from(new Set(applications.map(a => (a.email || '').toLowerCase()).filter(Boolean)));
@@ -135,6 +149,105 @@ const ApplicationsManagement: React.FC = () => {
 
     if (confirmed) {
       await handleDeleteApplication(applicationId, applicantName);
+    }
+  };
+
+  // Handle view feedback
+  const handleViewFeedback = async (applicationId: string) => {
+    try {
+      console.log('🔍 Feedback Button Clicked!');
+      console.log('📋 Application ID:', applicationId);
+      console.log('🔄 Opening feedback modal...');
+      
+      // Get session data for this application
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/session/by-application/${applicationId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const sessionData = await response.json();
+      
+      if (sessionData.success && sessionData.data && sessionData.data.evaluation) {
+        const session = sessionData.data;
+        
+        // Ensure strengths and improvements are arrays and filter out empty values
+        const rawStrengths = session.evaluation?.strengths;
+        const rawWeaknesses = session.evaluation?.weaknesses;
+        
+        const strengths = Array.isArray(rawStrengths) 
+          ? rawStrengths.filter(s => s && s.trim() !== '')
+          : (rawStrengths && rawStrengths.trim() !== '' ? [rawStrengths] : []);
+          
+        const improvements = Array.isArray(rawWeaknesses) 
+          ? rawWeaknesses.filter(w => w && w.trim() !== '')
+          : (rawWeaknesses && rawWeaknesses.trim() !== '' ? [rawWeaknesses] : []);
+        
+        console.log('📊 Processed data:', {
+          score: session.score,
+          strengths,
+          improvements,
+          hasEvaluation: !!session.evaluation
+        });
+        
+        setSelectedFeedback({
+          score: session.score || 0,
+          evaluation: session.evaluation,
+          strengths: strengths,
+          improvements: improvements,
+          feedback: session.evaluation?.detailed_feedback || session.evaluation?.feedback || '',
+          sessionId: session.sessionId,
+          applicationId: applicationId
+        });
+        console.log('✅ Setting feedback modal to open');
+        setIsFeedbackModalOpen(true);
+      } else {
+        alert('No ToughTongue feedback available for this application. The interview may not be completed yet.');
+      }
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+      alert('Error loading feedback. Please try again.');
+    }
+  };
+
+  // Handle refresh feedback
+  const handleRefreshFeedback = async (applicationId: string) => {
+    try {
+      setRefreshingFeedback(true);
+      console.log('Refreshing feedback for application:', applicationId);
+      
+      // Call the refresh endpoint
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/session/refresh-tough-tongue/${applicationId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Refresh the feedback data
+        await handleViewFeedback(applicationId);
+        alert('Feedback refreshed successfully!');
+      } else {
+        alert('Failed to refresh feedback: ' + (result.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error refreshing feedback:', error);
+      alert('Error refreshing feedback. Please try again.');
+    } finally {
+      setRefreshingFeedback(false);
     }
   };
 
@@ -614,10 +727,20 @@ const ApplicationsManagement: React.FC = () => {
                           size="sm"
                           onClick={() => handleViewApplication(application.id)}
                           className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
+                          title="View Application Details"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        {null}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewFeedback(application.id)}
+                          className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
+                          title="View ToughTongue Feedback"
+                          disabled={application.interviewStatus === 'no_interview' || application.interviewStatus === 'not_started'}
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="destructive"
                           size="sm"
@@ -625,6 +748,7 @@ const ApplicationsManagement: React.FC = () => {
                           className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
                           disabled={deletingId === application.id}
                           aria-label="Delete"
+                          title="Delete Application"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -700,6 +824,15 @@ const ApplicationsManagement: React.FC = () => {
          </div>
       </CardContent>
       <ConfirmDialog />
+      
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+        feedback={selectedFeedback}
+        onRefresh={handleRefreshFeedback}
+        refreshing={refreshingFeedback}
+      />
     </Card>
   );
 };
