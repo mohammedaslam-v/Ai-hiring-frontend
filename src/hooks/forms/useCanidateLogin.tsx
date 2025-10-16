@@ -76,6 +76,8 @@ export function useCandidateLogin() {
     }
   }
 
+
+  
   // Main login handler
   async function handleLogin(phone: string) {
     setValidationError("");

@@ -26,9 +26,14 @@ export const useSessionManagement = () => {
       
       // First check if an active session already exists for this application
       const existingSession = await sessionService.getSessionByApplicationId(sessionData.applicationId);
-      if (existingSession && (existingSession.status === 'pending' || existingSession.status === 'started')) {
-        console.log('Reusing existing active session:', existingSession.sessionId, 'with status:', existingSession.status);
-        
+
+      // Reuse only if session is active AND already linked to ToughTongue
+      const isActive = !!existingSession && (existingSession.status === 'pending' || existingSession.status === 'started');
+      const isLinked = !!existingSession?.toughTongueSessionId;
+
+      if (isActive && isLinked) {
+        console.log('Reusing existing linked session:', existingSession.sessionId, 'with status:', existingSession.status);
+
         setSessionState(prev => ({
           ...prev,
           sessionId: existingSession.sessionId,
