@@ -22,9 +22,10 @@ const ProcessingPage: React.FC = () => {
   const initOnceRef = useRef(false);
   const startingRef = useRef(false);
 
-  // Get application ID from location state or URL params
+  // Get application ID from location state, URL params, or localStorage fallback
   const applicationId = location.state?.applicationId || 
-                       new URLSearchParams(location.search).get('applicationId');
+                       new URLSearchParams(location.search).get('applicationId') ||
+                       (typeof window !== 'undefined' ? localStorage.getItem('applicationId') : null);
 
   const startProcessing = useCallback(async () => {
     // Prevent re-entry during processing

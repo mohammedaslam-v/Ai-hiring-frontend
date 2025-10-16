@@ -5,6 +5,7 @@ export interface SessionData {
   applicationId: string;
   candidateId: string;
   status: 'pending' | 'started' | 'completed' | 'skipped';
+  toughTongueSessionId?: string; // optional link to ToughTongue session
   startedAt?: string;
   completedAt?: string;
   skippedAt?: string;
