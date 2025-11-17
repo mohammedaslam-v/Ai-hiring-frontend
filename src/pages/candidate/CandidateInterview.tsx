@@ -237,22 +237,7 @@ const CandidateInterview = () => {
             
             // Link Tough Tongue session ID to our session
             try {
-              // Small retry loop to handle transient network issues
-              let lastErr: unknown = null;
-              for (let attempt = 1; attempt <= 3; attempt++) {
-                try {
-                  log(`Linking sessions (attempt ${attempt}/3)`);
-                  await linkToughTongueSession(interviewSessionId, data.sessionId);
-                  lastErr = null;
-                  break;
-                } catch (e) {
-                  lastErr = e;
-                  if (attempt < 3) {
-                    await new Promise(res => setTimeout(res, 1500));
-                  }
-                }
-              }
-              if (lastErr) throw lastErr;
+              await linkToughTongueSession(interviewSessionId, data.sessionId);
               log('✅ Sessions linked successfully');
             } catch (error) {
               logError('❌ Failed to link sessions:', error instanceof Error ? error.message : error);
@@ -277,12 +262,15 @@ const CandidateInterview = () => {
             log('✅ Processing page shown - waiting for evaluation...');
             
             // Navigate to processing page - it will handle polling and navigation to results
-            log('🎯 Navigating to processing page - it will handle the evaluation flow...');
+            log('🎯 Waiting 5 seconds before navigating to processing page...');
             
-            // Navigate to processing page immediately
-            navigate(`/candidate/processing/${interviewSessionId}`, {
-              state: { applicationId }
-            });
+            // Add 5 second delay before navigation
+            setTimeout(() => {
+              log('🎯 5 second delay completed - now navigating to processing page...');
+              navigate(`/candidate/processing/${interviewSessionId}`, {
+                state: { applicationId }
+              });
+            }, 5000);
           }
           
           // Detect interview stop/abandon - look for onStop/onTerminated events
