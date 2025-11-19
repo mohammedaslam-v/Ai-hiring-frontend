@@ -202,7 +202,7 @@ const CandidateInterview = () => {
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       // Only accept messages from Tough Tongue domain
-      if (event.origin !== 'https://app.toughtongueai.com') {
+      if (event.origin !== 'https://bambinos.app.toughtongueai.com') {
         return;
       }
 
