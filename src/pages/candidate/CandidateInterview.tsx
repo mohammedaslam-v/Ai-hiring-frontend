@@ -129,7 +129,7 @@ const CandidateInterview = () => {
     }
   }, [completeSession]);
 
-  const handleSkipInterviewWithId = async (sessionId: string) => {
+  const handleSkipInterviewWithId = useCallback(async (sessionId: string) => {
     try {
       log('Skipping interview with our session ID');
       log('Current session status before skip:', sessionState?.status);
@@ -154,7 +154,7 @@ const CandidateInterview = () => {
       logError('Error skipping interview with our session ID:', error instanceof Error ? error.message : error);
       toast.error('Failed to skip interview');
     }
-  };
+  }, [sessionState?.status, skipSession]);
 
   // Generate iframe URL with real candidate information from localStorage
   const realCandidateName = JSON.parse(localStorage.getItem('candidateName') || 'null') || candidateName;
@@ -250,6 +250,44 @@ const CandidateInterview = () => {
             handleStartInterviewWithId(interviewSessionId);
           }
           
+          // Detect mic check - look for onMicCheck event
+          if (data.event === 'onMicCheck') {
+            log('🎤 Mic check event received');
+            log('🎤 Status:', data.data?.status);
+            log('🎤 Message:', data.data?.message);
+            
+            // Show toast notification based on status
+            if (data.data?.status === 'passed') {
+              toast.success(`Microphone working properly!`);
+            } else if (data.data?.status === 'failed') {
+              toast.error(`❌ Microphone issue detected: ${data.data.message}`);
+              
+              // If interview has already started, this is critical - return to setup
+              if (sessionState?.status === 'started' && interviewSessionId) {
+                log('🚨 Mic failure during active interview - stopping and returning to setup');
+                
+                // Alert user about the critical issue
+                toast.error('🚨 Microphone stopped working. Interview stopped. Please fix it and restart.', {
+                  autoClose: 5000
+                });
+                
+                // Mark session as skipped due to technical issue
+                await handleSkipInterviewWithId(interviewSessionId);
+                
+                // Return to interview setup/instruction page (READY state)
+                setToReady();
+                
+                // Show additional guidance
+                toast.info('💡 Please check your microphone settings and allow browser permissions, then try again.', {
+                  autoClose: 7000
+                });
+              } else {
+                // Pre-interview mic check - just warn
+                toast.warning('⚠️ Please fix your microphone before starting the interview.');
+              }
+            }
+          }
+          
           // Detect interview completion - look for onSubmit event
           if (data.event === 'onSubmit' && interviewSessionId) {
             log('=== TOUGH TONGUE INTERVIEW COMPLETION (summary) ===');
@@ -294,7 +332,7 @@ const CandidateInterview = () => {
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [interviewSessionId, sessionState?.status, applicationId, handleCompleteInterviewWithId, handleStartInterviewWithId, navigate, setToPreparingResults, linkToughTongueSession]);
+  }, [interviewSessionId, sessionState?.status, applicationId, handleCompleteInterviewWithId, handleStartInterviewWithId, handleSkipInterviewWithId, navigate, setToPreparingResults, setToReady, linkToughTongueSession]);
 
   // Browser close detection - mark as left midway if user closes browser during interview
   useEffect(() => {
