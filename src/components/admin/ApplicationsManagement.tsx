@@ -564,29 +564,17 @@ const ApplicationsManagement: React.FC = () => {
                     {renderSortIcon('appliedDate')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[220px] uppercase tracking-wide text-gray-600 text-xs">
+                <TableHead className="w-[320px] uppercase tracking-wide text-gray-600 text-xs">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => updateSort('name', filters.sortOrder || 'desc')}
                     className="h-8 flex items-center gap-1 hover:bg-transparent"
                   >
-                    Name
+                    Candidate
                     {renderSortIcon('name')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[320px] uppercase tracking-wide text-gray-600 text-xs">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => updateSort('email', filters.sortOrder || 'desc')}
-                    className="h-8 flex items-center gap-1 hover:bg-transparent"
-                  >
-                    Email
-                    {renderSortIcon('email')}
-                  </Button>
-                </TableHead>
-                <TableHead className="w-[160px] uppercase tracking-wide text-gray-600 text-xs">Phone</TableHead>
                 <TableHead className="w-[140px] uppercase tracking-wide text-gray-600 text-xs text-center">
                   <Button
                     variant="ghost"
@@ -616,7 +604,7 @@ const ApplicationsManagement: React.FC = () => {
             <TableBody>
                              {isEmpty ? (
                  <TableRow>
-                   <TableCell colSpan={8} className="text-center py-8">
+                   <TableCell colSpan={6} className="text-center py-8">
                      <div className="text-gray-500">
                        {loading ? (
                          <div className="flex items-center justify-center gap-2">
@@ -668,16 +656,12 @@ const ApplicationsManagement: React.FC = () => {
                        {formatDate(application.appliedDate)}
                      </TableCell>
                      <TableCell>
-                       <div>
-                         <div className="font-medium">{application.name}</div>
+                       <div className="space-y-0.5">
+                         <div className="font-semibold text-slate-800">{application.name}</div>
+                         <div className="text-sm text-slate-500 truncate">{application.email}</div>
+                         <div className="text-xs text-slate-400">{application.phone}</div>
                        </div>
                      </TableCell>
-                   <TableCell className="max-w-[320px]">
-                      <div className="truncate">{application.email}</div>
-                    </TableCell>
-                    <TableCell className="max-w-[160px]">
-                      <div className="max-w-[150px] truncate">{application.phone}</div>
-                    </TableCell>
                     <TableCell className="text-center">
                       {renderInterviewStatusBadge(application.interviewStatus, application.score)}
                     </TableCell>
