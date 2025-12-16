@@ -23,6 +23,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminApplications from "./pages/admin/AdminApplications";
 import AdminApplicationDetail from "./pages/admin/AdminApplicationDetail";
+import TeacherJourney from "./pages/admin/TeacherJourney";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,8 +66,11 @@ const AppRoutes = () => {
           <AdminApplicationDetail />
         </ProtectedRoute>
       } />
-
-
+      <Route path="/admin/teacher-journey" element={
+        <ProtectedRoute>
+          <TeacherJourney />
+        </ProtectedRoute>
+      } />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
