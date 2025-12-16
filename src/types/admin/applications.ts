@@ -32,6 +32,8 @@ export interface ApplicantRow {
   subjects: string[];
   interviewStatus: string;
   score: number | null;
+  /** Interview completion date from Session model */
+  interviewCompletedAt: string | null;
   appliedDate: string;
   actions: {
     view: string;
