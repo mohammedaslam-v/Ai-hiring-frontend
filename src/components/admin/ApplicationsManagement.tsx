@@ -6,14 +6,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, MessageSquare } from "lucide-react";
+import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, MessageSquare, CheckCircle2 } from "lucide-react";
 import { PASS_SCORE_THRESHOLD } from '@/constants/admin/availabilityConstants';
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
 import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableActions';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { fetchSecondRoundStatus, SecondRoundMap } from '@/services/secondRound.service';
+import { teacherJourneyService, JourneyStatusData } from '@/services/teacherJourney.service';
 import FeedbackModal from './FeedbackModal';
+
+// Type for journey progress map
+type JourneyProgressMap = Record<string, JourneyStatusData>;
 
 const ApplicationsManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -40,6 +44,10 @@ const ApplicationsManagement: React.FC = () => {
   const [secondRoundMap, setSecondRoundMap] = useState<SecondRoundMap>({});
   const [srLoading, setSrLoading] = useState(false);
   
+  // Journey progress state
+  const [journeyProgressMap, setJourneyProgressMap] = useState<JourneyProgressMap>({});
+  const [journeyLoading, setJourneyLoading] = useState(false);
+  
   // Feedback modal state
   const [selectedFeedback, setSelectedFeedback] = useState<{
     score: number;
@@ -65,6 +73,26 @@ const ApplicationsManagement: React.FC = () => {
       .then(map => { if (!cancelled) setSecondRoundMap(map); })
       .catch(() => { if (!cancelled) setSecondRoundMap({}); })
       .finally(() => { if (!cancelled) setSrLoading(false); });
+    return () => { cancelled = true; };
+  }, [applications]);
+
+  // Fetch journey progress for all applications
+  useEffect(() => {
+    const applicationIds = applications.map(a => a.applicationId || a.id).filter(Boolean);
+    if (!applicationIds.length) {
+      setJourneyProgressMap({});
+      return;
+    }
+    let cancelled = false;
+    setJourneyLoading(true);
+    teacherJourneyService.getBatchJourneyStatus(applicationIds)
+      .then(response => {
+        if (!cancelled && response.status && response.data) {
+          setJourneyProgressMap(response.data);
+        }
+      })
+      .catch(() => { if (!cancelled) setJourneyProgressMap({}); })
+      .finally(() => { if (!cancelled) setJourneyLoading(false); });
     return () => { cancelled = true; };
   }, [applications]);
 
@@ -510,7 +538,7 @@ const ApplicationsManagement: React.FC = () => {
                  )}
                                    {filters.status && filters.status !== 'all' && (
                     <Badge variant="outline" className="text-xs">
-                      Interview Status: {filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}
+                      AI Round: {filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}
                     </Badge>
                   )}
 
@@ -582,29 +610,19 @@ const ApplicationsManagement: React.FC = () => {
                     onClick={() => updateSort('interviewStatus', filters.sortOrder || 'desc')}
                     className="h-8 flex items-center gap-1 hover:bg-transparent"
                   >
-                    Interview Status
+                    AI Round
                     {renderSortIcon('interviewStatus')}
                   </Button>
                 </TableHead>
-                <TableHead className="w-[160px] uppercase tracking-wide text-gray-600 text-xs text-center">Second Round</TableHead>
-                <TableHead className="w-[120px] uppercase tracking-wide text-gray-600 text-xs text-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => updateSort('score', filters.sortOrder || 'desc')}
-                    className="h-8 flex items-center gap-1 hover:bg-transparent"
-                  >
-                    Score
-                    {renderSortIcon('score')}
-                  </Button>
-                </TableHead>
+                <TableHead className="w-[160px] uppercase tracking-wide text-gray-600 text-xs text-center">Mock Demo</TableHead>
+                <TableHead className="w-[180px] uppercase tracking-wide text-gray-600 text-xs text-center">Journey Progress</TableHead>
                 <TableHead className="w-[120px] uppercase tracking-wide text-gray-600 text-xs text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
                              {isEmpty ? (
-                 <TableRow>
-                   <TableCell colSpan={6} className="text-center py-8">
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">
                      <div className="text-gray-500">
                        {loading ? (
                          <div className="flex items-center justify-center gap-2">
@@ -617,12 +635,12 @@ const ApplicationsManagement: React.FC = () => {
                              {isFiltered ? 'No applications found' : 'No applications available'}
                            </p>
                            <p className="text-sm mb-3">
-                             {isFiltered 
-                               ? filters.status && filters.status !== 'all' 
-                                 ? `No applications found with status "${filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}". Try selecting a different status or reset the filters.`
-                                 : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
-                               : 'There are no applications in the system yet.'
-                             }
+                            {isFiltered 
+                              ? filters.status && filters.status !== 'all' 
+                                ? `No applications found with AI Round "${filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}". Try selecting a different status or reset the filters.`
+                                : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
+                              : 'There are no applications in the system yet.'
+                            }
                            </p>
                            {isFiltered && (
                              <div className="flex gap-2 justify-center">
@@ -662,9 +680,21 @@ const ApplicationsManagement: React.FC = () => {
                          <div className="text-xs text-slate-400">{application.phone}</div>
                        </div>
                      </TableCell>
-                    <TableCell className="text-center">
-                      {renderInterviewStatusBadge(application.interviewStatus, application.score)}
-                    </TableCell>
+                   <TableCell className="text-center">
+                     <div className="flex flex-col items-center gap-1">
+                       {renderInterviewStatusBadge(application.interviewStatus, application.score)}
+                       {application.score !== null && application.score !== undefined ? (
+                         <span className={`text-sm font-semibold ${application.score >= PASS_SCORE_THRESHOLD ? 'text-green-600' : 'text-red-600'}`}>
+                           {(application.score * 10)}%
+                         </span>
+                       ) : null}
+                       {application.interviewCompletedAt && (
+                         <span className="text-xs text-gray-500">
+                           {formatDate(application.interviewCompletedAt)}
+                         </span>
+                       )}
+                     </div>
+                   </TableCell>
                     <TableCell className="text-center">
                       {(() => {
                         const key = (application.email || '').toLowerCase();
@@ -696,13 +726,44 @@ const ApplicationsManagement: React.FC = () => {
                       })()}
                     </TableCell>
                     <TableCell className="text-center">
-                      {application.score !== null && application.score !== undefined ? (
-                        <span className={`font-medium ${application.score >= PASS_SCORE_THRESHOLD ? 'text-green-600' : 'text-red-600'}`}>
-                          {(application.score * 10)}%
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">N/A</span>
-                      )}
+                      {(() => {
+                        const appId = application.applicationId || application.id;
+                        const journeyData = journeyProgressMap[appId];
+                        
+                        if (journeyLoading && !journeyData) {
+                          return <span className="text-gray-400 text-xs">Loading…</span>;
+                        }
+                        
+                        if (!journeyData) {
+                          return <span className="text-gray-400 text-xs">Not Started</span>;
+                        }
+                        
+                        const stages = [
+                          { done: journeyData.demoStatus === 'SELECTED', label: 'D' },
+                          { done: journeyData.inductionAttendance === 'YES', label: 'I' },
+                          { done: journeyData.trainingStatus === 'JOINED' || journeyData.trainingStatus === 'COMPLETED', label: 'T' },
+                          { done: journeyData.certificationStatus === 'CLEARED', label: 'C' },
+                          { done: journeyData.goLiveReadiness === 'YES', label: 'G' },
+                        ];
+                        
+                        return (
+                          <div className="flex items-center justify-center gap-0.5">
+                            {stages.map((stage, idx) => (
+                              <div
+                                key={idx}
+                                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold transition-all ${
+                                  stage.done 
+                                    ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-sm' 
+                                    : 'bg-gray-100 text-gray-400 border border-gray-200'
+                                }`}
+                                title={['Demo', 'Induction', 'Training', 'Certification', 'Go Live'][idx]}
+                              >
+                                {stage.done ? <CheckCircle2 className="w-3 h-3" /> : stage.label}
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="inline-flex gap-1">

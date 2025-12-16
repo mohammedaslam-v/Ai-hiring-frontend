@@ -27,6 +27,15 @@ interface PaginatedResponse<T> {
   };
 }
 
+export interface JourneyStatusData {
+  demoStatus: string;
+  inductionAttendance: string;
+  trainingStatus: string;
+  certificationStatus: string;
+  goLiveReadiness: string;
+  progress: number;
+}
+
 class TeacherJourneyService {
   private baseUrl = '/api/admin/teacher-journey';
 
@@ -70,12 +79,13 @@ class TeacherJourneyService {
         message: response.data.msg || 'Failed to fetch teacher journeys',
         error: response.data.error
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching teacher journeys:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,
-        message: error?.response?.data?.msg || 'Network error',
-        error: error?.message
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
       };
     }
   }
@@ -104,12 +114,13 @@ class TeacherJourneyService {
         message: response.data.msg || 'Failed to fetch teacher journey',
         error: response.data.error
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching teacher journey:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,
-        message: error?.response?.data?.msg || 'Network error',
-        error: error?.message
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
       };
     }
   }
@@ -138,12 +149,13 @@ class TeacherJourneyService {
         message: response.data.msg || 'Failed to fetch teacher journey',
         error: response.data.error
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching teacher journey:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,
-        message: error?.response?.data?.msg || 'Network error',
-        error: error?.message
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
       };
     }
   }
@@ -173,12 +185,13 @@ class TeacherJourneyService {
         message: response.data.msg || 'Failed to update teacher journey',
         error: response.data.error
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating teacher journey:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,
-        message: error?.response?.data?.msg || 'Network error',
-        error: error?.message
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
       };
     }
   }
@@ -208,12 +221,13 @@ class TeacherJourneyService {
         message: response.data.msg || 'Failed to submit demo feedback',
         error: response.data.error
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting demo feedback:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,
-        message: error?.response?.data?.msg || 'Network error',
-        error: error?.message
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
       };
     }
   }
@@ -243,12 +257,13 @@ class TeacherJourneyService {
         message: response.data.msg || 'Failed to create teacher journey',
         error: response.data.error
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating teacher journey:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,
-        message: error?.response?.data?.msg || 'Network error',
-        error: error?.message
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
       };
     }
   }
@@ -275,12 +290,13 @@ class TeacherJourneyService {
         message: response.data.msg || 'Failed to delete teacher journey',
         error: response.data.error
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting teacher journey:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,
-        message: error?.response?.data?.msg || 'Network error',
-        error: error?.message
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
       };
     }
   }
@@ -309,12 +325,50 @@ class TeacherJourneyService {
         message: response.data.msg || 'Failed to fetch stats',
         error: response.data.error
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching teacher journey stats:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,
-        message: error?.response?.data?.msg || 'Network error',
-        error: error?.message
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
+      };
+    }
+  }
+
+  /** Fetch batch journey status for multiple applications */
+  async getBatchJourneyStatus(applicationIds: string[]): Promise<{
+    status: boolean;
+    message: string;
+    data?: Record<string, JourneyStatusData>;
+    error?: string;
+  }> {
+    try {
+      const response = await axiosInstance.post<ApiResponse<Record<string, JourneyStatusData>>>(
+        `${this.baseUrl}/batch-status`,
+        { applicationIds }
+      );
+
+      if (response.data.status) {
+        return {
+          status: true,
+          message: response.data.msg,
+          data: response.data.data
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.msg || 'Failed to fetch batch journey status',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error fetching batch journey status:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
       };
     }
   }

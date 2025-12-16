@@ -7,11 +7,14 @@ import {
   Mail, 
   Phone, 
   Calendar, 
-  Briefcase,
   User,
   BookOpen,
   Globe,
-  Clock
+  Clock,
+  MessageCircle,
+  ExternalLink,
+  Brain,
+  Presentation
 } from "lucide-react";
 import { useApplicationDetail } from "@/hooks/admin/useApplicationDetail";
 import { getStatusBadge } from "@/components/admin/StatusBadge";
@@ -21,11 +24,12 @@ export default function AdminApplicationDetail() {
   const navigate = useNavigate();
   const { application, loading, error } = useApplicationDetail();
 
-  const getScoreStyle = (score: number | null | undefined) => {
-    if (score === null || score === undefined) return 'text-slate-400';
-    if (score >= 7) return 'text-emerald-600';
-    if (score >= 5) return 'text-amber-600';
-    return 'text-red-600';
+  // Score color helper - returns appropriate color class based on score value
+  const getScoreColor = (score: number | null | undefined) => {
+    if (score === null || score === undefined) return { text: 'text-slate-400', bg: 'bg-slate-50' };
+    if (score >= 7) return { text: 'text-emerald-600', bg: 'bg-emerald-50' };
+    if (score >= 5) return { text: 'text-amber-600', bg: 'bg-amber-50' };
+    return { text: 'text-red-500', bg: 'bg-red-50' };
   };
 
   if (loading) {
@@ -54,6 +58,7 @@ export default function AdminApplicationDetail() {
   }
 
   const interviewStatus = application.latest_status || application.interview_status || "no_interview";
+  const scoreColors = getScoreColor(application.score);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
@@ -68,138 +73,117 @@ export default function AdminApplicationDetail() {
           <ArrowLeft className="h-4 w-4 mr-2" /> Back to Applications
         </Button>
 
-        {/* Main Container - Single Unified Card */}
+        {/* Main Container */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           
-          {/* Profile Header */}
-          <div className="bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500 px-6 py-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+          {/* ============================================
+              HERO SECTION - Compact, max ~25-30% viewport
+              ============================================ */}
+          <div className="bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500 px-5 py-4">
+            
+            {/* ROW 1: Identity + Contact - Single horizontal line */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-lg bg-white/20 flex items-center justify-center text-white text-lg font-bold">
                   {application.firstName?.charAt(0)}{application.lastName?.charAt(0)}
                 </div>
-                <div className="text-white">
-                  <h1 className="text-2xl font-bold">{application.firstName} {application.lastName}</h1>
-                  <p className="text-white/80 flex items-center gap-2 mt-1">
-                    <Briefcase className="h-4 w-4" />
-                    {application.position || "Educator"}
-                  </p>
+                <h1 className="text-xl font-semibold text-white">{application.firstName} {application.lastName}</h1>
+              </div>
+              
+              {/* Contact - Inline, minimal */}
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <a href={`mailto:${application.email}`} className="flex items-center gap-1.5 text-white/90 hover:text-white">
+                  <Mail className="h-3.5 w-3.5" />{application.email}
+                </a>
+                <span className="text-white/40">•</span>
+                <a href={`https://wa.me/${application.phone?.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" 
+                   className="flex items-center gap-1.5 text-white/90 hover:text-white">
+                  <Phone className="h-3.5 w-3.5" />{application.phone}
+                  <MessageCircle className="h-3 w-3 text-green-300" />
+                </a>
+                <span className="text-white/40">•</span>
+                <span className="flex items-center gap-1.5 text-white/70">
+                  <Calendar className="h-3.5 w-3.5" />{new Date(application.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+
+            {/* ROW 2: Scores + Meta - Compact horizontal layout */}
+            <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+              {/* Score Cards - Inline */}
+              <div className="flex gap-2">
+                {/* AI Interview */}
+                <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2">
+                  <Brain className={`h-4 w-4 ${scoreColors.text}`} />
+                  <span className="text-xs text-slate-500">AI</span>
+                  <span className={`text-lg font-bold ${scoreColors.text}`}>{application.score ?? "—"}</span>
+                  <span className="text-xs text-slate-400">/10</span>
+                  <div className="ml-1">{getStatusBadge(interviewStatus)}</div>
+                </div>
+                
+                {/* Mock Demo */}
+                <div className="flex items-center gap-2 bg-white/90 rounded-lg px-3 py-2">
+                  <Presentation className="h-4 w-4 text-slate-400" />
+                  <span className="text-xs text-slate-500">Demo</span>
+                  <span className="text-lg font-bold text-slate-300">—</span>
+                  <span className="text-xs text-slate-400">/10</span>
+                  <Badge variant="outline" className="ml-1 bg-slate-50 text-slate-400 border-slate-200 text-[10px] px-1.5 py-0">
+                    Pending
+                  </Badge>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30 px-3 py-1.5">
-                  {application.status}
-                </Badge>
-                <code className="text-xs text-white/70 bg-white/10 px-3 py-1.5 rounded-lg font-mono">
-                  {application.applicationId || application.id}
-                </code>
+
+              {/* Divider */}
+              <div className="hidden lg:block w-px h-6 bg-white/20"></div>
+
+              {/* Meta Tags - Compact pills */}
+              <div className="flex flex-wrap items-center gap-2">
+                {Array.isArray(application.subjects) && application.subjects.length > 0 && (
+                  <div className="flex items-center gap-1">
+                    <BookOpen className="h-3 w-3 text-white/50" />
+                    {application.subjects.map((s: string, i: number) => (
+                      <span key={i} className="px-2 py-0.5 bg-white/15 rounded text-[11px] text-white">{s}</span>
+                    ))}
+                  </div>
+                )}
+                {Array.isArray(application.additionalLanguages) && application.additionalLanguages.length > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Globe className="h-3 w-3 text-white/50" />
+                    {application.additionalLanguages.map((l: string, i: number) => (
+                      <span key={i} className="px-2 py-0.5 bg-white/15 rounded text-[11px] text-white">{l}</span>
+                    ))}
+                  </div>
+                )}
+                {(application.availableDays?.length > 0 || application.timeSlots?.length > 0) && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3 text-white/50" />
+                    {application.availableDays?.map((d: string, i: number) => (
+                      <span key={`d-${i}`} className="px-2 py-0.5 bg-white/15 rounded text-[11px] text-white">{d}</span>
+                    ))}
+                    {application.timeSlots?.map((t: string, i: number) => (
+                      <span key={`t-${i}`} className="px-2 py-0.5 bg-white/10 rounded text-[11px] text-white/70">{t}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className="flex flex-col lg:flex-row">
-            
-            {/* Left Panel - Candidate Details */}
-            <div className="lg:w-80 lg:border-r border-slate-200 flex-shrink-0">
-              
-              {/* Contact Information */}
-              <div className="p-5 border-b border-slate-100">
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Contact Information</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
-                      <Mail className="h-4 w-4 text-slate-500" />
-                    </div>
-                    <span className="text-sm text-slate-700 truncate flex-1">{application.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
-                      <Phone className="h-4 w-4 text-slate-500" />
-                    </div>
-                    <span className="text-sm text-slate-700">{application.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
-                      <Calendar className="h-4 w-4 text-slate-500" />
-                    </div>
-                    <span className="text-sm text-slate-700">{new Date(application.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Interview Result */}
-              <div className="p-5 border-b border-slate-100">
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Interview Result</h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-baseline gap-1">
-                    <span className={`text-4xl font-bold ${getScoreStyle(application.score)}`}>
-                      {application.score ?? "—"}
-                    </span>
-                    <span className="text-slate-400 text-lg">/10</span>
-                  </div>
-                  {getStatusBadge(interviewStatus)}
-                </div>
-              </div>
-
-              {/* Teaching Subjects */}
-              <div className="p-5 border-b border-slate-100">
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <BookOpen className="h-3.5 w-3.5" />
-                  Teaching Subjects
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {Array.isArray(application.subjects) && application.subjects.length > 0 ? (
-                    application.subjects.map((s: string, i: number) => (
-                      <Badge key={i} className="bg-teal-50 text-teal-700 border-teal-200 font-medium">{s}</Badge>
-                    ))
-                  ) : <span className="text-sm text-slate-400">Not specified</span>}
-                </div>
-              </div>
-
-              {/* Languages */}
-              {Array.isArray(application.additionalLanguages) && application.additionalLanguages.length > 0 && (
-                <div className="p-5 border-b border-slate-100">
-                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <Globe className="h-3.5 w-3.5" />
-                    Languages
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {application.additionalLanguages.map((l: string, i: number) => (
-                      <Badge key={i} className="bg-cyan-50 text-cyan-700 border-cyan-200 font-medium">{l}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Availability */}
-              {(application.availableDays?.length > 0 || application.timeSlots?.length > 0) && (
-                <div className="p-5">
-                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <Clock className="h-3.5 w-3.5" />
-                    Availability
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {application.availableDays?.map((d: string, i: number) => (
-                      <Badge key={`d-${i}`} variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-medium">{d}</Badge>
-                    ))}
-                    {application.timeSlots?.map((t: string, i: number) => (
-                      <Badge key={`t-${i}`} variant="outline" className="bg-violet-50 text-violet-700 border-violet-200 font-medium text-xs">{t}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Right Panel - Teacher Journey */}
-            <div className="flex-1 min-w-0 bg-slate-50/50">
-              <TeacherJourneySection
-                applicationId={application.applicationId || application.id}
-                candidateName={`${application.firstName} ${application.lastName}`}
-                candidateEmail={application.email}
-                candidatePhone={application.phone}
-              />
-            </div>
+          {/* ============================================
+              TEACHER JOURNEY SECTION - Full width below hero
+              No sidebar, clean single-column layout
+              ============================================ */}
+          <div className="bg-slate-50/50">
+            <TeacherJourneySection
+              applicationId={application.applicationId || application.id}
+              candidateName={`${application.firstName} ${application.lastName}`}
+              candidateEmail={application.email}
+              candidatePhone={application.phone}
+              // AI Round data from interview
+              aiRoundStatus={interviewStatus}
+              aiRoundScore={application.score}
+              aiRoundCompletedAt={application.interview_completed || application.latest_completed_at}
+            />
           </div>
         </div>
       </div>
