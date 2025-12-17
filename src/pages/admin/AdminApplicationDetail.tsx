@@ -183,6 +183,10 @@ export default function AdminApplicationDetail() {
               aiRoundStatus={interviewStatus}
               aiRoundScore={application.score}
               aiRoundCompletedAt={application.interview_completed || application.latest_completed_at}
+              // AI Round feedback from interview
+              aiRoundStrengths={application.strengths}
+              aiRoundAreasForImprovement={application.areas_for_improvement}
+              aiRoundEvaluation={application.evaluation}
             />
           </div>
         </div>
