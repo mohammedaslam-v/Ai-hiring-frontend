@@ -645,23 +645,6 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
         )}
       </div>
 
-      {/* Completed Date */}
-      <div className="p-3 rounded-lg bg-slate-50/50">
-        <Label className="text-xs text-slate-500">Completed On</Label>
-        <p className="text-sm text-slate-700 mt-1 font-medium">
-          {completedAt 
-            ? new Date(completedAt).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) 
-            : <span className="text-slate-400 italic">Not completed yet</span>
-          }
-        </p>
-      </div>
-
       {/* ============================================
           FEEDBACK SECTION - Strengths & Areas for Improvement
           ============================================ */}

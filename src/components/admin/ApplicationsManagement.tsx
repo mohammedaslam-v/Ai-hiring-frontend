@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, MessageSquare, CheckCircle2 } from "lucide-react";
+import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, CheckCircle2 } from "lucide-react";
 import { PASS_SCORE_THRESHOLD } from '@/constants/admin/availabilityConstants';
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
@@ -775,16 +775,6 @@ const ApplicationsManagement: React.FC = () => {
                           title="View Application Details"
                         >
                           <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewFeedback(application.id)}
-                          className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
-                          title="View ToughTongue Feedback"
-                          disabled={application.interviewStatus === 'no_interview' || application.interviewStatus === 'not_started'}
-                        >
-                          <MessageSquare className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="destructive"
