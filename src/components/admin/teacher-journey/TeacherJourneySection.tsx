@@ -568,10 +568,81 @@ interface AIRoundSectionProps {
   evaluation?: Record<string, unknown>;
 }
 
+// Helper function to parse markdown-style text
+const parseMarkdownText = (text: string): React.ReactNode => {
+  // Remove markdown headers like "#### Key Strengths"
+  if (text.startsWith('#')) return null;
+  
+  // Remove leading "- " if present
+  const cleanText = text.replace(/^-\s*/, '');
+  
+  // Parse **bold** text
+  const parts = cleanText.split(/(\*\*[^*]+\*\*)/g);
+  
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
+
+// Report Card Item Component
+interface ReportCardItem {
+  topic: string;
+  score: number;
+  score_str: string;
+  note: string;
+  weight: number;
+  requires_video?: boolean;
+}
+
+const ReportCardSkillBar: React.FC<{ item: ReportCardItem; index: number }> = ({ item, index }) => {
+  const score = item.score;
+  const getScoreColor = () => {
+    if (score >= 9) return { bar: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' };
+    if (score >= 7) return { bar: 'bg-teal-500', text: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' };
+    if (score >= 5) return { bar: 'bg-amber-500', text: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' };
+    return { bar: 'bg-red-500', text: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' };
+  };
+  
+  const colors = getScoreColor();
+  
+  return (
+    <div 
+      className={`p-4 rounded-xl border ${colors.border} ${colors.bg} transition-all duration-300 hover:shadow-md hover:scale-[1.01]`}
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 pr-4">
+          <h5 className="font-semibold text-slate-800 text-sm leading-tight">{item.topic}</h5>
+          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Weight: {item.weight}%</span>
+        </div>
+        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${colors.bg} border ${colors.border}`}>
+          <span className={`text-lg font-bold ${colors.text}`}>{item.score_str?.split('/')[0] || score}</span>
+          <span className="text-slate-400 text-sm font-medium">/10</span>
+        </div>
+      </div>
+      
+      {/* Progress Bar */}
+      <div className="h-2 bg-slate-200/70 rounded-full overflow-hidden mb-3">
+        <div 
+          className={`h-full rounded-full ${colors.bar} transition-all duration-700 ease-out`}
+          style={{ width: `${score * 10}%` }}
+        />
+      </div>
+      
+      {/* Note - Collapsible */}
+      <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 hover:line-clamp-none transition-all cursor-pointer">
+        {item.note}
+      </p>
+    </div>
+  );
+};
+
 const AIRoundSection: React.FC<AIRoundSectionProps> = ({ 
   status, 
   score, 
-  completedAt,
   strengths,
   areasForImprovement,
   evaluation
@@ -586,163 +657,205 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
 
   const getStatusStyle = () => {
     if (!status || status === 'no_interview') {
-      return { bg: 'bg-slate-100 border-slate-200', text: 'text-slate-600', icon: <Clock className="h-3.5 w-3.5" /> };
+      return { bg: 'bg-slate-100', border: 'border-slate-200', text: 'text-slate-600', icon: <Clock className="h-4 w-4" />, glow: '' };
     }
     if (status === 'in_progress') {
-      return { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700', icon: <Clock className="h-3.5 w-3.5" /> };
+      return { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: <Clock className="h-4 w-4" />, glow: 'shadow-blue-100' };
     }
     if (isPassed) {
-      return { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <CheckCircle2 className="h-3.5 w-3.5" /> };
+      return { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', icon: <CheckCircle2 className="h-4 w-4" />, glow: 'shadow-emerald-100' };
     }
-    return { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: <XCircle className="h-3.5 w-3.5" /> };
+    return { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', icon: <XCircle className="h-4 w-4" />, glow: 'shadow-red-100' };
   };
 
   const statusStyle = getStatusStyle();
 
+  // Filter out header lines from strengths and areas
+  const filteredStrengths = strengths?.filter(s => !s.startsWith('#') && s.trim().length > 0) || [];
+  const filteredAreas = areasForImprovement?.filter(s => !s.startsWith('#') && s.trim().length > 0) || [];
+  
+  // Extract report card from evaluation
+  const reportCard = (evaluation?.report_card as ReportCardItem[]) || [];
+  
   // Check if we have any feedback data to display
-  const hasFeedback = (strengths && strengths.length > 0) || 
-                      (areasForImprovement && areasForImprovement.length > 0) ||
-                      (evaluation && Object.keys(evaluation).length > 0);
+  const hasFeedback = filteredStrengths.length > 0 || 
+                      filteredAreas.length > 0 ||
+                      reportCard.length > 0;
 
   return (
-    <div className="space-y-5">
-      {/* Status */}
-      <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
-        <span className="text-sm font-medium text-slate-600">Interview Status</span>
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusStyle.bg} ${statusStyle.text}`}>
-          {statusStyle.icon}
-          {statusLabel}
-        </span>
-      </div>
-
-      {/* Score */}
-      <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100">
-        <Label className="text-xs text-purple-600 font-medium">AI Interview Score</Label>
-        <div className="flex items-baseline gap-2 mt-2">
-          <span className={`text-4xl font-bold ${
-            score === null || score === undefined 
-              ? 'text-slate-300' 
-              : isPassed 
-                ? 'text-emerald-600' 
-                : 'text-red-500'
-          }`}>
-            {score !== null && score !== undefined ? score.toFixed(1) : '—'}
-          </span>
-          <span className="text-slate-400 text-lg">/10</span>
-          {score !== null && score !== undefined && (
-            <span className={`ml-2 text-sm font-medium ${isPassed ? 'text-emerald-600' : 'text-red-500'}`}>
-              ({(score * 10).toFixed(0)}%)
-            </span>
-          )}
+    <div className="space-y-6">
+      {/* ============================================
+          HERO SCORE CARD
+          ============================================ */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
         </div>
-        {score !== null && score !== undefined && (
-          <div className="mt-3 h-2 bg-slate-200 rounded-full overflow-hidden">
-            <div 
-              className={`h-full rounded-full transition-all ${isPassed ? 'bg-emerald-500' : 'bg-red-400'}`}
-              style={{ width: `${Math.min(score * 10, 100)}%` }}
-            />
+        
+        <div className="relative z-10">
+          {/* Status Badge */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-xl ${statusStyle.bg} ${statusStyle.border} border ${statusStyle.glow} shadow-lg`}>
+                {statusStyle.icon}
+              </div>
+              <div>
+                <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Interview Status</p>
+                <p className={`font-bold text-lg ${statusStyle.text}`}>{statusLabel}</p>
+              </div>
+            </div>
+            <div className={`px-4 py-2 rounded-full border-2 ${statusStyle.border} ${statusStyle.bg} shadow-lg ${statusStyle.glow}`}>
+              <span className={`font-bold text-sm ${statusStyle.text}`}>
+                {isPassed ? '✓ Qualified' : status === 'in_progress' ? '◷ In Progress' : status === 'no_interview' ? '○ Pending' : '✗ Not Qualified'}
+              </span>
+            </div>
           </div>
-        )}
+          
+          {/* Score Display */}
+          <div className="flex items-end gap-4">
+            <div className="flex items-baseline">
+              <span className={`text-7xl font-black tracking-tight ${
+                score === null || score === undefined 
+                  ? 'text-slate-600' 
+                  : isPassed 
+                    ? 'text-emerald-400' 
+                    : 'text-red-400'
+              }`}>
+                {score !== null && score !== undefined ? score.toFixed(1) : '—'}
+              </span>
+              <span className="text-3xl text-slate-500 font-light ml-1">/10</span>
+            </div>
+            
+            {score !== null && score !== undefined && (
+              <div className="flex-1 pb-3">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className={`text-2xl font-bold ${isPassed ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {(score * 10).toFixed(0)}%
+                  </span>
+                  <span className="text-slate-400 text-sm">Overall Performance</span>
+                </div>
+                <div className="h-3 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur-sm">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                      isPassed 
+                        ? 'bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400' 
+                        : 'bg-gradient-to-r from-red-500 via-red-400 to-orange-400'
+                    }`}
+                    style={{ width: `${Math.min(score * 10, 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ============================================
-          FEEDBACK SECTION - Strengths & Areas for Improvement
+          FEEDBACK CARDS - Strengths & Areas for Improvement
           ============================================ */}
       {hasFeedback && (
-        <div className="space-y-4 pt-4 border-t border-slate-200">
-          <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-            <Award className="h-4 w-4 text-purple-500" />
-            Interview Feedback
-          </h4>
-
-          {/* Strengths */}
-          {strengths && strengths.length > 0 && (
-            <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-100">
-              <Label className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5 mb-2">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                Strengths
-              </Label>
-              <ul className="space-y-1.5">
-                {strengths.map((strength, index) => (
-                  <li key={index} className="text-sm text-emerald-800 flex items-start gap-2">
-                    <span className="text-emerald-500 mt-1">•</span>
-                    <span>{strength}</span>
-                  </li>
-                ))}
-              </ul>
+        <div className="space-y-5">
+          {/* Section Header */}
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-200">
+              <Award className="h-5 w-5 text-white" />
             </div>
-          )}
-
-          {/* Areas for Improvement */}
-          {areasForImprovement && areasForImprovement.length > 0 && (
-            <div className="p-4 rounded-lg bg-amber-50 border border-amber-100">
-              <Label className="text-xs text-amber-700 font-semibold flex items-center gap-1.5 mb-2">
-                <AlertTriangle className="h-3.5 w-3.5" />
-                Areas for Improvement
-              </Label>
-              <ul className="space-y-1.5">
-                {areasForImprovement.map((area, index) => (
-                  <li key={index} className="text-sm text-amber-800 flex items-start gap-2">
-                    <span className="text-amber-500 mt-1">•</span>
-                    <span>{area}</span>
-                  </li>
-                ))}
-              </ul>
+            <div>
+              <h3 className="font-bold text-slate-800 text-lg">Performance Analysis</h3>
+              <p className="text-slate-500 text-xs">Detailed feedback from AI interview evaluation</p>
             </div>
-          )}
+          </div>
 
-          {/* Detailed Evaluation Scores */}
-          {evaluation && Object.keys(evaluation).length > 0 && (
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-              <Label className="text-xs text-slate-600 font-semibold flex items-center gap-1.5 mb-3">
-                <Star className="h-3.5 w-3.5" />
-                Evaluation Breakdown
-              </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {Object.entries(evaluation).map(([key, value]) => {
-                  // Skip non-display fields
-                  if (key === 'overall_score' || key === 'recommendation') return null;
-                  
-                  const displayKey = key
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, l => l.toUpperCase());
-                  
-                  // Handle different value types
-                  const displayValue = typeof value === 'number' 
-                    ? `${value}/10`
-                    : typeof value === 'object' && value !== null
-                      ? JSON.stringify(value)
-                      : String(value || '—');
-                  
-                  const numValue = typeof value === 'number' ? value : null;
-                  
-                  return (
-                    <div key={key} className="flex items-center justify-between py-1.5 px-2 rounded bg-white">
-                      <span className="text-xs text-slate-600">{displayKey}</span>
-                      {numValue !== null ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full ${
-                                numValue >= 7 ? 'bg-emerald-500' : 
-                                numValue >= 5 ? 'bg-amber-500' : 'bg-red-400'
-                              }`}
-                              style={{ width: `${numValue * 10}%` }}
-                            />
-                          </div>
-                          <span className={`text-xs font-semibold ${
-                            numValue >= 7 ? 'text-emerald-600' : 
-                            numValue >= 5 ? 'text-amber-600' : 'text-red-500'
-                          }`}>
-                            {displayValue}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-xs font-medium text-slate-700">{displayValue}</span>
-                      )}
+          {/* Strengths & Improvements Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Strengths Card */}
+            {filteredStrengths.length > 0 && (
+              <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-lg shadow-emerald-100/50">
+                {/* Decorative */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-200/30 to-transparent rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-1.5 rounded-lg bg-emerald-500 shadow-md shadow-emerald-200">
+                      <CheckCircle2 className="h-4 w-4 text-white" />
                     </div>
-                  );
-                })}
+                    <h4 className="font-bold text-emerald-800">Key Strengths</h4>
+                    <span className="ml-auto text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
+                      {filteredStrengths.length} points
+                    </span>
+                  </div>
+                  
+                  <ul className="space-y-3">
+                    {filteredStrengths.map((strength, index) => (
+                      <li key={index} className="flex items-start gap-3 group">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500 text-white text-xs font-bold flex items-center justify-center mt-0.5 shadow-sm">
+                          {index + 1}
+                        </span>
+                        <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors">
+                          {parseMarkdownText(strength)}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* Areas for Improvement Card */}
+            {filteredAreas.length > 0 && (
+              <div className="relative overflow-hidden rounded-2xl border-2 border-amber-100 bg-gradient-to-br from-amber-50 via-white to-orange-50 p-5 shadow-lg shadow-amber-100/50">
+                {/* Decorative */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-200/30 to-transparent rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+                
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-1.5 rounded-lg bg-amber-500 shadow-md shadow-amber-200">
+                      <AlertTriangle className="h-4 w-4 text-white" />
+                    </div>
+                    <h4 className="font-bold text-amber-800">Areas for Improvement</h4>
+                    <span className="ml-auto text-xs font-semibold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
+                      {filteredAreas.length} points
+                    </span>
+                  </div>
+                  
+                  <ul className="space-y-3">
+                    {filteredAreas.map((area, index) => (
+                      <li key={index} className="flex items-start gap-3 group">
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center mt-0.5 shadow-sm">
+                          {index + 1}
+                        </span>
+                        <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors">
+                          {parseMarkdownText(area)}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ============================================
+              REPORT CARD - Skill Breakdown
+              ============================================ */}
+          {reportCard.length > 0 && (
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 shadow-lg">
+                  <Star className="h-5 w-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800 text-lg">Skills Report Card</h3>
+                  <p className="text-slate-500 text-xs">Detailed breakdown by evaluation criteria</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {reportCard.map((item, index) => (
+                  <ReportCardSkillBar key={item.topic} item={item} index={index} />
+                ))}
               </div>
             </div>
           )}
@@ -750,9 +863,11 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
       )}
 
       {/* Info note */}
-      <div className="p-3 bg-purple-50 rounded-lg border border-purple-100">
-        <p className="text-xs text-purple-600">
-          <Brain className="h-3.5 w-3.5 inline mr-1" />
+      <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100 shadow-sm">
+        <div className="p-2 rounded-lg bg-purple-100">
+          <Brain className="h-4 w-4 text-purple-600" />
+        </div>
+        <p className="text-sm text-purple-700">
           AI Interview results are automatically populated from the interview system and cannot be edited here.
         </p>
       </div>
