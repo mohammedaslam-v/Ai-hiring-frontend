@@ -14,136 +14,85 @@ const PersonalInfoSection = ({
   onLastNameChange
 }: PersonalInfoSectionProps) => {
   return (
-    <div className="space-y-5 animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-xl p-5 border border-purple-100 shadow-lg hover:shadow-xl transition-all duration-400">
-      {/* Premium Section Header */}
-      <div className="flex items-center gap-3 group">
-        <div className="w-10 h-10 bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-400 group-hover:rotate-12 group-hover:shadow-xl">
-          <User className="h-5 w-5 text-white group-hover:animate-bounce" />
+    <div className="bg-gradient-to-br from-purple-50/50 to-white rounded-xl p-4 border border-purple-100">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-7 h-7 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+          <User className="h-3.5 w-3.5 text-white" />
         </div>
-        <div>
-          <h3 className="text-xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">Personal Information</h3>
-          <p className="text-sm text-gray-600 mt-1">Tell us about yourself</p>
-        </div>
+        <h3 className="text-sm font-bold text-gray-800">Personal Information</h3>
       </div>
 
-      {/* Duplicate Warnings */}
       {(duplicateWarnings.email || duplicateWarnings.phone) && (
-        <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-          <AlertTriangle className="h-5 w-5 text-amber-600" />
-          <p className="text-amber-800 text-sm">
+        <div className="flex items-center gap-2 p-2 mb-3 bg-amber-50 border border-amber-200 rounded-lg text-xs">
+          <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+          <p className="text-amber-700">
             {duplicateWarnings.email && duplicateWarnings.phone 
-              ? 'This email and phone number are already registered. Please use different credentials.'
-              : duplicateWarnings.email 
-                ? 'This email is already registered. Please use a different email address.'
-                : 'This phone number is already registered. Please use a different phone number.'
-            }
+              ? 'Email & phone already registered'
+              : duplicateWarnings.email ? 'Email already registered' : 'Phone already registered'}
           </p>
         </div>
       )}
       
-      {/* First Name and Last Name in top row */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="group">
-          <Label htmlFor="firstName" className="text-sm font-semibold text-gray-700 mb-2 block group-hover:text-purple-600 transition-colors duration-300">
-            First Name *
-          </Label>
-          <Input
-            id="firstName"
-            name="firstName"
-            value={formData.firstName}
-            onChange={onFirstNameChange}
-            className={`h-10 border border-gray-300 rounded-lg text-sm transition-all duration-300 hover:border-purple-300 hover:shadow-md focus:shadow-lg focus:scale-105 ${
-              fieldErrors.firstName 
-                ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
-                : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500/20'
-            }`}
-            placeholder="Enter your first name"
-            required
-          />
-          {fieldErrors.firstName && (
-            <p className="text-red-500 text-sm mt-1 animate-fade-in font-medium">{fieldErrors.firstName}</p>
-          )}
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label htmlFor="firstName" className="text-xs font-medium text-gray-600 mb-1 block">First Name *</Label>
+            <Input
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
+              onChange={onFirstNameChange}
+              className={`h-9 text-sm border-gray-200 focus:border-purple-400 focus:ring-purple-400/20 ${fieldErrors.firstName ? 'border-red-400' : ''}`}
+              placeholder="John"
+            />
+            {fieldErrors.firstName && <p className="text-red-500 text-[10px] mt-0.5">{fieldErrors.firstName}</p>}
+          </div>
+          <div>
+            <Label htmlFor="lastName" className="text-xs font-medium text-gray-600 mb-1 block">Last Name *</Label>
+            <Input
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={onLastNameChange}
+              className={`h-9 text-sm border-gray-200 focus:border-purple-400 focus:ring-purple-400/20 ${fieldErrors.lastName ? 'border-red-400' : ''}`}
+              placeholder="Doe"
+            />
+            {fieldErrors.lastName && <p className="text-red-500 text-[10px] mt-0.5">{fieldErrors.lastName}</p>}
+          </div>
         </div>
 
-        <div className="group">
-          <Label htmlFor="lastName" className="text-sm font-semibold text-gray-700 mb-2 block group-hover:text-purple-600 transition-colors duration-300">
-            Last Name *
-          </Label>
-          <Input
-            id="lastName"
-            name="lastName"
-            value={formData.lastName}
-            onChange={onLastNameChange}
-            className={`h-10 border border-gray-300 rounded-lg text-sm transition-all duration-300 hover:border-purple-300 hover:shadow-md focus:shadow-lg focus:scale-105 ${
-              fieldErrors.lastName 
-                ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
-                : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500/20'
-            }`}
-            placeholder="Enter your last name"
-            required
-          />
-          {fieldErrors.lastName && (
-            <p className="text-red-500 text-sm mt-1 animate-fade-in font-medium">{fieldErrors.lastName}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Email and Phone in second row */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="group">
-          <Label htmlFor="email" className="text-sm font-semibold text-gray-700 mb-2 block group-hover:text-purple-600 transition-colors duration-300">
-            Email Address *
-          </Label>
+        <div>
+          <Label htmlFor="email" className="text-xs font-medium text-gray-600 mb-1 block">Email *</Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors duration-300" />
+            <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
             <Input
               id="email"
               name="email"
               type="email"
               value={formData.email}
               onChange={onEmailChange}
-              className={`pl-10 h-10 border border-gray-300 rounded-lg text-sm transition-all duration-300 hover:border-purple-300 hover:shadow-md focus:shadow-lg focus:scale-105 ${
-                fieldErrors.email 
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
-                  : duplicateWarnings.email 
-                    ? 'border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500/20' 
-                    : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500/20'
-              }`}
-              placeholder="Enter your email address"
-              required
+              className={`pl-9 h-9 text-sm border-gray-200 focus:border-purple-400 focus:ring-purple-400/20 ${fieldErrors.email ? 'border-red-400' : ''}`}
+              placeholder="john@example.com"
             />
           </div>
-          {fieldErrors.email && (
-            <p className="text-red-500 text-sm mt-1 animate-fade-in font-medium">{fieldErrors.email}</p>
-          )}
+          {fieldErrors.email && <p className="text-red-500 text-[10px] mt-0.5">{fieldErrors.email}</p>}
         </div>
 
-        <div className="group">
-          <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 mb-2 block group-hover:text-purple-600 transition-colors duration-300">
-            Phone Number *
-          </Label>
+        <div>
+          <Label htmlFor="phone" className="text-xs font-medium text-gray-600 mb-1 block">Phone *</Label>
           <div className="relative">
-            <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400 group-hover:text-purple-500 transition-colors duration-300" />
+            <Phone className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
             <Input
               id="phone"
               name="phone"
               type="tel"
               value={formData.phone}
               onChange={onPhoneChange}
-              className={`pl-10 h-10 border border-gray-300 rounded-lg text-sm transition-all duration-300 hover:border-purple-300 hover:shadow-md focus:shadow-lg focus:scale-105 ${
-                fieldErrors.phone 
-                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' 
-                  : duplicateWarnings.phone 
-                    ? 'border-amber-400 bg-amber-50 focus:border-amber-500 focus:ring-amber-500/20' 
-                    : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500/20'
-              }`}
-              placeholder="Enter your phone number"
-              required
+              className={`pl-9 h-9 text-sm border-gray-200 focus:border-purple-400 focus:ring-purple-400/20 ${fieldErrors.phone ? 'border-red-400' : ''}`}
+              placeholder="+91 98765 43210"
             />
           </div>
-          {fieldErrors.phone && (
-            <p className="text-red-500 text-sm mt-1 animate-fade-in font-medium">{fieldErrors.phone}</p>
-          )}
+          {fieldErrors.phone && <p className="text-red-500 text-[10px] mt-0.5">{fieldErrors.phone}</p>}
         </div>
       </div>
     </div>

@@ -443,7 +443,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       <div className={`flex-1 p-6 overflow-auto transition-colors ${
         editMode ? 'bg-amber-50/50' : 'bg-slate-50'
       }`}>
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className={`rounded-xl shadow-sm overflow-hidden transition-all ${
             editMode 
               ? 'bg-white border-2 border-amber-300 ring-4 ring-amber-100' 
