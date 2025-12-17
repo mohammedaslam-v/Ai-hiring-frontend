@@ -31,7 +31,14 @@ import {
   TrainingStatus, 
   CertificationStatus, 
   GoLiveStatus,
-  Subject 
+  Subject,
+  TeachingStyleRating,
+  YesNo,
+  DemoPaidType,
+  TimeSlot,
+  EmploymentType,
+  TrainingBatch,
+  WhatsAppGroupStatus
 } from '@/types/teacherJourney';
 import { toast } from 'react-toastify';
 
@@ -49,6 +56,10 @@ interface TeacherJourneySectionProps {
   aiRoundStatus?: string;
   aiRoundScore?: number | null;
   aiRoundCompletedAt?: string | null;
+  // AI Round feedback
+  aiRoundStrengths?: string[];
+  aiRoundAreasForImprovement?: string[];
+  aiRoundEvaluation?: Record<string, unknown>;
 }
 
 // ============================================
@@ -113,11 +124,14 @@ const StarRating: React.FC<{ value: number; onChange?: (v: number) => void; read
 // ============================================
 // MAIN COMPONENT
 // ============================================
-const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
+const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({ 
   applicationId,
   aiRoundStatus,
   aiRoundScore,
-  aiRoundCompletedAt
+  aiRoundCompletedAt,
+  aiRoundStrengths,
+  aiRoundAreasForImprovement,
+  aiRoundEvaluation
 }) => {
   const [journey, setJourney] = useState<TeacherJourney | null>(null);
   const [loading, setLoading] = useState(true);
@@ -214,16 +228,42 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
     switch (tab) {
       case 'demo':
         return {
+          // Basic demo fields
           demoStatus: data.demoStatus,
           demoDate: data.demoDate,
           demoInterviewerName: data.demoInterviewerName,
           demoFeedback: data.demoFeedback,
+          // Demo ratings
           lessonClarity: data.lessonClarity,
           studentEngagement: data.studentEngagement,
           languageCommunication: data.languageCommunication,
           teachingAids: data.teachingAids,
           creativityDelivery: data.creativityDelivery,
           grammarPronunciation: data.grammarPronunciation,
+          // Extended Demo Evaluation
+          overallTeachingStyle: data.overallTeachingStyle,
+          demoConducted: data.demoConducted,
+          goodToGo: data.goodToGo,
+          demoPaidStatus: data.demoPaidStatus,
+          // Language & Subject Info
+          languagesSpoken: data.languagesSpoken,
+          subjectsPrograms: data.subjectsPrograms,
+          // Availability & Preferences
+          preferredTimeSlot: data.preferredTimeSlot,
+          employmentType: data.employmentType,
+          minHoursConfirmed: data.minHoursConfirmed,
+          // Training & Onboarding Confirmation
+          willingGitaTraining: data.willingGitaTraining,
+          trainingBatchPreference: data.trainingBatchPreference,
+          salaryStructureAccepted: data.salaryStructureAccepted,
+          willingToStartIn2Weeks: data.willingToStartIn2Weeks,
+          // Internal Hiring Status
+          onboardingEmailSent: data.onboardingEmailSent,
+          hireCallMade: data.hireCallMade,
+          joinedWhatsAppGroup: data.joinedWhatsAppGroup,
+          rejectComments: data.rejectComments,
+          rejectEmailSent: data.rejectEmailSent,
+          internalComments: data.internalComments,
         };
       case 'induction':
         return {
@@ -474,7 +514,16 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
 
             {/* Section Content - Render based on active tab */}
             <div className={`p-5 transition-colors ${editMode ? 'bg-amber-50/30' : 'bg-white'}`}>
-              {activeTab === 'aiRound' && <AIRoundSection status={aiRoundStatus} score={aiRoundScore} completedAt={aiRoundCompletedAt} />}
+              {activeTab === 'aiRound' && (
+                <AIRoundSection 
+                  status={aiRoundStatus} 
+                  score={aiRoundScore} 
+                  completedAt={aiRoundCompletedAt}
+                  strengths={aiRoundStrengths}
+                  areasForImprovement={aiRoundAreasForImprovement}
+                  evaluation={aiRoundEvaluation}
+                />
+              )}
               {activeTab === 'demo' && journey && <DemoSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} />}
               {activeTab === 'induction' && journey && <InductionSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} />}
               {activeTab === 'training' && journey && <TrainingSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} />}
@@ -513,9 +562,20 @@ interface AIRoundSectionProps {
   status?: string;
   score?: number | null;
   completedAt?: string | null;
+  // Feedback from AI interview
+  strengths?: string[];
+  areasForImprovement?: string[];
+  evaluation?: Record<string, unknown>;
 }
 
-const AIRoundSection: React.FC<AIRoundSectionProps> = ({ status, score, completedAt }) => {
+const AIRoundSection: React.FC<AIRoundSectionProps> = ({ 
+  status, 
+  score, 
+  completedAt,
+  strengths,
+  areasForImprovement,
+  evaluation
+}) => {
   // Determine if passed/failed based on score (threshold: 5)
   const isPassed = score !== null && score !== undefined && score >= 5;
   const statusLabel = !status || status === 'no_interview' 
@@ -539,6 +599,11 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({ status, score, complete
 
   const statusStyle = getStatusStyle();
 
+  // Check if we have any feedback data to display
+  const hasFeedback = (strengths && strengths.length > 0) || 
+                      (areasForImprovement && areasForImprovement.length > 0) ||
+                      (evaluation && Object.keys(evaluation).length > 0);
+
   return (
     <div className="space-y-5">
       {/* Status */}
@@ -547,8 +612,8 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({ status, score, complete
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusStyle.bg} ${statusStyle.text}`}>
           {statusStyle.icon}
           {statusLabel}
-                  </span>
-                </div>
+        </span>
+      </div>
 
       {/* Score */}
       <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100">
@@ -569,7 +634,7 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({ status, score, complete
               ({(score * 10).toFixed(0)}%)
             </span>
           )}
-          </div>
+        </div>
         {score !== null && score !== undefined && (
           <div className="mt-3 h-2 bg-slate-200 rounded-full overflow-hidden">
             <div 
@@ -578,10 +643,10 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({ status, score, complete
             />
           </div>
         )}
-        </div>
+      </div>
 
       {/* Completed Date */}
-      <div className="p-3 rounded-lg">
+      <div className="p-3 rounded-lg bg-slate-50/50">
         <Label className="text-xs text-slate-500">Completed On</Label>
         <p className="text-sm text-slate-700 mt-1 font-medium">
           {completedAt 
@@ -595,8 +660,112 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({ status, score, complete
             : <span className="text-slate-400 italic">Not completed yet</span>
           }
         </p>
+      </div>
+
+      {/* ============================================
+          FEEDBACK SECTION - Strengths & Areas for Improvement
+          ============================================ */}
+      {hasFeedback && (
+        <div className="space-y-4 pt-4 border-t border-slate-200">
+          <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+            <Award className="h-4 w-4 text-purple-500" />
+            Interview Feedback
+          </h4>
+
+          {/* Strengths */}
+          {strengths && strengths.length > 0 && (
+            <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-100">
+              <Label className="text-xs text-emerald-700 font-semibold flex items-center gap-1.5 mb-2">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Strengths
+              </Label>
+              <ul className="space-y-1.5">
+                {strengths.map((strength, index) => (
+                  <li key={index} className="text-sm text-emerald-800 flex items-start gap-2">
+                    <span className="text-emerald-500 mt-1">•</span>
+                    <span>{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Areas for Improvement */}
+          {areasForImprovement && areasForImprovement.length > 0 && (
+            <div className="p-4 rounded-lg bg-amber-50 border border-amber-100">
+              <Label className="text-xs text-amber-700 font-semibold flex items-center gap-1.5 mb-2">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                Areas for Improvement
+              </Label>
+              <ul className="space-y-1.5">
+                {areasForImprovement.map((area, index) => (
+                  <li key={index} className="text-sm text-amber-800 flex items-start gap-2">
+                    <span className="text-amber-500 mt-1">•</span>
+                    <span>{area}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Detailed Evaluation Scores */}
+          {evaluation && Object.keys(evaluation).length > 0 && (
+            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+              <Label className="text-xs text-slate-600 font-semibold flex items-center gap-1.5 mb-3">
+                <Star className="h-3.5 w-3.5" />
+                Evaluation Breakdown
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Object.entries(evaluation).map(([key, value]) => {
+                  // Skip non-display fields
+                  if (key === 'overall_score' || key === 'recommendation') return null;
+                  
+                  const displayKey = key
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, l => l.toUpperCase());
+                  
+                  // Handle different value types
+                  const displayValue = typeof value === 'number' 
+                    ? `${value}/10`
+                    : typeof value === 'object' && value !== null
+                      ? JSON.stringify(value)
+                      : String(value || '—');
+                  
+                  const numValue = typeof value === 'number' ? value : null;
+                  
+                  return (
+                    <div key={key} className="flex items-center justify-between py-1.5 px-2 rounded bg-white">
+                      <span className="text-xs text-slate-600">{displayKey}</span>
+                      {numValue !== null ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${
+                                numValue >= 7 ? 'bg-emerald-500' : 
+                                numValue >= 5 ? 'bg-amber-500' : 'bg-red-400'
+                              }`}
+                              style={{ width: `${numValue * 10}%` }}
+                            />
+                          </div>
+                          <span className={`text-xs font-semibold ${
+                            numValue >= 7 ? 'text-emerald-600' : 
+                            numValue >= 5 ? 'text-amber-600' : 'text-red-500'
+                          }`}>
+                            {displayValue}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs font-medium text-slate-700">{displayValue}</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Info note */}
       <div className="p-3 bg-purple-50 rounded-lg border border-purple-100">
         <p className="text-xs text-purple-600">
@@ -609,123 +778,85 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({ status, score, complete
 };
 
 // ============================================
+// SHARED HELPER COMPONENTS FOR DEMO SECTION
+// Defined outside to prevent re-creation on every render
+// ============================================
+
+const FieldContainer: React.FC<{ 
+  children: React.ReactNode; 
+  className?: string;
+  editMode?: boolean;
+}> = ({ children, className = '', editMode = false }) => (
+  <div className={`p-3 rounded-lg transition-colors ${
+    editMode ? 'bg-amber-50 border border-amber-200' : 'bg-slate-50/50'
+  } ${className}`}>
+    {children}
+  </div>
+);
+
+const FieldLabel: React.FC<{ children: React.ReactNode; editMode?: boolean }> = ({ children, editMode = false }) => (
+  <Label className={`text-xs block mb-1 ${
+    editMode ? 'text-amber-700 font-medium' : 'text-slate-500'
+  }`}>
+    {children}
+  </Label>
+);
+
+const FieldValue: React.FC<{ 
+  value: string | number | null | undefined; 
+  fallback?: string 
+}> = ({ value, fallback = '—' }) => (
+  <p className="text-sm text-slate-700 font-medium">
+    {value || <span className="text-slate-400 italic font-normal">{fallback}</span>}
+  </p>
+);
+
+const YesNoBadge: React.FC<{ value?: string | null }> = ({ value }) => {
+  if (!value) return <span className="text-slate-400 text-sm">—</span>;
+  const isYes = value === 'YES';
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+      isYes ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+    }`}>
+      {isYes ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+      {value}
+    </span>
+  );
+};
+
+const DemoSectionHeader: React.FC<{ 
+  title: string; 
+  icon: React.ReactNode;
+  description?: string;
+  editMode?: boolean;
+}> = ({ title, icon, description, editMode = false }) => (
+  <div className={`flex items-center gap-2 pb-3 mb-4 border-b ${
+    editMode ? 'border-amber-200' : 'border-slate-200'
+  }`}>
+    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+      editMode ? 'bg-amber-200 text-amber-700' : 'bg-blue-100 text-blue-600'
+    }`}>
+      {icon}
+    </div>
+    <div>
+      <h4 className={`text-sm font-semibold ${editMode ? 'text-amber-800' : 'text-slate-700'}`}>
+        {title}
+      </h4>
+      {description && (
+        <p className="text-xs text-slate-400">{description}</p>
+      )}
+    </div>
+  </div>
+);
+
+// ============================================
 // DEMO SECTION - Comprehensive Demo Application Form
 // Organized into logical groups: Candidate Info, Evaluation, 
 // Language/Subject, Availability, Training, Hiring Status
 // ============================================
 
-// Extended demo form data type (for fields not in TeacherJourney)
-// These can be connected to backend later when schema is extended
-type TeachingStyleRating = 'BAD' | 'AVERAGE' | 'GOOD' | 'EXCELLENT';
-type YesNo = 'YES' | 'NO';
-type DemoPaidType = 'DEMO' | 'PAID' | 'NA';
-type EmploymentType = 'PART_TIME' | 'FULL_TIME';
-type TrainingBatch = '11AM' | '4PM';
-type WhatsAppGroupStatus = 'DEMO' | 'PAID' | 'NO';
-
-interface ExtendedDemoFormData {
-  // Evaluation
-  overallTeachingStyle?: TeachingStyleRating;
-  demoConducted?: YesNo;
-  goodToGo?: YesNo;
-  demoPaidStatus?: DemoPaidType;
-  // Language & Subject
-  languagesSpoken?: string[];
-  subjectsPrograms?: string[];
-  // Availability
-  preferredTimeSlot?: string;
-  employmentType?: EmploymentType;
-  minHoursConfirmed?: YesNo;
-  // Training Confirmation
-  willingGitaTraining?: YesNo;
-  trainingBatchPreference?: TrainingBatch;
-  salaryStructureAccepted?: YesNo;
-  willingToStartIn2Weeks?: YesNo;
-  // Hiring Status
-  onboardingEmailSent?: YesNo;
-  hireCallMade?: YesNo;
-  joinedWhatsAppGroup?: WhatsAppGroupStatus;
-  rejectComments?: string;
-  rejectEmailSent?: YesNo;
-  internalComments?: string;
-}
-
 const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData }) => {
-  // Extended form state for additional demo fields
-  // Note: In production, these would be stored in the backend
-  const [extendedData, setExtendedData] = React.useState<ExtendedDemoFormData>({});
-  
   const data = editMode ? editData : journey;
-
-  // Helper component for form field containers
-  const FieldContainer: React.FC<{ 
-    children: React.ReactNode; 
-    className?: string 
-  }> = ({ children, className = '' }) => (
-    <div className={`p-3 rounded-lg transition-colors ${
-      editMode ? 'bg-amber-50 border border-amber-200' : 'bg-slate-50/50'
-    } ${className}`}>
-      {children}
-    </div>
-  );
-
-  // Helper for labels
-  const FieldLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <Label className={`text-xs block mb-1 ${
-      editMode ? 'text-amber-700 font-medium' : 'text-slate-500'
-    }`}>
-      {children}
-    </Label>
-  );
-
-  // Helper for read-only values
-  const FieldValue: React.FC<{ 
-    value: string | number | null | undefined; 
-    fallback?: string 
-  }> = ({ value, fallback = '—' }) => (
-    <p className="text-sm text-slate-700 font-medium">
-      {value || <span className="text-slate-400 italic font-normal">{fallback}</span>}
-    </p>
-  );
-
-  // Helper for Yes/No badge display
-  const YesNoBadge: React.FC<{ value?: string }> = ({ value }) => {
-    if (!value) return <span className="text-slate-400 text-sm">—</span>;
-    const isYes = value === 'YES';
-    return (
-      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-        isYes ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-      }`}>
-        {isYes ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
-        {value}
-      </span>
-    );
-  };
-
-  // Section header component
-  const SectionHeader: React.FC<{ 
-    title: string; 
-    icon: React.ReactNode;
-    description?: string;
-  }> = ({ title, icon, description }) => (
-    <div className={`flex items-center gap-2 pb-3 mb-4 border-b ${
-      editMode ? 'border-amber-200' : 'border-slate-200'
-    }`}>
-      <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-        editMode ? 'bg-amber-200 text-amber-700' : 'bg-blue-100 text-blue-600'
-      }`}>
-        {icon}
-      </div>
-      <div>
-        <h4 className={`text-sm font-semibold ${editMode ? 'text-amber-800' : 'text-slate-700'}`}>
-          {title}
-        </h4>
-        {description && (
-          <p className="text-xs text-slate-400">{description}</p>
-        )}
-      </div>
-    </div>
-  );
 
   return (
     <div className="space-y-6">
@@ -734,7 +865,7 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
           Basic information and current demo status
           ============================================ */}
       <div>
-        <SectionHeader 
+        <DemoSectionHeader editMode={editMode} 
           title="Candidate Info & Demo Status" 
           icon={<User className="h-4 w-4" />}
           description="Basic details and interview status"
@@ -762,28 +893,28 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
 
         {/* 2-column grid for candidate info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer>
-            <FieldLabel>Timestamp</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Timestamp</FieldLabel>
             <FieldValue value={journey.createdAt ? new Date(journey.createdAt).toLocaleString() : null} />
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Full Name</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Full Name</FieldLabel>
             <FieldValue value={`${journey.firstName || ''} ${journey.lastName || ''}`.trim()} fallback="Not provided" />
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Email Address</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Email Address</FieldLabel>
             <FieldValue value={journey.email} />
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Phone Number</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Phone Number</FieldLabel>
             <FieldValue value={journey.phoneNumber} />
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Demo Date</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Demo Date</FieldLabel>
             {editMode ? (
               <Input type="date" value={data.demoDate?.split('T')[0] || ''} 
                 className="mt-1 bg-white border-amber-300"
@@ -793,8 +924,8 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Interviewer Name</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Interviewer Name</FieldLabel>
             {editMode ? (
               <Input value={data.demoInterviewerName || ''} placeholder="Enter interviewer name..."
                 className="mt-1 bg-white border-amber-300"
@@ -811,7 +942,7 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
           Performance ratings and evaluation metrics
           ============================================ */}
       <div>
-        <SectionHeader 
+        <DemoSectionHeader editMode={editMode} 
           title="Demo Evaluation" 
           icon={<Star className="h-4 w-4" />}
           description="Performance assessment and feedback"
@@ -819,11 +950,11 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* Overall Teaching Style */}
-          <FieldContainer>
-            <FieldLabel>Overall Teaching Style</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Overall Teaching Style</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.overallTeachingStyle || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, overallTeachingStyle: v as TeachingStyleRating }))}>
+              <Select value={data.overallTeachingStyle || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, overallTeachingStyle: v as TeachingStyleRating }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select rating" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BAD">Bad</SelectItem>
@@ -834,23 +965,23 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
               </Select>
             ) : (
               <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-medium ${
-                extendedData.overallTeachingStyle === 'EXCELLENT' ? 'bg-emerald-100 text-emerald-700' :
-                extendedData.overallTeachingStyle === 'GOOD' ? 'bg-blue-100 text-blue-700' :
-                extendedData.overallTeachingStyle === 'AVERAGE' ? 'bg-amber-100 text-amber-700' :
-                extendedData.overallTeachingStyle === 'BAD' ? 'bg-red-100 text-red-700' :
+                journey.overallTeachingStyle === 'EXCELLENT' ? 'bg-emerald-100 text-emerald-700' :
+                journey.overallTeachingStyle === 'GOOD' ? 'bg-blue-100 text-blue-700' :
+                journey.overallTeachingStyle === 'AVERAGE' ? 'bg-amber-100 text-amber-700' :
+                journey.overallTeachingStyle === 'BAD' ? 'bg-red-100 text-red-700' :
                 'bg-slate-100 text-slate-500'
               }`}>
-                {extendedData.overallTeachingStyle || '—'}
+                {journey.overallTeachingStyle || '—'}
               </span>
             )}
           </FieldContainer>
 
           {/* Demo Conducted */}
-          <FieldContainer>
-            <FieldLabel>Demo Conducted?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Demo Conducted?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.demoConducted || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, demoConducted: v as YesNo }))}>
+              <Select value={data.demoConducted || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, demoConducted: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -858,16 +989,16 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.demoConducted} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.demoConducted} /></div>
             )}
           </FieldContainer>
 
           {/* Good to Go */}
-          <FieldContainer>
-            <FieldLabel>Good to Go?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Good to Go?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.goodToGo || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, goodToGo: v as YesNo }))}>
+              <Select value={data.goodToGo || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, goodToGo: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -875,16 +1006,16 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.goodToGo} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.goodToGo} /></div>
             )}
           </FieldContainer>
 
           {/* Demo / Paid Status */}
-          <FieldContainer>
-            <FieldLabel>Demo / Paid</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Demo / Paid</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.demoPaidStatus || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, demoPaidStatus: v as DemoPaidType }))}>
+              <Select value={data.demoPaidStatus || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, demoPaidStatus: v as DemoPaidType }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="DEMO">Demo</SelectItem>
@@ -894,11 +1025,11 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
               </Select>
             ) : (
               <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-medium ${
-                extendedData.demoPaidStatus === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
-                extendedData.demoPaidStatus === 'DEMO' ? 'bg-blue-100 text-blue-700' :
+                journey.demoPaidStatus === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
+                journey.demoPaidStatus === 'DEMO' ? 'bg-blue-100 text-blue-700' :
                 'bg-slate-100 text-slate-500'
               }`}>
-                {extendedData.demoPaidStatus || '—'}
+                {journey.demoPaidStatus || '—'}
               </span>
             )}
           </FieldContainer>
@@ -933,8 +1064,8 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
         </div>
 
         {/* Feedback Textarea */}
-        <FieldContainer className="mt-3">
-          <FieldLabel>Demo Feedback</FieldLabel>
+        <FieldContainer editMode={editMode} className="mt-3">
+          <FieldLabel editMode={editMode}>Demo Feedback</FieldLabel>
           {editMode ? (
             <Textarea 
               value={data.demoFeedback || ''} 
@@ -956,49 +1087,49 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
           Languages spoken and subjects/programs
           ============================================ */}
       <div>
-        <SectionHeader 
+        <DemoSectionHeader editMode={editMode} 
           title="Language & Subject Info" 
           icon={<Globe className="h-4 w-4" />}
           description="Communication abilities and teaching specializations"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer>
-            <FieldLabel>Languages Spoken</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Languages Spoken</FieldLabel>
             {editMode ? (
               <Input 
-                value={extendedData.languagesSpoken?.join(', ') || ''} 
+                value={data.languagesSpoken?.join(', ') || ''} 
                 placeholder="e.g., English, Hindi, Tamil"
                 className="mt-1 bg-white border-amber-300"
-                onChange={(e) => setExtendedData(prev => ({ 
+                onChange={(e) => setEditData(prev => ({ 
                   ...prev, 
                   languagesSpoken: e.target.value.split(',').map(s => s.trim()).filter(Boolean) 
                 }))} 
               />
             ) : (
               <div className="flex flex-wrap gap-1 mt-1">
-                {extendedData.languagesSpoken?.length ? extendedData.languagesSpoken.map((lang, i) => (
+                {journey.languagesSpoken?.length ? journey.languagesSpoken.map((lang, i) => (
                   <span key={i} className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{lang}</span>
                 )) : <span className="text-slate-400 text-sm">—</span>}
                     </div>
                   )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Subjects / Programs</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Subjects / Programs</FieldLabel>
             {editMode ? (
               <Input 
-                value={extendedData.subjectsPrograms?.join(', ') || ''} 
+                value={data.subjectsPrograms?.join(', ') || ''} 
                 placeholder="e.g., Math, Phonics, Unbox 7+"
                 className="mt-1 bg-white border-amber-300"
-                onChange={(e) => setExtendedData(prev => ({ 
+                onChange={(e) => setEditData(prev => ({ 
                   ...prev, 
                   subjectsPrograms: e.target.value.split(',').map(s => s.trim()).filter(Boolean) 
                 }))} 
               />
             ) : (
               <div className="flex flex-wrap gap-1 mt-1">
-                {extendedData.subjectsPrograms?.length ? extendedData.subjectsPrograms.map((subj, i) => (
+                {journey.subjectsPrograms?.length ? journey.subjectsPrograms.map((subj, i) => (
                   <span key={i} className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">{subj}</span>
                 )) : <span className="text-slate-400 text-sm">—</span>}
                     </div>
@@ -1012,18 +1143,18 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
           Time slots and employment type preferences
           ============================================ */}
       <div>
-        <SectionHeader 
+        <DemoSectionHeader editMode={editMode} 
           title="Availability & Preferences" 
           icon={<Clock className="h-4 w-4" />}
           description="Working hours and commitment"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer>
-            <FieldLabel>Preferred Time Slot</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Preferred Time Slot</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.preferredTimeSlot || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, preferredTimeSlot: v }))}>
+              <Select value={data.preferredTimeSlot || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, preferredTimeSlot: v as TimeSlot }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select time slot" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="MORNING_6AM">Morning – 6AM onwards</SelectItem>
@@ -1034,15 +1165,15 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <FieldValue value={extendedData.preferredTimeSlot?.replace(/_/g, ' ')} />
+              <FieldValue value={journey.preferredTimeSlot?.replace(/_/g, ' ')} />
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Part-Time or Full-Time?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Part-Time or Full-Time?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.employmentType || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, employmentType: v as EmploymentType }))}>
+              <Select value={data.employmentType || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, employmentType: v as EmploymentType }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="PART_TIME">Part-Time</SelectItem>
@@ -1051,20 +1182,20 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
               </Select>
             ) : (
               <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-medium ${
-                extendedData.employmentType === 'FULL_TIME' ? 'bg-emerald-100 text-emerald-700' :
-                extendedData.employmentType === 'PART_TIME' ? 'bg-blue-100 text-blue-700' :
+                journey.employmentType === 'FULL_TIME' ? 'bg-emerald-100 text-emerald-700' :
+                journey.employmentType === 'PART_TIME' ? 'bg-blue-100 text-blue-700' :
                 'bg-slate-100 text-slate-500'
               }`}>
-                {extendedData.employmentType?.replace('_', '-') || '—'}
+                {journey.employmentType?.replace('_', '-') || '—'}
               </span>
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Minimum Hours Commitment Confirmed?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Minimum Hours Commitment Confirmed?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.minHoursConfirmed || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, minHoursConfirmed: v as YesNo }))}>
+              <Select value={data.minHoursConfirmed || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, minHoursConfirmed: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -1072,7 +1203,7 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.minHoursConfirmed} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.minHoursConfirmed} /></div>
             )}
           </FieldContainer>
                 </div>
@@ -1083,18 +1214,18 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
           Training willingness and preferences
           ============================================ */}
       <div>
-        <SectionHeader 
+        <DemoSectionHeader editMode={editMode} 
           title="Training & Onboarding Confirmation" 
           icon={<GraduationCap className="h-4 w-4" />}
           description="Training readiness and batch preferences"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer>
-            <FieldLabel>Willing to get trained with Gita?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Willing to get trained with Gita?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.willingGitaTraining || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, willingGitaTraining: v as YesNo }))}>
+              <Select value={data.willingGitaTraining || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, willingGitaTraining: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -1102,15 +1233,15 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.willingGitaTraining} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.willingGitaTraining} /></div>
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>1-Week Training Batch Preference</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>1-Week Training Batch Preference</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.trainingBatchPreference || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, trainingBatchPreference: v as TrainingBatch }))}>
+              <Select value={data.trainingBatchPreference || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, trainingBatchPreference: v as TrainingBatch }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select batch" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="11AM">11 AM Batch</SelectItem>
@@ -1118,15 +1249,15 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <FieldValue value={extendedData.trainingBatchPreference ? `${extendedData.trainingBatchPreference} Batch` : null} />
+              <FieldValue value={journey.trainingBatchPreference ? `${journey.trainingBatchPreference} Batch` : null} />
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Salary Structure Reviewed & Accepted?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Salary Structure Reviewed & Accepted?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.salaryStructureAccepted || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, salaryStructureAccepted: v as YesNo }))}>
+              <Select value={data.salaryStructureAccepted || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, salaryStructureAccepted: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -1134,15 +1265,15 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.salaryStructureAccepted} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.salaryStructureAccepted} /></div>
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Willing to Start Training Within 2 Weeks?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Willing to Start Training Within 2 Weeks?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.willingToStartIn2Weeks || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, willingToStartIn2Weeks: v as YesNo }))}>
+              <Select value={data.willingToStartIn2Weeks || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, willingToStartIn2Weeks: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -1150,7 +1281,7 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.willingToStartIn2Weeks} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.willingToStartIn2Weeks} /></div>
             )}
           </FieldContainer>
         </div>
@@ -1161,18 +1292,18 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
           Admin tracking fields for hiring process
           ============================================ */}
       <div>
-        <SectionHeader 
+        <DemoSectionHeader editMode={editMode} 
           title="Internal Hiring Status" 
           icon={<Award className="h-4 w-4" />}
           description="Internal tracking and communication status"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer>
-            <FieldLabel>Onboarding Email Sent?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Onboarding Email Sent?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.onboardingEmailSent || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, onboardingEmailSent: v as YesNo }))}>
+              <Select value={data.onboardingEmailSent || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, onboardingEmailSent: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -1180,15 +1311,15 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.onboardingEmailSent} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.onboardingEmailSent} /></div>
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Hire Call Made?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Hire Call Made?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.hireCallMade || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, hireCallMade: v as YesNo }))}>
+              <Select value={data.hireCallMade || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, hireCallMade: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -1196,15 +1327,15 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.hireCallMade} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.hireCallMade} /></div>
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Joined WhatsApp Group?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Joined WhatsApp Group?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.joinedWhatsAppGroup || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, joinedWhatsAppGroup: v as WhatsAppGroupStatus }))}>
+              <Select value={data.joinedWhatsAppGroup || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, joinedWhatsAppGroup: v as WhatsAppGroupStatus }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="DEMO">Demo Group</SelectItem>
@@ -1214,21 +1345,21 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
               </Select>
             ) : (
               <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-medium ${
-                extendedData.joinedWhatsAppGroup === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
-                extendedData.joinedWhatsAppGroup === 'DEMO' ? 'bg-blue-100 text-blue-700' :
-                extendedData.joinedWhatsAppGroup === 'NO' ? 'bg-red-100 text-red-700' :
+                journey.joinedWhatsAppGroup === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
+                journey.joinedWhatsAppGroup === 'DEMO' ? 'bg-blue-100 text-blue-700' :
+                journey.joinedWhatsAppGroup === 'NO' ? 'bg-red-100 text-red-700' :
                 'bg-slate-100 text-slate-500'
               }`}>
-                {extendedData.joinedWhatsAppGroup || '—'}
+                {journey.joinedWhatsAppGroup || '—'}
               </span>
             )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Reject Email Sent?</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Reject Email Sent?</FieldLabel>
             {editMode ? (
-              <Select value={extendedData.rejectEmailSent || ''} 
-                onValueChange={(v) => setExtendedData(prev => ({ ...prev, rejectEmailSent: v as YesNo }))}>
+              <Select value={data.rejectEmailSent || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, rejectEmailSent: v as YesNo }))}>
                 <SelectTrigger className="mt-1 bg-white border-amber-300"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="YES">Yes</SelectItem>
@@ -1236,43 +1367,43 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
                 </SelectContent>
               </Select>
             ) : (
-              <div className="mt-1"><YesNoBadge value={extendedData.rejectEmailSent} /></div>
+              <div className="mt-1"><YesNoBadge value={journey.rejectEmailSent} /></div>
             )}
           </FieldContainer>
               </div>
 
         {/* Full-width textarea fields */}
         <div className="mt-3 space-y-3">
-          <FieldContainer>
-            <FieldLabel>Reject Comments</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Reject Comments</FieldLabel>
             {editMode ? (
               <Textarea 
-                value={extendedData.rejectComments || ''} 
+                value={data.rejectComments || ''} 
                 placeholder="Reason for rejection (if applicable)..."
                 rows={2}
                 className="mt-1 bg-white border-amber-300"
-                onChange={(e) => setExtendedData(prev => ({ ...prev, rejectComments: e.target.value }))} 
+                onChange={(e) => setEditData(prev => ({ ...prev, rejectComments: e.target.value }))} 
               />
             ) : (
               <p className="text-sm text-slate-700 mt-1">
-                {extendedData.rejectComments || <span className="text-slate-400 italic">—</span>}
+                {journey.rejectComments || <span className="text-slate-400 italic">—</span>}
                 </p>
               )}
           </FieldContainer>
 
-          <FieldContainer>
-            <FieldLabel>Internal Comments</FieldLabel>
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Internal Comments</FieldLabel>
             {editMode ? (
               <Textarea 
-                value={extendedData.internalComments || ''} 
+                value={data.internalComments || ''} 
                 placeholder="Internal notes and observations..."
                 rows={3}
                 className="mt-1 bg-white border-amber-300"
-                onChange={(e) => setExtendedData(prev => ({ ...prev, internalComments: e.target.value }))} 
+                onChange={(e) => setEditData(prev => ({ ...prev, internalComments: e.target.value }))} 
               />
             ) : (
               <p className="text-sm text-slate-700 mt-1 whitespace-pre-wrap">
-                {extendedData.internalComments || <span className="text-slate-400 italic">No internal comments</span>}
+                {journey.internalComments || <span className="text-slate-400 italic">No internal comments</span>}
                 </p>
               )}
           </FieldContainer>

@@ -37,6 +37,35 @@ export interface TeacherJourney {
   
   assignedSubject: Subject | null;
   
+  // Extended Demo Evaluation
+  overallTeachingStyle: TeachingStyleRating | null;
+  demoConducted: YesNo | null;
+  goodToGo: YesNo | null;
+  demoPaidStatus: DemoPaidType | null;
+  
+  // Language & Subject Info
+  languagesSpoken: string[] | null;
+  subjectsPrograms: string[] | null;
+  
+  // Availability & Preferences
+  preferredTimeSlot: TimeSlot | null;
+  employmentType: EmploymentType | null;
+  minHoursConfirmed: YesNo | null;
+  
+  // Training & Onboarding Confirmation
+  willingGitaTraining: YesNo | null;
+  trainingBatchPreference: TrainingBatch | null;
+  salaryStructureAccepted: YesNo | null;
+  willingToStartIn2Weeks: YesNo | null;
+  
+  // Internal Hiring Status
+  onboardingEmailSent: YesNo | null;
+  hireCallMade: YesNo | null;
+  joinedWhatsAppGroup: WhatsAppGroupStatus | null;
+  rejectComments: string | null;
+  rejectEmailSent: YesNo | null;
+  internalComments: string | null;
+  
   createdAt: string;
   updatedAt: string;
 }
@@ -47,6 +76,15 @@ export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_T
 export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING';
 export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'PHONICS' | 'ALPHA_MATH';
+
+// New types for extended fields
+export type TeachingStyleRating = 'BAD' | 'AVERAGE' | 'GOOD' | 'EXCELLENT';
+export type YesNo = 'YES' | 'NO';
+export type DemoPaidType = 'DEMO' | 'PAID' | 'NA';
+export type TimeSlot = 'MORNING_6AM' | 'AFTERNOON_12PM' | 'EVENING_6PM' | 'NIGHT_10PM' | 'FLEXIBLE';
+export type EmploymentType = 'PART_TIME' | 'FULL_TIME';
+export type TrainingBatch = '11AM' | '4PM';
+export type WhatsAppGroupStatus = 'DEMO' | 'PAID' | 'NO';
 
 export interface TeacherJourneyFilters {
   search?: string;
@@ -146,6 +184,35 @@ export interface UpdateTeacherJourneyData {
   goLiveReadiness?: GoLiveStatus;
   goLiveDate?: string;
   assignedSubject?: Subject | null;
+  
+  // Extended Demo Evaluation
+  overallTeachingStyle?: TeachingStyleRating;
+  demoConducted?: YesNo;
+  goodToGo?: YesNo;
+  demoPaidStatus?: DemoPaidType;
+  
+  // Language & Subject Info
+  languagesSpoken?: string[];
+  subjectsPrograms?: string[];
+  
+  // Availability & Preferences
+  preferredTimeSlot?: TimeSlot;
+  employmentType?: EmploymentType;
+  minHoursConfirmed?: YesNo;
+  
+  // Training & Onboarding Confirmation
+  willingGitaTraining?: YesNo;
+  trainingBatchPreference?: TrainingBatch;
+  salaryStructureAccepted?: YesNo;
+  willingToStartIn2Weeks?: YesNo;
+  
+  // Internal Hiring Status
+  onboardingEmailSent?: YesNo;
+  hireCallMade?: YesNo;
+  joinedWhatsAppGroup?: WhatsAppGroupStatus;
+  rejectComments?: string;
+  rejectEmailSent?: YesNo;
+  internalComments?: string;
 }
 
 // Constants for dropdown options
