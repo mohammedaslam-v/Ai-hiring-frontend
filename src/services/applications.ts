@@ -20,6 +20,13 @@ interface BackendApplication {
   submittedAt?: string;
   createdAt: string;
   updatedAt: string;
+  // Session/Interview data from backend
+  interview_completed?: string | null;
+  interview_started?: string | null;
+  session_id?: string | null;
+  evaluation?: Record<string, unknown> | null;
+  strengths?: string[];
+  areas_for_improvement?: string[];
 }
 
 interface BackendResponse {
@@ -135,13 +142,16 @@ class ApplicationService {
                         // Additional fields for AdminApplicationDetail
                         latest_status: application.interviewStatus || 'not_started',
                         latest_score: application.score ?? null,
-                        latest_completed_at: null, // Not available in current backend response
-                        session_id: null, // Not available in current backend response
+                        latest_completed_at: application.interview_completed || null,
+                        session_id: application.session_id || null,
                         name: `${application.firstName} ${application.lastName}`,
                         availability: application.availableDays || [],
                         application_status: application.status || 'Submitted',
                         application_date: application.createdAt,
-                        evaluation: null // Not available in current backend response
+                        // AI Round feedback data from session
+                        evaluation: application.evaluation || null,
+                        strengths: application.strengths || [],
+                        areas_for_improvement: application.areas_for_improvement || []
                     }
                 };
             } else {
