@@ -2,7 +2,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { BookOpen, Languages } from "lucide-react";
-
 import { SubjectsSectionProps } from '@/types/candidate';
 
 const SubjectsSection = ({ 
@@ -16,72 +15,68 @@ const SubjectsSection = ({
   const additionalLanguages = ["Bengali", "Tamil", "Marathi", "Malayalam", "Telugu", "Kannada"];
 
   return (
-    <div className="space-y-6 animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-xl p-5 border border-green-100 shadow-lg hover:shadow-xl transition-all duration-400" style={{animationDelay: '0.2s'}}>
-      {/* Subjects Section */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-green-600 via-green-700 to-teal-600 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-400 group-hover:rotate-12 group-hover:shadow-xl">
-            <BookOpen className="h-5 w-5 text-white group-hover:animate-bounce" />
+    <div className="bg-gradient-to-br from-green-50/50 to-white rounded-xl p-4 border border-green-100">
+      {/* Subjects */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 bg-gradient-to-br from-green-600 to-teal-600 rounded-lg flex items-center justify-center">
+            <BookOpen className="h-3.5 w-3.5 text-white" />
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300">Subjects You Can Teach *</h3>
-            <p className="text-sm text-gray-600 mt-1">Please select at least one subject</p>
-          </div>
+          <h3 className="text-sm font-bold text-gray-800">Subjects *</h3>
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
-          {subjects.map((subject, index) => (
+        <div className="grid grid-cols-2 gap-2">
+          {subjects.map((subject) => (
             <div 
               key={subject} 
-              className="flex items-center space-x-2 p-3 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-teal-50 transition-all duration-400 hover:shadow-md group animate-fade-in-up hover:-translate-y-1 border border-transparent hover:border-green-200"
-              style={{animationDelay: `${0.3 + index * 0.1}s`}}
+              className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer transition-all ${
+                selectedSubjects.includes(subject)
+                  ? 'bg-green-50 border-green-300'
+                  : 'bg-white border-gray-200 hover:border-green-200'
+              }`}
+              onClick={() => onSubjectChange(subject, !selectedSubjects.includes(subject))}
             >
               <Checkbox
                 id={subject}
                 checked={selectedSubjects.includes(subject)}
                 onCheckedChange={(checked) => onSubjectChange(subject, checked as boolean)}
-                className="group-hover:scale-110 transition-transform duration-400"
+                className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
               />
-              <Label htmlFor={subject} className="text-sm font-semibold text-gray-700 cursor-pointer group-hover:text-green-600 transition-colors duration-300">
-                {subject}
-              </Label>
+              <Label htmlFor={subject} className="text-xs font-medium text-gray-700 cursor-pointer">{subject}</Label>
             </div>
           ))}
         </div>
-        
-        {subjectError && (
-          <p className="text-red-500 text-sm mt-2 animate-fade-in">{subjectError}</p>
-        )}
+        {subjectError && <p className="text-red-500 text-[10px] mt-1">{subjectError}</p>}
       </div>
 
-      {/* Additional Languages Section */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-400 group-hover:rotate-12 group-hover:shadow-xl">
-            <Languages className="h-5 w-5 text-white group-hover:animate-bounce" />
+      {/* Languages */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center">
+            <Languages className="h-3.5 w-3.5 text-white" />
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">Additional Languages</h3>
-            <p className="text-sm text-gray-600 mt-1">Do you know any of the below languages other than English?</p>
-          </div>
+          <h3 className="text-sm font-bold text-gray-800">Languages</h3>
+          <span className="text-[10px] text-gray-400">(optional)</span>
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
-          {additionalLanguages.map((language, index) => (
+        <div className="grid grid-cols-3 gap-1.5">
+          {additionalLanguages.map((language) => (
             <div 
               key={language} 
-              className="flex items-center space-x-2 p-3 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-400 hover:shadow-md group animate-fade-in-up hover:-translate-y-1 border border-transparent hover:border-blue-200"
-              style={{animationDelay: `${0.4 + index * 0.1}s`}}
+              className={`flex items-center gap-1.5 p-1.5 rounded border cursor-pointer transition-all ${
+                selectedLanguages.includes(language)
+                  ? 'bg-indigo-50 border-indigo-300'
+                  : 'bg-white border-gray-200 hover:border-indigo-200'
+              }`}
+              onClick={() => onLanguageChange(language, !selectedLanguages.includes(language))}
             >
               <Checkbox
                 id={language}
                 checked={selectedLanguages.includes(language)}
                 onCheckedChange={(checked) => onLanguageChange(language, checked as boolean)}
-                className="group-hover:scale-110 transition-transform duration-400"
+                className="h-3.5 w-3.5 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
               />
-              <Label htmlFor={language} className="text-sm font-semibold text-gray-700 cursor-pointer group-hover:text-blue-600 transition-colors duration-300">
-                {language}
-              </Label>
+              <Label htmlFor={language} className="text-[10px] font-medium text-gray-700 cursor-pointer">{language}</Label>
             </div>
           ))}
         </div>
