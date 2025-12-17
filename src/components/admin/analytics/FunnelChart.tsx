@@ -1,9 +1,14 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { FunnelChartProps } from '@/types/analytics';
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const FunnelChart = ({ data }: FunnelChartProps) => {
+  const [isOpen, setIsOpen] = useState(true);
+
   // Transform the data to match the chart format
   const chartData = data.map(item => ({
     stage: item.stage,
@@ -12,21 +17,36 @@ const FunnelChart = ({ data }: FunnelChartProps) => {
 
   return (
     <Card className="border-bambinos-blue/20">
-      <CardHeader>
-        <CardTitle className="text-bambinos-blue text-xl">Funnel Overview</CardTitle>
-        <CardDescription>Conversion across key stages</CardDescription>
-      </CardHeader>
-      <CardContent className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" allowDecimals={false} />
-            <YAxis type="category" dataKey="stage" width={90} />
-            <Tooltip />
-            <Bar dataKey="value" name="Count" fill="#3b82f6" radius={[4, 4, 4, 4]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-slate-50 transition-colors rounded-t-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-bambinos-blue text-xl">Funnel Overview</CardTitle>
+                <CardDescription>Conversion across key stages</CardDescription>
+              </div>
+              {isOpen ? (
+                <ChevronUp className="h-5 w-5 text-slate-500" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-500" />
+              )}
+            </div>
+          </CardHeader>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" allowDecimals={false} />
+                <YAxis type="category" dataKey="stage" width={90} />
+                <Tooltip />
+                <Bar dataKey="value" name="Count" fill="#3b82f6" radius={[4, 4, 4, 4]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 };
