@@ -1,8 +1,16 @@
-
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { BookOpen, Languages } from "lucide-react";
+import { BookOpen, Languages, Check } from "lucide-react";
 import { SubjectsSectionProps } from '@/types/candidate';
+
+const CustomCheckbox = ({ checked, className }: { checked: boolean; className?: string }) => (
+  <div className={`h-4 w-4 shrink-0 rounded-sm border flex items-center justify-center transition-colors ${
+    checked 
+      ? `bg-green-600 border-green-600 ${className?.includes('indigo') ? 'bg-indigo-600 border-indigo-600' : ''}` 
+      : 'border-gray-300'
+  }`}>
+    {checked && <Check className="h-3 w-3 text-white" />}
+  </div>
+);
 
 const SubjectsSection = ({ 
   selectedSubjects, 
@@ -36,13 +44,8 @@ const SubjectsSection = ({
               }`}
               onClick={() => onSubjectChange(subject, !selectedSubjects.includes(subject))}
             >
-              <Checkbox
-                id={subject}
-                checked={selectedSubjects.includes(subject)}
-                onCheckedChange={(checked) => onSubjectChange(subject, checked as boolean)}
-                className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-              />
-              <Label htmlFor={subject} className="text-xs font-medium text-gray-700 cursor-pointer">{subject}</Label>
+              <CustomCheckbox checked={selectedSubjects.includes(subject)} />
+              <Label className="text-xs font-medium text-gray-700 cursor-pointer">{subject}</Label>
             </div>
           ))}
         </div>
@@ -70,13 +73,8 @@ const SubjectsSection = ({
               }`}
               onClick={() => onLanguageChange(language, !selectedLanguages.includes(language))}
             >
-              <Checkbox
-                id={language}
-                checked={selectedLanguages.includes(language)}
-                onCheckedChange={(checked) => onLanguageChange(language, checked as boolean)}
-                className="h-3.5 w-3.5 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
-              />
-              <Label htmlFor={language} className="text-[10px] font-medium text-gray-700 cursor-pointer">{language}</Label>
+              <CustomCheckbox checked={selectedLanguages.includes(language)} className="indigo" />
+              <Label className="text-[10px] font-medium text-gray-700 cursor-pointer">{language}</Label>
             </div>
           ))}
         </div>
