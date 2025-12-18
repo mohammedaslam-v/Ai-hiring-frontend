@@ -1,8 +1,10 @@
 // Authentication related interfaces and types
+export type AdminRole = 'admin' | 'limited_admin';
+
 export interface User {
   id: string;
   email: string;
-  role: 'candidate' | 'admin';
+  role: 'candidate' | 'admin' | 'limited_admin';
   name?: string;
 }
 

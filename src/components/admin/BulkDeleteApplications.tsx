@@ -7,9 +7,16 @@ import { toast } from "react-toastify";
 import { Trash2, RefreshCw } from "lucide-react";
 
 import { BulkDeleteApplicationsProps } from '@/types/admin';
+import { usePermissions } from '@/hooks/admin/usePermissions';
 
 const BulkDeleteApplications = ({ onDeleteComplete }: BulkDeleteApplicationsProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const { canDelete } = usePermissions();
+
+  // Don't render anything if user cannot delete
+  if (!canDelete) {
+    return null;
+  }
 
   // List of test application emails to delete
   const testEmails = [

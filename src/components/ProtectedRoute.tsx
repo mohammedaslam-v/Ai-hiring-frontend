@@ -4,12 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: string;
+  requiredRole?: string | string[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  requiredRole = 'admin' 
+  requiredRole = ['admin', 'limited_admin']  // Allow both admin types by default
 }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -28,9 +28,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
-  // Check role if required
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  // Check role if required - support both single role and array of roles
+  if (requiredRole) {
+    const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+    if (!allowedRoles.includes(user.role)) {
+      return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    }
   }
 
   // User is authenticated and has required role

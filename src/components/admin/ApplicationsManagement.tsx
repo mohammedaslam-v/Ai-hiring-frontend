@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, CheckCircle2 } from "lucide-react";
 import { PASS_SCORE_THRESHOLD } from '@/constants/admin/availabilityConstants';
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
+import { usePermissions } from '@/hooks/admin/usePermissions';
 import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
 import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableActions';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
@@ -40,6 +41,7 @@ const ApplicationsManagement: React.FC = () => {
   } = useFilteredApplications();
   const { deletingId, handleDeleteApplication } = useApplicationTableActions(() => updateFilters({ page: 1 }));
   const { confirm, ConfirmDialog } = useConfirmDialog();
+  const { canDelete } = usePermissions();
 
   const [secondRoundMap, setSecondRoundMap] = useState<SecondRoundMap>({});
   const [srLoading, setSrLoading] = useState(false);
@@ -776,17 +778,19 @@ const ApplicationsManagement: React.FC = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteWithConfirmation(application.id, application.name)}
-                          className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
-                          disabled={deletingId === application.id}
-                          aria-label="Delete"
-                          title="Delete Application"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {canDelete && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteWithConfirmation(application.id, application.name)}
+                            className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
+                            disabled={deletingId === application.id}
+                            aria-label="Delete"
+                            title="Delete Application"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
