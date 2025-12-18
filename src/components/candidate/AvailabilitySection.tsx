@@ -1,8 +1,35 @@
-
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Check } from "lucide-react";
 import { AvailabilitySectionProps } from '@/types/candidate';
+
+const CustomCheckbox = ({ checked, highDemand, size = 'md' }: { checked: boolean; highDemand?: boolean; size?: 'sm' | 'md' }) => {
+  const sizeClass = size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4';
+  const iconSize = size === 'sm' ? 'h-2.5 w-2.5' : 'h-3 w-3';
+  
+  return (
+    <div className={`${sizeClass} shrink-0 rounded-sm border flex items-center justify-center transition-colors ${
+      checked 
+        ? highDemand 
+          ? 'bg-amber-600 border-amber-600' 
+          : 'bg-rose-600 border-rose-600'
+        : 'border-gray-300'
+    }`}>
+      {checked && <Check className={`${iconSize} text-white`} />}
+    </div>
+  );
+};
+
+const TimeSlotCheckbox = ({ checked, highDemand }: { checked: boolean; highDemand?: boolean }) => (
+  <div className={`h-3.5 w-3.5 shrink-0 rounded-sm border flex items-center justify-center transition-colors ${
+    checked 
+      ? highDemand 
+        ? 'bg-amber-600 border-amber-600' 
+        : 'bg-purple-600 border-purple-600'
+      : 'border-gray-300'
+  }`}>
+    {checked && <Check className="h-2.5 w-2.5 text-white" />}
+  </div>
+);
 
 const AvailabilitySection = ({ 
   selectedDays, 
@@ -58,13 +85,8 @@ const AvailabilitySection = ({
               }`}
               onClick={() => onDayChange(day.name, !selectedDays.includes(day.name))}
             >
-              <Checkbox
-                id={day.name}
-                checked={selectedDays.includes(day.name)}
-                onCheckedChange={(checked) => onDayChange(day.name, checked as boolean)}
-                className={`h-4 w-4 ${day.highDemand ? 'data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600' : 'data-[state=checked]:bg-rose-600 data-[state=checked]:border-rose-600'}`}
-              />
-              <Label htmlFor={day.name} className="text-[10px] font-medium text-gray-700 cursor-pointer mt-1">
+              <CustomCheckbox checked={selectedDays.includes(day.name)} highDemand={day.highDemand} />
+              <Label className="text-[10px] font-medium text-gray-700 cursor-pointer mt-1">
                 {day.short}{day.highDemand && <span className="text-amber-500">★</span>}
               </Label>
             </div>
@@ -95,13 +117,8 @@ const AvailabilitySection = ({
               }`}
               onClick={() => onTimeSlotChange(slot.name, !selectedTimeSlots.includes(slot.name))}
             >
-              <Checkbox
-                id={slot.name}
-                checked={selectedTimeSlots.includes(slot.name)}
-                onCheckedChange={(checked) => onTimeSlotChange(slot.name, checked as boolean)}
-                className={`h-3.5 w-3.5 ${slot.highDemand ? 'data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600' : 'data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600'}`}
-              />
-              <Label htmlFor={slot.name} className="text-[10px] font-medium text-gray-700 cursor-pointer">
+              <TimeSlotCheckbox checked={selectedTimeSlots.includes(slot.name)} highDemand={slot.highDemand} />
+              <Label className="text-[10px] font-medium text-gray-700 cursor-pointer">
                 {slot.short}{slot.highDemand && <span className="text-amber-500 ml-0.5">★</span>}
               </Label>
             </div>
