@@ -11,7 +11,7 @@ import { useInterviewSession } from "@/hooks/candidate/useInterviewSession";
 import { useInterviewCompletion } from "@/hooks/candidate/useInterviewCompletion";
 import { useInterviewNavigation } from "@/hooks/candidate/useInterviewNavigation";
 import { useSessionManagement } from "@/hooks/useSessionManagement";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { log, error as logError } from "@/utils/logger";
@@ -157,21 +157,12 @@ const CandidateInterview = () => {
   }, [sessionState?.status, skipSession]);
 
   // Generate iframe URL with real candidate information from localStorage
-  const realCandidateName = JSON.parse(localStorage.getItem('candidateName') || 'null') || candidateName;
-  const realCandidateEmail = JSON.parse(localStorage.getItem('candidateEmail') || 'null') || candidateEmail;
-  const iframeUrl = generateInterviewUrl(realCandidateName, realCandidateEmail);
-  
-  // Debug: Log when iframe URL is generated
-  useEffect(() => {
-    log('🎯 Interview Page - Generated iframe URL');
-    log('🎯 - Using candidate name');
-    log('🎯 - Using candidate email');
-    log('🎯 - localStorage values:', {
-      candidateName: JSON.parse(localStorage.getItem('candidateName') || 'null'),
-      candidateEmail: JSON.parse(localStorage.getItem('candidateEmail') || 'null'),
-              applicationId: localStorage.getItem('applicationId')
-    });
-  }, [iframeUrl, realCandidateName, realCandidateEmail]);
+  // Using useMemo to prevent recalculating on every render
+  const iframeUrl = useMemo(() => {
+    const realCandidateName = JSON.parse(localStorage.getItem('candidateName') || 'null') || candidateName;
+    const realCandidateEmail = JSON.parse(localStorage.getItem('candidateEmail') || 'null') || candidateEmail;
+    return generateInterviewUrl(realCandidateName, realCandidateEmail);
+  }, [candidateName, candidateEmail]);
 
   // Use custom hooks for interview logic
   const { handleProceedToInterview, handleBeginInterview } = useInterviewNavigation(
