@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, CheckCircle2 } from "lucide-react";
+import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, CheckCircle2, RefreshCw } from "lucide-react";
 import { PASS_SCORE_THRESHOLD } from '@/constants/admin/availabilityConstants';
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { usePermissions } from '@/hooks/admin/usePermissions';
@@ -15,7 +15,23 @@ import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableAct
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { fetchSecondRoundStatus, SecondRoundMap } from '@/services/secondRound.service';
 import { teacherJourneyService, JourneyStatusData } from '@/services/teacherJourney.service';
+import { 
+  DEMO_STATUS_OPTIONS,
+  INDUCTION_OPTIONS,
+  TRAINING_STATUS_OPTIONS,
+  CERTIFICATION_STATUS_OPTIONS,
+  GO_LIVE_OPTIONS
+} from '@/types/teacherJourney';
 import FeedbackModal from './FeedbackModal';
+
+// Journey filter interface
+interface JourneyFilters {
+  demoStatus: string;
+  inductionAttendance: string;
+  trainingStatus: string;
+  certificationStatus: string;
+  goLiveReadiness: string;
+}
 
 // Type for journey progress map
 type JourneyProgressMap = Record<string, JourneyStatusData>;
@@ -49,6 +65,15 @@ const ApplicationsManagement: React.FC = () => {
   // Journey progress state
   const [journeyProgressMap, setJourneyProgressMap] = useState<JourneyProgressMap>({});
   const [journeyLoading, setJourneyLoading] = useState(false);
+  
+  // Journey filter state
+  const [journeyFilters, setJourneyFilters] = useState<JourneyFilters>({
+    demoStatus: 'all',
+    inductionAttendance: 'all',
+    trainingStatus: 'all',
+    certificationStatus: 'all',
+    goLiveReadiness: 'all'
+  });
   
   // Feedback modal state
   const [selectedFeedback, setSelectedFeedback] = useState<{
@@ -97,6 +122,62 @@ const ApplicationsManagement: React.FC = () => {
       .finally(() => { if (!cancelled) setJourneyLoading(false); });
     return () => { cancelled = true; };
   }, [applications]);
+
+  // Check if journey filters are active
+  const isJourneyFiltered = journeyFilters.demoStatus !== 'all' ||
+    journeyFilters.inductionAttendance !== 'all' ||
+    journeyFilters.trainingStatus !== 'all' ||
+    journeyFilters.certificationStatus !== 'all' ||
+    journeyFilters.goLiveReadiness !== 'all';
+
+  // Filter applications by journey status (client-side)
+  const filteredApplications = useMemo(() => {
+    if (!isJourneyFiltered) return applications;
+    
+    return applications.filter(app => {
+      const appId = app.applicationId || app.id;
+      const journey = journeyProgressMap[appId];
+      
+      // If no journey data and any journey filter is set, exclude the app
+      if (!journey && isJourneyFiltered) {
+        // Check if we're filtering for "PENDING" or initial states - those apps without journey might match
+        const filteringForPending = 
+          (journeyFilters.demoStatus === 'PENDING' || journeyFilters.demoStatus === 'all') &&
+          (journeyFilters.trainingStatus === 'NOT_JOINED' || journeyFilters.trainingStatus === 'all') &&
+          (journeyFilters.certificationStatus === 'PENDING' || journeyFilters.certificationStatus === 'all') &&
+          (journeyFilters.goLiveReadiness === 'PENDING' || journeyFilters.goLiveReadiness === 'all');
+        
+        if (!filteringForPending) return false;
+      }
+      
+      if (journey) {
+        if (journeyFilters.demoStatus !== 'all' && journey.demoStatus !== journeyFilters.demoStatus) return false;
+        if (journeyFilters.inductionAttendance !== 'all' && journey.inductionAttendance !== journeyFilters.inductionAttendance) return false;
+        if (journeyFilters.trainingStatus !== 'all' && journey.trainingStatus !== journeyFilters.trainingStatus) return false;
+        if (journeyFilters.certificationStatus !== 'all' && journey.certificationStatus !== journeyFilters.certificationStatus) return false;
+        if (journeyFilters.goLiveReadiness !== 'all' && journey.goLiveReadiness !== journeyFilters.goLiveReadiness) return false;
+      }
+      
+      return true;
+    });
+  }, [applications, journeyProgressMap, journeyFilters, isJourneyFiltered]);
+
+  // Update journey filter
+  const updateJourneyFilter = (key: keyof JourneyFilters, value: string) => {
+    setJourneyFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Reset all filters including journey filters
+  const resetAllFilters = () => {
+    resetFilters();
+    setJourneyFilters({
+      demoStatus: 'all',
+      inductionAttendance: 'all',
+      trainingStatus: 'all',
+      certificationStatus: 'all',
+      goLiveReadiness: 'all'
+    });
+  };
 
   // Helper function to render status badge
   const renderStatusBadge = (status: string) => {
@@ -334,27 +415,32 @@ const ApplicationsManagement: React.FC = () => {
       </CardHeader>
 
       <CardContent>
-        {/* Filters - redesigned container */}
-        <div className="mb-6 space-y-4 bg-white border border-gray-200 rounded-2xl shadow-md p-5">
-          {/* First Row: Search, Status, Score Range, Date Range, Page Size */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
-            {/* Search */}
-            <div className="lg:col-span-2">
-              <Input
-                placeholder="Search name or email..."
-                value={filters.search || ''}
-                onChange={(e) => updateFilters({ search: e.target.value })}
-                className="w-full transition-all duration-200 hover:shadow-md"
-              />
+        {/* Filters - Professional redesigned container */}
+        <div className="mb-6 bg-gradient-to-br from-slate-50 to-gray-50 border border-gray-200/80 rounded-xl shadow-sm overflow-hidden">
+          
+          {/* AI Interview Filters Section */}
+          <div className="p-4 border-b border-gray-200/60">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">AI Interview Filters</span>
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* Search */}
+              <div className="lg:col-span-1">
+                <Input
+                  placeholder="Search name or email..."
+                  value={filters.search || ''}
+                  onChange={(e) => updateFilters({ search: e.target.value })}
+                  className="h-9 bg-white border-gray-200 focus:border-blue-400 focus:ring-blue-400/20"
+                />
+              </div>
 
-            {/* Interview Status */}
-            <div>
+              {/* Interview Status */}
               <Select
                 value={filters.status || 'all'}
-                                 onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway' })}
+                onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway' })}
               >
-                <SelectTrigger className="transition-all duration-200 hover:shadow-md">
+                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-blue-400">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -365,158 +451,230 @@ const ApplicationsManagement: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
 
+              {/* Score Range */}
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  placeholder="Min"
+                  value={filters.minScore !== undefined ? filters.minScore : ''}
+                  onChange={(e) => updateFilters({ minScore: e.target.value ? parseInt(e.target.value) : undefined })}
+                  className="h-9 w-20 bg-white border-gray-200 focus:border-blue-400"
+                />
+                <span className="text-gray-400 text-sm">—</span>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  placeholder="Max"
+                  value={filters.maxScore !== undefined ? filters.maxScore : ''}
+                  onChange={(e) => updateFilters({ maxScore: e.target.value ? parseInt(e.target.value) : undefined })}
+                  className="h-9 w-20 bg-white border-gray-200 focus:border-blue-400"
+                />
+                <span className="text-[10px] text-gray-400 uppercase">Score</span>
+              </div>
 
-
-                         {/* Score Range */}
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                placeholder="Min"
-                value={filters.minScore !== undefined ? filters.minScore : ''}
-                onChange={(e) => updateFilters({ minScore: e.target.value ? parseInt(e.target.value) : undefined })}
-                className="w-20 transition-all duration-200 hover:shadow-md"
-              />
-              <span className="text-gray-500">to</span>
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                placeholder="Max"
-                value={filters.maxScore !== undefined ? filters.maxScore : ''}
-                onChange={(e) => updateFilters({ maxScore: e.target.value ? parseInt(e.target.value) : undefined })}
-                className="w-20 transition-all duration-200 hover:shadow-md"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => updateFilters({ minScore: undefined, maxScore: undefined })}
-                className="text-xs text-gray-600 hover:text-gray-800"
-              >
-                Clear
-              </Button>
-            </div>
-
-            {/* Page Size placeholder removed from filter rows */}
-            {null}
-          </div>
-
-          {/* Second Row: Date Range, Export/Reset */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                                                   {/* Date Range */}
-              <div className="flex flex-wrap items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-500" />
+              {/* Date Range */}
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-gray-400 shrink-0" />
                 <Input
                   type="text"
                   placeholder="dd-mm-yyyy"
                   value={filters.fromDate || ''}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    console.log('📅 Date Input - fromDate changed:', { value, length: value.length });
-                    updateFilters({ fromDate: value });
-                  }}
-                  className="w-32 transition-all duration-200 hover:shadow-md"
+                  onChange={(e) => updateFilters({ fromDate: e.target.value })}
+                  className="h-9 w-[100px] bg-white border-gray-200 focus:border-blue-400 text-sm"
                 />
-                <span className="text-gray-500">to</span>
+                <span className="text-gray-400 text-sm">—</span>
                 <Input
                   type="text"
                   placeholder="dd-mm-yyyy"
                   value={filters.toDate || ''}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    console.log('📅 Date Input - toDate changed:', { value, length: value.length });
-                    updateFilters({ toDate: value });
-                  }}
-                  className="w-32 transition-all duration-200 hover:shadow-md"
+                  onChange={(e) => updateFilters({ toDate: e.target.value })}
+                  className="h-9 w-[100px] bg-white border-gray-200 focus:border-blue-400 text-sm"
                 />
-                {/* Date format hint placed before action buttons */}
-                <span className="text-xs text-gray-500 ml-2 shrink-0 whitespace-normal md:whitespace-nowrap">
-                  Format: dd-mm-yyyy
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    console.log('📅 Date Filter - Clear clicked');
-                    updateFilters({ fromDate: '', toDate: '' });
-                  }}
-                  className="text-xs text-gray-600 hover:text-gray-800"
-                >
-                  Clear
-                </Button>
               </div>
-              {null}
+            </div>
+          </div>
 
-            {/* Sort controls removed from here; moved to top controls below */}
-            {null}
+          {/* Teacher Journey Filters Section */}
+          <div className="p-4 border-b border-gray-200/60 bg-white/40">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Teacher Journey Filters</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              {/* Demo Status */}
+              <Select
+                value={journeyFilters.demoStatus}
+                onValueChange={(value) => updateJourneyFilter('demoStatus', value)}
+              >
+                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
+                  <SelectValue placeholder="Demo Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEMO_STATUS_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                         {/* Export Button */}
-             <div className="flex justify-between gap-2">
-               <Button
-                 variant="outline"
-                 size="sm"
-                 onClick={resetFilters}
-                 className="text-gray-700 hover:text-gray-900 transition-all duration-200 hover:shadow-md"
-               >
-                 <span className="mr-1">🔄</span> Reset Filters
-               </Button>
-                               <Button
-                  onClick={handleExportCSV}
-                  disabled={exporting}
-                  className="bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400 rounded-full transition-all duration-200 hover:shadow-md"
-                >
-                  <span className="mr-2">📤</span>
-                  {exporting ? 'Exporting...' : 'Export CSV'}
-                </Button>
-             </div>
+              {/* Induction Status */}
+              <Select
+                value={journeyFilters.inductionAttendance}
+                onValueChange={(value) => updateJourneyFilter('inductionAttendance', value)}
+              >
+                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
+                  <SelectValue placeholder="Induction" />
+                </SelectTrigger>
+                <SelectContent>
+                  {INDUCTION_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Training Status */}
+              <Select
+                value={journeyFilters.trainingStatus}
+                onValueChange={(value) => updateJourneyFilter('trainingStatus', value)}
+              >
+                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
+                  <SelectValue placeholder="Training Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TRAINING_STATUS_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Certification Status */}
+              <Select
+                value={journeyFilters.certificationStatus}
+                onValueChange={(value) => updateJourneyFilter('certificationStatus', value)}
+              >
+                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
+                  <SelectValue placeholder="Certification" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CERTIFICATION_STATUS_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Go-Live Status */}
+              <Select
+                value={journeyFilters.goLiveReadiness}
+                onValueChange={(value) => updateJourneyFilter('goLiveReadiness', value)}
+              >
+                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
+                  <SelectValue placeholder="Go-Live Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {GO_LIVE_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Actions Row */}
+          <div className="p-4 bg-white/60 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span className="font-medium">{total}</span> total applications
+              {(isFiltered || isJourneyFiltered) && (
+                <span className="text-blue-600">• Filters active</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={resetAllFilters}
+                className="h-8 px-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                Reset
+              </Button>
+              <Button
+                onClick={handleExportCSV}
+                disabled={exporting}
+                size="sm"
+                className="h-8 px-4 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+              >
+                <Download className="h-3.5 w-3.5 mr-1.5" />
+                {exporting ? 'Exporting...' : 'Export CSV'}
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Top controls: Sort, Order, Items per page */}
-        <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+        {/* Sort & Pagination Controls */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 px-1">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Sort</span>
+              <Select
+                value={filters.sortBy || 'appliedDate'}
+                onValueChange={(value) => updateSort(value as 'appliedDate' | 'name' | 'email' | 'interviewStatus' | 'score', filters.sortOrder || 'desc')}
+              >
+                <SelectTrigger className="h-8 w-36 text-sm bg-white border-gray-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleSortOrder}
+                className="h-8 px-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+              >
+                {filters.sortOrder === 'asc' ? (
+                  <><ArrowUp className="h-3.5 w-3.5 mr-1" /> Asc</>
+                ) : (
+                  <><ArrowDown className="h-3.5 w-3.5 mr-1" /> Desc</>
+                )}
+              </Button>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Sort by:</span>
-            <Select
-              value={filters.sortBy || 'appliedDate'}
-                               onValueChange={(value) => updateSort(value as 'appliedDate' | 'name' | 'email' | 'interviewStatus' | 'score', filters.sortOrder || 'desc')}
-            >
-              <SelectTrigger className="w-40 transition-all duration-200 hover:shadow-md">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {SORT_OPTIONS.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleSortOrder}
-              className="flex items-center gap-2 transition-all duration-200 hover:shadow-md"
-            >
-              {filters.sortOrder === 'asc' ? '↑ Ascending' : '↓ Descending'}
-            </Button>
+            <span className="text-xs text-gray-500">Show</span>
             <Select
               value={filters.limit?.toString() || '10'}
               onValueChange={(value) => updatePageSize(parseInt(value))}
             >
-              <SelectTrigger className="w-[160px] transition-all duration-200 hover:shadow-md">
+              <SelectTrigger className="h-8 w-20 text-sm bg-white border-gray-200">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {PAGE_SIZE_OPTIONS.map(option => (
                   <SelectItem key={option.value} value={option.value.toString()}>
-                    {option.value} per page
+                    {option.value}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <span className="text-xs text-gray-500">entries</span>
           </div>
         </div>
 
@@ -528,52 +686,63 @@ const ApplicationsManagement: React.FC = () => {
          )}
 
          {/* Active Filters Summary */}
-         {isFiltered && (
-           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-             <div className="flex items-center justify-between">
-               <div className="flex items-center gap-2 flex-wrap">
-                 <span className="text-sm font-medium text-blue-700">Active Filters:</span>
+         {(isFiltered || isJourneyFiltered) && (
+           <div className="mb-4 px-3 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg">
+             <div className="flex items-center justify-between gap-3">
+               <div className="flex items-center gap-1.5 flex-wrap">
+                 <span className="text-xs font-medium text-blue-600 mr-1">Active:</span>
                  {filters.search && (
-                   <Badge variant="outline" className="text-xs">
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-white border border-gray-200 text-gray-700">
                      Search: "{filters.search}"
-                   </Badge>
+                   </span>
                  )}
-                                   {filters.status && filters.status !== 'all' && (
-                    <Badge variant="outline" className="text-xs">
-                      AI Round: {filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}
-                    </Badge>
-                  )}
-
+                 {filters.status && filters.status !== 'all' && (
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-700">
+                     AI: {filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}
+                   </span>
+                 )}
                  {(filters.minScore !== undefined || filters.maxScore !== undefined) && (
-                   <Badge variant="outline" className="text-xs">
-                     Score: {filters.minScore !== undefined ? `≥${filters.minScore}` : '≥0'} 
-                     {filters.maxScore !== undefined ? ` ≤${filters.maxScore}` : ' ≤100'}
-                   </Badge>
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 text-purple-700">
+                     Score: {filters.minScore ?? 0}-{filters.maxScore ?? 100}
+                   </span>
                  )}
-                                   {(filters.fromDate && filters.toDate && filters.fromDate.length === 10 && filters.toDate.length === 10) && (
-                    <Badge variant="outline" className="text-xs">
-                      Date: {filters.fromDate} to {filters.toDate}
-                    </Badge>
-                  )}
-                  {(filters.fromDate || filters.toDate) && (!filters.fromDate || !filters.toDate || filters.fromDate.length < 10 || filters.toDate.length < 10) && (
-                    <Badge variant="outline" className="text-xs bg-yellow-100 text-yellow-700 border-yellow-300">
-                      Date: Incomplete (need both dates)
-                    </Badge>
-                  )}
-                 {filters.sortBy && (
-                   <Badge variant="outline" className="text-xs">
-                     Sort: {filters.sortBy?.replace(/([A-Z])/g, ' $1').toLowerCase() || ''} ({filters.sortOrder})
-                   </Badge>
+                 {(filters.fromDate && filters.toDate && filters.fromDate.length === 10 && filters.toDate.length === 10) && (
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-100 text-orange-700">
+                     {filters.fromDate} → {filters.toDate}
+                   </span>
+                 )}
+                 {journeyFilters.demoStatus !== 'all' && (
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan-100 text-cyan-700">
+                     Demo: {journeyFilters.demoStatus}
+                   </span>
+                 )}
+                 {journeyFilters.inductionAttendance !== 'all' && (
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-violet-100 text-violet-700">
+                     Induction: {journeyFilters.inductionAttendance}
+                   </span>
+                 )}
+                 {journeyFilters.trainingStatus !== 'all' && (
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700">
+                     Training: {journeyFilters.trainingStatus.replace(/_/g, ' ')}
+                   </span>
+                 )}
+                 {journeyFilters.certificationStatus !== 'all' && (
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-700">
+                     Cert: {journeyFilters.certificationStatus}
+                   </span>
+                 )}
+                 {journeyFilters.goLiveReadiness !== 'all' && (
+                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-teal-100 text-teal-700">
+                     Go-Live: {journeyFilters.goLiveReadiness.replace(/_/g, ' ')}
+                   </span>
                  )}
                </div>
-               <Button
-                 variant="ghost"
-                 size="sm"
-                 onClick={resetFilters}
-                 className="text-blue-600 hover:text-blue-700 text-xs"
+               <button
+                 onClick={resetAllFilters}
+                 className="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline shrink-0"
                >
-                 Clear All
-               </Button>
+                 Clear all
+               </button>
              </div>
            </div>
          )}
@@ -622,7 +791,7 @@ const ApplicationsManagement: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-                             {isEmpty ? (
+                              {isEmpty || filteredApplications.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
                      <div className="text-gray-500">
@@ -634,22 +803,22 @@ const ApplicationsManagement: React.FC = () => {
                        ) : (
                          <div>
                            <p className="text-lg font-medium mb-2">
-                             {isFiltered ? 'No applications found' : 'No applications available'}
+                             {isFiltered || isJourneyFiltered ? 'No applications found' : 'No applications available'}
                            </p>
                            <p className="text-sm mb-3">
-                            {isFiltered 
+                            {isFiltered || isJourneyFiltered
                               ? filters.status && filters.status !== 'all' 
                                 ? `No applications found with AI Round "${filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}". Try selecting a different status or reset the filters.`
                                 : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
                               : 'There are no applications in the system yet.'
                             }
                            </p>
-                           {isFiltered && (
+                           {(isFiltered || isJourneyFiltered) && (
                              <div className="flex gap-2 justify-center">
                                <Button
                                  variant="outline"
                                  size="sm"
-                                 onClick={resetFilters}
+                                 onClick={resetAllFilters}
                                  className="text-blue-600 hover:text-blue-700"
                                >
                                  Reset All Filters
@@ -670,7 +839,7 @@ const ApplicationsManagement: React.FC = () => {
                    </TableCell>
                  </TableRow>
                ) : (
-                                 applications.map((application, index) => (
+                                 filteredApplications.map((application, index) => (
                    <TableRow key={application.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-all duration-200`}>
                     <TableCell className="font-mono text-xs">
                        {formatDate(application.appliedDate)}
@@ -826,8 +995,8 @@ const ApplicationsManagement: React.FC = () => {
              <div className="text-sm text-gray-600">
                {!loading && (
                  <span>
-                   Showing {applications.length} of {total} applications
-                   {isFiltered && ' (filtered)'}
+                   Showing {filteredApplications.length} of {total} applications
+                   {(isFiltered || isJourneyFiltered) && ' (filtered)'}
                  </span>
                )}
              </div>

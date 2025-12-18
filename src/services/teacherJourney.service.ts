@@ -301,16 +301,18 @@ class TeacherJourneyService {
     }
   }
 
-  async getStats(): Promise<{
+  async getStats(queryParams?: string): Promise<{
     status: boolean;
     message: string;
     data?: TeacherJourneyStats;
     error?: string;
   }> {
     try {
-      const response = await axiosInstance.get<ApiResponse<TeacherJourneyStats>>(
-        `${this.baseUrl}/stats`
-      );
+      const url = queryParams 
+        ? `${this.baseUrl}/stats?${queryParams}` 
+        : `${this.baseUrl}/stats`;
+        
+      const response = await axiosInstance.get<ApiResponse<TeacherJourneyStats>>(url);
 
       if (response.data.status) {
         return {
