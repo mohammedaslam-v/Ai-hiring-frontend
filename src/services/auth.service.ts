@@ -1,9 +1,16 @@
 import { ServiceResponse } from "@/types/interface";
 import axiosInstance from "./instance";
+import { AxiosError } from "axios";
 
 interface AdminLoginRequest {
     email: string;
     password: string;
+}
+
+type AdminRole = 'admin' | 'limited_admin';
+
+interface ApiErrorResponse {
+    message?: string;
 }
 
 interface AdminLoginResponse {
@@ -12,6 +19,7 @@ interface AdminLoginResponse {
     message: string;
     admin?: {
         email: string;
+        role: AdminRole;
     };
 }
 
@@ -19,6 +27,7 @@ interface VerifyResponse {
     valid: boolean;
     admin?: {
         email: string;
+        role: AdminRole;
     };
 }
 
@@ -50,11 +59,12 @@ class AuthService {
                     message: response.data.message || 'Login failed'
                 };
             }
-        } catch (error: any) {
+        } catch (error) {
             console.error('Admin login error:', error);
+            const axiosError = error as AxiosError<ApiErrorResponse>;
             return {
                 status: false,
-                message: error.response?.data?.message || 'Login failed. Please try again.'
+                message: axiosError.response?.data?.message || 'Login failed. Please try again.'
             };
         }
     }
@@ -83,7 +93,7 @@ class AuthService {
                 message: 'Token verified',
                 data: response.data
             };
-        } catch (error: any) {
+        } catch (error) {
             console.error('Token verification error:', error);
             // Remove invalid token
             this.removeToken();
@@ -116,7 +126,7 @@ class AuthService {
                 message: 'Logout successful',
                 data: { success: true }
             };
-        } catch (error: any) {
+        } catch (error) {
             console.error('Logout error:', error);
             // Still remove token even if API call fails
             this.removeToken();
@@ -152,7 +162,7 @@ class AuthService {
     /**
      * Legacy method for backward compatibility
      */
-    async login(phoneNumber: string): Promise<ServiceResponse<any>> {
+    async login(phoneNumber: string): Promise<ServiceResponse<null>> {
         // This method is kept for backward compatibility but not used for admin login
         return {
             status: false,

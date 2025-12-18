@@ -22,10 +22,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.adminLogin(email, password);
       
       if (response.status && response.data?.success) {
+        // Get role from backend response (defaults to 'admin' for backwards compatibility)
+        const adminRole = response.data.admin?.role || 'admin';
+        
         const adminUser: User = {
           id: `admin-${Date.now()}`,
-          email: email,
-          role: 'admin',
+          email: response.data.admin?.email || email,
+          role: adminRole,
           name: email.split('@')[0] || 'Admin User'
         };
         setUser(adminUser);
@@ -68,11 +71,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Verify token with backend
           const response = await authService.verifyToken();
           if (response.status && response.data?.valid) {
-            // Token is valid, restore user session
+            // Token is valid, restore user session with role from backend
+            const adminRole = response.data.admin?.role || 'admin';
+            
             const adminUser: User = {
               id: `admin-${Date.now()}`,
               email: response.data.admin?.email || 'admin@bambinos.com',
-              role: 'admin',
+              role: adminRole,
               name: response.data.admin?.email?.split('@')[0] || 'Admin User'
             };
             setUser(adminUser);

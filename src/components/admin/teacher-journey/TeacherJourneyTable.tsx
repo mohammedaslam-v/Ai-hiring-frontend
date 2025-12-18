@@ -12,6 +12,7 @@ import {
   getSubjectLabel
 } from '@/types/teacherJourney';
 import { Edit, MessageSquare, Trash2 } from 'lucide-react';
+import { usePermissions } from '@/hooks/admin/usePermissions';
 
 interface TeacherJourneyTableProps {
   journeys: TeacherJourney[];
@@ -28,6 +29,8 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
   onDemoFeedback,
   onDelete
 }) => {
+  const { canDelete } = usePermissions();
+  
   // Badge color helpers
   const getDemoStatusBadgeClass = (status: string): string => {
     const classes: Record<string, string> = {
@@ -247,15 +250,17 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
                     >
                       <Edit className="h-4 w-4 text-gray-600" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDelete(journey)}
-                      className="h-8 w-8 p-0"
-                      title="Delete Journey"
-                    >
-                      <Trash2 className="h-4 w-4 text-red-600" />
-                    </Button>
+                    {canDelete && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDelete(journey)}
+                        className="h-8 w-8 p-0"
+                        title="Delete Journey"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-600" />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

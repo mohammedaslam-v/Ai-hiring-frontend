@@ -17,12 +17,14 @@ import {
   Presentation
 } from "lucide-react";
 import { useApplicationDetail } from "@/hooks/admin/useApplicationDetail";
+import { usePermissions } from "@/hooks/admin/usePermissions";
 import { getStatusBadge } from "@/components/admin/StatusBadge";
 import { TeacherJourneySection } from "@/components/admin/teacher-journey";
 
 export default function AdminApplicationDetail() {
   const navigate = useNavigate();
   const { application, loading, error } = useApplicationDetail();
+  const { canSeeEmailWhatsApp } = usePermissions();
 
   // Score color helper - returns appropriate color class based on score value
   const getScoreColor = (score: number | null | undefined) => {
@@ -92,15 +94,31 @@ export default function AdminApplicationDetail() {
               
               {/* Contact - Inline, minimal */}
               <div className="flex flex-wrap items-center gap-2 text-sm">
-                <a href={`mailto:${application.email}`} className="flex items-center gap-1.5 text-white/90 hover:text-white">
-                  <Mail className="h-3.5 w-3.5" />{application.email}
-                </a>
-                <span className="text-white/40">•</span>
-                <a href={`https://wa.me/${application.phone?.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" 
-                   className="flex items-center gap-1.5 text-white/90 hover:text-white">
-                  <Phone className="h-3.5 w-3.5" />{application.phone}
-                  <MessageCircle className="h-3 w-3 text-green-300" />
-                </a>
+                {canSeeEmailWhatsApp ? (
+                  // Limited admin can click email/whatsapp links
+                  <>
+                    <a href={`mailto:${application.email}`} className="flex items-center gap-1.5 text-white/90 hover:text-white">
+                      <Mail className="h-3.5 w-3.5" />{application.email}
+                    </a>
+                    <span className="text-white/40">•</span>
+                    <a href={`https://wa.me/${application.phone?.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" 
+                       className="flex items-center gap-1.5 text-white/90 hover:text-white">
+                      <Phone className="h-3.5 w-3.5" />{application.phone}
+                      <MessageCircle className="h-3 w-3 text-green-300" />
+                    </a>
+                  </>
+                ) : (
+                  // Main admin sees contact info as plain text (not clickable)
+                  <>
+                    <span className="flex items-center gap-1.5 text-white/70">
+                      <Mail className="h-3.5 w-3.5" />{application.email}
+                    </span>
+                    <span className="text-white/40">•</span>
+                    <span className="flex items-center gap-1.5 text-white/70">
+                      <Phone className="h-3.5 w-3.5" />{application.phone}
+                    </span>
+                  </>
+                )}
                 <span className="text-white/40">•</span>
                 <span className="flex items-center gap-1.5 text-white/70">
                   <Calendar className="h-3.5 w-3.5" />{new Date(application.createdAt).toLocaleDateString()}
