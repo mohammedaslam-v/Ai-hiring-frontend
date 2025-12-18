@@ -1,18 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown, Users, Play, CheckCircle, Award, Rocket } from "lucide-react";
 import ApplicantDetailsModal from "@/components/admin/ApplicantDetailsModal";
- 
  
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
-
-
-import TrendsChart from "@/components/admin/analytics/TrendsChart";
-import FunnelChart from "@/components/admin/analytics/FunnelChart";
 import AlertsBanner from "@/components/admin/AlertsBanner";
-
 import ApplicationsManagement from "@/components/admin/ApplicationsManagement";
 
 import { DashboardApplicationDetail, DetailedStats } from '@/types/admin';
+import { TeacherJourneyStats } from '@/types/teacherJourney';
 
 // Import new hooks and utilities
 import { useToughTongueSync } from "@/hooks/admin/useToughTongueSync";
@@ -24,7 +21,7 @@ import { useDashboardAnalytics } from "@/hooks/admin/useDashboardAnalytics";
 import { useAdminAuth } from "@/hooks/admin/useAdminAuth";
 import { useAdminDashboardData } from "@/hooks/admin/useAdminDashboardData";
 import { mapApplicationsToComponentFormat } from "@/utils/admin/dashboardUtils";
-import { EMPTY_TRENDS_DATA } from "@/constants/admin/dashboardConstants";
+import { teacherJourneyService } from "@/services/teacherJourney.service";
 
 const AdminDashboard = () => {
   // Use the new dashboard analytics hook for real-time data
@@ -82,15 +79,31 @@ const AdminDashboard = () => {
     handleLogout
   } = useAdminAuth();
 
-  // Use real-time dashboard data only
-  const trendsData = useMemo(() => {
-    return dashboardState.dailyTrends.length > 0 ? dashboardState.dailyTrends : EMPTY_TRENDS_DATA;
-  }, [dashboardState.dailyTrends]);
+  // State for collapsible summary
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
-  // Use real-time funnel data
-  const funnelData = useMemo(() => {
-    return dashboardState.funnelAnalytics.length > 0 ? dashboardState.funnelAnalytics : [];
-  }, [dashboardState.funnelAnalytics]);
+  // State for teacher journey stats
+  const [journeyStats, setJourneyStats] = useState<TeacherJourneyStats | null>(null);
+  const [journeyStatsLoading, setJourneyStatsLoading] = useState(true);
+
+  // Fetch teacher journey stats
+  useEffect(() => {
+    const fetchJourneyStats = async () => {
+      try {
+        setJourneyStatsLoading(true);
+        const response = await teacherJourneyService.getStats();
+        if (response.status && response.data) {
+          setJourneyStats(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching journey stats:', error);
+      } finally {
+        setJourneyStatsLoading(false);
+      }
+    };
+
+    fetchJourneyStats();
+  }, []);
 
   // Map hook data to match component interfaces
   const mappedApplications = mapApplicationsToComponentFormat(applications);
@@ -142,8 +155,9 @@ const AdminDashboard = () => {
             <strong>Error:</strong> {dashboardError}
           </div>
         )}
-        {/* Dashboard Summary - Now using real-time data */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+        {/* AI Interview Metrics */}
+        <h3 className="text-lg font-semibold text-gray-700 mb-3">AI Interview Stage</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           {/* Total Registered */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
             <div className="text-2xl font-bold text-bambinos-blue">
@@ -154,7 +168,7 @@ const AdminDashboard = () => {
 
           {/* Started AI Interview */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="text-2xl font-bold text-bambinos-green">
+            <div className="text-2xl font-bold text-amber-600">
               {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.startedInterview} (${dashboardSummary.startedInterviewPercentage.toFixed(1)}%)`}
             </div>
             <div className="text-xs text-gray-600">Started AI interview</div>
@@ -162,14 +176,11 @@ const AdminDashboard = () => {
 
           {/* Completed Interview */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="text-2xl font-bold text-bambinos-purple">
+            <div className="text-2xl font-bold text-purple-600">
               {dashboardLoading || !dashboardSummary ? "—" : `${dashboardSummary.completedInterview} (${dashboardSummary.completedInterviewPercentage.toFixed(1)}%)`}
             </div>
             <div className="text-xs text-gray-600">Finished full AI interview</div>
           </div>
-
-          {/* Left Midway intentionally hidden */}
-          {null}
 
           {/* Passed */}
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 hover:shadow-md transition-shadow">
@@ -188,23 +199,118 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Summary Text - Now using real-time data */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8 border border-gray-200">
-          <h3 className="text-lg font-semibold text-bambinos-blue mb-4">Summary</h3>
-          <ul className="list-disc pl-5 space-y-2 text-gray-700">
-            <li>{dashboardSummary?.totalApplicants ?? "—"} people filled the application form</li>
-            <li>{dashboardSummary ? `${dashboardSummary.startedInterview} people (${dashboardSummary.startedInterviewPercentage.toFixed(1)}%) started the AI interview` : "—"}</li>
-            <li>{dashboardSummary ? `${dashboardSummary.neverStartedInterview} people never even started the interview` : "—"}</li>
-            {null}
-            <li>{dashboardSummary ? `${dashboardSummary.completedInterview} people (${dashboardSummary.completedInterviewPercentage.toFixed(1)}%) completed the full interview` : "—"}</li>
-            <li>{dashboardSummary ? `Out of those who completed: ${dashboardSummary.passed} passed (${dashboardSummary.passedPercentage.toFixed(1)}%) and ${dashboardSummary.failed} failed (${dashboardSummary.failedPercentage.toFixed(1)}%)` : "—"}</li>
-          </ul>
+        {/* Teacher Journey Metrics */}
+        <h3 className="text-lg font-semibold text-gray-700 mb-3">Teacher Journey Stages</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+          {/* Demo Stage */}
+          <div className="bg-white rounded-lg shadow p-4 border border-blue-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-4 w-4 text-blue-600" />
+              <span className="text-xs font-medium text-blue-600">DEMO</span>
+            </div>
+            <div className="text-xl font-bold text-blue-700">
+              {journeyStatsLoading ? "—" : journeyStats?.demoStats.selected ?? 0}
+            </div>
+            <div className="text-xs text-gray-600">Selected</div>
+            <div className="mt-2 text-xs text-gray-500">
+              Pending: {journeyStats?.demoStats.pending ?? 0} | Not Selected: {journeyStats?.demoStats.notSelected ?? 0}
+            </div>
+          </div>
+
+          {/* Induction Stage */}
+          <div className="bg-white rounded-lg shadow p-4 border border-violet-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-2">
+              <Play className="h-4 w-4 text-violet-600" />
+              <span className="text-xs font-medium text-violet-600">INDUCTION</span>
+            </div>
+            <div className="text-xl font-bold text-violet-700">
+              {journeyStatsLoading ? "—" : journeyStats?.inductionStats.yes ?? 0}
+            </div>
+            <div className="text-xs text-gray-600">Attended</div>
+            <div className="mt-2 text-xs text-gray-500">
+              Pending: {journeyStats?.inductionStats.pending ?? 0} | No: {journeyStats?.inductionStats.no ?? 0}
+            </div>
+          </div>
+
+          {/* Training Stage */}
+          <div className="bg-white rounded-lg shadow p-4 border border-amber-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="h-4 w-4 text-amber-600" />
+              <span className="text-xs font-medium text-amber-600">TRAINING</span>
+            </div>
+            <div className="text-xl font-bold text-amber-700">
+              {journeyStatsLoading ? "—" : journeyStats?.trainingStats.completed ?? 0}
+            </div>
+            <div className="text-xs text-gray-600">Completed</div>
+            <div className="mt-2 text-xs text-gray-500">
+              Joined: {journeyStats?.trainingStats.joined ?? 0} | Dropped: {journeyStats?.trainingStats.dropped ?? 0}
+            </div>
+          </div>
+
+          {/* Certification Stage */}
+          <div className="bg-white rounded-lg shadow p-4 border border-emerald-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-2">
+              <Award className="h-4 w-4 text-emerald-600" />
+              <span className="text-xs font-medium text-emerald-600">CERTIFICATION</span>
+            </div>
+            <div className="text-xl font-bold text-emerald-700">
+              {journeyStatsLoading ? "—" : journeyStats?.certificationStats.cleared ?? 0}
+            </div>
+            <div className="text-xs text-gray-600">Cleared</div>
+            <div className="mt-2 text-xs text-gray-500">
+              Pending: {journeyStats?.certificationStats.pending ?? 0} | Not Cleared: {journeyStats?.certificationStats.notCleared ?? 0}
+            </div>
+          </div>
+
+          {/* Go Live Stage */}
+          <div className="bg-white rounded-lg shadow p-4 border border-teal-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-2">
+              <Rocket className="h-4 w-4 text-teal-600" />
+              <span className="text-xs font-medium text-teal-600">GO LIVE</span>
+            </div>
+            <div className="text-xl font-bold text-teal-700">
+              {journeyStatsLoading ? "—" : journeyStats?.goLiveStats.yes ?? 0}
+            </div>
+            <div className="text-xs text-gray-600">Live Teachers</div>
+            <div className="mt-2 text-xs text-gray-500">
+              Pending: {journeyStats?.goLiveStats.pending ?? 0} | Needs Training: {journeyStats?.goLiveStats.needsMoreTraining ?? 0}
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <TrendsChart data={trendsData} />
-          <FunnelChart data={funnelData} />
-        </div>
+        {/* Summary Text - Collapsible - CLOSED by default */}
+        <Collapsible open={isSummaryOpen} onOpenChange={setIsSummaryOpen} className="mb-8">
+          <div className="bg-white rounded-lg shadow border border-gray-200">
+            <CollapsibleTrigger className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-t-lg">
+              <h3 className="text-lg font-semibold text-bambinos-blue">Summary</h3>
+              <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${isSummaryOpen ? 'rotate-180' : ''}`} />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="px-6 pb-6">
+                {/* AI Interview Summary */}
+                <h4 className="font-semibold text-gray-700 mb-2">AI Interview</h4>
+                <ul className="list-disc pl-5 space-y-1 text-gray-700 mb-4">
+                  <li>{dashboardSummary?.totalApplicants ?? "—"} people filled the application form</li>
+                  <li>{dashboardSummary ? `${dashboardSummary.startedInterview} people (${dashboardSummary.startedInterviewPercentage.toFixed(1)}%) started the AI interview` : "—"}</li>
+                  <li>{dashboardSummary ? `${dashboardSummary.neverStartedInterview} people never even started the interview` : "—"}</li>
+                  <li>{dashboardSummary ? `${dashboardSummary.completedInterview} people (${dashboardSummary.completedInterviewPercentage.toFixed(1)}%) completed the full interview` : "—"}</li>
+                  <li>{dashboardSummary ? `Out of those who completed: ${dashboardSummary.passed} passed (${dashboardSummary.passedPercentage.toFixed(1)}%) and ${dashboardSummary.failed} failed (${dashboardSummary.failedPercentage.toFixed(1)}%)` : "—"}</li>
+                </ul>
+
+                {/* Teacher Journey Summary */}
+                <h4 className="font-semibold text-gray-700 mb-2">Teacher Journey</h4>
+                <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                  <li>Demo: {journeyStats?.demoStats.selected ?? 0} selected, {journeyStats?.demoStats.pending ?? 0} pending, {journeyStats?.demoStats.notSelected ?? 0} not selected</li>
+                  <li>Induction: {journeyStats?.inductionStats.yes ?? 0} attended, {journeyStats?.inductionStats.pending ?? 0} pending</li>
+                  <li>Training: {journeyStats?.trainingStats.completed ?? 0} completed, {journeyStats?.trainingStats.joined ?? 0} joined, {journeyStats?.trainingStats.dropped ?? 0} dropped</li>
+                  <li>Certification: {journeyStats?.certificationStats.cleared ?? 0} cleared, {journeyStats?.certificationStats.pending ?? 0} pending, {journeyStats?.certificationStats.notCleared ?? 0} not cleared</li>
+                  <li>Go Live: {journeyStats?.goLiveStats.yes ?? 0} live teachers, {journeyStats?.goLiveStats.pending ?? 0} pending</li>
+                </ul>
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
+
 
 
 
