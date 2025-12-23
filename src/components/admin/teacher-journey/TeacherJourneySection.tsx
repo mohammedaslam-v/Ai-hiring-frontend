@@ -151,6 +151,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   // Edit form state - stores temporary edits before saving
   const [editData, setEditData] = useState<Partial<TeacherJourney>>({});
@@ -177,6 +178,26 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   useEffect(() => {
     if (applicationId) fetchJourney();
   }, [applicationId, fetchJourney]);
+
+  // Handler for sending demo result email
+  const handleSendDemoEmail = useCallback(async () => {
+    if (!applicationId || !journey) return;
+    
+    setSendingEmail(true);
+    try {
+      const response = await teacherJourneyService.sendDemoResultEmail(applicationId);
+      if (response.status) {
+        toast.success('Demo result email sent successfully!');
+      } else {
+        toast.error(`Failed to send email: ${response.message}`);
+      }
+    } catch (error) {
+      console.error('Error sending demo email:', error);
+      toast.error('Failed to send demo result email');
+    } finally {
+      setSendingEmail(false);
+    }
+  }, [applicationId, journey]);
 
   // Fetch session ID from applicationId
   useEffect(() => {
@@ -439,7 +460,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
             const isDisabled = editMode && !isActive;
             
             return (
-              <React.Fragment key={tab.key}>
+              <div key={tab.key} className="flex items-center">
                 {/* Tab Button */}
                 <button
                   onClick={() => {
@@ -493,7 +514,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                         : 'bg-slate-200'
                   }`} />
                 )}
-              </React.Fragment>
+              </div>
             );
           })}
         </div>
@@ -588,7 +609,17 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                   sessionId={sessionId || undefined}
                 />
               )}
-              {activeTab === 'demo' && journey && <DemoSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />}
+              {activeTab === 'demo' && journey && (
+                <DemoSection 
+                  journey={journey} 
+                  editMode={editMode} 
+                  editData={editData} 
+                  setEditData={setEditData}
+                  fieldErrors={fieldErrors}
+                  onSendDemoEmail={handleSendDemoEmail}
+                  sendingEmail={sendingEmail}
+                />
+              )}
               {activeTab === 'onboarding' && journey && <OnboardingSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />}
               {activeTab === 'induction' && journey && <InductionSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />}
               {activeTab === 'training' && journey && <TrainingSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />}
@@ -1418,7 +1449,20 @@ const DemoSectionHeader: React.FC<{
 // Language/Subject, Availability, Training, Hiring Status
 // ============================================
 
-const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+interface DemoSectionProps extends SectionProps {
+  onSendDemoEmail?: () => void;
+  sendingEmail?: boolean;
+}
+
+const DemoSection: React.FC<DemoSectionProps> = ({ 
+  journey, 
+  editMode, 
+  editData, 
+  setEditData, 
+  fieldErrors = {},
+  onSendDemoEmail,
+  sendingEmail = false
+}) => {
   const data = editMode ? editData : journey;
 
   return (
@@ -1583,6 +1627,38 @@ const DemoSection: React.FC<SectionProps> = ({ journey, editMode, editData, setE
               <div className="mt-1"><YesNoBadge value={journey.goodToGo} /></div>
             )}
           </FieldContainer>
+
+          {/* Send Mail Button - Show when goodToGo is YES or NO (in both edit and view mode) */}
+          {((!editMode && (journey.goodToGo === 'YES' || journey.goodToGo === 'NO')) || 
+            (editMode && (data.goodToGo === 'YES' || data.goodToGo === 'NO'))) && onSendDemoEmail && (
+            <div className="mt-4">
+              <Button
+                onClick={onSendDemoEmail}
+                disabled={sendingEmail || editMode}
+                className={`w-full sm:w-auto text-white disabled:opacity-50 disabled:cursor-not-allowed ${
+                  (!editMode && journey.goodToGo === 'YES') || (editMode && data.goodToGo === 'YES')
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : 'bg-red-600 hover:bg-red-700'
+                }`}
+                title={editMode ? "Save changes first to send email" : journey.goodToGo === 'YES' ? "Send demo passed email" : "Send demo not selected email"}
+              >
+                {sendingEmail ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 inline-block" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Send Mail
+                  </>
+                )}
+              </Button>
+              {editMode && (
+                <p className="text-xs text-gray-500 mt-1">💡 Save changes first to enable sending email</p>
+              )}
+            </div>
+          )}
 
                     </div>
 

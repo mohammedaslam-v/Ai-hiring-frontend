@@ -374,6 +374,36 @@ class TeacherJourneyService {
       };
     }
   }
+
+  async sendDemoResultEmail(applicationId: string): Promise<ServiceResponse<any>> {
+    try {
+      const response = await axiosInstance.post(
+        `${this.baseUrl}/${applicationId}/send-demo-email`
+      );
+
+      if (response.data.success) {
+        return {
+          status: true,
+          message: response.data.message || 'Demo result email sent successfully',
+          data: response.data.data
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.message || 'Failed to send demo result email',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error sending demo result email:', error);
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.message || 'Network error',
+        error: err?.message
+      };
+    }
+  }
 }
 
 export const teacherJourneyService = new TeacherJourneyService();
