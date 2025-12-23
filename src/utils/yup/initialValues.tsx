@@ -4,7 +4,8 @@ export const candidateApplicationInitialValues = {
   lastName: '',
   email: '',
   phone: '',
-  position: '',
+  // Position is auto-filled as "Educator" in the backend
+  position: 'Educator',
   subjects: [],
   additionalLanguages: [],
   availableDays: [],

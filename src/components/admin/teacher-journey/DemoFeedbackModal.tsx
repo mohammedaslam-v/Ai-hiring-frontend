@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TeacherJourney, SubmitDemoFeedbackData } from '@/types/teacherJourney';
 import { Star } from 'lucide-react';
+import { getSortedInterviewers } from '@/constants/admin/interviewers';
 
 interface DemoFeedbackModalProps {
   isOpen: boolean;
@@ -93,9 +94,9 @@ const DemoFeedbackModal: React.FC<DemoFeedbackModalProps> = ({
             <Star
               className={`h-6 w-6 ${
                 star <= value 
-                  ? 'fill-yellow-400 text-yellow-400' 
-                  : 'text-gray-300'
-              } hover:text-yellow-400 transition-colors`}
+                  ? 'fill-[#1E62F2] text-[#1E62F2]' 
+                  : 'text-[hsl(240,5%,64.9%,0.5)] fill-[hsl(240,5%,64.9%,0.1)]'
+              } hover:text-[#1E62F2] hover:fill-[#1E62F2]/30 transition-colors`}
             />
           </button>
         ))}
@@ -147,16 +148,26 @@ const DemoFeedbackModal: React.FC<DemoFeedbackModalProps> = ({
 
           <div>
             <Label>Interviewer Name *</Label>
-            <Input
+            <Select
               value={formData.demoInterviewerName}
-              onChange={(e) => setFormData(prev => ({ ...prev, demoInterviewerName: e.target.value }))}
-              placeholder="Enter interviewer name"
-            />
+              onValueChange={(value) => setFormData(prev => ({ ...prev, demoInterviewerName: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select interviewer" />
+              </SelectTrigger>
+              <SelectContent>
+                {getSortedInterviewers().map((interviewer) => (
+                  <SelectItem key={interviewer} value={interviewer}>
+                    {interviewer}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Ratings Section */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-gray-700 border-b pb-2">Performance Ratings</h3>
+            <h3 className="font-semibold text-[hsl(214,100%,15%)] border-b border-[#F4F6FA] pb-2">Performance Ratings</h3>
             
             <div className="grid grid-cols-2 gap-4">
               <RatingStars

@@ -51,8 +51,8 @@ export const candidateApplicationValidation = Yup.object().shape({
     .matches(VALIDATION_PATTERNS.PHONE, VALIDATION_ERROR_MESSAGES.PHONE.INVALID)
     .min(VALIDATION_RULES.MIN_PHONE_LENGTH, VALIDATION_ERROR_MESSAGES.PHONE.MIN_LENGTH)
     .max(VALIDATION_RULES.MAX_PHONE_LENGTH, VALIDATION_ERROR_MESSAGES.PHONE.MAX_LENGTH),
-  position: Yup.string()
-    .required(VALIDATION_ERROR_MESSAGES.POSITION.REQUIRED),
+  // Position is auto-filled as "Educator" in the backend
+  position: Yup.string().optional(),
   subjects: Yup.array()
     .min(1, VALIDATION_ERROR_MESSAGES.SUBJECTS.MIN_SELECTION)
     .required(VALIDATION_ERROR_MESSAGES.SUBJECTS.REQUIRED),
