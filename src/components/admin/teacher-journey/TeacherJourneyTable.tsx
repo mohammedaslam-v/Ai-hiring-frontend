@@ -14,6 +14,7 @@ import {
 import { Edit, MessageSquare, Trash2 } from 'lucide-react';
 import { usePermissions } from '@/hooks/admin/usePermissions';
 import { getStatusBadgeColors } from '@/constants/teacherJourney/colors';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TeacherJourneyTableProps {
   journeys: TeacherJourney[];
@@ -31,6 +32,10 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
   onDelete
 }) => {
   const { canDelete } = usePermissions();
+  const { user } = useAuth();
+
+  // Check if user is hire@bambinos.live
+  const isHireEmail = user?.email === 'hire@bambinos.live';
   
   // Badge color helpers using new color scheme
   const getDemoStatusBadgeClass = (status: string): string => {
@@ -227,7 +232,7 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
                     >
                       <Edit className="h-4 w-4 text-[hsl(214,100%,15%,0.6)]" />
                     </Button>
-                    {canDelete && (
+                    {canDelete && !isHireEmail && (
                       <Button
                         variant="ghost"
                         size="sm"

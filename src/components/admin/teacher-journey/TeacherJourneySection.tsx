@@ -51,6 +51,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { validateTeacherJourneySection } from '@/utils/yup/teacherJourneyValidation';
 import { getEvaluationMedia } from "@/services/evaluationService";
+import { useAuth } from '@/contexts/AuthContext';
 
 // ============================================
 // TYPES
@@ -1463,7 +1464,11 @@ const DemoSection: React.FC<DemoSectionProps> = ({
   onSendDemoEmail,
   sendingEmail = false
 }) => {
+  const { user } = useAuth();
   const data = editMode ? editData : journey;
+
+  // Check if user is hire@bambinos.live
+  const isHireEmail = user?.email === 'hire@bambinos.live';
 
   return (
     <div className="space-y-6">
@@ -1628,8 +1633,8 @@ const DemoSection: React.FC<DemoSectionProps> = ({
             )}
           </FieldContainer>
 
-          {/* Send Mail Button - Show when goodToGo is YES or NO (in both edit and view mode) */}
-          {((!editMode && (journey.goodToGo === 'YES' || journey.goodToGo === 'NO')) || 
+          {/* Send Mail Button - Show when goodToGo is YES or NO (in both edit and view mode) - Hide for hire@bambinos.live */}
+          {!isHireEmail && ((!editMode && (journey.goodToGo === 'YES' || journey.goodToGo === 'NO')) || 
             (editMode && (data.goodToGo === 'YES' || data.goodToGo === 'NO'))) && onSendDemoEmail && (
             <div className="mt-4">
               <Button
@@ -1637,8 +1642,8 @@ const DemoSection: React.FC<DemoSectionProps> = ({
                 disabled={sendingEmail || editMode}
                 className={`w-full sm:w-auto text-white disabled:opacity-50 disabled:cursor-not-allowed ${
                   (!editMode && journey.goodToGo === 'YES') || (editMode && data.goodToGo === 'YES')
-                    ? 'bg-green-600 hover:bg-green-700'
-                    : 'bg-red-600 hover:bg-red-700'
+                    ? 'bg-emerald-500 hover:bg-emerald-600'
+                    : 'bg-slate-600 hover:bg-slate-700'
                 }`}
                 title={editMode ? "Save changes first to send email" : journey.goodToGo === 'YES' ? "Send demo passed email" : "Send demo not selected email"}
               >

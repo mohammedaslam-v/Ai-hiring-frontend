@@ -20,11 +20,16 @@ import { useApplicationDetail } from "@/hooks/admin/useApplicationDetail";
 import { usePermissions } from "@/hooks/admin/usePermissions";
 import { getStatusBadge } from "@/components/admin/StatusBadge";
 import { TeacherJourneySection } from "@/components/admin/teacher-journey";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AdminApplicationDetail() {
   const navigate = useNavigate();
   const { application, loading, error } = useApplicationDetail();
   const { canSeeEmailWhatsApp } = usePermissions();
+  const { user } = useAuth();
+
+  // Check if user is hire@bambinos.live
+  const isHireEmail = user?.email === 'hire@bambinos.live';
 
   // Score color helper - returns appropriate color class based on score value
   const getScoreColor = (score: number | null | undefined) => {
@@ -94,8 +99,8 @@ export default function AdminApplicationDetail() {
               
               {/* Contact - Inline, minimal */}
               <div className="flex flex-wrap items-center gap-2 text-sm">
-                {canSeeEmailWhatsApp ? (
-                  // Limited admin can click email/whatsapp links
+                {canSeeEmailWhatsApp && !isHireEmail ? (
+                  // Limited admin can click email/whatsapp links (but not hire@bambinos.live)
                   <>
                     <a href={`mailto:${application.email}`} className="flex items-center gap-1.5 text-white/90 hover:text-white">
                       <Mail className="h-3.5 w-3.5" />{application.email}
@@ -108,7 +113,7 @@ export default function AdminApplicationDetail() {
                     </a>
                   </>
                 ) : (
-                  // Main admin sees contact info as plain text (not clickable)
+                  // Main admin or hire@bambinos.live sees contact info as plain text (not clickable)
                   <>
                     <span className="flex items-center gap-1.5 text-white/70">
                       <Mail className="h-3.5 w-3.5" />{application.email}
