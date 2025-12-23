@@ -13,6 +13,7 @@ import {
 } from '@/types/teacherJourney';
 import { Edit, MessageSquare, Trash2 } from 'lucide-react';
 import { usePermissions } from '@/hooks/admin/usePermissions';
+import { getStatusBadgeColors } from '@/constants/teacherJourney/colors';
 
 interface TeacherJourneyTableProps {
   journeys: TeacherJourney[];
@@ -31,54 +32,30 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
 }) => {
   const { canDelete } = usePermissions();
   
-  // Badge color helpers
+  // Badge color helpers using new color scheme
   const getDemoStatusBadgeClass = (status: string): string => {
-    const classes: Record<string, string> = {
-      'PENDING': 'bg-gray-100 text-gray-700 border-gray-300',
-      'SCHEDULED': 'bg-blue-100 text-blue-700 border-blue-300',
-      'SELECTED': 'bg-green-100 text-green-700 border-green-300',
-      'NOT_SELECTED': 'bg-red-100 text-red-700 border-red-300'
-    };
-    return classes[status] || classes['PENDING'];
+    const colors = getStatusBadgeColors(status);
+    return `${colors.bg} ${colors.text} ${colors.border}`;
   };
 
   const getInductionBadgeClass = (status: string): string => {
-    const classes: Record<string, string> = {
-      'PENDING': 'bg-gray-100 text-gray-700 border-gray-300',
-      'YES': 'bg-green-100 text-green-700 border-green-300',
-      'NO': 'bg-red-100 text-red-700 border-red-300'
-    };
-    return classes[status] || classes['PENDING'];
+    const colors = getStatusBadgeColors(status);
+    return `${colors.bg} ${colors.text} ${colors.border}`;
   };
 
   const getTrainingBadgeClass = (status: string): string => {
-    const classes: Record<string, string> = {
-      'NOT_JOINED': 'bg-gray-100 text-gray-700 border-gray-300',
-      'JOINED': 'bg-blue-100 text-blue-700 border-blue-300',
-      'INCOMPLETE': 'bg-yellow-100 text-yellow-700 border-yellow-300',
-      'SHIFTED_TO_NEXT_WEEK': 'bg-orange-100 text-orange-700 border-orange-300',
-      'DROPPED': 'bg-red-100 text-red-700 border-red-300',
-      'COMPLETED': 'bg-green-100 text-green-700 border-green-300'
-    };
-    return classes[status] || classes['NOT_JOINED'];
+    const colors = getStatusBadgeColors(status);
+    return `${colors.bg} ${colors.text} ${colors.border}`;
   };
 
   const getCertificationBadgeClass = (status: string): string => {
-    const classes: Record<string, string> = {
-      'PENDING': 'bg-gray-100 text-gray-700 border-gray-300',
-      'CLEARED': 'bg-green-100 text-green-700 border-green-300',
-      'NOT_CLEARED': 'bg-red-100 text-red-700 border-red-300'
-    };
-    return classes[status] || classes['PENDING'];
+    const colors = getStatusBadgeColors(status);
+    return `${colors.bg} ${colors.text} ${colors.border}`;
   };
 
   const getGoLiveBadgeClass = (status: string): string => {
-    const classes: Record<string, string> = {
-      'PENDING': 'bg-gray-100 text-gray-700 border-gray-300',
-      'YES': 'bg-emerald-100 text-emerald-700 border-emerald-300',
-      'NEEDS_MORE_TRAINING': 'bg-orange-100 text-orange-700 border-orange-300'
-    };
-    return classes[status] || classes['PENDING'];
+    const colors = getStatusBadgeColors(status);
+    return `${colors.bg} ${colors.text} ${colors.border}`;
   };
 
   const formatDate = (dateString: string | null): string => {
@@ -130,9 +107,9 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
 
   if (journeys.length === 0) {
     return (
-      <div className="border rounded-lg p-8 text-center">
-        <p className="text-gray-500 text-lg">No teacher journeys found</p>
-        <p className="text-gray-400 text-sm mt-1">
+      <div className="border rounded-xl p-8 text-center">
+        <p className="text-[hsl(214,100%,15%,0.6)] text-lg">No teacher journeys found</p>
+        <p className="text-[hsl(214,100%,15%,0.4)] text-sm mt-1">
           Teacher journeys will appear here when candidates pass the AI interview
         </p>
       </div>
@@ -140,51 +117,51 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden shadow-sm">
+    <div className="border rounded-xl overflow-hidden shadow-sm">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50">
-              <TableHead className="font-semibold text-gray-700 min-w-[180px]">Name</TableHead>
-              <TableHead className="font-semibold text-gray-700 min-w-[200px]">Contact</TableHead>
-              <TableHead className="font-semibold text-gray-700 text-center min-w-[100px]">Demo</TableHead>
-              <TableHead className="font-semibold text-gray-700 text-center min-w-[90px]">Induction</TableHead>
-              <TableHead className="font-semibold text-gray-700 text-center min-w-[120px]">Training</TableHead>
-              <TableHead className="font-semibold text-gray-700 text-center min-w-[100px]">Certification</TableHead>
-              <TableHead className="font-semibold text-gray-700 text-center min-w-[120px]">Go-Live</TableHead>
-              <TableHead className="font-semibold text-gray-700 text-center min-w-[100px]">Subject</TableHead>
-              <TableHead className="font-semibold text-gray-700 text-center min-w-[120px]">Actions</TableHead>
+            <TableRow className="bg-[#F4F6FA]">
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] min-w-[180px]">Name</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] min-w-[200px]">Contact</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[100px]">Demo</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[90px]">Induction</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[120px]">Training</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[100px]">Certification</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[120px]">Go-Live</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[100px]">Subject</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[120px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {journeys.map((journey, index) => (
               <TableRow 
                 key={journey.id} 
-                className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}
+                className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#F4F6FA]'} hover:bg-[#1E62F2]/5 transition-colors`}
               >
                 {/* Name */}
                 <TableCell>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-[hsl(214,100%,15%)]">
                     {journey.firstName} {journey.lastName}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-[hsl(214,100%,15%,0.6)]">
                     ID: {journey.applicationId}
                   </div>
                 </TableCell>
 
                 {/* Contact */}
                 <TableCell>
-                  <div className="text-sm text-gray-900">{journey.email}</div>
-                  <div className="text-xs text-gray-500">{journey.phoneNumber}</div>
+                  <div className="text-sm text-[hsl(214,100%,15%)]">{journey.email}</div>
+                  <div className="text-xs text-[hsl(214,100%,15%,0.6)]">{journey.phoneNumber}</div>
                 </TableCell>
 
                 {/* Demo Status */}
                 <TableCell className="text-center">
-                  <Badge variant="outline" className={getDemoStatusBadgeClass(journey.demoStatus)}>
-                    {getDemoStatusLabel(journey.demoStatus)}
-                  </Badge>
+                <Badge variant="outline" className={`${getDemoStatusBadgeClass(journey.demoStatus)} rounded-xl`}>
+                  {getDemoStatusLabel(journey.demoStatus)}
+                </Badge>
                   {journey.demoDate && (
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-[hsl(214,100%,15%,0.6)] mt-1">
                       {formatDate(journey.demoDate)}
                     </div>
                   )}
@@ -192,40 +169,40 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
 
                 {/* Induction */}
                 <TableCell className="text-center">
-                  <Badge variant="outline" className={getInductionBadgeClass(journey.inductionAttendance)}>
-                    {getInductionLabel(journey.inductionAttendance)}
-                  </Badge>
+                <Badge variant="outline" className={`${getInductionBadgeClass(journey.inductionAttendance)} rounded-xl`}>
+                  {getInductionLabel(journey.inductionAttendance)}
+                </Badge>
                 </TableCell>
 
                 {/* Training */}
                 <TableCell className="text-center">
-                  <Badge variant="outline" className={getTrainingBadgeClass(journey.trainingStatus)}>
-                    {getTrainingStatusLabel(journey.trainingStatus)}
-                  </Badge>
+                <Badge variant="outline" className={`${getTrainingBadgeClass(journey.trainingStatus)} rounded-xl`}>
+                  {getTrainingStatusLabel(journey.trainingStatus)}
+                </Badge>
                 </TableCell>
 
                 {/* Certification */}
                 <TableCell className="text-center">
-                  <Badge variant="outline" className={getCertificationBadgeClass(journey.certificationStatus)}>
-                    {getCertificationLabel(journey.certificationStatus)}
-                  </Badge>
+                <Badge variant="outline" className={`${getCertificationBadgeClass(journey.certificationStatus)} rounded-xl`}>
+                  {getCertificationLabel(journey.certificationStatus)}
+                </Badge>
                 </TableCell>
 
                 {/* Go-Live */}
                 <TableCell className="text-center">
-                  <Badge variant="outline" className={getGoLiveBadgeClass(journey.goLiveReadiness)}>
-                    {getGoLiveLabel(journey.goLiveReadiness)}
-                  </Badge>
+                <Badge variant="outline" className={`${getGoLiveBadgeClass(journey.goLiveReadiness)} rounded-xl`}>
+                  {getGoLiveLabel(journey.goLiveReadiness)}
+                </Badge>
                 </TableCell>
 
                 {/* Subject */}
                 <TableCell className="text-center">
                   {journey.assignedSubject ? (
-                    <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-300">
+                    <Badge variant="outline" className="bg-[hsl(217,91%,60%,0.1)] text-[hsl(217,91%,60%)] border-[hsl(217,91%,60%)] rounded-xl">
                       {getSubjectLabel(journey.assignedSubject)}
                     </Badge>
                   ) : (
-                    <span className="text-gray-400 text-sm">-</span>
+                    <span className="text-[hsl(214,100%,15%,0.4)] text-sm">-</span>
                   )}
                 </TableCell>
 
@@ -239,7 +216,7 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
                       className="h-8 w-8 p-0"
                       title="Demo Feedback"
                     >
-                      <MessageSquare className="h-4 w-4 text-blue-600" />
+                      <MessageSquare className="h-4 w-4 text-[#1E62F2]" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -248,7 +225,7 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
                       className="h-8 w-8 p-0"
                       title="Edit Journey"
                     >
-                      <Edit className="h-4 w-4 text-gray-600" />
+                      <Edit className="h-4 w-4 text-[hsl(214,100%,15%,0.6)]" />
                     </Button>
                     {canDelete && (
                       <Button
@@ -258,7 +235,7 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
                         className="h-8 w-8 p-0"
                         title="Delete Journey"
                       >
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                        <Trash2 className="h-4 w-4 text-[hsl(0,84%,60%)]" />
                       </Button>
                     )}
                   </div>

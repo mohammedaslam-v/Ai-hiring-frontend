@@ -29,12 +29,12 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
   isFiltered
 }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 mb-6 space-y-4">
+    <div className="bg-white border border-[#F4F6FA] rounded-xl shadow-sm p-4 mb-6 space-y-4">
       {/* First Row: Search and Main Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
         {/* Search */}
         <div className="relative lg:col-span-2">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[hsl(214,100%,15%,0.4)]" />
           <Input
             placeholder="Search by name, email, phone..."
             value={filters.search || ''}
@@ -171,10 +171,10 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
 
       {/* Active Filters Display */}
       {isFiltered && (
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
-          <span className="text-sm text-gray-500">Active filters:</span>
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-[#F4F6FA]">
+          <span className="text-sm text-[hsl(214,100%,15%,0.6)]">Active filters:</span>
           {filters.search && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#1E62F2]/10 text-[#1E62F2] rounded-xl text-xs">
               Search: "{filters.search}"
               <X 
                 className="h-3 w-3 cursor-pointer" 
@@ -183,7 +183,7 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
             </span>
           )}
           {filters.demoStatus && filters.demoStatus !== 'all' && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(142,76%,36%,0.1)] text-[hsl(142,76%,36%)] rounded-xl text-xs">
               Demo: {filters.demoStatus}
               <X 
                 className="h-3 w-3 cursor-pointer" 
@@ -192,7 +192,7 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
             </span>
           )}
           {filters.trainingStatus && filters.trainingStatus !== 'all' && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(38,92%,50%,0.1)] text-[hsl(38,92%,50%)] rounded-xl text-xs">
               Training: {filters.trainingStatus.replace(/_/g, ' ')}
               <X 
                 className="h-3 w-3 cursor-pointer" 
@@ -201,7 +201,7 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
             </span>
           )}
           {filters.certificationStatus && filters.certificationStatus !== 'all' && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#FFCC00]/10 text-[#FFCC00] rounded-xl text-xs">
               Certification: {filters.certificationStatus}
               <X 
                 className="h-3 w-3 cursor-pointer" 
@@ -210,7 +210,7 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
             </span>
           )}
           {filters.goLiveReadiness && filters.goLiveReadiness !== 'all' && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(142,76%,36%,0.1)] text-[hsl(142,76%,36%)] rounded-xl text-xs">
               Go-Live: {filters.goLiveReadiness.replace(/_/g, ' ')}
               <X 
                 className="h-3 w-3 cursor-pointer" 
@@ -219,7 +219,7 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
             </span>
           )}
           {filters.assignedSubject && filters.assignedSubject !== 'all' && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(217,91%,60%,0.1)] text-[hsl(217,91%,60%)] rounded-xl text-xs">
               Subject: {filters.assignedSubject.replace(/_/g, ' ')}
               <X 
                 className="h-3 w-3 cursor-pointer" 

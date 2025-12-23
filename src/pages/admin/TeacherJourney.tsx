@@ -85,15 +85,15 @@ const TeacherJourneyPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/30">
+    <div className="min-h-screen bg-[#F4F6FA]">
       <AdminHeader onLogout={handleLogout} />
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Title */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Teacher Journey Tracking</h1>
-            <p className="text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-[hsl(214,100%,15%)]">Teacher Journey Tracking</h1>
+            <p className="text-[hsl(214,100%,15%,0.6)] mt-1">
               Track candidates from AI interview to go-live
             </p>
           </div>
@@ -110,8 +110,8 @@ const TeacherJourneyPage: React.FC = () => {
 
         {/* Error Display */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
-            <p className="text-red-700">{error}</p>
+          <div className="mb-6 p-4 bg-[hsl(0,84%,60%,0.1)] border border-[hsl(0,84%,60%)] rounded-xl flex items-center justify-between">
+            <p className="text-[hsl(0,84%,60%)]">{error}</p>
             <Button variant="ghost" size="sm" onClick={clearError}>
               Dismiss
             </Button>
@@ -124,10 +124,10 @@ const TeacherJourneyPage: React.FC = () => {
         {/* Main Content Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl text-blue-600">
+            <CardTitle className="text-xl text-[#1E62F2]">
               All Teacher Journeys
               {total > 0 && (
-                <span className="text-sm font-normal text-gray-500 ml-2">
+                <span className="text-sm font-normal text-[hsl(214,100%,15%,0.6)] ml-2">
                   ({total} total)
                 </span>
               )}

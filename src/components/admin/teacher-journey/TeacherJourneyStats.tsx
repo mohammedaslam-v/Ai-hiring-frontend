@@ -31,54 +31,54 @@ const TeacherJourneyStats: React.FC<TeacherJourneyStatsProps> = ({ stats, loadin
       title: 'Total Candidates',
       value: stats.total,
       icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200'
+      color: 'text-[#1E62F2]',
+      bgColor: 'bg-[#1E62F2]/10',
+      borderColor: 'border-[#1E62F2]'
     },
     {
       title: 'Demo Selected',
       value: stats.demoStats.selected,
       subtitle: `${stats.demoStats.notSelected} not selected`,
       icon: UserCheck,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200'
+      color: 'text-[hsl(142,76%,36%)]',
+      bgColor: 'bg-[hsl(142,76%,36%,0.1)]',
+      borderColor: 'border-[hsl(142,76%,36%)]'
     },
     {
       title: 'Induction Done',
       value: stats.inductionStats.yes,
       subtitle: `${stats.inductionStats.pending} pending`,
       icon: GraduationCap,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200'
+      color: 'text-[hsl(217,91%,60%)]',
+      bgColor: 'bg-[hsl(217,91%,60%,0.1)]',
+      borderColor: 'border-[hsl(217,91%,60%)]'
     },
     {
       title: 'Training Completed',
       value: stats.trainingStats.completed,
       subtitle: `${stats.trainingStats.joined} in progress`,
       icon: BookOpen,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200'
+      color: 'text-[hsl(38,92%,50%)]',
+      bgColor: 'bg-[hsl(38,92%,50%,0.1)]',
+      borderColor: 'border-[hsl(38,92%,50%)]'
     },
     {
       title: 'Certification Cleared',
       value: stats.certificationStats.cleared,
       subtitle: `${stats.certificationStats.notCleared} not cleared`,
       icon: Award,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-200'
+      color: 'text-[#FFCC00]',
+      bgColor: 'bg-[#FFCC00]/10',
+      borderColor: 'border-[#FFCC00]'
     },
     {
       title: 'Go-Live Ready',
       value: stats.goLiveStats.yes,
       subtitle: `${stats.goLiveStats.needsMoreTraining} need training`,
       icon: Rocket,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50',
-      borderColor: 'border-emerald-200'
+      color: 'text-[hsl(142,76%,36%)]',
+      bgColor: 'bg-[hsl(142,76%,36%,0.1)]',
+      borderColor: 'border-[hsl(142,76%,36%)]'
     }
   ];
 
@@ -87,15 +87,15 @@ const TeacherJourneyStats: React.FC<TeacherJourneyStatsProps> = ({ stats, loadin
       {statCards.map((card, index) => {
         const Icon = card.icon;
         return (
-          <Card key={index} className={`${card.bgColor} ${card.borderColor} border hover:shadow-md transition-shadow`}>
+          <Card key={index} className={`${card.bgColor} ${card.borderColor} border rounded-xl hover:shadow-md transition-shadow`}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <Icon className={`h-5 w-5 ${card.color}`} />
                 <span className={`text-2xl font-bold ${card.color}`}>{card.value}</span>
               </div>
-              <div className="text-sm font-medium text-gray-700">{card.title}</div>
+              <div className="text-sm font-medium text-[hsl(214,100%,15%)]">{card.title}</div>
               {card.subtitle && (
-                <div className="text-xs text-gray-500 mt-1">{card.subtitle}</div>
+                <div className="text-xs text-[hsl(214,100%,15%,0.6)] mt-1">{card.subtitle}</div>
               )}
             </CardContent>
           </Card>

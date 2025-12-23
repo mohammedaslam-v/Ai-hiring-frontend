@@ -1,9 +1,4 @@
 // Candidate related interfaces and types
-export interface PositionSectionProps {
-  selectedPosition: string;
-  onPositionChange: (value: string) => void;
-  error?: string;
-}
 
 export interface SubjectsSectionProps {
   selectedSubjects: string[];

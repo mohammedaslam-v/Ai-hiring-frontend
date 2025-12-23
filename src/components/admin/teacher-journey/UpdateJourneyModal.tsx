@@ -16,6 +16,7 @@ import {
   GO_LIVE_OPTIONS,
   SUBJECT_OPTIONS_FOR_UPDATE
 } from '@/types/teacherJourney';
+import { getSortedInterviewers } from '@/constants/admin/interviewers';
 
 interface UpdateJourneyModalProps {
   isOpen: boolean;
@@ -143,11 +144,21 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
             </div>
             <div>
               <Label>Demo Interviewer Name</Label>
-              <Input
+              <Select
                 value={formData.demoInterviewerName || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, demoInterviewerName: e.target.value }))}
-                placeholder="Enter interviewer name..."
-              />
+                onValueChange={(value) => setFormData(prev => ({ ...prev, demoInterviewerName: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select interviewer" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getSortedInterviewers().map((interviewer) => (
+                    <SelectItem key={interviewer} value={interviewer}>
+                      {interviewer}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Demo Feedback</Label>

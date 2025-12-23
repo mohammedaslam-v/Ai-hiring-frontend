@@ -28,17 +28,17 @@ export default function AdminApplicationDetail() {
 
   // Score color helper - returns appropriate color class based on score value
   const getScoreColor = (score: number | null | undefined) => {
-    if (score === null || score === undefined) return { text: 'text-slate-400', bg: 'bg-slate-50' };
-    if (score >= 7) return { text: 'text-emerald-600', bg: 'bg-emerald-50' };
-    if (score >= 5) return { text: 'text-amber-600', bg: 'bg-amber-50' };
-    return { text: 'text-red-500', bg: 'bg-red-50' };
+    if (score === null || score === undefined) return { text: 'text-[hsl(214,100%,15%,0.4)]', bg: 'bg-[#F4F6FA]' };
+    if (score >= 7) return { text: 'text-[hsl(142,76%,36%)]', bg: 'bg-[hsl(142,76%,36%,0.1)]' };
+    if (score >= 5) return { text: 'text-[hsl(38,92%,50%)]', bg: 'bg-[hsl(38,92%,50%,0.1)]' };
+    return { text: 'text-[hsl(0,84%,60%)]', bg: 'bg-[hsl(0,84%,60%,0.1)]' };
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-6 h-6 border-2 border-[#1E62F2] border-t-transparent rounded-full animate-spin"></div>
           <span className="text-slate-600 font-medium">Loading application...</span>
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function AdminApplicationDetail() {
   const scoreColors = getScoreColor(application.score);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
+      <div className="min-h-screen bg-[#F4F6FA]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Back Button */}
         <Button 
@@ -81,7 +81,7 @@ export default function AdminApplicationDetail() {
           {/* ============================================
               HERO SECTION - Compact, max ~25-30% viewport
               ============================================ */}
-          <div className="bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500 px-5 py-4">
+          <div className="bg-gradient-to-r from-[#1E62F2] via-[hsl(216,88%,60%)] to-[hsl(216,88%,64%)] px-5 py-4">
             
             {/* ROW 1: Identity + Contact - Single horizontal line */}
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
@@ -131,21 +131,21 @@ export default function AdminApplicationDetail() {
               {/* Score Cards - Inline */}
               <div className="flex gap-2">
                 {/* AI Interview */}
-                <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2">
                   <Brain className={`h-4 w-4 ${scoreColors.text}`} />
-                  <span className="text-xs text-slate-500">AI</span>
+                  <span className="text-xs text-[hsl(214,100%,15%,0.6)]">AI</span>
                   <span className={`text-lg font-bold ${scoreColors.text}`}>{application.score ?? "—"}</span>
-                  <span className="text-xs text-slate-400">/10</span>
+                  <span className="text-xs text-[hsl(214,100%,15%,0.4)]">/10</span>
                   <div className="ml-1">{getStatusBadge(interviewStatus)}</div>
                 </div>
                 
                 {/* Mock Demo */}
-                <div className="flex items-center gap-2 bg-white/90 rounded-lg px-3 py-2">
-                  <Presentation className="h-4 w-4 text-slate-400" />
-                  <span className="text-xs text-slate-500">Demo</span>
-                  <span className="text-lg font-bold text-slate-300">—</span>
-                  <span className="text-xs text-slate-400">/10</span>
-                  <Badge variant="outline" className="ml-1 bg-slate-50 text-slate-400 border-slate-200 text-[10px] px-1.5 py-0">
+                <div className="flex items-center gap-2 bg-white/90 rounded-xl px-3 py-2">
+                  <Presentation className="h-4 w-4 text-[hsl(214,100%,15%,0.4)]" />
+                  <span className="text-xs text-[hsl(214,100%,15%,0.6)]">Demo</span>
+                  <span className="text-lg font-bold text-[hsl(214,100%,15%,0.3)]">—</span>
+                  <span className="text-xs text-[hsl(214,100%,15%,0.4)]">/10</span>
+                  <Badge variant="outline" className="ml-1 bg-[hsl(240,5%,64.9%,0.1)] text-[hsl(240,5%,64.9%)] border-[hsl(240,5%,64.9%)] text-[10px] px-1.5 py-0 rounded-xl">
                     Pending
                   </Badge>
                 </div>
@@ -191,7 +191,7 @@ export default function AdminApplicationDetail() {
               TEACHER JOURNEY SECTION - Full width below hero
               No sidebar, clean single-column layout
               ============================================ */}
-          <div className="bg-slate-50/50">
+          <div className="bg-[#F4F6FA]">
             <TeacherJourneySection
               applicationId={application.applicationId || application.id}
               candidateName={`${application.firstName} ${application.lastName}`}
