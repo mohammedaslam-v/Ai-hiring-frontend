@@ -105,21 +105,38 @@ const ApplicationsManagement: React.FC = () => {
 
   // Fetch journey progress for all applications
   useEffect(() => {
-    const applicationIds = applications.map(a => a.applicationId || a.id).filter(Boolean);
+    // Normalize application IDs: convert to strings and trim whitespace
+    const applicationIds = applications
+      .map(a => a.applicationId || a.id)
+      .filter(Boolean)
+      .map(id => String(id).trim());
+    
     if (!applicationIds.length) {
       setJourneyProgressMap({});
       return;
     }
+    
     let cancelled = false;
     setJourneyLoading(true);
+    
     teacherJourneyService.getBatchJourneyStatus(applicationIds)
       .then(response => {
         if (!cancelled && response.status && response.data) {
-          setJourneyProgressMap(response.data);
+          // Normalize keys in the response data to ensure exact matching
+          const normalizedMap: JourneyProgressMap = {};
+          Object.entries(response.data).forEach(([key, value]) => {
+            const normalizedKey = String(key).trim();
+            normalizedMap[normalizedKey] = value;
+          });
+          
+          setJourneyProgressMap(normalizedMap);
+        } else {
+          setJourneyProgressMap({});
         }
       })
       .catch(() => { if (!cancelled) setJourneyProgressMap({}); })
       .finally(() => { if (!cancelled) setJourneyLoading(false); });
+    
     return () => { cancelled = true; };
   }, [applications]);
 
@@ -135,27 +152,44 @@ const ApplicationsManagement: React.FC = () => {
     if (!isJourneyFiltered) return applications;
     
     return applications.filter(app => {
-      const appId = app.applicationId || app.id;
+      // Normalize application ID for lookup
+      const appId = String(app.applicationId || app.id).trim();
       const journey = journeyProgressMap[appId];
       
-      // If no journey data and any journey filter is set, exclude the app
-      if (!journey && isJourneyFiltered) {
-        // Check if we're filtering for "PENDING" or initial states - those apps without journey might match
-        const filteringForPending = 
-          (journeyFilters.demoStatus === 'PENDING' || journeyFilters.demoStatus === 'all') &&
-          (journeyFilters.trainingStatus === 'NOT_JOINED' || journeyFilters.trainingStatus === 'all') &&
-          (journeyFilters.certificationStatus === 'PENDING' || journeyFilters.certificationStatus === 'all') &&
-          (journeyFilters.goLiveReadiness === 'PENDING' || journeyFilters.goLiveReadiness === 'all');
+      // If no journey data exists for this application
+      if (!journey) {
+        // Only exclude if we're filtering for a specific non-pending status
+        // For demoStatus: PENDING means no journey exists yet, so include it
+        if (journeyFilters.demoStatus !== 'all' && journeyFilters.demoStatus !== 'PENDING') {
+          return false; // Exclude apps without journey when filtering for SELECTED/NOT_SELECTED/SCHEDULED
+        }
+        // For other statuses, exclude if filtering for non-initial states
+        if (journeyFilters.inductionAttendance !== 'all' && journeyFilters.inductionAttendance !== 'PENDING') return false;
+        if (journeyFilters.trainingStatus !== 'all' && journeyFilters.trainingStatus !== 'NOT_JOINED') return false;
+        if (journeyFilters.certificationStatus !== 'all' && journeyFilters.certificationStatus !== 'PENDING') return false;
+        if (journeyFilters.goLiveReadiness !== 'all' && journeyFilters.goLiveReadiness !== 'PENDING') return false;
         
-        if (!filteringForPending) return false;
+        // If filtering for pending/initial states, include apps without journey
+        return true;
       }
       
+      // If journey exists, check filters with exact string matching
       if (journey) {
-        if (journeyFilters.demoStatus !== 'all' && journey.demoStatus !== journeyFilters.demoStatus) return false;
-        if (journeyFilters.inductionAttendance !== 'all' && journey.inductionAttendance !== journeyFilters.inductionAttendance) return false;
-        if (journeyFilters.trainingStatus !== 'all' && journey.trainingStatus !== journeyFilters.trainingStatus) return false;
-        if (journeyFilters.certificationStatus !== 'all' && journey.certificationStatus !== journeyFilters.certificationStatus) return false;
-        if (journeyFilters.goLiveReadiness !== 'all' && journey.goLiveReadiness !== journeyFilters.goLiveReadiness) return false;
+        if (journeyFilters.demoStatus !== 'all' && journey.demoStatus !== journeyFilters.demoStatus) {
+          return false;
+        }
+        if (journeyFilters.inductionAttendance !== 'all' && journey.inductionAttendance !== journeyFilters.inductionAttendance) {
+          return false;
+        }
+        if (journeyFilters.trainingStatus !== 'all' && journey.trainingStatus !== journeyFilters.trainingStatus) {
+          return false;
+        }
+        if (journeyFilters.certificationStatus !== 'all' && journey.certificationStatus !== journeyFilters.certificationStatus) {
+          return false;
+        }
+        if (journeyFilters.goLiveReadiness !== 'all' && journey.goLiveReadiness !== journeyFilters.goLiveReadiness) {
+          return false;
+        }
       }
       
       return true;
@@ -898,7 +932,7 @@ const ApplicationsManagement: React.FC = () => {
                     </TableCell>
                     <TableCell className="text-center">
                       {(() => {
-                        const appId = application.applicationId || application.id;
+                        const appId = String(application.applicationId || application.id).trim();
                         const journeyData = journeyProgressMap[appId];
                         
                         if (journeyLoading && !journeyData) {
