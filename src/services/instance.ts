@@ -9,9 +9,16 @@ export const axiosInstance = axios.create({
     timeout: 30000, // 30 second timeout for file uploads
 });
 
-// Request interceptor for logging
+// Request interceptor for logging and auth
 axiosInstance.interceptors.request.use((config) => {
     console.log('API Request:', config.method?.toUpperCase(), config.url);
+    
+    // Add Authorization header if token exists
+    const adminToken = localStorage.getItem('adminToken');
+    if (adminToken) {
+        config.headers.Authorization = `Bearer ${adminToken}`;
+    }
+    
     return config;
 });
 

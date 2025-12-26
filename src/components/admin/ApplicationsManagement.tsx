@@ -820,6 +820,7 @@ const ApplicationsManagement: React.FC = () => {
                   </Button>
                 </TableHead>
                 <TableHead className="w-[160px] uppercase tracking-wide text-gray-600 text-xs text-center">Mock Demo</TableHead>
+                <TableHead className="w-[180px] uppercase tracking-wide text-gray-600 text-xs text-center">Demo Mail</TableHead>
                 <TableHead className="w-[180px] uppercase tracking-wide text-gray-600 text-xs text-center">Journey Progress</TableHead>
                 <TableHead className="w-[120px] uppercase tracking-wide text-gray-600 text-xs text-right">Actions</TableHead>
               </TableRow>
@@ -827,7 +828,7 @@ const ApplicationsManagement: React.FC = () => {
             <TableBody>
                               {isEmpty || filteredApplications.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                      <div className="text-gray-500">
                        {loading ? (
                          <div className="flex items-center justify-center gap-2">
@@ -926,6 +927,56 @@ const ApplicationsManagement: React.FC = () => {
                             <span className="text-xs text-gray-600">
                               {formatDate(data.scheduledDate || '')}
                             </span>
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {(() => {
+                        const appId = String(application.applicationId || application.id).trim();
+                        const journeyData = journeyProgressMap[appId];
+                        
+                        if (journeyLoading && !journeyData) {
+                          return <span className="text-gray-400 text-xs">Loading…</span>;
+                        }
+                        
+                        if (!journeyData || !journeyData.demoEmailSent || journeyData.demoEmailSent === 'NO' || (journeyData.demoEmailSentCount || 0) === 0) {
+                          return <span className="text-gray-400 text-xs">Not Sent</span>;
+                        }
+                        
+                        // Email was sent
+                        const isSelected = journeyData.demoEmailType === 'SELECTED';
+                        const sentDate = journeyData.demoEmailSentAt ? formatDate(journeyData.demoEmailSentAt) : 'N/A';
+                        const emailCount = journeyData.demoEmailSentCount || 0;
+                        const emailSentBy = journeyData.demoEmailSentBy;
+                        
+                        return (
+                          <div className="flex flex-col gap-1 items-center">
+                            <div className="flex items-center gap-1 flex-wrap justify-center">
+                              <Badge 
+                                className={
+                                  isSelected 
+                                    ? 'bg-green-100 text-green-700 border-green-300' 
+                                    : 'bg-red-100 text-red-700 border-red-300'
+                                } 
+                                variant="outline"
+                              >
+                                {isSelected ? 'Selected' : 'Not Selected'}
+                              </Badge>
+                              {emailCount > 1 && (
+                                <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
+                                  {emailCount}x
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-xs text-gray-600">
+                              {sentDate}
+                            </span>
+                            {emailSentBy && (
+                              <span className="text-xs text-gray-500" title={`Sent by: ${emailSentBy}`}>
+                                By: {emailSentBy.split('@')[0]}
+                              </span>
+                            )}
                           </div>
                         );
                       })()}

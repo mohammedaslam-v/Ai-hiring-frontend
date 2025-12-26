@@ -49,6 +49,7 @@ import { getStatusBadgeColors } from '@/constants/teacherJourney/colors';
 import { getSortedIndianLanguages } from '@/constants/indianLanguages';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { validateTeacherJourneySection } from '@/utils/yup/teacherJourneyValidation';
 import { getEvaluationMedia } from "@/services/evaluationService";
 import { useAuth } from '@/contexts/AuthContext';
@@ -328,7 +329,6 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           grammarPronunciation: data.grammarPronunciation,
           // Extended Demo Evaluation
           overallTeachingStyle: data.overallTeachingStyle,
-          demoConducted: data.demoConducted,
           goodToGo: data.goodToGo,
           // Language & Subject Info
           languagesSpoken: data.languagesSpoken,
@@ -1576,16 +1576,21 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           <FieldContainer editMode={editMode}>
             <FieldLabel editMode={editMode}>Overall Teaching Style</FieldLabel>
             {editMode ? (
-              <Select value={data.overallTeachingStyle || ''} 
-                onValueChange={(v) => setEditData(prev => ({ ...prev, overallTeachingStyle: v as TeachingStyleRating }))}>
-                <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select rating" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BAD">Bad</SelectItem>
-                  <SelectItem value="AVERAGE">Average</SelectItem>
-                  <SelectItem value="GOOD">Good</SelectItem>
-                  <SelectItem value="EXCELLENT">Excellent</SelectItem>
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={data.overallTeachingStyle || ''} 
+                  onValueChange={(v) => setEditData(prev => ({ ...prev, overallTeachingStyle: v as TeachingStyleRating }))}>
+                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.overallTeachingStyle ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                    <SelectValue placeholder="Select rating" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BAD">Bad</SelectItem>
+                    <SelectItem value="AVERAGE">Average</SelectItem>
+                    <SelectItem value="GOOD">Good</SelectItem>
+                    <SelectItem value="EXCELLENT">Excellent</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldError error={fieldErrors.overallTeachingStyle} />
+              </>
             ) : (
               <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-medium ${
                 journey.overallTeachingStyle === 'EXCELLENT' ? 'bg-emerald-100 text-emerald-700' :
@@ -1599,35 +1604,92 @@ const DemoSection: React.FC<DemoSectionProps> = ({
             )}
           </FieldContainer>
 
-          {/* Demo Conducted */}
+          {/* Email Status - Shows count, sender, and date/time */}
           <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Demo Conducted?</FieldLabel>
-            {editMode ? (
-              <Select value={data.demoConducted || ''} 
-                onValueChange={(v) => setEditData(prev => ({ ...prev, demoConducted: v as YesNo }))}>
-                <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="YES">Yes</SelectItem>
-                  <SelectItem value="NO">No</SelectItem>
-                </SelectContent>
-              </Select>
-            ) : (
-              <div className="mt-1"><YesNoBadge value={journey.demoConducted} /></div>
-            )}
+            <FieldLabel editMode={editMode}>Email Status</FieldLabel>
+            {(() => {
+              const emailSent = journey.demoEmailSent;
+              const emailSentAt = journey.demoEmailSentAt;
+              const emailType = journey.demoEmailType;
+              const emailSentCount = journey.demoEmailSentCount || 0;
+              const emailSentBy = journey.demoEmailSentBy;
+              
+              if (!emailSent || emailSent === 'NO' || emailSentCount === 0) {
+                return (
+                  <div className="mt-1">
+                    <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300">
+                      Not Sent
+                    </Badge>
+                  </div>
+                );
+              }
+              
+              // Email was sent - show status, count, sender, and date/time
+              const isSelected = emailType === 'SELECTED';
+              const formattedDateTime = emailSentAt 
+                ? new Date(emailSentAt).toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })
+                : 'N/A';
+              
+              return (
+                <div className="mt-1 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge 
+                      variant="outline" 
+                      className={
+                        isSelected 
+                          ? 'bg-green-100 text-green-700 border-green-300' 
+                          : 'bg-red-100 text-red-700 border-red-300'
+                      }
+                    >
+                      {isSelected ? 'Selected' : 'Not Selected'}
+                    </Badge>
+                    {emailSentCount > 1 && (
+                      <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
+                        Sent {emailSentCount} times
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>Last sent: {formattedDateTime}</span>
+                    </div>
+                    {emailSentBy && (
+                      <div className="flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        <span>By: {emailSentBy}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </FieldContainer>
 
           {/* Good to Go */}
           <FieldContainer editMode={editMode}>
             <FieldLabel editMode={editMode}>Good to Go?</FieldLabel>
             {editMode ? (
-              <Select value={data.goodToGo || ''} 
-                onValueChange={(v) => setEditData(prev => ({ ...prev, goodToGo: v as YesNo }))}>
-                <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="YES">Yes</SelectItem>
-                  <SelectItem value="NO">No</SelectItem>
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={data.goodToGo || ''} 
+                  onValueChange={(v) => setEditData(prev => ({ ...prev, goodToGo: v as YesNo }))}>
+                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.goodToGo ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="YES">Yes</SelectItem>
+                    <SelectItem value="NO">No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldError error={fieldErrors.goodToGo} />
+              </>
             ) : (
               <div className="mt-1"><YesNoBadge value={journey.goodToGo} /></div>
             )}
@@ -1683,13 +1745,18 @@ const DemoSection: React.FC<DemoSectionProps> = ({
               { key: 'creativityDelivery', label: 'Creativity & Delivery' },
               { key: 'grammarPronunciation', label: 'Grammar & Pronunciation' },
             ] as const).map(({ key, label }) => (
-              <div key={key} className="flex items-center justify-between py-1">
-                <span className={`text-sm ${editMode ? 'text-[#1E62F2]' : 'text-slate-600'}`}>{label}</span>
-                <StarRating 
-                  value={(editMode ? editData[key] : journey[key]) || 0} 
-                  readonly={!editMode}
-                  onChange={(v) => setEditData(prev => ({ ...prev, [key]: v }))}
-                />
+              <div key={key} className="py-1">
+                <div className="flex items-center justify-between">
+                  <span className={`text-sm ${editMode ? 'text-[#1E62F2]' : 'text-slate-600'}`}>{label}</span>
+                  <StarRating 
+                    value={(editMode ? editData[key] : journey[key]) || 0} 
+                    readonly={!editMode}
+                    onChange={(v) => setEditData(prev => ({ ...prev, [key]: v }))}
+                  />
+                </div>
+                {editMode && fieldErrors[key] && (
+                  <FieldError error={fieldErrors[key]} />
+                )}
               </div>
             ))}
           </div>
@@ -1794,14 +1861,19 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           <FieldContainer editMode={editMode}>
             <FieldLabel editMode={editMode}>Minimum Hours Commitment Confirmed?</FieldLabel>
             {editMode ? (
-              <Select value={data.minHoursConfirmed || ''} 
-                onValueChange={(v) => setEditData(prev => ({ ...prev, minHoursConfirmed: v as YesNo }))}>
-                <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="YES">Yes</SelectItem>
-                  <SelectItem value="NO">No</SelectItem>
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={data.minHoursConfirmed || ''} 
+                  onValueChange={(v) => setEditData(prev => ({ ...prev, minHoursConfirmed: v as YesNo }))}>
+                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.minHoursConfirmed ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="YES">Yes</SelectItem>
+                    <SelectItem value="NO">No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldError error={fieldErrors.minHoursConfirmed} />
+              </>
             ) : (
               <div className="mt-1"><YesNoBadge value={journey.minHoursConfirmed} /></div>
             )}
@@ -1824,14 +1896,19 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           <FieldContainer editMode={editMode}>
             <FieldLabel editMode={editMode}>Willing to get trained with Gita?</FieldLabel>
             {editMode ? (
-              <Select value={data.willingGitaTraining || ''} 
-                onValueChange={(v) => setEditData(prev => ({ ...prev, willingGitaTraining: v as YesNo }))}>
-                <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="YES">Yes</SelectItem>
-                  <SelectItem value="NO">No</SelectItem>
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={data.willingGitaTraining || ''} 
+                  onValueChange={(v) => setEditData(prev => ({ ...prev, willingGitaTraining: v as YesNo }))}>
+                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.willingGitaTraining ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="YES">Yes</SelectItem>
+                    <SelectItem value="NO">No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldError error={fieldErrors.willingGitaTraining} />
+              </>
             ) : (
               <div className="mt-1"><YesNoBadge value={journey.willingGitaTraining} /></div>
             )}
@@ -1840,14 +1917,19 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           <FieldContainer editMode={editMode}>
             <FieldLabel editMode={editMode}>Salary Structure Reviewed & Accepted?</FieldLabel>
             {editMode ? (
-              <Select value={data.salaryStructureAccepted || ''} 
-                onValueChange={(v) => setEditData(prev => ({ ...prev, salaryStructureAccepted: v as YesNo }))}>
-                <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="YES">Yes</SelectItem>
-                  <SelectItem value="NO">No</SelectItem>
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={data.salaryStructureAccepted || ''} 
+                  onValueChange={(v) => setEditData(prev => ({ ...prev, salaryStructureAccepted: v as YesNo }))}>
+                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.salaryStructureAccepted ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="YES">Yes</SelectItem>
+                    <SelectItem value="NO">No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldError error={fieldErrors.salaryStructureAccepted} />
+              </>
             ) : (
               <div className="mt-1"><YesNoBadge value={journey.salaryStructureAccepted} /></div>
             )}
@@ -1856,14 +1938,19 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           <FieldContainer editMode={editMode}>
             <FieldLabel editMode={editMode}>Willing to Start Training Within 2 Weeks?</FieldLabel>
             {editMode ? (
-              <Select value={data.willingToStartIn2Weeks || ''} 
-                onValueChange={(v) => setEditData(prev => ({ ...prev, willingToStartIn2Weeks: v as YesNo }))}>
-                <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="YES">Yes</SelectItem>
-                  <SelectItem value="NO">No</SelectItem>
-                </SelectContent>
-              </Select>
+              <>
+                <Select value={data.willingToStartIn2Weeks || ''} 
+                  onValueChange={(v) => setEditData(prev => ({ ...prev, willingToStartIn2Weeks: v as YesNo }))}>
+                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.willingToStartIn2Weeks ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="YES">Yes</SelectItem>
+                    <SelectItem value="NO">No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldError error={fieldErrors.willingToStartIn2Weeks} />
+              </>
             ) : (
               <div className="mt-1"><YesNoBadge value={journey.willingToStartIn2Weeks} /></div>
             )}

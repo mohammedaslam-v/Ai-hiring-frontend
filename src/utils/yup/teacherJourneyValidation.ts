@@ -82,11 +82,11 @@ export const demoSectionValidation = Yup.object().shape({
         .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.FEEDBACK_MAX_LENGTH),
     }),
   
-  // Ratings (1-5 scale) - Required when demo is conducted
+  // Ratings (1-5 scale) - Required when demo status is SELECTED or NOT_SELECTED (demo conducted)
   lessonClarity: Yup.number()
     .nullable()
-    .when('demoConducted', {
-      is: 'YES',
+    .when('demoStatus', {
+      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.LESSON_CLARITY)
         .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
@@ -97,8 +97,8 @@ export const demoSectionValidation = Yup.object().shape({
   
   studentEngagement: Yup.number()
     .nullable()
-    .when('demoConducted', {
-      is: 'YES',
+    .when('demoStatus', {
+      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.STUDENT_ENGAGEMENT)
         .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
@@ -109,8 +109,8 @@ export const demoSectionValidation = Yup.object().shape({
   
   languageCommunication: Yup.number()
     .nullable()
-    .when('demoConducted', {
-      is: 'YES',
+    .when('demoStatus', {
+      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.LANGUAGE_COMMUNICATION)
         .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
@@ -121,8 +121,8 @@ export const demoSectionValidation = Yup.object().shape({
   
   teachingAids: Yup.number()
     .nullable()
-    .when('demoConducted', {
-      is: 'YES',
+    .when('demoStatus', {
+      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.TEACHING_AIDS)
         .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
@@ -133,8 +133,8 @@ export const demoSectionValidation = Yup.object().shape({
   
   creativityDelivery: Yup.number()
     .nullable()
-    .when('demoConducted', {
-      is: 'YES',
+    .when('demoStatus', {
+      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.CREATIVITY_DELIVERY)
         .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
@@ -145,8 +145,8 @@ export const demoSectionValidation = Yup.object().shape({
   
   grammarPronunciation: Yup.number()
     .nullable()
-    .when('demoConducted', {
-      is: 'YES',
+    .when('demoStatus', {
+      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.GRAMMAR_PRONUNCIATION)
         .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
@@ -158,8 +158,8 @@ export const demoSectionValidation = Yup.object().shape({
   // Extended Demo Evaluation
   overallTeachingStyle: Yup.string()
     .nullable()
-    .when('demoConducted', {
-      is: 'YES',
+    .when('demoStatus', {
+      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.OVERALL_STYLE_REQUIRED)
         .oneOf(['BAD', 'AVERAGE', 'GOOD', 'EXCELLENT'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.OVERALL_STYLE_INVALID),
@@ -172,18 +172,18 @@ export const demoSectionValidation = Yup.object().shape({
   
   goodToGo: Yup.string()
     .nullable()
-    .when('demoConducted', {
-      is: 'YES',
+    .when('demoStatus', {
+      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.GOOD_TO_GO_REQUIRED)
         .oneOf(['YES', 'NO'], 'Invalid good to go status'),
       otherwise: (schema) => schema.nullable(),
     }),
   
-  // Languages & Subjects
+  // Languages & Subjects - Always Required
   languagesSpoken: Yup.array()
     .of(Yup.string())
-    .nullable()
+    .required(TEACHER_JOURNEY_ERROR_MESSAGES.LANGUAGES.REQUIRED)
     .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.LANGUAGES.MIN_SELECTION)
     .max(10, TEACHER_JOURNEY_ERROR_MESSAGES.LANGUAGES.MAX_SELECTION)
     .test('valid-languages', TEACHER_JOURNEY_ERROR_MESSAGES.LANGUAGES.INVALID_LANGUAGE, (value) => {
@@ -194,7 +194,7 @@ export const demoSectionValidation = Yup.object().shape({
   
   subjectsPrograms: Yup.array()
     .of(Yup.string())
-    .nullable()
+    .required(TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.REQUIRED)
     .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.MIN_SELECTION)
     .max(4, TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.MAX_SELECTION)
     .test('valid-subjects', TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.INVALID_SUBJECT, (value) => {
@@ -203,22 +203,22 @@ export const demoSectionValidation = Yup.object().shape({
       return value.every(subj => validSubjects.includes(subj));
     }),
   
-  // Availability
+  // Availability - Always Required
   minHoursConfirmed: Yup.string()
-    .nullable()
+    .required(TEACHER_JOURNEY_ERROR_MESSAGES.AVAILABILITY.MIN_HOURS_REQUIRED)
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.AVAILABILITY.MIN_HOURS_INVALID),
   
-  // Training & Onboarding Confirmation
+  // Training & Onboarding Confirmation - Always Required
   willingGitaTraining: Yup.string()
-    .nullable()
+    .required(TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.WILLING_TRAINING_REQUIRED)
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.WILLING_TRAINING_INVALID),
   
   salaryStructureAccepted: Yup.string()
-    .nullable()
+    .required(TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.SALARY_ACCEPTED_REQUIRED)
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.SALARY_ACCEPTED_INVALID),
   
   willingToStartIn2Weeks: Yup.string()
-    .nullable()
+    .required(TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.START_IN_2_WEEKS_REQUIRED)
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.START_IN_2_WEEKS_INVALID),
 });
 
@@ -405,5 +405,8 @@ export const validateTeacherJourneySection = async (
     return { isValid: false, errors: { general: 'Validation failed' } };
   }
 };
+
+
+
 
 
