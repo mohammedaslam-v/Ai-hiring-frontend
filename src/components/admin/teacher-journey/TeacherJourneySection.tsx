@@ -77,14 +77,14 @@ interface TeacherJourneySectionProps {
 // ============================================
 // TAB CONFIGURATION
 // ============================================
-const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: string }[] = [
+const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: string; owner?: 'HR' | 'TSM' }[] = [
   { key: 'aiRound', label: 'AI Round', icon: Brain, gradient: 'from-purple-500 to-pink-500' },
-  { key: 'demo', label: 'Demo', icon: User, gradient: 'from-blue-500 to-indigo-500' },
-  { key: 'onboarding', label: 'Onboarding', icon: Mail, gradient: 'from-indigo-500 to-blue-500' },
-  { key: 'induction', label: 'Induction', icon: Calendar, gradient: 'from-violet-500 to-purple-500' },
-  { key: 'training', label: 'Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]' },
-  { key: 'certification', label: 'Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500' },
-  { key: 'goLive', label: 'Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500' },
+  { key: 'demo', label: 'Demo', icon: User, gradient: 'from-blue-500 to-indigo-500', owner: 'HR' },
+  { key: 'onboarding', label: 'Onboarding', icon: Mail, gradient: 'from-indigo-500 to-blue-500', owner: 'HR' },
+  { key: 'induction', label: 'Induction', icon: Calendar, gradient: 'from-violet-500 to-purple-500', owner: 'TSM' },
+  { key: 'training', label: 'Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'TSM' },
+  { key: 'certification', label: 'Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
+  { key: 'goLive', label: 'Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
 ];
 
 // ============================================
@@ -471,7 +471,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                     setEditData({});
                   }}
                   disabled={isDisabled}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
                     isDisabled
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
                       : isActive 
@@ -483,26 +483,43 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                           : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
-                    isDisabled
-                      ? 'bg-slate-200 text-slate-400'
-                      : isActive 
-                        ? editMode
-                          ? 'bg-[#1E62F2] text-white' // Edit mode indicator
-                          : `bg-gradient-to-br ${tab.gradient} text-white`
-                        : isDone 
-                          ? 'bg-emerald-500 text-white' 
-                          : 'bg-slate-200 text-slate-500'
-                  }`}>
-                    {isDisabled ? (
-                      <Lock className="h-3.5 w-3.5" />
-                    ) : isDone && !isActive ? (
-                      <CheckCircle2 className="h-4 w-4" />
-                    ) : (
-                      <TabIcon className="h-4 w-4" />
-                    )}
+                  <div className="flex items-center gap-2">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                      isDisabled
+                        ? 'bg-slate-200 text-slate-400'
+                        : isActive 
+                          ? editMode
+                            ? 'bg-[#1E62F2] text-white' // Edit mode indicator
+                            : `bg-gradient-to-br ${tab.gradient} text-white`
+                          : isDone 
+                            ? 'bg-emerald-500 text-white' 
+                            : 'bg-slate-200 text-slate-500'
+                    }`}>
+                      {isDisabled ? (
+                        <Lock className="h-3.5 w-3.5" />
+                      ) : isDone && !isActive ? (
+                        <CheckCircle2 className="h-4 w-4" />
+                      ) : (
+                        <TabIcon className="h-4 w-4" />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium">{tab.label}</span>
                   </div>
-                  <span className="text-sm font-medium">{tab.label}</span>
+                  {tab.owner && (
+                    <span className={`text-[10px] font-normal ${
+                      isDisabled
+                        ? 'text-slate-400'
+                        : isActive
+                          ? editMode
+                            ? 'text-[#1E62F2]/70'
+                            : 'text-teal-600/70'
+                          : isDone
+                            ? 'text-emerald-600/70'
+                            : 'text-slate-500/70'
+                    }`}>
+                      {tab.owner}
+                    </span>
+                  )}
                 </button>
                 
                 {/* Connector Line */}
