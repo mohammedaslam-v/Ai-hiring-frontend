@@ -33,6 +33,11 @@ export interface JourneyStatusData {
   trainingStatus: string;
   certificationStatus: string;
   goLiveReadiness: string;
+  demoEmailSent: string | null;
+  demoEmailSentAt: string | null;
+  demoEmailType: string | null;
+  demoEmailSentCount: number;
+  demoEmailSentBy: string | null;
   progress: number;
 }
 

@@ -105,13 +105,17 @@ export const TEACHER_JOURNEY_ERROR_MESSAGES = {
   
   // Availability & Preferences
   AVAILABILITY: {
+    MIN_HOURS_REQUIRED: 'Minimum hours confirmation is required',
     MIN_HOURS_INVALID: 'Invalid minimum hours confirmation status',
   },
   
   // Training & Onboarding Confirmation
   TRAINING_CONFIRMATION: {
+    WILLING_TRAINING_REQUIRED: 'Training willingness is required',
     WILLING_TRAINING_INVALID: 'Invalid training willingness status',
+    SALARY_ACCEPTED_REQUIRED: 'Salary structure acceptance is required',
     SALARY_ACCEPTED_INVALID: 'Invalid salary structure acceptance status',
+    START_IN_2_WEEKS_REQUIRED: 'Start date willingness is required',
     START_IN_2_WEEKS_INVALID: 'Invalid start date willingness status',
   },
   
@@ -122,5 +126,8 @@ export const TEACHER_JOURNEY_ERROR_MESSAGES = {
     INVALID_VALUE: 'Invalid value provided',
   },
 } as const;
+
+
+
 
 

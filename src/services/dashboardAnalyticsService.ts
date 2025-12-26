@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from './instance';
 import { 
   DashboardAnalytics, 
   DashboardAnalyticsSummary, 
@@ -10,7 +10,7 @@ import {
 
 // Dashboard analytics service for frontend API calls
 class DashboardAnalyticsService {
-  private readonly baseURL = `${import.meta.env.VITE_API_URL}/api/admin/dashboard`;
+  private readonly baseURL = `/api/admin/dashboard`;
 
   constructor() {
     // Ensure baseURL is properly set
@@ -24,7 +24,7 @@ class DashboardAnalyticsService {
    */
   getDashboardAnalytics = async (): Promise<DashboardAnalytics> => {
     try {
-      const response = await axios.get<DashboardApiResponse<DashboardAnalytics>>(`${this.baseURL}/analytics`);
+      const response = await axiosInstance.get<DashboardApiResponse<DashboardAnalytics>>(`${this.baseURL}/analytics`);
       return response.data.data;
     } catch (error) {
       console.error('Error fetching dashboard analytics:', error);
@@ -37,7 +37,7 @@ class DashboardAnalyticsService {
    */
   getDashboardSummary = async (): Promise<DashboardAnalyticsSummary> => {
     try {
-      const response = await axios.get<DashboardApiResponse<DashboardAnalyticsSummary>>(`${this.baseURL}/summary`);
+      const response = await axiosInstance.get<DashboardApiResponse<DashboardAnalyticsSummary>>(`${this.baseURL}/summary`);
       return response.data.data;
     } catch (error) {
       console.error('Error fetching dashboard summary:', error);
@@ -50,7 +50,7 @@ class DashboardAnalyticsService {
    */
   getInterviewStatistics = async (): Promise<InterviewStats> => {
     try {
-      const response = await axios.get<DashboardApiResponse<InterviewStats>>(`${this.baseURL}/interview-stats`);
+      const response = await axiosInstance.get<DashboardApiResponse<InterviewStats>>(`${this.baseURL}/interview-stats`);
       return response.data.data;
     } catch (error) {
       console.error('Error fetching interview statistics:', error);
@@ -63,7 +63,7 @@ class DashboardAnalyticsService {
    */
   getDailyTrends = async (days: number = 30): Promise<DailyTrends[]> => {
     try {
-      const response = await axios.get<DashboardApiResponse<DailyTrends[]>>(`${this.baseURL}/daily-trends`, {
+      const response = await axiosInstance.get<DashboardApiResponse<DailyTrends[]>>(`${this.baseURL}/daily-trends`, {
         params: { days }
       });
       return response.data.data;
@@ -78,7 +78,7 @@ class DashboardAnalyticsService {
    */
   getFunnelAnalytics = async (): Promise<FunnelAnalytics[]> => {
     try {
-      const response = await axios.get<DashboardApiResponse<FunnelAnalytics[]>>(`${this.baseURL}/funnel-analytics`);
+      const response = await axiosInstance.get<DashboardApiResponse<FunnelAnalytics[]>>(`${this.baseURL}/funnel-analytics`);
       return response.data.data;
     } catch (error) {
       console.error('Error fetching funnel analytics:', error);
@@ -91,7 +91,7 @@ class DashboardAnalyticsService {
    */
   refreshDashboardCache = async (): Promise<boolean> => {
     try {
-      const response = await axios.post<DashboardApiResponse<boolean>>(`${this.baseURL}/refresh-cache`);
+      const response = await axiosInstance.post<DashboardApiResponse<boolean>>(`${this.baseURL}/refresh-cache`);
       return response.data.data;
     } catch (error) {
       console.error('Error refreshing dashboard cache:', error);

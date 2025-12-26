@@ -64,6 +64,14 @@ export interface TeacherJourney {
   joinedWhatsAppGroup: WhatsAppGroupStatus | null;
   rejectComments: string | null;
   rejectEmailSent: YesNo | null;
+  
+  // Demo Email Tracking
+  demoEmailSent: YesNo | null;
+  demoEmailSentAt: string | null;
+  demoEmailType: string | null; // 'SELECTED' | 'NOT_SELECTED'
+  demoEmailSentCount: number;
+  demoEmailSentBy: string | null;
+  
   internalComments: string | null;
   
   createdAt: string;
