@@ -36,6 +36,7 @@ class ApplicationsFilteredService {
       if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder);
       if (filters.page) queryParams.append('page', filters.page.toString());
       if (filters.limit) queryParams.append('limit', filters.limit.toString());
+      if (filters.directDemo && filters.directDemo !== 'all') queryParams.append('directDemo', filters.directDemo);
 
       const response = await axiosInstance.get(`/api/admin/applications/filtered?${queryParams.toString()}`);
       const responseData = response.data as { 
