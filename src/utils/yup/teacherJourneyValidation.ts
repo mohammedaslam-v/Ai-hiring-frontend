@@ -351,19 +351,6 @@ export const onboardingSectionValidation = Yup.object().shape({
     .nullable()
     .oneOf(['DEMO', 'PAID', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.WHATSAPP_GROUP_INVALID),
   
-  rejectComments: Yup.string()
-    .nullable()
-    .when('rejectEmailSent', {
-      is: 'YES',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.REJECT_COMMENTS_REQUIRED)
-        .min(10, TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.REJECT_COMMENTS_MIN_LENGTH)
-        .max(1000, TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.REJECT_COMMENTS_MAX_LENGTH),
-      otherwise: (schema) => schema
-        .nullable()
-        .max(1000, TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.REJECT_COMMENTS_MAX_LENGTH),
-    }),
-  
   rejectEmailSent: Yup.string()
     .nullable()
     .oneOf(['YES', 'NO'], 'Invalid reject email status'),

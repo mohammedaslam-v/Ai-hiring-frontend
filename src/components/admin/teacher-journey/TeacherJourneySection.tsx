@@ -345,7 +345,6 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           onboardingEmailSent: data.onboardingEmailSent,
           hireCallMade: data.hireCallMade,
           joinedWhatsAppGroup: data.joinedWhatsAppGroup,
-          rejectComments: data.rejectComments,
           rejectEmailSent: data.rejectEmailSent,
           internalComments: data.internalComments,
         };
@@ -2066,23 +2065,6 @@ const OnboardingSection: React.FC<SectionProps> = ({ journey, editMode, editData
 
       {/* Full-width textarea fields */}
       <div className="mt-3 space-y-3">
-        <FieldContainer editMode={editMode}>
-          <FieldLabel editMode={editMode}>Reject Comments</FieldLabel>
-          {editMode ? (
-            <Textarea 
-              value={data.rejectComments || ''} 
-              placeholder="Reason for rejection (if applicable)..."
-              rows={2}
-              className="mt-1 bg-white border-[#1E62F2]"
-              onChange={(e) => setEditData(prev => ({ ...prev, rejectComments: e.target.value }))} 
-            />
-          ) : (
-            <p className="text-sm text-slate-700 mt-1">
-              {journey.rejectComments || <span className="text-slate-400 italic">—</span>}
-            </p>
-          )}
-        </FieldContainer>
-
         <FieldContainer editMode={editMode}>
           <FieldLabel editMode={editMode}>Internal Comments</FieldLabel>
           {editMode ? (
