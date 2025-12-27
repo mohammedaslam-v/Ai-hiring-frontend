@@ -11,6 +11,7 @@ export interface AppListFilters {
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+  directDemo?: 'all' | 'true' | 'false';
 }
 
 export interface AppListResponse {
@@ -32,6 +33,7 @@ export interface ApplicantRow {
   subjects: string[];
   interviewStatus: string;
   score: number | null;
+  directDemo?: boolean;
   /** Interview completion date from Session model */
   interviewCompletedAt: string | null;
   appliedDate: string;
@@ -83,5 +85,6 @@ export const DEFAULT_FILTERS: AppListFilters = {
   sortBy: 'appliedDate',
   sortOrder: 'desc',
   page: 1,
-  limit: 10
+  limit: 10,
+  directDemo: 'all'
 };

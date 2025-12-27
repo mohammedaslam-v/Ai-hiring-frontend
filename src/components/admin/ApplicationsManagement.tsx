@@ -521,6 +521,21 @@ const ApplicationsManagement: React.FC = () => {
                 </SelectContent>
               </Select>
 
+              {/* Direct Demo Filter */}
+              <Select
+                value={filters.directDemo || 'all'}
+                onValueChange={(value) => updateFilters({ directDemo: value as 'all' | 'true' | 'false' })}
+              >
+                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-blue-400">
+                  <SelectValue placeholder="Direct Demo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Demo Types</SelectItem>
+                  <SelectItem value="true">Direct Demo</SelectItem>
+                  <SelectItem value="false">AI Round</SelectItem>
+                </SelectContent>
+              </Select>
+
               {/* Score Range */}
               <div className="flex items-center gap-2">
                 <Input
@@ -858,12 +873,17 @@ const ApplicationsManagement: React.FC = () => {
                    </span>
                  )}
                  {journeyFilters.goLiveReadiness !== 'all' && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-teal-100 text-teal-700">
-                     Go-Live: {journeyFilters.goLiveReadiness.replace(/_/g, ' ')}
-                   </span>
-                 )}
-               </div>
-               <button
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-teal-100 text-teal-700">
+                    Go-Live: {journeyFilters.goLiveReadiness.replace(/_/g, ' ')}
+                  </span>
+                )}
+                {filters.directDemo && filters.directDemo !== 'all' && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 text-purple-700">
+                    Direct Demo: {filters.directDemo === 'true' ? 'Yes' : 'No'}
+                  </span>
+                )}
+              </div>
+              <button
                  onClick={resetAllFilters}
                  className="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline shrink-0"
                >
@@ -910,6 +930,9 @@ const ApplicationsManagement: React.FC = () => {
                     AI Round
                     {renderSortIcon('interviewStatus')}
                   </Button>
+                </TableHead>
+                <TableHead className="w-[120px] uppercase tracking-wide text-gray-600 text-xs text-center">
+                  Direct Demo
                 </TableHead>
                 <TableHead className="w-[160px] uppercase tracking-wide text-gray-600 text-xs text-center">Mock Demo</TableHead>
                 <TableHead className="w-[180px] uppercase tracking-wide text-gray-600 text-xs text-center">Demo Mail</TableHead>
@@ -984,16 +1007,25 @@ const ApplicationsManagement: React.FC = () => {
                        {application.score !== null && application.score !== undefined ? (
                          <span className={`text-sm font-semibold ${application.score >= PASS_SCORE_THRESHOLD ? 'text-green-600' : 'text-red-600'}`}>
                            {(application.score * 10)}%
-                         </span>
-                       ) : null}
-                       {application.interviewCompletedAt && (
-                         <span className="text-xs text-gray-500">
-                           {formatDate(application.interviewCompletedAt)}
-                         </span>
-                       )}
-                     </div>
-                   </TableCell>
-                    <TableCell className="text-center">
+                        </span>
+                      ) : null}
+                      {application.interviewCompletedAt && (
+                        <span className="text-xs text-gray-500">
+                          {formatDate(application.interviewCompletedAt)}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {application.directDemo ? (
+                      <Badge className="bg-purple-100 text-purple-700 border-purple-300" variant="outline">
+                        Yes
+                      </Badge>
+                    ) : (
+                      <span className="text-gray-400 text-xs">No</span>
+                    )}
+                  </TableCell>
+                   <TableCell className="text-center">
                       {(() => {
                         const key = (application.email || '').toLowerCase();
                         const data = secondRoundMap[key];
