@@ -1,7 +1,7 @@
 // Frontend types for applications management
 
 export interface AppListFilters {
-  search?: string;              // name or email
+  search?: string;              // name, email, or phone number
   status?: 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway';
   minScore?: number;
   maxScore?: number;

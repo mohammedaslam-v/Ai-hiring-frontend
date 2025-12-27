@@ -462,7 +462,7 @@ const ApplicationsManagement: React.FC = () => {
               {/* Search */}
               <div className="lg:col-span-1">
                 <Input
-                  placeholder="Search name or email..."
+                  placeholder="Search name, email, or phone..."
                   value={filters.search || ''}
                   onChange={(e) => updateFilters({ search: e.target.value })}
                   className="h-9 bg-white border-gray-200 focus:border-blue-400 focus:ring-blue-400/20"
