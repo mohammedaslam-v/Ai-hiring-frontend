@@ -15,7 +15,7 @@ const CandidateApplication = () => {
   } = useCandidateApplication();
 
   return (
-    <div className="min-h-screen md:h-screen bg-neutral-warm dark:bg-gray-900 relative md:overflow-hidden">
+    <div className="min-h-screen bg-neutral-warm dark:bg-gray-900 relative">
       {/* Subtle background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-bambinos-blue/[0.03] rounded-full blur-3xl" />
@@ -27,7 +27,7 @@ const CandidateApplication = () => {
         <DarkModeToggle />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 md:h-full flex flex-col">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-center gap-3 mb-4 sm:mb-5 animate-fade-in-up shrink-0">
           <div className="w-10 h-10 rounded-xl bg-white dark:bg-gray-800 shadow-soft flex items-center justify-center p-1 transition-transform duration-300 hover:scale-105">
@@ -48,7 +48,7 @@ const CandidateApplication = () => {
         </div>
 
         {/* Main Form Card */}
-        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-3xl shadow-soft-lg dark:shadow-none border border-gray-100/80 dark:border-gray-700/50 overflow-hidden animate-fade-in-up animation-delay-100 flex flex-col md:flex-1 md:min-h-0">
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-3xl shadow-soft-lg dark:shadow-none border border-gray-100/80 dark:border-gray-700/50 overflow-hidden animate-fade-in-up animation-delay-100 flex flex-col">
           {/* Form Header */}
           <div className="bg-gradient-to-r from-bambinos-blue to-bambinos-blue-light px-4 sm:px-6 py-4 shrink-0">
             <div className="flex items-center gap-3 h-8">
@@ -63,8 +63,8 @@ const CandidateApplication = () => {
           </div>
 
           {/* Form Content */}
-          <form onSubmit={formik.handleSubmit} className="p-4 sm:p-6 flex flex-col md:flex-1 md:min-h-0">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 md:flex-1 md:min-h-0">
+          <form onSubmit={formik.handleSubmit} className="p-4 sm:p-6 flex flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
               {/* Column 1: Personal Information */}
               <PersonalInfoSection
                 formData={{
