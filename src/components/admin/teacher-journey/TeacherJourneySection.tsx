@@ -53,6 +53,7 @@ import { Badge } from "@/components/ui/badge";
 import { validateTeacherJourneySection } from '@/utils/yup/teacherJourneyValidation';
 import { getEvaluationMedia } from "@/services/evaluationService";
 import { useAuth } from '@/contexts/AuthContext';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 // ============================================
 // TYPES
@@ -146,6 +147,9 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   aiRoundAreasForImprovement,
   aiRoundEvaluation
 }) => {
+  const { user } = useAuth();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
+
   const [journey, setJourney] = useState<TeacherJourney | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -185,6 +189,20 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   const handleSendDemoEmail = useCallback(async () => {
     if (!applicationId || !journey) return;
     
+    const isSelected = journey.goodToGo === 'YES';
+    const actionText = isSelected ? 'Selection' : 'Rejection';
+    const actionColor = isSelected ? 'text-emerald-600' : 'text-red-600';
+    
+    const confirmed = await confirm({
+      title: `Send ${actionText} Email?`,
+      description: `Are you sure you want to send the ${actionText.toLowerCase()} email to ${journey.firstName} ${journey.lastName}? This will notify the candidate about their demo result.`,
+      confirmText: `Send ${actionText} Mail`,
+      cancelText: "Cancel",
+      variant: isSelected ? 'default' : 'destructive'
+    });
+
+    if (!confirmed) return;
+
     setSendingEmail(true);
     try {
       const response = await teacherJourneyService.sendDemoResultEmail(applicationId);
@@ -201,7 +219,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
     } finally {
       setSendingEmail(false);
     }
-  }, [applicationId, journey, fetchJourney]);
+  }, [applicationId, journey, fetchJourney, confirm]);
 
   // Fetch session ID from applicationId
   useEffect(() => {
@@ -726,6 +744,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           </div>
         </div>
       </div>
+      <ConfirmDialog />
     </div>
   );
 };
