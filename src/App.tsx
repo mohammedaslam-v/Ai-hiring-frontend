@@ -38,7 +38,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Index />} />
       <Route path="/candidate/login" element={<CandidateLogin />} />
       <Route path="/candidate/application" element={<CandidateApplication />} />
-      <Route path="/directdemo" element={<DirectDemoApplication />} />
+      <Route path="/direct-demo" element={<DirectDemoApplication />} />
       <Route path="/directdemo-success" element={<DirectDemoConfirmation />} />
       <Route path="/candidate/interview" element={<CandidateInterview />} />
       <Route path="/candidate/result" element={<CandidateResult />} />
