@@ -15,7 +15,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     // Build query parameters from filters
     const queryParams = new URLSearchParams();
     
-    if (filters.search && filters.search.trim().length > 0) queryParams.append('search', filters.search.trim());
+    if (filters.search && filters.search.length > 0) queryParams.append('search', filters.search);
     if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
     if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
     if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
@@ -104,7 +104,7 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
     // Build query parameters from filters
     const queryParams = new URLSearchParams();
     
-    if (filters.search && filters.search.trim().length > 0) queryParams.append('search', filters.search.trim());
+    if (filters.search && filters.search.length > 0) queryParams.append('search', filters.search);
     if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
     if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
     if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());

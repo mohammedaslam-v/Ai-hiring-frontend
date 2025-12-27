@@ -97,6 +97,7 @@ export type WhatsAppGroupStatus = 'DEMO' | 'PAID' | 'NO';
 export interface TeacherJourneyFilters {
   search?: string;
   demoStatus?: string;
+  onboardingEmailSent?: string;
   inductionAttendance?: string;
   trainingStatus?: string;
   certificationStatus?: string;
@@ -261,6 +262,12 @@ export const GO_LIVE_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'YES', label: 'Yes' },
   { value: 'NEEDS_MORE_TRAINING', label: 'Needs More Training' }
+];
+
+export const ONBOARDING_OPTIONS = [
+  { value: 'all', label: 'All Onboarding' },
+  { value: 'YES', label: 'Email Sent' },
+  { value: 'NO', label: 'Email Not Sent' }
 ];
 
 export const SUBJECT_OPTIONS = [

@@ -29,6 +29,7 @@ interface PaginatedResponse<T> {
 
 export interface JourneyStatusData {
   demoStatus: string;
+  onboardingEmailSent: string | null;
   inductionAttendance: string;
   trainingStatus: string;
   certificationStatus: string;
@@ -55,6 +56,7 @@ class TeacherJourneyService {
       
       if (filters.search) queryParams.append('search', filters.search);
       if (filters.demoStatus && filters.demoStatus !== 'all') queryParams.append('demoStatus', filters.demoStatus);
+      if (filters.onboardingEmailSent && filters.onboardingEmailSent !== 'all') queryParams.append('onboardingEmailSent', filters.onboardingEmailSent);
       if (filters.inductionAttendance && filters.inductionAttendance !== 'all') queryParams.append('inductionAttendance', filters.inductionAttendance);
       if (filters.trainingStatus && filters.trainingStatus !== 'all') queryParams.append('trainingStatus', filters.trainingStatus);
       if (filters.certificationStatus && filters.certificationStatus !== 'all') queryParams.append('certificationStatus', filters.certificationStatus);
