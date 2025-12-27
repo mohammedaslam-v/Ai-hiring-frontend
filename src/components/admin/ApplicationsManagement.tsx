@@ -20,6 +20,7 @@ import { fetchSecondRoundStatus, SecondRoundMap } from '@/services/secondRound.s
 import { teacherJourneyService, JourneyStatusData } from '@/services/teacherJourney.service';
 import { 
   DEMO_STATUS_OPTIONS,
+  ONBOARDING_OPTIONS,
   INDUCTION_OPTIONS,
   TRAINING_STATUS_OPTIONS,
   CERTIFICATION_STATUS_OPTIONS,
@@ -30,6 +31,7 @@ import FeedbackModal from './FeedbackModal';
 // Journey filter interface
 interface JourneyFilters {
   demoStatus: string;
+  onboardingEmailSent: string;
   inductionAttendance: string;
   trainingStatus: string;
   certificationStatus: string;
@@ -72,6 +74,7 @@ const ApplicationsManagement: React.FC = () => {
   // Journey filter state
   const [journeyFilters, setJourneyFilters] = useState<JourneyFilters>({
     demoStatus: 'all',
+    onboardingEmailSent: 'all',
     inductionAttendance: 'all',
     trainingStatus: 'all',
     certificationStatus: 'all',
@@ -145,6 +148,7 @@ const ApplicationsManagement: React.FC = () => {
 
   // Check if journey filters are active
   const isJourneyFiltered = journeyFilters.demoStatus !== 'all' ||
+    journeyFilters.onboardingEmailSent !== 'all' ||
     journeyFilters.inductionAttendance !== 'all' ||
     journeyFilters.trainingStatus !== 'all' ||
     journeyFilters.certificationStatus !== 'all' ||
@@ -166,6 +170,8 @@ const ApplicationsManagement: React.FC = () => {
         if (journeyFilters.demoStatus !== 'all' && journeyFilters.demoStatus !== 'PENDING') {
           return false; // Exclude apps without journey when filtering for SELECTED/NOT_SELECTED/SCHEDULED
         }
+        // For onboarding: if filtering for YES/NO, exclude apps without journey
+        if (journeyFilters.onboardingEmailSent !== 'all') return false;
         // For other statuses, exclude if filtering for non-initial states
         if (journeyFilters.inductionAttendance !== 'all' && journeyFilters.inductionAttendance !== 'PENDING') return false;
         if (journeyFilters.trainingStatus !== 'all' && journeyFilters.trainingStatus !== 'NOT_JOINED') return false;
@@ -179,6 +185,9 @@ const ApplicationsManagement: React.FC = () => {
       // If journey exists, check filters with exact string matching
       if (journey) {
         if (journeyFilters.demoStatus !== 'all' && journey.demoStatus !== journeyFilters.demoStatus) {
+          return false;
+        }
+        if (journeyFilters.onboardingEmailSent !== 'all' && journey.onboardingEmailSent !== journeyFilters.onboardingEmailSent) {
           return false;
         }
         if (journeyFilters.inductionAttendance !== 'all' && journey.inductionAttendance !== journeyFilters.inductionAttendance) {
@@ -209,6 +218,7 @@ const ApplicationsManagement: React.FC = () => {
     resetFilters();
     setJourneyFilters({
       demoStatus: 'all',
+      onboardingEmailSent: 'all',
       inductionAttendance: 'all',
       trainingStatus: 'all',
       certificationStatus: 'all',
@@ -603,7 +613,7 @@ const ApplicationsManagement: React.FC = () => {
               <div className="w-1 h-4 bg-emerald-500 rounded-full"></div>
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Teacher Journey Filters</span>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               {/* Demo Status */}
               <Select
                 value={journeyFilters.demoStatus}
@@ -614,6 +624,23 @@ const ApplicationsManagement: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {DEMO_STATUS_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Onboarding Status */}
+              <Select
+                value={journeyFilters.onboardingEmailSent}
+                onValueChange={(value) => updateJourneyFilter('onboardingEmailSent', value)}
+              >
+                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
+                  <SelectValue placeholder="Onboarding" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ONBOARDING_OPTIONS.map(option => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>

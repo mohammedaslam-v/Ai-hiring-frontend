@@ -12,6 +12,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import CandidateLogin from "./pages/candidate/CandidateLogin";
 import CandidateApplication from "./pages/candidate/CandidateApplication";
+import DirectDemoApplication from "./pages/candidate/DirectDemoApplication";
+import DirectDemoConfirmation from "./pages/candidate/DirectDemoConfirmation";
 import CandidateInterview from "./pages/candidate/CandidateInterview";
 import CandidateResult from "./pages/candidate/CandidateResult";
 import ProcessingPage from "./pages/candidate/ProcessingPage";
@@ -36,6 +38,8 @@ const AppRoutes = () => {
       <Route path="/" element={<Index />} />
       <Route path="/candidate/login" element={<CandidateLogin />} />
       <Route path="/candidate/application" element={<CandidateApplication />} />
+      <Route path="/candidate/direct-demo" element={<DirectDemoApplication />} />
+      <Route path="/candidate/direct-demo-confirmation" element={<DirectDemoConfirmation />} />
       <Route path="/candidate/interview" element={<CandidateInterview />} />
       <Route path="/candidate/result" element={<CandidateResult />} />
       <Route path="/candidate/processing/:sessionId" element={<ProcessingPage />} />

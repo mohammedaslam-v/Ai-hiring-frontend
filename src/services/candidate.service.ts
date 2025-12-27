@@ -87,6 +87,83 @@ class CandidateService {
         }
     }
 
+    async submitDirectDemoApplication(applicationData: ApplicationData): Promise<ServiceResponse> {
+        try {
+            // Create JSON payload for backend with skipInterview flag
+            const payload = {
+                firstName: applicationData.firstName,
+                lastName: applicationData.lastName,
+                email: applicationData.email,
+                phoneNumber: applicationData.phone, // Map 'phone' to 'phoneNumber'
+                position: applicationData.position,
+                subjects: applicationData.subjects,
+                additionalLanguages: applicationData.additionalLanguages || [],
+                availableDays: applicationData.availableDays,
+                availableTimeSlots: applicationData.timeSlots,
+                skipInterview: true, // Flag to indicate direct demo application
+                directDemo: true,    // Additional flag for clarity
+            };
+            
+            // Debug: Log what's being sent
+            console.log('🔍 Direct Demo JSON payload being sent to backend:', payload);
+            
+            // Send request to backend
+            const response = await axiosInstance.post('/api/candidate/submit-direct-demo', payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            // Type the response data
+            const responseData = response.data as BackendApiResponse<ApplicationSubmissionData>;
+            
+            if (responseData.status) {
+                return {
+                    status: true,
+                    message: responseData.msg || "Direct demo application submitted successfully",
+                    data: {
+                        id: responseData.data?.id,
+                        status: responseData.data?.status,
+                        message: responseData.msg,
+                        applicationId: responseData.data?.applicationId,
+                        submittedAt: responseData.data?.submittedAt
+                    }
+                };
+            } else {
+                return {
+                    status: false,
+                    message: responseData.error || "Failed to submit direct demo application",
+                };
+            }
+            
+        } catch (error: unknown) {
+            console.error('❌ Direct Demo Application submission error:', error);
+            
+            if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response) {
+                const responseData = (error as AxiosErrorResponse).response!.data;
+                console.error('📊 Backend response:', responseData);
+                
+                // Log validation details if they exist
+                if (responseData.details && Array.isArray(responseData.details)) {
+                    console.error('🔍 Validation errors:');
+                    responseData.details.forEach((detail: ValidationErrorDetail, index: number) => {
+                        console.error(`  ${index + 1}. Field: ${detail.path || detail.field}, Error: ${detail.msg || detail.message}, Value: ${detail.value}`);
+                    });
+                }
+                
+                return {
+                    status: false,
+                    message: responseData.error || "Failed to submit direct demo application",
+                };
+            }
+            
+            return {
+                status: false,
+                message: error instanceof Error ? error.message : "Something went wrong",
+            };
+        }
+    }
+
 
     async getApplicationByPhone(phoneNumber: string): Promise<ServiceResponse> {
         try {
@@ -277,4 +354,6 @@ class CandidateService {
     }
 }
 
+// Export instance for use in hooks
+export const candidateService = new CandidateService();
 export default CandidateService;
