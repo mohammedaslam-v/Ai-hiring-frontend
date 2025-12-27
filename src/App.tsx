@@ -38,8 +38,8 @@ const AppRoutes = () => {
       <Route path="/" element={<Index />} />
       <Route path="/candidate/login" element={<CandidateLogin />} />
       <Route path="/candidate/application" element={<CandidateApplication />} />
-      <Route path="/candidate/direct-demo" element={<DirectDemoApplication />} />
-      <Route path="/candidate/direct-demo-confirmation" element={<DirectDemoConfirmation />} />
+      <Route path="/directdemo" element={<DirectDemoApplication />} />
+      <Route path="/directdemo-success" element={<DirectDemoConfirmation />} />
       <Route path="/candidate/interview" element={<CandidateInterview />} />
       <Route path="/candidate/result" element={<CandidateResult />} />
       <Route path="/candidate/processing/:sessionId" element={<ProcessingPage />} />
