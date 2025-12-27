@@ -6,7 +6,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Calendar, CheckCircle2, RefreshCw } from "lucide-react";
+import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, CalendarDays, CheckCircle2, RefreshCw } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { PASS_SCORE_THRESHOLD } from '@/constants/admin/availabilityConstants';
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { usePermissions } from '@/hooks/admin/usePermissions';
@@ -396,6 +399,28 @@ const ApplicationsManagement: React.FC = () => {
     }
   };
 
+  // Convert dd-mm-yyyy to Date object
+  const parseDate = (dateString: string | undefined): Date | undefined => {
+    if (!dateString || dateString.length !== 10) return undefined;
+    try {
+      const [day, month, year] = dateString.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      if (isNaN(date.getTime())) return undefined;
+      return date;
+    } catch {
+      return undefined;
+    }
+  };
+
+  // Convert Date object to dd-mm-yyyy format
+  const formatDateForFilter = (date: Date | undefined): string => {
+    if (!date) return '';
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   // Format date for display
   const formatDate = (dateString: string) => {
     if (!dateString || dateString.trim() === '') return 'N/A';
@@ -512,22 +537,62 @@ const ApplicationsManagement: React.FC = () => {
 
               {/* Date Range */}
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-400 shrink-0" />
-                <Input
-                  type="text"
-                  placeholder="dd-mm-yyyy"
-                  value={filters.fromDate || ''}
-                  onChange={(e) => updateFilters({ fromDate: e.target.value })}
-                  className="h-9 w-[100px] bg-white border-gray-200 focus:border-blue-400 text-sm"
-                />
+                <CalendarDays className="h-4 w-4 text-gray-400 shrink-0" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "h-9 w-[120px] justify-start text-left font-normal bg-white border-gray-200 hover:bg-gray-50",
+                        !filters.fromDate && "text-muted-foreground"
+                      )}
+                    >
+                      {filters.fromDate ? formatDateForFilter(parseDate(filters.fromDate)) : "From date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={parseDate(filters.fromDate)}
+                      onSelect={(date) => {
+                        if (date) {
+                          updateFilters({ fromDate: formatDateForFilter(date) });
+                        } else {
+                          updateFilters({ fromDate: '' });
+                        }
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
                 <span className="text-gray-400 text-sm">—</span>
-                <Input
-                  type="text"
-                  placeholder="dd-mm-yyyy"
-                  value={filters.toDate || ''}
-                  onChange={(e) => updateFilters({ toDate: e.target.value })}
-                  className="h-9 w-[100px] bg-white border-gray-200 focus:border-blue-400 text-sm"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "h-9 w-[120px] justify-start text-left font-normal bg-white border-gray-200 hover:bg-gray-50",
+                        !filters.toDate && "text-muted-foreground"
+                      )}
+                    >
+                      {filters.toDate ? formatDateForFilter(parseDate(filters.toDate)) : "To date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={parseDate(filters.toDate)}
+                      onSelect={(date) => {
+                        if (date) {
+                          updateFilters({ toDate: formatDateForFilter(date) });
+                        } else {
+                          updateFilters({ toDate: '' });
+                        }
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>
