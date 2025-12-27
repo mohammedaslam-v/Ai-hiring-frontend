@@ -10,6 +10,8 @@ export const ROUTES = {
     APPLICATION: '/candidate/application',
     INTERVIEW: '/candidate/interview',
     RESULT: '/candidate/result',
+    DIRECT_DEMO: '/directdemo',
+    DIRECT_DEMO_SUCCESS: '/directdemo-success',
     SALARY_STRUCTURE: '/candidate/salary-structure',
     SIMPLIFIED_SALARY_STRUCTURE: '/candidate/simplified-salary-structure',
   },

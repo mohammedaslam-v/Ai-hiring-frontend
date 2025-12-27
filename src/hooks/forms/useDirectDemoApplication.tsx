@@ -62,7 +62,7 @@ export function useDirectDemoApplication() {
           // Navigate to confirmation page
           setTimeout(() => {
             console.log('DirectDemoApplication: Navigating to confirmation page...');
-            navigate('/candidate/direct-demo-confirmation', { 
+            navigate('/directdemo-success', { 
               state: { 
                 applicationId: applicationIdValue,
                 candidateName: candidateNameValue 
