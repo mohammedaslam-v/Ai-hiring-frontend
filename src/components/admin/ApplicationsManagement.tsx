@@ -28,16 +28,6 @@ import {
 } from '@/types/teacherJourney';
 import FeedbackModal from './FeedbackModal';
 
-// Journey filter interface
-interface JourneyFilters {
-  demoStatus: string;
-  onboardingEmailSent: string;
-  inductionAttendance: string;
-  trainingStatus: string;
-  certificationStatus: string;
-  goLiveReadiness: string;
-}
-
 // Type for journey progress map
 type JourneyProgressMap = Record<string, JourneyStatusData>;
 
@@ -70,16 +60,6 @@ const ApplicationsManagement: React.FC = () => {
   // Journey progress state
   const [journeyProgressMap, setJourneyProgressMap] = useState<JourneyProgressMap>({});
   const [journeyLoading, setJourneyLoading] = useState(false);
-  
-  // Journey filter state
-  const [journeyFilters, setJourneyFilters] = useState<JourneyFilters>({
-    demoStatus: 'all',
-    onboardingEmailSent: 'all',
-    inductionAttendance: 'all',
-    trainingStatus: 'all',
-    certificationStatus: 'all',
-    goLiveReadiness: 'all'
-  });
   
   // Feedback modal state
   const [selectedFeedback, setSelectedFeedback] = useState<{
@@ -147,83 +127,24 @@ const ApplicationsManagement: React.FC = () => {
   }, [applications]);
 
   // Check if journey filters are active
-  const isJourneyFiltered = journeyFilters.demoStatus !== 'all' ||
-    journeyFilters.onboardingEmailSent !== 'all' ||
-    journeyFilters.inductionAttendance !== 'all' ||
-    journeyFilters.trainingStatus !== 'all' ||
-    journeyFilters.certificationStatus !== 'all' ||
-    journeyFilters.goLiveReadiness !== 'all';
+  const isJourneyFiltered = filters.demoStatus !== 'all' ||
+    filters.onboardingEmailSent !== 'all' ||
+    filters.inductionAttendance !== 'all' ||
+    filters.trainingStatus !== 'all' ||
+    filters.certificationStatus !== 'all' ||
+    filters.goLiveReadiness !== 'all';
 
-  // Filter applications by journey status (client-side)
-  const filteredApplications = useMemo(() => {
-    if (!isJourneyFiltered) return applications;
-    
-    return applications.filter(app => {
-      // Normalize application ID for lookup
-      const appId = String(app.applicationId || app.id).trim();
-      const journey = journeyProgressMap[appId];
-      
-      // If no journey data exists for this application
-      if (!journey) {
-        // Only exclude if we're filtering for a specific non-pending status
-        // For demoStatus: PENDING means no journey exists yet, so include it
-        if (journeyFilters.demoStatus !== 'all' && journeyFilters.demoStatus !== 'PENDING') {
-          return false; // Exclude apps without journey when filtering for SELECTED/NOT_SELECTED/SCHEDULED
-        }
-        // For onboarding: if filtering for YES/NO, exclude apps without journey
-        if (journeyFilters.onboardingEmailSent !== 'all') return false;
-        // For other statuses, exclude if filtering for non-initial states
-        if (journeyFilters.inductionAttendance !== 'all' && journeyFilters.inductionAttendance !== 'PENDING') return false;
-        if (journeyFilters.trainingStatus !== 'all' && journeyFilters.trainingStatus !== 'NOT_JOINED') return false;
-        if (journeyFilters.certificationStatus !== 'all' && journeyFilters.certificationStatus !== 'PENDING') return false;
-        if (journeyFilters.goLiveReadiness !== 'all' && journeyFilters.goLiveReadiness !== 'PENDING') return false;
-        
-        // If filtering for pending/initial states, include apps without journey
-        return true;
-      }
-      
-      // If journey exists, check filters with exact string matching
-      if (journey) {
-        if (journeyFilters.demoStatus !== 'all' && journey.demoStatus !== journeyFilters.demoStatus) {
-          return false;
-        }
-        if (journeyFilters.onboardingEmailSent !== 'all' && journey.onboardingEmailSent !== journeyFilters.onboardingEmailSent) {
-          return false;
-        }
-        if (journeyFilters.inductionAttendance !== 'all' && journey.inductionAttendance !== journeyFilters.inductionAttendance) {
-          return false;
-        }
-        if (journeyFilters.trainingStatus !== 'all' && journey.trainingStatus !== journeyFilters.trainingStatus) {
-          return false;
-        }
-        if (journeyFilters.certificationStatus !== 'all' && journey.certificationStatus !== journeyFilters.certificationStatus) {
-          return false;
-        }
-        if (journeyFilters.goLiveReadiness !== 'all' && journey.goLiveReadiness !== journeyFilters.goLiveReadiness) {
-          return false;
-        }
-      }
-      
-      return true;
-    });
-  }, [applications, journeyProgressMap, journeyFilters, isJourneyFiltered]);
+  // Use applications directly from hook (now server-side filtered)
+  const filteredApplications = applications;
 
   // Update journey filter
-  const updateJourneyFilter = (key: keyof JourneyFilters, value: string) => {
-    setJourneyFilters(prev => ({ ...prev, [key]: value }));
+  const updateJourneyFilter = (key: string, value: string) => {
+    updateFilters({ [key]: value });
   };
 
   // Reset all filters including journey filters
   const resetAllFilters = () => {
     resetFilters();
-    setJourneyFilters({
-      demoStatus: 'all',
-      onboardingEmailSent: 'all',
-      inductionAttendance: 'all',
-      trainingStatus: 'all',
-      certificationStatus: 'all',
-      goLiveReadiness: 'all'
-    });
   };
 
   // Helper function to render status badge
@@ -631,7 +552,7 @@ const ApplicationsManagement: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               {/* Demo Status */}
               <Select
-                value={journeyFilters.demoStatus}
+                value={filters.demoStatus}
                 onValueChange={(value) => updateJourneyFilter('demoStatus', value)}
               >
                 <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
@@ -648,7 +569,7 @@ const ApplicationsManagement: React.FC = () => {
 
               {/* Onboarding Status */}
               <Select
-                value={journeyFilters.onboardingEmailSent}
+                value={filters.onboardingEmailSent}
                 onValueChange={(value) => updateJourneyFilter('onboardingEmailSent', value)}
               >
                 <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
@@ -665,7 +586,7 @@ const ApplicationsManagement: React.FC = () => {
 
               {/* Induction Status */}
               <Select
-                value={journeyFilters.inductionAttendance}
+                value={filters.inductionAttendance}
                 onValueChange={(value) => updateJourneyFilter('inductionAttendance', value)}
               >
                 <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
@@ -682,7 +603,7 @@ const ApplicationsManagement: React.FC = () => {
 
               {/* Training Status */}
               <Select
-                value={journeyFilters.trainingStatus}
+                value={filters.trainingStatus}
                 onValueChange={(value) => updateJourneyFilter('trainingStatus', value)}
               >
                 <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
@@ -699,7 +620,7 @@ const ApplicationsManagement: React.FC = () => {
 
               {/* Certification Status */}
               <Select
-                value={journeyFilters.certificationStatus}
+                value={filters.certificationStatus}
                 onValueChange={(value) => updateJourneyFilter('certificationStatus', value)}
               >
                 <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
@@ -716,7 +637,7 @@ const ApplicationsManagement: React.FC = () => {
 
               {/* Go-Live Status */}
               <Select
-                value={journeyFilters.goLiveReadiness}
+                value={filters.goLiveReadiness}
                 onValueChange={(value) => updateJourneyFilter('goLiveReadiness', value)}
               >
                 <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
@@ -852,29 +773,29 @@ const ApplicationsManagement: React.FC = () => {
                      {filters.fromDate} → {filters.toDate}
                    </span>
                  )}
-                 {journeyFilters.demoStatus !== 'all' && (
+                 {filters.demoStatus !== 'all' && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan-100 text-cyan-700">
-                     Demo: {journeyFilters.demoStatus}
+                     Demo: {filters.demoStatus}
                    </span>
                  )}
-                 {journeyFilters.inductionAttendance !== 'all' && (
+                 {filters.inductionAttendance !== 'all' && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-violet-100 text-violet-700">
-                     Induction: {journeyFilters.inductionAttendance}
+                     Induction: {filters.inductionAttendance}
                    </span>
                  )}
-                 {journeyFilters.trainingStatus !== 'all' && (
+                 {filters.trainingStatus !== 'all' && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700">
-                     Training: {journeyFilters.trainingStatus.replace(/_/g, ' ')}
+                     Training: {filters.trainingStatus.replace(/_/g, ' ')}
                    </span>
                  )}
-                 {journeyFilters.certificationStatus !== 'all' && (
+                 {filters.certificationStatus !== 'all' && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-700">
-                     Cert: {journeyFilters.certificationStatus}
+                     Cert: {filters.certificationStatus}
                    </span>
                  )}
-                 {journeyFilters.goLiveReadiness !== 'all' && (
+                 {filters.goLiveReadiness !== 'all' && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-teal-100 text-teal-700">
-                    Go-Live: {journeyFilters.goLiveReadiness.replace(/_/g, ' ')}
+                    Go-Live: {filters.goLiveReadiness.replace(/_/g, ' ')}
                   </span>
                 )}
                 {filters.directDemo && filters.directDemo !== 'all' && (

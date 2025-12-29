@@ -528,6 +528,12 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
             const isActive = activeTab === tab.key;
             const isDone = getTabStatus(tab.key);
             const TabIcon = tab.icon;
+            
+            // Calculate if this tab is locked (previous tab not done)
+            // AI Round and Demo are never locked by a previous stage
+            const isPreviousDone = i === 0 || tab.key === 'demo' || getTabStatus(visibleTabs[i - 1].key);
+            const isLocked = !isPreviousDone;
+            
             // Disable other tabs while editing to prevent accidental data loss
             const isDisabled = editMode && !isActive;
             
@@ -549,6 +555,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                         ? editMode
                             ? 'bg-[#1E62F2]/10 text-[#1E62F2] ring-2 ring-[#1E62F2]/20' // Active tab in edit mode
                           : 'bg-teal-50 text-teal-700 ring-2 ring-teal-200' // Active tab in view mode
+                        : isLocked
+                          ? 'bg-slate-50 text-slate-400 cursor-default opacity-70' // Locked tab
                         : isDone 
                           ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' 
                           : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
@@ -562,11 +570,15 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                           ? editMode
                             ? 'bg-[#1E62F2] text-white' // Edit mode indicator
                             : `bg-gradient-to-br ${tab.gradient} text-white`
+                          : isLocked
+                            ? 'bg-slate-200 text-slate-400' // Locked tab indicator
                           : isDone 
                             ? 'bg-emerald-500 text-white' 
                             : 'bg-slate-200 text-slate-500'
                     }`}>
                       {isDisabled ? (
+                        <Lock className="h-3.5 w-3.5" />
+                      ) : isLocked ? (
                         <Lock className="h-3.5 w-3.5" />
                       ) : isDone && !isActive ? (
                         <CheckCircle2 className="h-4 w-4" />
@@ -654,14 +666,27 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               {activeTab === 'aiRound' ? (
                 <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">Read Only</span>
               ) : !editMode ? (
-                <button
-                  onClick={handleStartEdit}
-                  disabled={!journey}
-                  className="p-2.5 rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-50 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={journey ? "Edit this section" : "Start journey first"}
-                >
-                  <Pencil className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                </button>
+                (() => {
+                  const currentTabIndex = visibleTabs.findIndex(t => t.key === activeTab);
+                  // Demo section is always editable
+                  const isLocked = currentTabIndex > 0 && activeTab !== 'demo' && !getTabStatus(visibleTabs[currentTabIndex - 1].key);
+                  const prevStageLabel = currentTabIndex > 0 ? visibleTabs[currentTabIndex - 1].label : '';
+                  
+                  return (
+                    <button
+                      onClick={handleStartEdit}
+                      disabled={!journey || isLocked}
+                      className="p-2.5 rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-50 transition-colors group disabled:opacity-40 disabled:cursor-not-allowed"
+                      title={!journey ? "Start journey first" : isLocked ? `Complete ${prevStageLabel} to edit this section` : "Edit this section"}
+                    >
+                      {isLocked ? (
+                        <Lock className="h-5 w-5" />
+                      ) : (
+                        <Pencil className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                      )}
+                    </button>
+                  );
+                })()
               ) : (
                 <div className="flex items-center gap-2">
                   <Button 
@@ -1669,9 +1694,19 @@ const DemoSection: React.FC<DemoSectionProps> = ({
             <FieldLabel editMode={editMode}>Interviewer Name</FieldLabel>
             {editMode ? (
               <>
-                <Input value={data.demoInterviewerName || ''} placeholder="Enter interviewer name..."
-                  className={`mt-1 bg-white ${fieldErrors.demoInterviewerName ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}
-                  onChange={(e) => setEditData(prev => ({ ...prev, demoInterviewerName: e.target.value }))} />
+                <Select value={data.demoInterviewerName || ''} 
+                  onValueChange={(v) => setEditData(prev => ({ ...prev, demoInterviewerName: v }))}>
+                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.demoInterviewerName ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                    <SelectValue placeholder="Select interviewer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getSortedInterviewers().map((interviewer) => (
+                      <SelectItem key={interviewer} value={interviewer}>
+                        {interviewer}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FieldError error={fieldErrors.demoInterviewerName} />
               </>
             ) : (

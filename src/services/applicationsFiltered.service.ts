@@ -37,6 +37,14 @@ class ApplicationsFilteredService {
       if (filters.page) queryParams.append('page', filters.page.toString());
       if (filters.limit) queryParams.append('limit', filters.limit.toString());
       if (filters.directDemo && filters.directDemo !== 'all') queryParams.append('directDemo', filters.directDemo);
+      
+      // Teacher Journey filters
+      if (filters.demoStatus && filters.demoStatus !== 'all') queryParams.append('demoStatus', filters.demoStatus);
+      if (filters.onboardingEmailSent && filters.onboardingEmailSent !== 'all') queryParams.append('onboardingEmailSent', filters.onboardingEmailSent);
+      if (filters.inductionAttendance && filters.inductionAttendance !== 'all') queryParams.append('inductionAttendance', filters.inductionAttendance);
+      if (filters.trainingStatus && filters.trainingStatus !== 'all') queryParams.append('trainingStatus', filters.trainingStatus);
+      if (filters.certificationStatus && filters.certificationStatus !== 'all') queryParams.append('certificationStatus', filters.certificationStatus);
+      if (filters.goLiveReadiness && filters.goLiveReadiness !== 'all') queryParams.append('goLiveReadiness', filters.goLiveReadiness);
 
       const response = await axiosInstance.get(`/api/admin/applications/filtered?${queryParams.toString()}`);
       const responseData = response.data as { 

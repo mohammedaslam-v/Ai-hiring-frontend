@@ -91,6 +91,12 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
 
   if (!journey) return null;
 
+  // Completion checks
+  const isDemoDone = journey.demoStatus === 'SELECTED';
+  const isInductionDone = journey.inductionAttendance === 'YES';
+  const isTrainingDone = journey.trainingStatus === 'JOINED' || journey.trainingStatus === 'COMPLETED';
+  const isCertificationDone = journey.certificationStatus === 'CLEARED';
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -103,10 +109,18 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
         <Tabs defaultValue="demo" className="w-full">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="demo">Demo</TabsTrigger>
-            <TabsTrigger value="induction">Induction</TabsTrigger>
-            <TabsTrigger value="training">Training</TabsTrigger>
-            <TabsTrigger value="certification">Certification</TabsTrigger>
-            <TabsTrigger value="golive">Go-Live</TabsTrigger>
+            <TabsTrigger value="induction" disabled={!isDemoDone} title={!isDemoDone ? "Complete Demo first" : ""}>
+              Induction {!isDemoDone && "🔒"}
+            </TabsTrigger>
+            <TabsTrigger value="training" disabled={!isInductionDone} title={!isInductionDone ? "Complete Induction first" : ""}>
+              Training {!isInductionDone && "🔒"}
+            </TabsTrigger>
+            <TabsTrigger value="certification" disabled={!isTrainingDone} title={!isTrainingDone ? "Complete Training first" : ""}>
+              Certification {!isTrainingDone && "🔒"}
+            </TabsTrigger>
+            <TabsTrigger value="golive" disabled={!isCertificationDone} title={!isCertificationDone ? "Complete Certification first" : ""}>
+              Go-Live {!isCertificationDone && "🔒"}
+            </TabsTrigger>
           </TabsList>
 
           {/* Demo Tab */}
