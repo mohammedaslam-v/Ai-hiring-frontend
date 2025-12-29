@@ -555,7 +555,7 @@ const CandidateInterview = () => {
                       </div>
                       <h3 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-white leading-none">Required Before Interview</h3>
                     </div>
-                    <ul className="space-y-1 sm:space-y-1.5 flex-1 overflow-y-auto">
+                    <ul className="space-y-1.5 flex-1 overflow-y-auto">
                       <li className="flex items-start gap-2">
                         <CheckCircle className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-rose-500 dark:text-rose-400 shrink-0 mt-0.5" />
                         <span className="text-[11px] sm:text-xs text-gray-700 dark:text-gray-300 leading-snug sm:leading-relaxed">Watch the complete video (no skipping allowed)</span>
@@ -755,7 +755,7 @@ const CandidateInterview = () => {
                       </li>
                       <li className="flex items-start gap-2.5">
                         <div className="w-1.5 h-1.5 bg-amber-600 rounded-full mt-1.5 shrink-0" />
-                        <span className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">Listen to the questions carefully and take your time to think before answering</span>
+                        <span className="text-xs text-amber-700 dark:text-gray-300 leading-relaxed">Listen to the questions carefully and take your time to think before answering</span>
                       </li>
                     </ul>
                   </div>
@@ -853,10 +853,9 @@ const CandidateInterview = () => {
     );
   }
 
-  // Interview in progress state - Redesigned to match modern, calm, premium design
   if (interviewStatus === INTERVIEW_STATUS.IN_PROGRESS) {
     return (
-      <div className="min-h-screen md:h-screen bg-neutral-warm dark:bg-gray-900 relative md:overflow-hidden">
+      <div className="h-screen w-screen bg-neutral-warm dark:bg-gray-900 relative overflow-hidden flex flex-col">
         {/* Subtle background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-bambinos-blue/[0.03] rounded-full blur-3xl" />
@@ -868,132 +867,173 @@ const CandidateInterview = () => {
           <DarkModeToggle />
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-5 md:h-full flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-center gap-3 mb-4 sm:mb-5 animate-fade-in-up shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-white dark:bg-gray-800 shadow-soft flex items-center justify-center p-1 transition-transform duration-300 hover:scale-105">
-              <img 
-                src="/lovable-uploads/1bd88e64-73eb-4b2c-8096-218b1fce8646.png" 
-                alt="Logo" 
-                className="w-8 h-8 object-contain" 
-              />
+        <div className="relative w-full h-full mx-auto px-2 sm:px-4 py-2 sm:py-3 flex-1 flex flex-col min-h-0">
+          {/* Header - Compact */}
+          <div className="flex items-center justify-between px-2 mb-2 shrink-0 animate-fade-in-up">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 shadow-soft flex items-center justify-center p-1 transition-transform duration-300 hover:scale-105">
+                <img 
+                  src="/lovable-uploads/1bd88e64-73eb-4b2c-8096-218b1fce8646.png" 
+                  alt="Logo" 
+                  className="w-6 h-6 object-contain" 
+                />
+              </div>
+              <div>
+                <h1 className="text-sm sm:text-base font-bold text-bambinos-blue dark:text-bambinos-blue-light tracking-tight leading-tight">
+                  Bambinos.live
+                </h1>
+                <p className="text-[9px] sm:text-[10px] text-gray-500 dark:text-gray-400 font-medium leading-tight">
+                  Premium Educator Application
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-bold text-bambinos-blue dark:text-bambinos-blue-light tracking-tight">
-                Bambinos.live
-              </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                Premium Educator Application
-              </p>
+            
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex flex-col items-end">
+                <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Candidate</p>
+                <p className="text-xs font-bold text-gray-700 dark:text-gray-200">{candidateName}</p>
+              </div>
+              <div className="h-8 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block" />
+              <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-800/30">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                <span className="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Live Session</span>
+              </div>
             </div>
           </div>
 
-          {/* Main Card */}
-          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-3xl shadow-soft-lg dark:shadow-none border border-gray-100/80 dark:border-gray-700/50 overflow-hidden animate-fade-in-up animation-delay-100 flex flex-col md:flex-1 md:min-h-0">
-            {/* Card Header */}
-            <div className="bg-gradient-to-r from-bambinos-blue to-bambinos-blue-light px-4 sm:px-6 py-4 shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 h-8">
-                  <div className="w-8 h-8 bg-white/15 backdrop-blur-sm rounded-lg flex items-center justify-center shrink-0">
-                    <Video className="h-3.5 w-3.5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-white">AI Interview</h2>
-                    <p className="text-blue-100 text-xs">Live Session</p>
-                  </div>
-                </div>
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col lg:flex-row gap-3 min-h-0">
+            {/* Left Section - The Interview Iframe */}
+            <div className="flex-[7] flex flex-col min-h-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-soft-lg border border-gray-100/80 dark:border-gray-700/50 overflow-hidden">
+              {/* Toolbar */}
+              <div className="bg-gradient-to-r from-bambinos-blue to-bambinos-blue-light px-4 py-2 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="text-xs font-medium text-white">AI Agent is waiting</span>
+                  <Video className="h-3.5 w-3.5 text-white" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">AI Interview System</span>
                 </div>
+                <div className="flex items-center gap-2 text-blue-100">
+                  <span className="text-[10px] font-medium">Session ID: {interviewSessionId?.slice(0, 8)}...</span>
+                </div>
+              </div>
+
+              {/* Iframe Container - Absolute Fullness */}
+              <div className="flex-1 relative bg-black">
+                <iframe
+                  src={iframeUrl}
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  allow="microphone; camera; display-capture"
+                  className="absolute inset-0 w-full h-full"
+                  title="Tough Tongue AI Interview"
+                />
               </div>
             </div>
 
-            {/* Card Content */}
-            <div className="p-4 sm:p-6 flex flex-col flex-1 md:min-h-0 overflow-y-auto">
-              {/* Candidate Info - Subtle */}
-              <div className="mb-4 text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {candidateName} ({candidateEmail})
-                </p>
-              </div>
-
-              {/* Video Section - Hero Element */}
-              <div className="mb-5">
-                <div className="relative w-full bg-black rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-soft" style={{ aspectRatio: '16/9', minHeight: '500px' }}>
-                  <iframe
-                    src={iframeUrl}
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    allow="microphone; camera; display-capture"
-                    className="absolute inset-0"
-                    title="Tough Tongue AI Interview"
-                  />
-                </div>
-              </div>
-
-              {/* Important Instructions */}
-              <div className="mb-5">
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-2xl p-4 sm:p-5">
-                  <div className="flex items-center gap-2.5 mb-4">
-                    <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                    <h3 className="text-xs font-bold text-amber-800 dark:text-amber-200">Important Instructions</h3>
+            {/* Right Section - Unified Live Dashboard */}
+            <div className="flex-[2.2] flex flex-col gap-3 min-h-0 lg:max-w-xs xl:max-w-sm">
+              {/* Session Control Panel */}
+              <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl shadow-soft-xl border border-gray-100/80 dark:border-gray-700/50 flex flex-col min-h-0 overflow-hidden">
+                {/* Dashboard Header */}
+                <div className="px-4 py-4 bg-slate-50 dark:bg-slate-900/40 border-b border-gray-100 dark:border-gray-700/50 shrink-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-black text-bambinos-blue dark:text-bambinos-blue-light uppercase tracking-[0.2em]">Session Monitor</span>
+                    <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                      <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">Live</span>
+                    </div>
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2.5">
-                      <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-                        <strong>Be in a quiet place</strong> with <strong>no background noise</strong> before starting.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-3.5 h-3.5 shrink-0 mt-0.5 flex items-center justify-center">
-                        <span className="text-bambinos-blue text-sm">→</span>
+                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500">Real-time Interview Guidance</h3>
+                </div>
+                
+                <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
+                  {/* Status Timeline */}
+                  <div className="relative space-y-0 pb-4">
+                    {/* Vertical Line */}
+                    <div className="absolute left-[15px] top-2 bottom-0 w-0.5 bg-gray-100 dark:bg-gray-700/50" />
+
+                    {/* Milestone 1 */}
+                    <div className="relative flex gap-4 pb-8 group">
+                      <div className="z-10 flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 shrink-0 transition-transform group-hover:scale-110">
+                        <CheckCircle className="w-4 h-4" />
                       </div>
-                      <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-                        <strong>Click "Your Task"</strong> to begin reading <strong>only when instructed by the AI</strong>.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed mb-1">
-                          <strong>Wait for the message</strong>:
-                        </p>
-                        <p className="text-xs font-bold text-amber-800 dark:text-amber-200 leading-relaxed ml-4">
-                          "Session Completed. Thank you for completing this session!"
-                        </p>
+                      <div className="pt-0.5">
+                        <h4 className="text-[11px] font-bold text-gray-900 dark:text-white uppercase tracking-tight">Phase 1: Environment</h4>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-snug mt-0.5">Quiet room, no background noise confirmed.</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-2.5 pt-2 border-t border-amber-200 dark:border-amber-700/50">
-                      <AlertTriangle className="h-3.5 w-3.5 text-red-500 dark:text-red-400 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-red-600 dark:text-red-400 font-medium leading-relaxed mb-1">
-                          <strong>Do NOT close the browser or leave the page</strong> before this message appears.
+
+                    {/* Milestone 2 */}
+                    <div className="relative flex gap-4 pb-8 group">
+                      <div className="z-10 flex items-center justify-center w-8 h-8 rounded-full bg-blue-500 text-white shadow-lg shadow-blue-500/20 shrink-0 animate-pulse-slow">
+                        <Play className="w-4 h-4" />
+                      </div>
+                      <div className="pt-0.5">
+                        <h4 className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tight">Phase 2: Live Interaction</h4>
+                        <p className="text-[10px] text-gray-600 dark:text-gray-300 leading-snug mt-0.5 font-medium">
+                          Wait for AI instructions before clicking <span className="text-blue-600 dark:text-blue-400 font-bold">"Your Task"</span>.
                         </p>
-                        <p className="text-xs text-red-600 dark:text-red-400 leading-relaxed ml-4">
-                          Doing so will <strong>make you ineligible</strong> for the next step.
+                      </div>
+                    </div>
+
+                    {/* Milestone 3 */}
+                    <div className="relative flex gap-4 group">
+                      <div className="z-10 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-400 shrink-0">
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div className="pt-0.5">
+                        <h4 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">Phase 3: Completion</h4>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-snug mt-0.5 italic">
+                          "Session Completed" signal pending...
                         </p>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Hidden End Interview Button */}
-              <div className="text-center" style={{ display: 'none' }}>
-                <Button
-                  onClick={handleEndInterview}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 hover:shadow-lg"
-                >
-                  End Interview
-                </Button>
+                  {/* High-Impact Protocol Alerts */}
+                  <div className="mt-4 pt-6 border-t border-gray-100 dark:border-gray-700/50 space-y-3">
+                    <div className="p-3 bg-rose-50 dark:bg-rose-950/20 rounded-xl border-l-4 border-rose-500 relative overflow-hidden group">
+                      <div className="flex items-center gap-2 mb-1">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                        <span className="text-[10px] font-black text-rose-700 dark:text-rose-400 uppercase tracking-widest">Security Lock</span>
+                      </div>
+                      <p className="text-[10px] text-rose-900/80 dark:text-rose-300/80 leading-tight font-medium">
+                        Do <span className="underline underline-offset-2">NOT</span> exit or refresh. Session will invalidate immediately.
+                      </p>
+                      <div className="absolute top-0 right-0 p-1 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Square className="w-8 h-8 rotate-45" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Status */}
+                <div className="px-4 py-3 bg-slate-50 dark:bg-slate-900/60 border-t border-gray-100 dark:border-gray-700/50 shrink-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="flex -space-x-1">
+                        <Mic className="w-3 h-3 text-emerald-500" />
+                        <Camera className="w-3 h-3 text-emerald-500" />
+                      </div>
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Hardware Active</span>
+                    </div>
+                    <span className="text-[9px] font-bold text-bambinos-blue dark:text-bambinos-blue-light opacity-50 uppercase tracking-widest">ID: {interviewSessionId?.slice(0, 6)}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <WhatsAppHelpButton />
+        
+        {/* Absolute Bottom Elements */}
+        <div className="fixed bottom-4 right-4 z-50">
+          <WhatsAppHelpButton />
+        </div>
+
+        {/* Hidden Elements */}
+        <div style={{ display: 'none' }}>
+          <Button onClick={handleEndInterview}>End Interview</Button>
+        </div>
       </div>
     );
   }
@@ -1137,3 +1177,6 @@ const CandidateInterview = () => {
 };
 
 export default CandidateInterview;
+
+
+
