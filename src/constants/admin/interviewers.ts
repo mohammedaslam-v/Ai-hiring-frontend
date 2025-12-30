@@ -18,7 +18,8 @@ export const INTERVIEWERS = [
   'Aiswarya B',
   'Grizel G',
   'Sonia Azevado',
-  'Tanya G'
+  'Tanya G',
+  'Puja Sharma'
 ] as const;
 
 /**
