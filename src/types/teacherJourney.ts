@@ -40,7 +40,6 @@ export interface TeacherJourney {
   // Extended Demo Evaluation
   overallTeachingStyle: TeachingStyleRating | null;
   demoConducted: YesNo | null;
-  goodToGo: YesNo | null;
   demoPaidStatus: DemoPaidType | null;
   
   // Language & Subject Info
@@ -197,7 +196,6 @@ export interface UpdateTeacherJourneyData {
   // Extended Demo Evaluation
   overallTeachingStyle?: TeachingStyleRating;
   demoConducted?: YesNo;
-  goodToGo?: YesNo;
   demoPaidStatus?: DemoPaidType;
   
   // Language & Subject Info

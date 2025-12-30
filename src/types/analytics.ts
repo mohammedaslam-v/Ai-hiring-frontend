@@ -56,7 +56,6 @@ export interface FeedbackResult {
   applicant_name: string;
   applicant_email: string;
   applicant_phone: string;
-  good_to_go: string;
   demo_status: string;
   demo_date: string;
   interviewer_name: string;

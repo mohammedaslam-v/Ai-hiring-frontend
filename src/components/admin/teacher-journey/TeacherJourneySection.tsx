@@ -189,7 +189,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   const handleSendDemoEmail = useCallback(async () => {
     if (!applicationId || !journey) return;
     
-    const isSelected = journey.goodToGo === 'YES';
+    const isSelected = journey.demoStatus === 'SELECTED';
     const actionText = isSelected ? 'Selection' : 'Rejection';
     const actionColor = isSelected ? 'text-emerald-600' : 'text-red-600';
     
@@ -349,8 +349,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           grammarPronunciation: data.grammarPronunciation,
           // Extended Demo Evaluation
           overallTeachingStyle: data.overallTeachingStyle,
-          goodToGo: data.goodToGo,
-          // Language & Subject Info
+          demoConducted: data.demoConducted,
+          demoPaidStatus: data.demoPaidStatus,
           languagesSpoken: data.languagesSpoken,
           subjectsPrograms: data.subjectsPrograms,
           // Availability & Preferences
@@ -417,20 +417,18 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   // ============================================
   /**
    * Determines if candidate is rejected based on business rules:
-   * - Candidate is rejected if demoStatus is NOT_SELECTED, goodToGo is NO, and reject email has been sent
+   * - Candidate is rejected if demoStatus is NOT_SELECTED and reject email has been sent
    */
   const isRejected = useMemo(() => {
     if (!journey) return false;
     const currentDemoStatus = editMode ? editData.demoStatus : journey.demoStatus;
-    const currentGoodToGo = editMode ? editData.goodToGo : journey.goodToGo;
     const currentRejectEmailSent = editMode ? editData.rejectEmailSent : journey.rejectEmailSent;
     
     return (
       currentDemoStatus === 'NOT_SELECTED' &&
-      currentGoodToGo === 'NO' && 
       currentRejectEmailSent === 'YES'
     );
-  }, [journey, editMode, editData.demoStatus, editData.goodToGo, editData.rejectEmailSent]);
+  }, [journey, editMode, editData.demoStatus, editData.rejectEmailSent]);
 
 
   /**
@@ -1829,41 +1827,19 @@ const DemoSection: React.FC<DemoSectionProps> = ({
             })()}
           </FieldContainer>
 
-          {/* Good to Go */}
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Good to Go?</FieldLabel>
-            {editMode ? (
-              <>
-                <Select value={data.goodToGo || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, goodToGo: v as YesNo }))}>
-                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.goodToGo ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="YES">Yes</SelectItem>
-                    <SelectItem value="NO">No</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldErrors.goodToGo} />
-              </>
-            ) : (
-              <div className="mt-1"><YesNoBadge value={journey.goodToGo} /></div>
-            )}
-          </FieldContainer>
-
-          {/* Send Mail Button - Show when goodToGo is YES or NO (in both edit and view mode) - Hide for hire@bambinos.live */}
-          {!isHireEmail && ((!editMode && (journey.goodToGo === 'YES' || journey.goodToGo === 'NO')) || 
-            (editMode && (data.goodToGo === 'YES' || data.goodToGo === 'NO'))) && onSendDemoEmail && (
+          {/* Send Mail Button - Show when demoStatus is SELECTED or NOT_SELECTED (in both edit and view mode) - Hide for hire@bambinos.live */}
+          {!isHireEmail && ((!editMode && (journey.demoStatus === 'SELECTED' || journey.demoStatus === 'NOT_SELECTED')) || 
+            (editMode && (data.demoStatus === 'SELECTED' || data.demoStatus === 'NOT_SELECTED'))) && onSendDemoEmail && (
             <div className="mt-4">
               <Button
                 onClick={onSendDemoEmail}
                 disabled={sendingEmail || editMode}
                 className={`w-full sm:w-auto text-white disabled:opacity-50 disabled:cursor-not-allowed ${
-                  (!editMode && journey.goodToGo === 'YES') || (editMode && data.goodToGo === 'YES')
+                  (!editMode && journey.demoStatus === 'SELECTED') || (editMode && data.demoStatus === 'SELECTED')
                     ? 'bg-emerald-500 hover:bg-emerald-600'
                     : 'bg-slate-600 hover:bg-slate-700'
                 }`}
-                title={editMode ? "Save changes first to send email" : journey.goodToGo === 'YES' ? "Send demo passed email" : "Send demo not selected email"}
+                title={editMode ? "Save changes first to send email" : journey.demoStatus === 'SELECTED' ? "Send demo passed email" : "Send demo not selected email"}
               >
                 {sendingEmail ? (
                   <>

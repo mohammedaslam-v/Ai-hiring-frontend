@@ -170,16 +170,6 @@ export const demoSectionValidation = Yup.object().shape({
     .nullable()
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.DEMO_CONDUCTED_REQUIRED),
   
-  goodToGo: Yup.string()
-    .nullable()
-    .when('demoStatus', {
-      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.GOOD_TO_GO_REQUIRED)
-        .oneOf(['YES', 'NO'], 'Invalid good to go status'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  
   // Languages & Subjects - Always Required
   languagesSpoken: Yup.array()
     .of(Yup.string())
