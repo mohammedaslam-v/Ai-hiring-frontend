@@ -32,7 +32,6 @@ export const TEACHER_JOURNEY_ERROR_MESSAGES = {
     OVERALL_STYLE_REQUIRED: 'Overall teaching style is required',
     OVERALL_STYLE_INVALID: 'Invalid teaching style rating',
     DEMO_CONDUCTED_REQUIRED: 'Demo conducted status is required',
-    GOOD_TO_GO_REQUIRED: 'Good to go status is required when demo is conducted',
   },
   
   // Languages & Subjects
