@@ -315,14 +315,19 @@ export const goLiveSectionValidation = Yup.object().shape({
       otherwise: (schema) => schema.nullable(),
     }),
   
-  assignedSubject: Yup.string()
+  assignedSubject: Yup.array()
+    .of(Yup.string())
     .nullable()
     .when('goLiveReadiness', {
       is: 'YES',
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.SUBJECT_REQUIRED)
-        .oneOf(['LITTLE_YOGI', 'UNBOX_7_PLUS', 'PHONICS', 'ALPHA_MATH'], 
-          TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.SUBJECT_INVALID),
+        .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.SUBJECT_REQUIRED)
+        .test('valid-subjects', TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.SUBJECT_INVALID, (value) => {
+          if (!value) return true;
+          const validSubjects = ['LITTLE_YOGI', 'UNBOX_7_PLUS', 'PHONICS', 'ALPHA_MATH'];
+          return value.every(subj => validSubjects.includes(subj));
+        }),
       otherwise: (schema) => schema.nullable(),
     }),
 });

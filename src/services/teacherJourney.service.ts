@@ -382,7 +382,12 @@ class TeacherJourneyService {
     }
   }
 
-  async sendDemoResultEmail(applicationId: string): Promise<ServiceResponse<any>> {
+  async sendDemoResultEmail(applicationId: string): Promise<{
+    status: boolean;
+    message: string;
+    data?: any;
+    error?: string;
+  }> {
     try {
       const response = await axiosInstance.post(
         `${this.baseUrl}/${applicationId}/send-demo-email`
@@ -407,6 +412,146 @@ class TeacherJourneyService {
       return {
         status: false,
         message: err?.response?.data?.message || 'Network error',
+        error: err?.message
+      };
+    }
+  }
+
+  async getInterviewers(): Promise<{
+    status: boolean;
+    message: string;
+    data?: { id: number; name: string }[];
+    error?: string;
+  }> {
+    try {
+      const response = await axiosInstance.get<ApiResponse<{ id: number; name: string }[]>>(
+        `${this.baseUrl}/interviewers`
+      );
+
+      if (response.data.status) {
+        return {
+          status: true,
+          message: response.data.msg,
+          data: response.data.data
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.msg || 'Failed to fetch interviewers',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error fetching interviewers:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
+      };
+    }
+  }
+
+  async createInterviewer(name: string): Promise<{
+    status: boolean;
+    message: string;
+    data?: { id: number; name: string };
+    error?: string;
+  }> {
+    try {
+      const response = await axiosInstance.post<ApiResponse<{ id: number; name: string }>>(
+        `${this.baseUrl}/interviewers`,
+        { name }
+      );
+
+      if (response.data.status) {
+        return {
+          status: true,
+          message: response.data.msg,
+          data: response.data.data
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.msg || 'Failed to create interviewer',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error creating interviewer:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
+      };
+    }
+  }
+
+  async updateInterviewer(id: number, name: string): Promise<{
+    status: boolean;
+    message: string;
+    data?: { id: number; name: string };
+    error?: string;
+  }> {
+    try {
+      const response = await axiosInstance.patch<ApiResponse<{ id: number; name: string }>>(
+        `${this.baseUrl}/interviewers/${id}`,
+        { name }
+      );
+
+      if (response.data.status) {
+        return {
+          status: true,
+          message: response.data.msg,
+          data: response.data.data
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.msg || 'Failed to update interviewer',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error updating interviewer:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
+      };
+    }
+  }
+
+  async deleteInterviewer(id: number): Promise<{
+    status: boolean;
+    message: string;
+    error?: string;
+  }> {
+    try {
+      const response = await axiosInstance.delete<ApiResponse<any>>(
+        `${this.baseUrl}/interviewers/${id}`
+      );
+
+      if (response.data.status) {
+        return {
+          status: true,
+          message: response.data.msg
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.msg || 'Failed to delete interviewer',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error deleting interviewer:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.msg || 'Network error',
         error: err?.message
       };
     }

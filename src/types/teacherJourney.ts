@@ -35,7 +35,7 @@ export interface TeacherJourney {
   goLiveReadiness: GoLiveStatus;
   goLiveDate: string | null;
   
-  assignedSubject: Subject | null;
+  assignedSubject: Subject[] | null;
   
   // Extended Demo Evaluation
   overallTeachingStyle: TeachingStyleRating | null;
@@ -191,7 +191,7 @@ export interface UpdateTeacherJourneyData {
   certificationFeedback?: string;
   goLiveReadiness?: GoLiveStatus;
   goLiveDate?: string;
-  assignedSubject?: Subject | null;
+  assignedSubject?: Subject[] | null;
   
   // Extended Demo Evaluation
   overallTeachingStyle?: TeachingStyleRating;
@@ -344,14 +344,21 @@ export const getGoLiveLabel = (status: GoLiveStatus): string => {
   return labels[status] || status;
 };
 
-export const getSubjectLabel = (subject: Subject | null): string => {
+export const getSubjectLabel = (subject: Subject | Subject[] | null): string => {
   if (!subject) return 'Not Assigned';
+  
   const labels: Record<Subject, string> = {
     'LITTLE_YOGI': 'Little Yogi',
     'UNBOX_7_PLUS': 'Unbox 7+',
     'PHONICS': 'Phonics',
     'ALPHA_MATH': 'Alpha Math'
   };
+
+  if (Array.isArray(subject)) {
+    if (subject.length === 0) return 'Not Assigned';
+    return subject.map(s => labels[s] || s).join(', ');
+  }
+  
   return labels[subject] || subject;
 };
 
