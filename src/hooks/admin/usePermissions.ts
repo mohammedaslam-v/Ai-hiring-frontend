@@ -18,9 +18,16 @@ export const usePermissions = () => {
   const isFullAdmin = user?.role === 'admin';
   const isLimitedAdmin = user?.role === 'limited_admin';
   
+  // Restricted delete and management access: ONLY these specific emails
+  const userEmail = user?.email?.toLowerCase();
+  const isAllowedToManage = userEmail === 'sabreena@bambinos.live' || userEmail === 'krishna.nair@bambinos.live';
+  
   return {
-    // Delete button: only main admin can see
-    canDelete: isFullAdmin,
+    // Delete button: now strictly based on the allowed email list
+    canDelete: isAllowedToManage,
+
+    // Interviewer management: only specific users can see the button
+    canManageInterviewers: isAllowedToManage,
     
     // Email/WhatsApp redirect: only limited admins can see (hidden for main admin)
     canSeeEmailWhatsApp: isLimitedAdmin,

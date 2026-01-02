@@ -44,7 +44,6 @@ import {
   WhatsAppGroupStatus
 } from '@/types/teacherJourney';
 import { toast } from 'react-toastify';
-import { getSortedInterviewers } from '@/constants/admin/interviewers';
 import { getStatusBadgeColors } from '@/constants/teacherJourney/colors';
 import { getSortedIndianLanguages } from '@/constants/indianLanguages';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -54,6 +53,7 @@ import { validateTeacherJourneySection } from '@/utils/yup/teacherJourneyValidat
 import { getEvaluationMedia } from "@/services/evaluationService";
 import { useAuth } from '@/contexts/AuthContext';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { useInterviewers } from '@/hooks/admin/useInterviewers';
 
 // ============================================
 // TYPES
@@ -149,6 +149,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
 }) => {
   const { user } = useAuth();
   const { confirm, ConfirmDialog } = useConfirmDialog();
+  const { interviewers } = useInterviewers();
 
   const [journey, setJourney] = useState<TeacherJourney | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1609,6 +1610,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
   sendingEmail = false
 }) => {
   const { user } = useAuth();
+  const { interviewers } = useInterviewers();
   const data = editMode ? editData : journey;
 
   // Check if user is hire@bambinos.live
@@ -1698,9 +1700,9 @@ const DemoSection: React.FC<DemoSectionProps> = ({
                     <SelectValue placeholder="Select interviewer" />
                   </SelectTrigger>
                   <SelectContent>
-                    {getSortedInterviewers().map((interviewer) => (
-                      <SelectItem key={interviewer} value={interviewer}>
-                        {interviewer}
+                    {interviewers.map((interviewer) => (
+                      <SelectItem key={interviewer.id} value={interviewer.name}>
+                        {interviewer.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -2404,24 +2406,43 @@ const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, se
             </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
-        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Assigned Subject</Label>
+        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Assigned Subjects</Label>
         {editMode ? (
           <>
-            <Select value={data.assignedSubject || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, assignedSubject: v === '' ? null : v as Subject }))}>
-              <SelectTrigger className={`mt-1 bg-white ${fieldErrors.assignedSubject ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`}>
-                <SelectValue placeholder="Select subject" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="LITTLE_YOGI">Little Yogi</SelectItem>
-                <SelectItem value="UNBOX_7_PLUS">Unbox 7+</SelectItem>
-                <SelectItem value="PHONICS">Phonics</SelectItem>
-                <SelectItem value="ALPHA_MATH">Alpha Math</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 gap-y-2 gap-x-4 mt-2">
+              {[
+                { id: 'LITTLE_YOGI', label: 'Little Yogi' },
+                { id: 'UNBOX_7_PLUS', label: 'Unbox 7+' },
+                { id: 'PHONICS', label: 'Phonics' },
+                { id: 'ALPHA_MATH', label: 'Alpha Math' },
+              ].map((subject) => (
+                <div key={subject.id} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={subject.id} 
+                    checked={Array.isArray(data.assignedSubject) && data.assignedSubject.includes(subject.id as Subject)}
+                    onCheckedChange={(checked) => {
+                      const current = Array.isArray(data.assignedSubject) ? data.assignedSubject : [];
+                      let updated: Subject[];
+                      if (checked) {
+                        updated = [...current, subject.id as Subject];
+                      } else {
+                        updated = current.filter(s => s !== subject.id);
+                      }
+                      setEditData(prev => ({ ...prev, assignedSubject: updated.length > 0 ? updated : null }));
+                    }}
+                  />
+                  <Label htmlFor={subject.id} className="text-sm cursor-pointer font-normal">{subject.label}</Label>
+                </div>
+              ))}
+            </div>
             <FieldError error={fieldErrors.assignedSubject} />
           </>
         ) : (
-          <p className="text-sm text-slate-700 mt-1 font-medium">{journey.assignedSubject?.replace(/_/g, ' ') || <span className="text-slate-400 italic">Not assigned</span>}</p>
+          <p className="text-sm text-slate-700 mt-1 font-medium">
+            {Array.isArray(journey.assignedSubject) && journey.assignedSubject.length > 0
+              ? journey.assignedSubject.map(s => s.replace(/_/g, ' ')).join(', ')
+              : <span className="text-slate-400 italic">Not assigned</span>}
+          </p>
         )}
       </div>
     </div>

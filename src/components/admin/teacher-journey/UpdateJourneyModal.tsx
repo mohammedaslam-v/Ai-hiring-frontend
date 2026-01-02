@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   TeacherJourney, 
   UpdateTeacherJourneyData,
@@ -16,7 +17,7 @@ import {
   GO_LIVE_OPTIONS,
   SUBJECT_OPTIONS_FOR_UPDATE
 } from '@/types/teacherJourney';
-import { getSortedInterviewers } from '@/constants/admin/interviewers';
+import { useInterviewers } from '@/hooks/admin/useInterviewers';
 
 interface UpdateJourneyModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
   journey,
   onSubmit
 }) => {
+  const { interviewers } = useInterviewers();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<UpdateTeacherJourneyData>({});
 
@@ -166,9 +168,9 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                   <SelectValue placeholder="Select interviewer" />
                 </SelectTrigger>
                 <SelectContent>
-                  {getSortedInterviewers().map((interviewer) => (
-                    <SelectItem key={interviewer} value={interviewer}>
-                      {interviewer}
+                  {interviewers.map((interviewer) => (
+                    <SelectItem key={interviewer.id} value={interviewer.name}>
+                      {interviewer.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -342,25 +344,28 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
               </div>
             </div>
             <div>
-              <Label>Assigned Subject</Label>
-              <Select
-                value={formData.assignedSubject || 'NONE'}
-                onValueChange={(value) => setFormData(prev => ({ 
-                  ...prev, 
-                  assignedSubject: value === 'NONE' ? null : value as any 
-                }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUBJECT_OPTIONS_FOR_UPDATE.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label className="mb-2 block">Assigned Subjects</Label>
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-md border border-slate-200">
+                {SUBJECT_OPTIONS_FOR_UPDATE.filter(o => o.value !== 'NONE').map(option => (
+                  <div key={option.value} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`modal-${option.value}`} 
+                      checked={Array.isArray(formData.assignedSubject) && formData.assignedSubject.includes(option.value as any)}
+                      onCheckedChange={(checked) => {
+                        const current = Array.isArray(formData.assignedSubject) ? formData.assignedSubject : [];
+                        let updated: any[];
+                        if (checked) {
+                          updated = [...current, option.value];
+                        } else {
+                          updated = current.filter(s => s !== option.value);
+                        }
+                        setFormData(prev => ({ ...prev, assignedSubject: updated.length > 0 ? updated : null }));
+                      }}
+                    />
+                    <Label htmlFor={`modal-${option.value}`} className="text-sm cursor-pointer font-normal">{option.label}</Label>
+                  </div>
+                ))}
+              </div>
             </div>
           </TabsContent>
         </Tabs>

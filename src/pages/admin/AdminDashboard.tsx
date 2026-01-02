@@ -1,8 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Users, Play, CheckCircle, Award, Rocket } from "lucide-react";
+import { ChevronDown, Users, Play, CheckCircle, Award, Rocket, Settings } from "lucide-react";
 import ApplicantDetailsModal from "@/components/admin/ApplicantDetailsModal";
- 
+import { InterviewerManagementModal } from "@/components/admin/teacher-journey/InterviewerManagementModal";
+
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
 import AlertsBanner from "@/components/admin/AlertsBanner";
@@ -19,11 +20,17 @@ import { useApplicantDetails } from "@/hooks/admin/useApplicantDetails";
 import { useDashboardAnalytics } from "@/hooks/admin/useDashboardAnalytics";
  
 import { useAdminAuth } from "@/hooks/admin/useAdminAuth";
+import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/admin/usePermissions";
 import { useAdminDashboardData } from "@/hooks/admin/useAdminDashboardData";
 import { mapApplicationsToComponentFormat } from "@/utils/admin/dashboardUtils";
 import { teacherJourneyService } from "@/services/teacherJourney.service";
 
 const AdminDashboard = () => {
+  const { user } = useAuth();
+  const { canManageInterviewers } = usePermissions();
+  const [isInterviewerModalOpen, setIsInterviewerModalOpen] = useState(false);
+
   // Use the new dashboard analytics hook for real-time data
   const {
     dashboardState,
@@ -132,6 +139,15 @@ const AdminDashboard = () => {
         <div className="mb-4">
           <div className="flex justify-end items-center">
             <div className="flex items-center space-x-2">
+              {canManageInterviewers && (
+                <button
+                  onClick={() => setIsInterviewerModalOpen(true)}
+                  className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded text-xs hover:bg-emerald-200 flex items-center gap-1.5 transition-colors border border-emerald-200"
+                >
+                  <Settings className="h-3 w-3" />
+                  Manage Interviewers
+                </button>
+              )}
               {dashboardError && (
                 <button
                   onClick={clearError}
@@ -328,6 +344,13 @@ const AdminDashboard = () => {
           onRefreshToughTongue={handleRefreshToughTongueData}
           refreshingSession={refreshingSession}
         />
+
+        {canManageInterviewers && (
+          <InterviewerManagementModal
+            isOpen={isInterviewerModalOpen}
+            onClose={() => setIsInterviewerModalOpen(false)}
+          />
+        )}
 
       
 
