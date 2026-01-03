@@ -82,79 +82,6 @@ export const demoSectionValidation = Yup.object().shape({
         .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.FEEDBACK_MAX_LENGTH),
     }),
   
-  // Ratings (1-5 scale) - Required when demo status is SELECTED or NOT_SELECTED (demo conducted)
-  lessonClarity: Yup.number()
-    .nullable()
-    .when('demoStatus', {
-      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.LESSON_CLARITY)
-        .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .max(5, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .integer('Rating must be a whole number'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  
-  studentEngagement: Yup.number()
-    .nullable()
-    .when('demoStatus', {
-      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.STUDENT_ENGAGEMENT)
-        .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .max(5, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .integer('Rating must be a whole number'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  
-  languageCommunication: Yup.number()
-    .nullable()
-    .when('demoStatus', {
-      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.LANGUAGE_COMMUNICATION)
-        .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .max(5, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .integer('Rating must be a whole number'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  
-  teachingAids: Yup.number()
-    .nullable()
-    .when('demoStatus', {
-      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.TEACHING_AIDS)
-        .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .max(5, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .integer('Rating must be a whole number'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  
-  creativityDelivery: Yup.number()
-    .nullable()
-    .when('demoStatus', {
-      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.CREATIVITY_DELIVERY)
-        .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .max(5, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .integer('Rating must be a whole number'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  
-  grammarPronunciation: Yup.number()
-    .nullable()
-    .when('demoStatus', {
-      is: (status: DemoStatus) => status === 'SELECTED' || status === 'NOT_SELECTED',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.GRAMMAR_PRONUNCIATION)
-        .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .max(5, TEACHER_JOURNEY_ERROR_MESSAGES.RATINGS.INVALID_RANGE)
-        .integer('Rating must be a whole number'),
-      otherwise: (schema) => schema.nullable(),
-    }),
-  
   // Extended Demo Evaluation
   overallTeachingStyle: Yup.string()
     .nullable()
@@ -170,18 +97,7 @@ export const demoSectionValidation = Yup.object().shape({
     .nullable()
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.DEMO_CONDUCTED_REQUIRED),
   
-  // Languages & Subjects - Always Required
-  languagesSpoken: Yup.array()
-    .of(Yup.string())
-    .required(TEACHER_JOURNEY_ERROR_MESSAGES.LANGUAGES.REQUIRED)
-    .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.LANGUAGES.MIN_SELECTION)
-    .max(10, TEACHER_JOURNEY_ERROR_MESSAGES.LANGUAGES.MAX_SELECTION)
-    .test('valid-languages', TEACHER_JOURNEY_ERROR_MESSAGES.LANGUAGES.INVALID_LANGUAGE, (value) => {
-      if (!value || value.length === 0) return false;
-      const validLanguages = getSortedIndianLanguages();
-      return value.every(lang => validLanguages.includes(lang));
-    }),
-  
+  // Subjects - Always Required
   subjectsPrograms: Yup.array()
     .of(Yup.string())
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.REQUIRED)
@@ -192,24 +108,6 @@ export const demoSectionValidation = Yup.object().shape({
       const validSubjects = ['Unbox English', 'Little Yogi', 'Alpha Maths', 'Phonics'];
       return value.every(subj => validSubjects.includes(subj));
     }),
-  
-  // Availability - Always Required
-  minHoursConfirmed: Yup.string()
-    .required(TEACHER_JOURNEY_ERROR_MESSAGES.AVAILABILITY.MIN_HOURS_REQUIRED)
-    .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.AVAILABILITY.MIN_HOURS_INVALID),
-  
-  // Training & Onboarding Confirmation - Always Required
-  willingGitaTraining: Yup.string()
-    .required(TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.WILLING_TRAINING_REQUIRED)
-    .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.WILLING_TRAINING_INVALID),
-  
-  salaryStructureAccepted: Yup.string()
-    .required(TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.SALARY_ACCEPTED_REQUIRED)
-    .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.SALARY_ACCEPTED_INVALID),
-  
-  willingToStartIn2Weeks: Yup.string()
-    .required(TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.START_IN_2_WEEKS_REQUIRED)
-    .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING_CONFIRMATION.START_IN_2_WEEKS_INVALID),
 });
 
 // Induction Section Validation Schema

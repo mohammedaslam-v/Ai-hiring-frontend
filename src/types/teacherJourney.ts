@@ -4,22 +4,15 @@ export interface TeacherJourney {
   id: number;
   candidateId: number;
   applicationId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
   
   demoStatus: DemoStatus;
   demoDate: string | null;
   demoFeedback: string | null;
   demoInterviewerName: string | null;
-  
-  lessonClarity: number | null;
-  studentEngagement: number | null;
-  languageCommunication: number | null;
-  teachingAids: number | null;
-  creativityDelivery: number | null;
-  grammarPronunciation: number | null;
   
   inductionAttendance: InductionStatus;
   inductionDate: string | null;
@@ -43,19 +36,7 @@ export interface TeacherJourney {
   demoPaidStatus: DemoPaidType | null;
   
   // Language & Subject Info
-  languagesSpoken: string[] | null;
   subjectsPrograms: string[] | null;
-  
-  // Availability & Preferences
-  preferredTimeSlot: TimeSlot | null;
-  employmentType: EmploymentType | null;
-  minHoursConfirmed: YesNo | null;
-  
-  // Training & Onboarding Confirmation
-  willingGitaTraining: YesNo | null;
-  trainingBatchPreference: TrainingBatch | null;
-  salaryStructureAccepted: YesNo | null;
-  willingToStartIn2Weeks: YesNo | null;
   
   // Internal Hiring Status
   onboardingEmailSent: YesNo | null;
@@ -162,12 +143,6 @@ export interface SubmitDemoFeedbackData {
   demoDate: string;
   demoInterviewerName: string;
   demoFeedback?: string;
-  lessonClarity: number;
-  studentEngagement: number;
-  languageCommunication: number;
-  teachingAids: number;
-  creativityDelivery: number;
-  grammarPronunciation: number;
 }
 
 export interface UpdateTeacherJourneyData {
@@ -175,12 +150,6 @@ export interface UpdateTeacherJourneyData {
   demoDate?: string;
   demoFeedback?: string;
   demoInterviewerName?: string;
-  lessonClarity?: number;
-  studentEngagement?: number;
-  languageCommunication?: number;
-  teachingAids?: number;
-  creativityDelivery?: number;
-  grammarPronunciation?: number;
   inductionAttendance?: InductionStatus;
   inductionDate?: string;
   trainingStatus?: TrainingStatus;
@@ -199,19 +168,7 @@ export interface UpdateTeacherJourneyData {
   demoPaidStatus?: DemoPaidType;
   
   // Language & Subject Info
-  languagesSpoken?: string[];
   subjectsPrograms?: string[];
-  
-  // Availability & Preferences
-  preferredTimeSlot?: TimeSlot;
-  employmentType?: EmploymentType;
-  minHoursConfirmed?: YesNo;
-  
-  // Training & Onboarding Confirmation
-  willingGitaTraining?: YesNo;
-  trainingBatchPreference?: TrainingBatch;
-  salaryStructureAccepted?: YesNo;
-  willingToStartIn2Weeks?: YesNo;
   
   // Internal Hiring Status
   onboardingEmailSent?: YesNo;
