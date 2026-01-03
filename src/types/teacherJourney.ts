@@ -4,10 +4,10 @@ export interface TeacherJourney {
   id: number;
   candidateId: number;
   applicationId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
   
   demoStatus: DemoStatus;
   demoDate: string | null;

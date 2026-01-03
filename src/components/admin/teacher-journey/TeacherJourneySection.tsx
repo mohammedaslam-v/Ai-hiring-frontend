@@ -123,6 +123,9 @@ const getStatusBadge = (status: string) => {
 // ============================================
 const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({ 
   applicationId,
+  candidateName,
+  candidateEmail,
+  candidatePhone,
   aiRoundStatus,
   aiRoundScore,
   aiRoundCompletedAt,
@@ -175,11 +178,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
     
     const isSelected = journey.demoStatus === 'SELECTED';
     const actionText = isSelected ? 'Selection' : 'Rejection';
-    const actionColor = isSelected ? 'text-emerald-600' : 'text-red-600';
     
     const confirmed = await confirm({
       title: `Send ${actionText} Email?`,
-      description: `Are you sure you want to send the ${actionText.toLowerCase()} email to ${journey.firstName} ${journey.lastName}? This will notify the candidate about their demo result.`,
+      description: `Are you sure you want to send the ${actionText.toLowerCase()} email to ${candidateName}? This will notify the candidate about their demo result.`,
       confirmText: `Send ${actionText} Mail`,
       cancelText: "Cancel",
       variant: isSelected ? 'default' : 'destructive'
@@ -203,7 +205,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
     } finally {
       setSendingEmail(false);
     }
-  }, [applicationId, journey, fetchJourney, confirm]);
+  }, [applicationId, journey, fetchJourney, confirm, candidateName]);
 
   // Fetch session ID from applicationId
   useEffect(() => {
@@ -600,7 +602,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           SECTION CONTENT - Shows active tab's data
           Visual distinction: View mode = white/slate, Edit mode = amber tint
           ============================================ */}
-      <div className={`flex-1 p-6 overflow-auto transition-colors ${
+      <div className={`flex-1 p-4 overflow-auto transition-colors ${
         editMode ? 'bg-white' : 'bg-[#F4F6FA]'
       }`}>
         <div className="max-w-6xl mx-auto">
@@ -610,28 +612,28 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               : 'bg-white border border-slate-200'
           }`}>
             {/* Section Header - Distinct styling for edit mode */}
-            <div className={`px-5 py-4 flex items-center justify-between transition-colors ${
+            <div className={`px-4 py-3 flex items-center justify-between transition-colors ${
               editMode 
                 ? 'bg-white border-b-2 border-[#1E62F2]' 
                 : 'bg-white border-b border-slate-100'
             }`}>
           <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
                   editMode 
                     ? 'bg-[#1E62F2]' 
                     : `bg-gradient-to-br ${currentTab.gradient}`
                 }`}>
                   {editMode ? (
-                    <Pencil className="h-5 w-5 text-white" />
+                    <Pencil className="h-4 w-4 text-white" />
                   ) : (
-                    <currentTab.icon className="h-5 w-5 text-white" />
+                    <currentTab.icon className="h-4 w-4 text-white" />
                   )}
             </div>
             <div>
-                  <h3 className={`font-semibold text-lg ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%)]'}`}>
+                  <h3 className={`font-semibold text-base ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%)]'}`}>
                     {editMode ? `Editing ${currentTab.label}` : currentTab.label}
                   </h3>
-                  <p className={`text-xs ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>
+                  <p className={`text-[10px] ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>
                     {editMode ? 'Make changes and save when done' : `View ${currentTab.label.toLowerCase()} details`}
                   </p>
             </div>
@@ -639,7 +641,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               
               {/* Edit / Save / Cancel Buttons - AI Round is read-only (data from interview) */}
               {activeTab === 'aiRound' ? (
-                <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">Read Only</span>
+                <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Read Only</span>
               ) : !editMode ? (
                 (() => {
                   const currentTabIndex = visibleTabs.findIndex(t => t.key === activeTab);
@@ -651,13 +653,13 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                     <button
                       onClick={handleStartEdit}
                       disabled={!journey || isLocked}
-                      className="p-2.5 rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-50 transition-colors group disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="p-2 rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-50 transition-colors group disabled:opacity-40 disabled:cursor-not-allowed"
                       title={!journey ? "Start journey first" : isLocked ? `Complete ${prevStageLabel} to edit this section` : "Edit this section"}
                     >
                       {isLocked ? (
-                        <Lock className="h-5 w-5" />
+                        <Lock className="h-4 w-4" />
                       ) : (
-                        <Pencil className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                        <Pencil className="h-4 w-4 group-hover:scale-110 transition-transform" />
                       )}
                     </button>
                   );
@@ -669,24 +671,24 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                     size="sm" 
                     onClick={handleCancelEdit} 
                     disabled={saving}
-                    className="border-[#1E62F2] text-[#1E62F2] hover:bg-[#1E62F2]/10 rounded-xl"
+                    className="h-8 border-[#1E62F2] text-[#1E62F2] hover:bg-[#1E62F2]/10 rounded-xl text-xs"
                   >
-                    <X className="h-4 w-4 mr-1" /> Cancel
+                    <X className="h-3 w-3 mr-1" /> Cancel
                   </Button>
                   <Button 
                     size="sm" 
                     onClick={handleSave} 
                     disabled={saving} 
-                    className="bg-[#1E62F2] hover:bg-[hsl(216,88%,50%)] text-white rounded-xl"
+                    className="h-8 bg-[#1E62F2] hover:bg-[hsl(216,88%,50%)] text-white rounded-xl text-xs"
                   >
-                    <Save className="h-4 w-4 mr-1" /> {saving ? 'Saving...' : 'Save Changes'}
+                    <Save className="h-3 w-3 mr-1" /> {saving ? 'Saving...' : 'Save Changes'}
           </Button>
                 </div>
               )}
         </div>
 
             {/* Section Content - Render based on active tab */}
-            <div className={`p-5 transition-colors ${editMode ? 'bg-white' : 'bg-white'}`}>
+            <div className={`p-4 transition-colors ${editMode ? 'bg-white' : 'bg-white'}`}>
               {activeTab === 'aiRound' && (
                 <AIRoundSection 
                   status={aiRoundStatus} 
@@ -1593,297 +1595,233 @@ const DemoSection: React.FC<DemoSectionProps> = ({
   const isHireEmail = user?.email === 'hire@bambinos.live';
 
   return (
-    <div className="space-y-6">
-      {/* ============================================
-          A. CANDIDATE INFO & DEMO STATUS
-          Basic information and current demo status
-          ============================================ */}
-      <div>
-        <DemoSectionHeader editMode={editMode} 
-          title="Candidate Info & Demo Status" 
-          icon={<User className="h-4 w-4" />}
-          description="Basic details and interview status"
-        />
-        
-        {/* Status Row */}
-        <div className={`flex items-center justify-between p-3 rounded-lg mb-4 ${
-          editMode ? 'bg-white border border-[#1E62F2]' : 'bg-[#F4F6FA]'
-        }`}>
-          <span className={`text-sm font-medium ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>
-            Demo Status
-          </span>
-          {editMode ? (
-            <div className="flex flex-col items-end">
-              <Select value={data.demoStatus || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, demoStatus: v as DemoStatus }))}>
-                <SelectTrigger className={`w-48 bg-white ${fieldErrors.demoStatus ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                  <SelectItem value="SELECTED">Selected</SelectItem>
-                  <SelectItem value="NOT_SELECTED">Not Selected</SelectItem>
-                </SelectContent>
-              </Select>
-              <FieldError error={fieldErrors.demoStatus} />
-            </div>
-          ) : getStatusBadge(journey.demoStatus)}
-                    </div>
-
-        {/* 2-column grid for candidate info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Timestamp</FieldLabel>
-            <FieldValue value={journey.createdAt ? new Date(journey.createdAt).toLocaleString() : null} />
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Full Name</FieldLabel>
-            <FieldValue value={`${journey.firstName || ''} ${journey.lastName || ''}`.trim()} fallback="Not provided" />
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Email Address</FieldLabel>
-            <FieldValue value={journey.email} />
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Phone Number</FieldLabel>
-            <FieldValue value={journey.phoneNumber} />
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Demo Date</FieldLabel>
-            {editMode ? (
-              <>
-                <Input type="date" value={data.demoDate?.split('T')[0] || ''} 
-                  className={`mt-1 bg-white ${fieldErrors.demoDate ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}
-                  onChange={(e) => setEditData(prev => ({ ...prev, demoDate: e.target.value }))} />
-                <FieldError error={fieldErrors.demoDate} />
-              </>
-            ) : (
-              <FieldValue value={journey.demoDate ? new Date(journey.demoDate).toLocaleDateString() : null} />
-            )}
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Interviewer Name</FieldLabel>
-            {editMode ? (
-              <>
-                <Select value={data.demoInterviewerName || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, demoInterviewerName: v }))}>
-                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.demoInterviewerName ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
-                    <SelectValue placeholder="Select interviewer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {interviewers.map((interviewer) => (
-                      <SelectItem key={interviewer.id} value={interviewer.name}>
-                        {interviewer.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldErrors.demoInterviewerName} />
-              </>
-            ) : (
-              <FieldValue value={journey.demoInterviewerName} />
-            )}
-          </FieldContainer>
-                    </div>
+    <div className="space-y-2.5">
+      {/* Status Row */}
+      <div className={`flex items-center justify-between p-2 rounded-lg mb-2 ${
+        editMode ? 'bg-white border border-[#1E62F2]' : 'bg-[#F4F6FA]'
+      }`}>
+        <span className={`text-sm font-medium ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>
+          Demo Status
+        </span>
+        {editMode ? (
+          <div className="flex flex-col items-end">
+            <Select value={data.demoStatus || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, demoStatus: v as DemoStatus }))}>
+              <SelectTrigger className={`w-48 h-8 bg-white ${fieldErrors.demoStatus ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                <SelectItem value="SELECTED">Selected</SelectItem>
+                <SelectItem value="NOT_SELECTED">Not Selected</SelectItem>
+              </SelectContent>
+            </Select>
+            <FieldError error={fieldErrors.demoStatus} />
+          </div>
+        ) : getStatusBadge(journey.demoStatus)}
       </div>
 
-      {/* ============================================
-          B. DEMO EVALUATION
-          Performance ratings and evaluation metrics
-          ============================================ */}
-      <div>
-        <DemoSectionHeader editMode={editMode} 
-          title="Demo Evaluation" 
-          icon={<Star className="h-4 w-4" />}
-          description="Performance assessment and feedback"
-        />
+      {/* Consolidated Demo Info Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
+        <FieldContainer editMode={editMode} className="p-2">
+          <FieldLabel editMode={editMode}>Created Date</FieldLabel>
+          <FieldValue value={journey.createdAt ? new Date(journey.createdAt).toLocaleString() : null} />
+        </FieldContainer>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {/* Overall Teaching Style */}
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Overall Teaching Style</FieldLabel>
-            {editMode ? (
-              <>
-                <Select value={data.overallTeachingStyle || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, overallTeachingStyle: v as TeachingStyleRating }))}>
-                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.overallTeachingStyle ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
-                    <SelectValue placeholder="Select rating" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BAD">Bad</SelectItem>
-                    <SelectItem value="AVERAGE">Average</SelectItem>
-                    <SelectItem value="GOOD">Good</SelectItem>
-                    <SelectItem value="EXCELLENT">Excellent</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldErrors.overallTeachingStyle} />
-              </>
-            ) : (
-              <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-medium ${
-                journey.overallTeachingStyle === 'EXCELLENT' ? 'bg-emerald-100 text-emerald-700' :
-                journey.overallTeachingStyle === 'GOOD' ? 'bg-blue-100 text-blue-700' :
-                journey.overallTeachingStyle === 'AVERAGE' ? 'bg-[hsl(38,92%,50%,0.1)] text-[hsl(38,92%,50%)]' :
-                journey.overallTeachingStyle === 'BAD' ? 'bg-red-100 text-red-700' :
-                'bg-slate-100 text-slate-500'
-              }`}>
-                {journey.overallTeachingStyle || '—'}
-              </span>
-            )}
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Subjects / Programs</FieldLabel>
-            {editMode ? (
-              <>
-                <SubjectsMultiSelect
-                  selectedSubjects={data.subjectsPrograms || []}
-                  onSubjectsChange={(subjects) => {
-                    setEditData((prev) => ({
-                      ...prev,
-                      subjectsPrograms: subjects,
-                    }));
-                  }}
-                />
-                <FieldError error={fieldErrors.subjectsPrograms} />
-              </>
-            ) : (
-              <div className="flex flex-wrap gap-1 mt-1">
-                {journey.subjectsPrograms?.length ? journey.subjectsPrograms.map((subj, i) => (
-                  <span key={i} className="px-2 py-0.5 bg-[hsl(217,91%,60%,0.1)] text-[hsl(217,91%,60%)] rounded-xl text-xs">{subj}</span>
-                )) : <span className="text-[hsl(214,100%,15%,0.4)] text-sm">—</span>}
-              </div>
-            )}
-          </FieldContainer>
-
-          {/* Email Status - Shows count, sender, and date/time */}
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Email Status</FieldLabel>
-            {(() => {
-              const emailSent = journey.demoEmailSent;
-              const emailSentAt = journey.demoEmailSentAt;
-              const emailType = journey.demoEmailType;
-              const emailSentCount = journey.demoEmailSentCount || 0;
-              const emailSentBy = journey.demoEmailSentBy;
-              
-              if (!emailSent || emailSent === 'NO' || emailSentCount === 0) {
-                return (
-                  <div className="mt-1">
-                    <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300">
-                      Not Sent
-                    </Badge>
-                  </div>
-                );
-              }
-              
-              // Email was sent - show status, count, sender, and date/time
-              const isSelected = emailType === 'SELECTED';
-              const formattedDateTime = emailSentAt 
-                ? new Date(emailSentAt).toLocaleString('en-GB', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  })
-                : 'N/A';
-              
-              return (
-                <div className="mt-1 space-y-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge 
-                      variant="outline" 
-                      className={
-                        isSelected 
-                          ? 'bg-green-100 text-green-700 border-green-300' 
-                          : 'bg-red-100 text-red-700 border-red-300'
-                      }
-                    >
-                      {isSelected ? 'Selected' : 'Not Selected'}
-                    </Badge>
-                    {emailSentCount > 1 && (
-                      <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
-                        Sent {emailSentCount} times
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      <span>Last sent: {formattedDateTime}</span>
-                    </div>
-                    {emailSentBy && (
-                      <div className="flex items-center gap-1">
-                        <Mail className="h-3 w-3" />
-                        <span>By: {emailSentBy}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-          </FieldContainer>
-
-          {/* Send Mail Button - Show when demoStatus is SELECTED or NOT_SELECTED (in both edit and view mode) - Hide for hire@bambinos.live */}
-          {!isHireEmail && ((!editMode && (journey.demoStatus === 'SELECTED' || journey.demoStatus === 'NOT_SELECTED')) || 
-            (editMode && (data.demoStatus === 'SELECTED' || data.demoStatus === 'NOT_SELECTED'))) && onSendDemoEmail && (
-            <div className="mt-4">
-              <Button
-                onClick={onSendDemoEmail}
-                disabled={sendingEmail || editMode}
-                className={`w-full sm:w-auto text-white disabled:opacity-50 disabled:cursor-not-allowed ${
-                  (!editMode && journey.demoStatus === 'SELECTED') || (editMode && data.demoStatus === 'SELECTED')
-                    ? 'bg-emerald-500 hover:bg-emerald-600'
-                    : 'bg-slate-600 hover:bg-slate-700'
-                }`}
-                title={editMode ? "Save changes first to send email" : journey.demoStatus === 'SELECTED' ? "Send demo passed email" : "Send demo not selected email"}
-              >
-                {sendingEmail ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 inline-block" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Mail className="h-4 w-4 mr-2" />
-                    Send Mail
-                  </>
-                )}
-              </Button>
-              {editMode && (
-                <p className="text-xs text-gray-500 mt-1">💡 Save changes first to enable sending email</p>
-              )}
-            </div>
-          )}
-
-                    </div>
-
-        {/* Feedback Textarea */}
-        <FieldContainer editMode={editMode} className="mt-3">
-          <FieldLabel editMode={editMode}>Demo Feedback</FieldLabel>
+        <FieldContainer editMode={editMode} className="p-2">
+          <FieldLabel editMode={editMode}>Demo Date</FieldLabel>
           {editMode ? (
             <>
-              <Textarea 
-                value={data.demoFeedback || ''} 
-                placeholder="Enter detailed feedback about the demo..."
-                rows={3}
-                className={`mt-1 bg-white ${fieldErrors.demoFeedback ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}
-                onChange={(e) => setEditData(prev => ({ ...prev, demoFeedback: e.target.value }))} 
-              />
-              <FieldError error={fieldErrors.demoFeedback} />
+              <Input type="date" value={data.demoDate?.split('T')[0] || ''} 
+                className={`mt-1 h-7 text-xs bg-white ${fieldErrors.demoDate ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}
+                onChange={(e) => setEditData(prev => ({ ...prev, demoDate: e.target.value }))} />
+              <FieldError error={fieldErrors.demoDate} />
             </>
           ) : (
-            <p className="text-sm text-slate-700 mt-1 whitespace-pre-wrap">
-              {journey.demoFeedback || <span className="text-slate-400 italic">No feedback provided</span>}
-            </p>
+            <FieldValue value={journey.demoDate ? new Date(journey.demoDate).toLocaleDateString() : null} />
           )}
         </FieldContainer>
+
+        <FieldContainer editMode={editMode} className="p-2">
+          <FieldLabel editMode={editMode}>Interviewer Name</FieldLabel>
+          {editMode ? (
+            <>
+              <Select value={data.demoInterviewerName || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, demoInterviewerName: v }))}>
+                <SelectTrigger className={`mt-1 h-7 text-xs bg-white ${fieldErrors.demoInterviewerName ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                  <SelectValue placeholder="Select interviewer" />
+                </SelectTrigger>
+                <SelectContent>
+                  {interviewers.map((interviewer) => (
+                    <SelectItem key={interviewer.id} value={interviewer.name}>
+                      {interviewer.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldError error={fieldErrors.demoInterviewerName} />
+            </>
+          ) : (
+            <FieldValue value={journey.demoInterviewerName} />
+          )}
+        </FieldContainer>
+
+        <FieldContainer editMode={editMode} className="p-2">
+          <FieldLabel editMode={editMode}>Overall Teaching Style</FieldLabel>
+          {editMode ? (
+            <>
+              <Select value={data.overallTeachingStyle || ''} 
+                onValueChange={(v) => setEditData(prev => ({ ...prev, overallTeachingStyle: v as TeachingStyleRating }))}>
+                <SelectTrigger className={`mt-1 h-7 text-xs bg-white ${fieldErrors.overallTeachingStyle ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                  <SelectValue placeholder="Select rating" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="BAD">Bad</SelectItem>
+                  <SelectItem value="AVERAGE">Average</SelectItem>
+                  <SelectItem value="GOOD">Good</SelectItem>
+                  <SelectItem value="EXCELLENT">Excellent</SelectItem>
+                </SelectContent>
+              </Select>
+              <FieldError error={fieldErrors.overallTeachingStyle} />
+            </>
+          ) : (
+            <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium ${
+              journey.overallTeachingStyle === 'EXCELLENT' ? 'bg-emerald-100 text-emerald-700' :
+              journey.overallTeachingStyle === 'GOOD' ? 'bg-blue-100 text-blue-700' :
+              journey.overallTeachingStyle === 'AVERAGE' ? 'bg-[hsl(38,92%,50%,0.1)] text-[hsl(38,92%,50%)]' :
+              journey.overallTeachingStyle === 'BAD' ? 'bg-red-100 text-red-700' :
+              'bg-slate-100 text-slate-500'
+            }`}>
+              {journey.overallTeachingStyle || '—'}
+            </span>
+          )}
+        </FieldContainer>
+
+        <FieldContainer editMode={editMode} className="p-2">
+          <FieldLabel editMode={editMode}>Subjects / Programs</FieldLabel>
+          {editMode ? (
+            <>
+              <SubjectsMultiSelect
+                selectedSubjects={data.subjectsPrograms || []}
+                onSubjectsChange={(subjects) => {
+                  setEditData((prev) => ({
+                    ...prev,
+                    subjectsPrograms: subjects,
+                  }));
+                }}
+              />
+              <FieldError error={fieldErrors.subjectsPrograms} />
+            </>
+          ) : (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {journey.subjectsPrograms?.length ? journey.subjectsPrograms.map((subj, i) => (
+                <span key={i} className="px-2 py-0.5 bg-[hsl(217,91%,60%,0.1)] text-[hsl(217,91%,60%)] rounded-xl text-[10px]">{subj}</span>
+              )) : <span className="text-[hsl(214,100%,15%,0.4)] text-xs">—</span>}
+            </div>
+          )}
+        </FieldContainer>
+
+        <FieldContainer editMode={editMode} className="p-2">
+          <FieldLabel editMode={editMode}>Email Status</FieldLabel>
+          {(() => {
+            const emailSent = journey.demoEmailSent;
+            const emailSentAt = journey.demoEmailSentAt;
+            const emailType = journey.demoEmailType;
+            const emailSentCount = journey.demoEmailSentCount || 0;
+            const emailSentBy = journey.demoEmailSentBy;
+            
+            if (!emailSent || emailSent === 'NO' || emailSentCount === 0) {
+              return (
+                <div className="mt-1">
+                  <Badge variant="outline" className="h-5 text-[10px] bg-gray-100 text-gray-600 border-gray-300">
+                    Not Sent
+                  </Badge>
+                </div>
+              );
+            }
+            
+            const isSelected = emailType === 'SELECTED';
+            const formattedDateTime = emailSentAt 
+              ? new Date(emailSentAt).toLocaleString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })
+              : 'N/A';
+            
+            return (
+              <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                <Badge 
+                  variant="outline" 
+                  className={`h-5 text-[10px] ${isSelected ? 'bg-green-100 text-green-700 border-green-300' : 'bg-red-100 text-red-700 border-red-300'}`}
+                >
+                  {isSelected ? 'Selected' : 'Not Selected'}
+                </Badge>
+                {emailSentCount > 1 && (
+                  <Badge variant="outline" className="h-5 text-[10px] bg-blue-100 text-blue-700 border-blue-300">
+                    {emailSentCount}x
+                  </Badge>
+                )}
+                <div className="text-[9px] text-gray-500 flex items-center gap-1 ml-0.5">
+                  <span className="flex items-center gap-0.5"><Clock className="h-2 w-2" />{formattedDateTime.split(',')[0]}</span>
+                  {emailSentBy && <span className="flex items-center gap-0.5"><Mail className="h-2 w-2" />{emailSentBy.split('@')[0]}</span>}
+                </div>
+              </div>
+            );
+          })()}
+        </FieldContainer>
       </div>
+
+      {/* Action Row for Email */}
+      {!isHireEmail && ((!editMode && (journey.demoStatus === 'SELECTED' || journey.demoStatus === 'NOT_SELECTED')) || 
+        (editMode && (data.demoStatus === 'SELECTED' || data.demoStatus === 'NOT_SELECTED'))) && onSendDemoEmail && (
+        <div className="mb-2 flex flex-wrap items-center gap-3">
+          <Button
+            onClick={onSendDemoEmail}
+            disabled={sendingEmail || editMode}
+            className={`text-white shadow-sm h-7 px-3 text-[10px] ${
+              (!editMode && journey.demoStatus === 'SELECTED') || (editMode && data.demoStatus === 'SELECTED')
+                ? 'bg-emerald-500 hover:bg-emerald-600'
+                : 'bg-slate-600 hover:bg-slate-700'
+            }`}
+          >
+            {sendingEmail ? (
+              <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5" />Sending...</>
+            ) : (
+              <><Mail className="h-3 w-3 mr-1.5" />Send Mail</>
+            )}
+          </Button>
+          {editMode && (
+            <p className="text-[9px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+              💡 Save changes first to enable sending email
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Feedback Textarea */}
+      <FieldContainer editMode={editMode} className="mt-2 p-2">
+        <FieldLabel editMode={editMode}>Demo Feedback</FieldLabel>
+        {editMode ? (
+          <>
+            <Textarea 
+              value={data.demoFeedback || ''} 
+              placeholder="Enter detailed feedback about the demo..."
+              rows={2}
+              className={`mt-1 text-xs bg-white ${fieldErrors.demoFeedback ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}
+              onChange={(e) => setEditData(prev => ({ ...prev, demoFeedback: e.target.value }))} 
+            />
+            <FieldError error={fieldErrors.demoFeedback} />
+          </>
+        ) : (
+          <p className="text-xs text-slate-700 mt-0.5 whitespace-pre-wrap leading-tight">
+            {journey.demoFeedback || <span className="text-slate-400 italic">No feedback provided</span>}
+          </p>
+        )}
+      </FieldContainer>
     </div>
   );
 };

@@ -71,7 +71,7 @@ const DemoFeedbackModal: React.FC<DemoFeedbackModalProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">
-            Demo Feedback - {journey.firstName} {journey.lastName}
+            Demo Feedback - {journey.firstName || ''} {journey.lastName || ''}
           </DialogTitle>
         </DialogHeader>
 
