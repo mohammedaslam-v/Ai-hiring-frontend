@@ -119,23 +119,6 @@ const getStatusBadge = (status: string) => {
 };
 
 // ============================================
-// STAR RATING COMPONENT
-// ============================================
-const StarRating: React.FC<{ value: number; onChange?: (v: number) => void; readonly?: boolean }> = ({ 
-  value, onChange, readonly = true 
-}) => (
-  <div className="flex gap-0.5">
-    {[1, 2, 3, 4, 5].map((star) => (
-      <Star 
-        key={star} 
-        className={`h-4 w-4 ${star <= value ? 'text-[#1E62F2] fill-[#1E62F2]' : 'text-[hsl(240,5%,64.9%,0.3)] fill-[hsl(240,5%,64.9%,0.1)]'} ${!readonly ? 'cursor-pointer hover:text-[#1E62F2] hover:fill-[#1E62F2]/30' : ''}`}
-        onClick={() => !readonly && onChange?.(star)}
-      />
-    ))}
-  </div>
-);
-
-// ============================================
 // MAIN COMPONENT
 // ============================================
 const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({ 
@@ -341,13 +324,6 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           demoDate: data.demoDate,
           demoInterviewerName: data.demoInterviewerName,
           demoFeedback: data.demoFeedback,
-          // Demo ratings
-          lessonClarity: data.lessonClarity,
-          studentEngagement: data.studentEngagement,
-          languageCommunication: data.languageCommunication,
-          teachingAids: data.teachingAids,
-          creativityDelivery: data.creativityDelivery,
-          grammarPronunciation: data.grammarPronunciation,
           // Extended Demo Evaluation
           overallTeachingStyle: data.overallTeachingStyle,
           demoConducted: data.demoConducted,
@@ -1760,6 +1736,30 @@ const DemoSection: React.FC<DemoSectionProps> = ({
             )}
           </FieldContainer>
 
+          <FieldContainer editMode={editMode}>
+            <FieldLabel editMode={editMode}>Subjects / Programs</FieldLabel>
+            {editMode ? (
+              <>
+                <SubjectsMultiSelect
+                  selectedSubjects={data.subjectsPrograms || []}
+                  onSubjectsChange={(subjects) => {
+                    setEditData((prev) => ({
+                      ...prev,
+                      subjectsPrograms: subjects,
+                    }));
+                  }}
+                />
+                <FieldError error={fieldErrors.subjectsPrograms} />
+              </>
+            ) : (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {journey.subjectsPrograms?.length ? journey.subjectsPrograms.map((subj, i) => (
+                  <span key={i} className="px-2 py-0.5 bg-[hsl(217,91%,60%,0.1)] text-[hsl(217,91%,60%)] rounded-xl text-xs">{subj}</span>
+                )) : <span className="text-[hsl(214,100%,15%,0.4)] text-sm">—</span>}
+              </div>
+            )}
+          </FieldContainer>
+
           {/* Email Status - Shows count, sender, and date/time */}
           <FieldContainer editMode={editMode}>
             <FieldLabel editMode={editMode}>Email Status</FieldLabel>
@@ -1863,39 +1863,6 @@ const DemoSection: React.FC<DemoSectionProps> = ({
 
                     </div>
 
-        {/* Star Ratings Grid */}
-        <div className={`mt-4 p-4 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
-          <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${
-            editMode ? 'text-[#1E62F2]' : 'text-slate-400'
-          }`}>
-            Performance Ratings {editMode && <span className="normal-case font-normal">(click stars to rate)</span>}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {([
-              { key: 'lessonClarity', label: 'Lesson Clarity' },
-              { key: 'studentEngagement', label: 'Student Engagement' },
-              { key: 'languageCommunication', label: 'Language & Communication' },
-              { key: 'teachingAids', label: 'Teaching Aids Usage' },
-              { key: 'creativityDelivery', label: 'Creativity & Delivery' },
-              { key: 'grammarPronunciation', label: 'Grammar & Pronunciation' },
-            ] as const).map(({ key, label }) => (
-              <div key={key} className="py-1">
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm ${editMode ? 'text-[#1E62F2]' : 'text-slate-600'}`}>{label}</span>
-                  <StarRating 
-                    value={(editMode ? editData[key] : journey[key]) || 0} 
-                    readonly={!editMode}
-                    onChange={(v) => setEditData(prev => ({ ...prev, [key]: v }))}
-                  />
-                </div>
-                {editMode && fieldErrors[key] && (
-                  <FieldError error={fieldErrors[key]} />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Feedback Textarea */}
         <FieldContainer editMode={editMode} className="mt-3">
           <FieldLabel editMode={editMode}>Demo Feedback</FieldLabel>
@@ -1917,180 +1884,6 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           )}
         </FieldContainer>
       </div>
-
-      {/* ============================================
-          C. LANGUAGE & SUBJECT INFO
-          Languages spoken and subjects/programs
-          ============================================ */}
-      <div>
-        <DemoSectionHeader editMode={editMode} 
-          title="Language & Subject Info" 
-          icon={<Globe className="h-4 w-4" />}
-          description="Communication abilities and teaching specializations"
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Languages Spoken</FieldLabel>
-            {editMode ? (
-              <>
-                <LanguagesMultiSelect
-                  selectedLanguages={data.languagesSpoken || []}
-                  onLanguagesChange={(languages) => {
-                    setEditData((prev) => ({
-                      ...prev,
-                      languagesSpoken: languages,
-                    }));
-                  }}
-                />
-                <FieldError error={fieldErrors.languagesSpoken} />
-              </>
-            ) : (
-              <div className="flex flex-wrap gap-1 mt-1">
-                {journey.languagesSpoken?.length ? journey.languagesSpoken.map((lang, i) => (
-                  <span key={i} className="px-2 py-0.5 bg-[#1E62F2]/10 text-[#1E62F2] rounded-xl text-xs">{lang}</span>
-                )) : <span className="text-[hsl(214,100%,15%,0.4)] text-sm">—</span>}
-                    </div>
-                  )}
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Subjects / Programs</FieldLabel>
-            {editMode ? (
-              <>
-                <SubjectsMultiSelect
-                  selectedSubjects={data.subjectsPrograms || []}
-                  onSubjectsChange={(subjects) => {
-                    setEditData((prev) => ({
-                      ...prev,
-                      subjectsPrograms: subjects,
-                    }));
-                  }}
-                />
-                <FieldError error={fieldErrors.subjectsPrograms} />
-              </>
-            ) : (
-              <div className="flex flex-wrap gap-1 mt-1">
-                {journey.subjectsPrograms?.length ? journey.subjectsPrograms.map((subj, i) => (
-                  <span key={i} className="px-2 py-0.5 bg-[hsl(217,91%,60%,0.1)] text-[hsl(217,91%,60%)] rounded-xl text-xs">{subj}</span>
-                )) : <span className="text-[hsl(214,100%,15%,0.4)] text-sm">—</span>}
-                    </div>
-                  )}
-          </FieldContainer>
-                    </div>
-      </div>
-
-      {/* ============================================
-          D. AVAILABILITY & PREFERENCES
-          Time slots and employment type preferences
-          ============================================ */}
-      <div>
-        <DemoSectionHeader editMode={editMode} 
-          title="Availability & Preferences" 
-          icon={<Clock className="h-4 w-4" />}
-          description="Working hours and commitment"
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Minimum Hours Commitment Confirmed?</FieldLabel>
-            {editMode ? (
-              <>
-                <Select value={data.minHoursConfirmed || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, minHoursConfirmed: v as YesNo }))}>
-                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.minHoursConfirmed ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="YES">Yes</SelectItem>
-                    <SelectItem value="NO">No</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldErrors.minHoursConfirmed} />
-              </>
-            ) : (
-              <div className="mt-1"><YesNoBadge value={journey.minHoursConfirmed} /></div>
-            )}
-          </FieldContainer>
-                </div>
-      </div>
-
-      {/* ============================================
-          E. TRAINING & ONBOARDING CONFIRMATION
-          Training willingness and preferences
-          ============================================ */}
-      <div>
-        <DemoSectionHeader editMode={editMode} 
-          title="Training & Onboarding Confirmation" 
-          icon={<GraduationCap className="h-4 w-4" />}
-          description="Training readiness and batch preferences"
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Willing to get trained with Gita?</FieldLabel>
-            {editMode ? (
-              <>
-                <Select value={data.willingGitaTraining || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, willingGitaTraining: v as YesNo }))}>
-                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.willingGitaTraining ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="YES">Yes</SelectItem>
-                    <SelectItem value="NO">No</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldErrors.willingGitaTraining} />
-              </>
-            ) : (
-              <div className="mt-1"><YesNoBadge value={journey.willingGitaTraining} /></div>
-            )}
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Salary Structure Reviewed & Accepted?</FieldLabel>
-            {editMode ? (
-              <>
-                <Select value={data.salaryStructureAccepted || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, salaryStructureAccepted: v as YesNo }))}>
-                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.salaryStructureAccepted ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="YES">Yes</SelectItem>
-                    <SelectItem value="NO">No</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldErrors.salaryStructureAccepted} />
-              </>
-            ) : (
-              <div className="mt-1"><YesNoBadge value={journey.salaryStructureAccepted} /></div>
-            )}
-          </FieldContainer>
-
-          <FieldContainer editMode={editMode}>
-            <FieldLabel editMode={editMode}>Willing to Start Training Within 2 Weeks?</FieldLabel>
-            {editMode ? (
-              <>
-                <Select value={data.willingToStartIn2Weeks || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, willingToStartIn2Weeks: v as YesNo }))}>
-                  <SelectTrigger className={`mt-1 bg-white ${fieldErrors.willingToStartIn2Weeks ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="YES">Yes</SelectItem>
-                    <SelectItem value="NO">No</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FieldError error={fieldErrors.willingToStartIn2Weeks} />
-              </>
-            ) : (
-              <div className="mt-1"><YesNoBadge value={journey.willingToStartIn2Weeks} /></div>
-            )}
-          </FieldContainer>
-        </div>
-            </div>
     </div>
   );
 };

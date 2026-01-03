@@ -15,31 +15,11 @@ export const TEACHER_JOURNEY_ERROR_MESSAGES = {
     FEEDBACK_MAX_LENGTH: 'Demo feedback must not exceed 2000 characters',
   },
   
-  // Demo Ratings (1-5 scale)
-  RATINGS: {
-    REQUIRED: 'All rating fields are required when demo is conducted',
-    INVALID_RANGE: 'Rating must be between 1 and 5',
-    LESSON_CLARITY: 'Lesson clarity rating is required',
-    STUDENT_ENGAGEMENT: 'Student engagement rating is required',
-    LANGUAGE_COMMUNICATION: 'Language & communication rating is required',
-    TEACHING_AIDS: 'Teaching aids rating is required',
-    CREATIVITY_DELIVERY: 'Creativity & delivery rating is required',
-    GRAMMAR_PRONUNCIATION: 'Grammar & pronunciation rating is required',
-  },
-  
   // Extended Demo Evaluation
   DEMO_EVALUATION: {
     OVERALL_STYLE_REQUIRED: 'Overall teaching style is required',
     OVERALL_STYLE_INVALID: 'Invalid teaching style rating',
     DEMO_CONDUCTED_REQUIRED: 'Demo conducted status is required',
-  },
-  
-  // Languages & Subjects
-  LANGUAGES: {
-    REQUIRED: 'At least one language must be selected',
-    MIN_SELECTION: 'Please select at least one language',
-    MAX_SELECTION: 'Maximum 10 languages can be selected',
-    INVALID_LANGUAGE: 'Invalid language selected',
   },
   
   SUBJECTS: {
@@ -102,22 +82,6 @@ export const TEACHER_JOURNEY_ERROR_MESSAGES = {
     INTERNAL_COMMENTS_MAX_LENGTH: 'Internal comments must not exceed 2000 characters',
   },
   
-  // Availability & Preferences
-  AVAILABILITY: {
-    MIN_HOURS_REQUIRED: 'Minimum hours confirmation is required',
-    MIN_HOURS_INVALID: 'Invalid minimum hours confirmation status',
-  },
-  
-  // Training & Onboarding Confirmation
-  TRAINING_CONFIRMATION: {
-    WILLING_TRAINING_REQUIRED: 'Training willingness is required',
-    WILLING_TRAINING_INVALID: 'Invalid training willingness status',
-    SALARY_ACCEPTED_REQUIRED: 'Salary structure acceptance is required',
-    SALARY_ACCEPTED_INVALID: 'Invalid salary structure acceptance status',
-    START_IN_2_WEEKS_REQUIRED: 'Start date willingness is required',
-    START_IN_2_WEEKS_INVALID: 'Invalid start date willingness status',
-  },
-  
   // Common
   COMMON: {
     DATE_FORMAT: 'Date must be in YYYY-MM-DD format',
@@ -125,8 +89,3 @@ export const TEACHER_JOURNEY_ERROR_MESSAGES = {
     INVALID_VALUE: 'Invalid value provided',
   },
 } as const;
-
-
-
-
-

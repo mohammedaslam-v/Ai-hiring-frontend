@@ -28,13 +28,7 @@ const DemoFeedbackModal: React.FC<DemoFeedbackModalProps> = ({
     demoStatus: 'SELECTED',
     demoDate: new Date().toISOString().split('T')[0],
     demoInterviewerName: '',
-    demoFeedback: '',
-    lessonClarity: 3,
-    studentEngagement: 3,
-    languageCommunication: 3,
-    teachingAids: 3,
-    creativityDelivery: 3,
-    grammarPronunciation: 3
+    demoFeedback: ''
   });
 
   useEffect(() => {
@@ -48,13 +42,7 @@ const DemoFeedbackModal: React.FC<DemoFeedbackModalProps> = ({
           ? new Date(journey.demoDate).toISOString().split('T')[0] 
           : new Date().toISOString().split('T')[0],
         demoInterviewerName: journey.demoInterviewerName || '',
-        demoFeedback: journey.demoFeedback || '',
-        lessonClarity: journey.lessonClarity || 3,
-        studentEngagement: journey.studentEngagement || 3,
-        languageCommunication: journey.languageCommunication || 3,
-        teachingAids: journey.teachingAids || 3,
-        creativityDelivery: journey.creativityDelivery || 3,
-        grammarPronunciation: journey.grammarPronunciation || 3
+        demoFeedback: journey.demoFeedback || ''
       });
     }
   }, [journey]);
@@ -75,34 +63,6 @@ const DemoFeedbackModal: React.FC<DemoFeedbackModalProps> = ({
       setLoading(false);
     }
   };
-
-  const RatingStars: React.FC<{
-    label: string;
-    value: number;
-    onChange: (value: number) => void;
-  }> = ({ label, value, onChange }) => (
-    <div className="space-y-1">
-      <Label className="text-sm font-medium">{label}</Label>
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => onChange(star)}
-            className="focus:outline-none"
-          >
-            <Star
-              className={`h-6 w-6 ${
-                star <= value 
-                  ? 'fill-[#1E62F2] text-[#1E62F2]' 
-                  : 'text-[hsl(240,5%,64.9%,0.5)] fill-[hsl(240,5%,64.9%,0.1)]'
-              } hover:text-[#1E62F2] hover:fill-[#1E62F2]/30 transition-colors`}
-            />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 
   if (!journey) return null;
 
@@ -161,46 +121,8 @@ const DemoFeedbackModal: React.FC<DemoFeedbackModalProps> = ({
                     {interviewer}
                   </SelectItem>
                 ))}
-              </SelectContent>
+                  </SelectContent>
             </Select>
-          </div>
-
-          {/* Ratings Section */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-[hsl(214,100%,15%)] border-b border-[#F4F6FA] pb-2">Performance Ratings</h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <RatingStars
-                label="Lesson Clarity"
-                value={formData.lessonClarity}
-                onChange={(value) => setFormData(prev => ({ ...prev, lessonClarity: value }))}
-              />
-              <RatingStars
-                label="Student Engagement"
-                value={formData.studentEngagement}
-                onChange={(value) => setFormData(prev => ({ ...prev, studentEngagement: value }))}
-              />
-              <RatingStars
-                label="Language & Communication"
-                value={formData.languageCommunication}
-                onChange={(value) => setFormData(prev => ({ ...prev, languageCommunication: value }))}
-              />
-              <RatingStars
-                label="Teaching Aids"
-                value={formData.teachingAids}
-                onChange={(value) => setFormData(prev => ({ ...prev, teachingAids: value }))}
-              />
-              <RatingStars
-                label="Creativity & Delivery"
-                value={formData.creativityDelivery}
-                onChange={(value) => setFormData(prev => ({ ...prev, creativityDelivery: value }))}
-              />
-              <RatingStars
-                label="Grammar & Pronunciation"
-                value={formData.grammarPronunciation}
-                onChange={(value) => setFormData(prev => ({ ...prev, grammarPronunciation: value }))}
-              />
-            </div>
           </div>
 
           {/* Feedback Text */}
