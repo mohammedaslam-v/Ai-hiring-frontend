@@ -25,6 +25,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminApplications from "./pages/admin/AdminApplications";
 import AdminApplicationDetail from "./pages/admin/AdminApplicationDetail";
+import AdminReports from "./pages/admin/AdminReports";
 import TeacherJourney from "./pages/admin/TeacherJourney";
 import NotFound from "./pages/NotFound";
 
@@ -73,6 +74,11 @@ const AppRoutes = () => {
       <Route path="/admin/teacher-journey" element={
         <ProtectedRoute>
           <TeacherJourney />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin/reports" element={
+        <ProtectedRoute>
+          <AdminReports />
         </ProtectedRoute>
       } />
 
