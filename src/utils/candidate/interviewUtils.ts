@@ -15,13 +15,19 @@ export const generateInterviewUrl = (candidateName: string, candidateEmail: stri
   const encodedName = encodeURIComponent(candidateName);
   const encodedEmail = encodeURIComponent(candidateEmail);
   
+  // Get configuration from environment variables with fallbacks
+  const toughTongueDomain = import.meta.env.VITE_TOUGH_TONGUE_DOMAIN 
+  const scenarioId = import.meta.env.VITE_TOUGH_TONGUE_SCENARIO_ID  
+  
   // Debug: Log what's being used for ToughTongue
   console.log('🎯 ToughTongue URL - Candidate Info:');
   console.log('🎯 - Name:', candidateName);
   console.log('🎯 - Email:', candidateEmail);
+  console.log('🎯 - Domain:', toughTongueDomain);
+  console.log('🎯 - Scenario ID:', scenarioId);
   
   // Using provided embed with tools enabled
-  return `https://bambinos.app.toughtongueai.com/embed/68c2e3b6da9d0bce43d62234?bg=black&hidePoweredBy=true&skipPrecheck=false&tools=true&userName=${encodedName}&userEmail=${encodedEmail}&vars[candidateName]=${encodedName}`;
+  return `${toughTongueDomain}/embed/${scenarioId}?bg=black&hidePoweredBy=true&skipPrecheck=false&tools=true&userName=${encodedName}&userEmail=${encodedEmail}&vars[candidateName]=${encodedName}`;
 };
 
 /**

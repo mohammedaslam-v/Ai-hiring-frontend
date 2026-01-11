@@ -193,8 +193,11 @@ const CandidateInterview = () => {
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
+      // Get Tough Tongue domain from environment variable
+      const toughTongueDomain = import.meta.env.VITE_TOUGH_TONGUE_DOMAIN  
+      
       // Only accept messages from Tough Tongue domain
-      if (event.origin !== 'https://bambinos.app.toughtongueai.com') {
+      if (event.origin !== toughTongueDomain) {
         return;
       }
 
@@ -635,7 +638,7 @@ const CandidateInterview = () => {
             </div>
           </div>
         </div>
-        <WhatsAppHelpButton />
+        {/* <WhatsAppHelpButton /> */}
       </div>
     );
   }
@@ -848,7 +851,7 @@ const CandidateInterview = () => {
             </div>
           </div>
         </div>
-        <WhatsAppHelpButton />
+        {/* <WhatsAppHelpButton /> */}
       </div>
     );
   }
@@ -1025,10 +1028,10 @@ const CandidateInterview = () => {
           </div>
         </div>
         
-        {/* Absolute Bottom Elements */}
-        <div className="fixed bottom-4 right-4 z-50">
+        {/* Absolute Bottom Elements - Hidden */}
+        {/* <div className="fixed bottom-4 right-4 z-50">
           <WhatsAppHelpButton />
-        </div>
+        </div> */}
 
         {/* Hidden Elements */}
         <div style={{ display: 'none' }}>
@@ -1074,7 +1077,7 @@ const CandidateInterview = () => {
             </CardContent>
           </Card>
         </div>
-        <WhatsAppHelpButton />
+        {/* <WhatsAppHelpButton /> */}
       </div>
     );
   }
@@ -1168,7 +1171,7 @@ const CandidateInterview = () => {
           </Card>
         </div>
         
-        <WhatsAppHelpButton />
+        {/* <WhatsAppHelpButton /> */}
       </div>
     );
   }
@@ -1177,6 +1180,14 @@ const CandidateInterview = () => {
 };
 
 export default CandidateInterview;
+
+
+
+
+
+
+
+
 
 
 

@@ -234,6 +234,50 @@ class AdminService {
         }
     }
 
+    async getReportsAnalytics(): Promise<ServiceResponse> {
+        try {
+            const response = await axiosInstance.get('/api/admin/dashboard/reports');
+            const responseData = response.data as {
+                status: boolean;
+                msg?: string;
+                data?: {
+                    totalApplications: number;
+                    totalInterviewMinutes: number;
+                    totalInterviewSeconds: number;
+                    averageMinutesPerUser: number;
+                    users: Array<{
+                        email: string;
+                        firstName: string;
+                        lastName: string;
+                        applicationId: string;
+                        interviewMinutes: number;
+                        interviewSeconds: number;
+                    }>;
+                };
+            };
+            
+            if (responseData.status && responseData.data) {
+                return {
+                    status: true,
+                    message: responseData.msg || "Reports analytics retrieved successfully",
+                    data: responseData.data
+                };
+            } else {
+                return {
+                    status: false,
+                    message: responseData.msg || "Failed to retrieve reports analytics",
+                };
+            }
+            
+        } catch (error: unknown) {
+            console.error('Error fetching reports analytics:', error);
+            return {
+                status: false,
+                message: "Something went wrong",
+            };
+        }
+    }
+
 
 }
 
