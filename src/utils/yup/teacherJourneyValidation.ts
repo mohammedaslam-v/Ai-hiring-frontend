@@ -230,29 +230,6 @@ export const goLiveSectionValidation = Yup.object().shape({
     }),
 });
 
-// Onboarding Section Validation Schema
-export const onboardingSectionValidation = Yup.object().shape({
-  onboardingEmailSent: Yup.string()
-    .nullable()
-    .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.EMAIL_SENT_INVALID),
-  
-  hireCallMade: Yup.string()
-    .nullable()
-    .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.HIRE_CALL_INVALID),
-  
-  joinedWhatsAppGroup: Yup.string()
-    .nullable()
-    .oneOf(['DEMO', 'PAID', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.WHATSAPP_GROUP_INVALID),
-  
-  rejectEmailSent: Yup.string()
-    .nullable()
-    .oneOf(['YES', 'NO'], 'Invalid reject email status'),
-  
-  internalComments: Yup.string()
-    .nullable()
-    .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.ONBOARDING.INTERNAL_COMMENTS_MAX_LENGTH),
-});
-
 // Combined validation schema for all sections
 export const teacherJourneyValidation = {
   demo: demoSectionValidation,
@@ -260,12 +237,11 @@ export const teacherJourneyValidation = {
   training: trainingSectionValidation,
   certification: certificationSectionValidation,
   goLive: goLiveSectionValidation,
-  onboarding: onboardingSectionValidation,
 };
 
 // Helper function to validate a specific section
 export const validateTeacherJourneySection = async (
-  section: 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'onboarding',
+  section: 'demo' | 'induction' | 'training' | 'certification' | 'goLive',
   data: Record<string, unknown>
 ): Promise<{ isValid: boolean; errors: Record<string, string> }> => {
   try {
