@@ -172,10 +172,12 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   }, [applicationId, fetchJourney]);
 
   // Handler for sending demo result email
-  const handleSendDemoEmail = useCallback(async () => {
+  const handleSendDemoEmail = useCallback(async (overrideStatus?: string) => {
     if (!applicationId || !journey) return;
     
-    const isSelected = journey.demoStatus === 'SELECTED';
+    // Use overrideStatus if provided (for automation), otherwise use current journey status
+    const status = overrideStatus || journey.demoStatus;
+    const isSelected = status === 'SELECTED';
     const actionText = isSelected ? 'Selection' : 'Rejection';
     
     const confirmed = await confirm({
@@ -283,6 +285,11 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       // Build update payload based on active tab
       const updatePayload = buildUpdatePayload(activeTab, editData);
       
+      // Check if status is changing to SELECTED or NOT_SELECTED for automation
+      const isStatusChangingToResult = activeTab === 'demo' && 
+                                       editData.demoStatus !== journey.demoStatus &&
+                                       (editData.demoStatus === 'SELECTED' || editData.demoStatus === 'NOT_SELECTED');
+
       // Validate the section data
       const validation = await validateTeacherJourneySection(activeTab, updatePayload);
       
@@ -300,10 +307,16 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       const response = await teacherJourneyService.updateJourney(journey.id, updatePayload);
       if (response.status) {
         toast.success(`${TABS.find(t => t.key === activeTab)?.label} updated!`);
-        fetchJourney();
+        await fetchJourney();
         setEditMode(false);
         setEditData({});
         setFieldErrors({});
+
+        // Automatically trigger email sending logic if status changed to a final result
+        if (isStatusChangingToResult) {
+          // Pass the new status explicitly to avoid stale state issues
+          handleSendDemoEmail(editData.demoStatus);
+        }
       } else {
         toast.error(response.message || 'Failed to update');
       }
