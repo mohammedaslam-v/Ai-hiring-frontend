@@ -1765,7 +1765,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
         (editMode && (data.demoStatus === 'SELECTED' || data.demoStatus === 'NOT_SELECTED'))) && onSendDemoEmail && (
         <div className="mb-2 flex flex-wrap items-center gap-3">
           <Button
-            onClick={onSendDemoEmail}
+            onClick={() => onSendDemoEmail?.()}
             disabled={sendingEmail || editMode}
             className={`text-white shadow-sm h-7 px-3 text-[10px] ${
               (!editMode && journey.demoStatus === 'SELECTED') || (editMode && data.demoStatus === 'SELECTED')
