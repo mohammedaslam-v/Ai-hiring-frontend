@@ -58,7 +58,7 @@ import { useInterviewers } from '@/hooks/admin/useInterviewers';
 // ============================================
 // TYPES
 // ============================================
-type TabKey = 'aiRound' | 'demo' | 'onboarding' | 'induction' | 'training' | 'certification' | 'goLive';
+type TabKey = 'aiRound' | 'demo' | 'induction' | 'training' | 'certification' | 'goLive';
 
 interface TeacherJourneySectionProps {
   applicationId: string;
@@ -81,7 +81,6 @@ interface TeacherJourneySectionProps {
 const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: string; owner?: 'HR' | 'TSM' }[] = [
   { key: 'aiRound', label: 'AI Round', icon: Brain, gradient: 'from-purple-500 to-pink-500' },
   { key: 'demo', label: 'Demo', icon: User, gradient: 'from-blue-500 to-indigo-500', owner: 'HR' },
-  { key: 'onboarding', label: 'Onboarding', icon: Mail, gradient: 'from-indigo-500 to-blue-500', owner: 'HR' },
   { key: 'induction', label: 'Induction', icon: Calendar, gradient: 'from-violet-500 to-purple-500', owner: 'HR' },
   { key: 'training', label: 'Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'TSM' },
   { key: 'certification', label: 'Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
@@ -330,22 +329,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           overallTeachingStyle: data.overallTeachingStyle,
           demoConducted: data.demoConducted,
           demoPaidStatus: data.demoPaidStatus,
-          languagesSpoken: data.languagesSpoken,
           subjectsPrograms: data.subjectsPrograms,
-          // Availability & Preferences
-          minHoursConfirmed: data.minHoursConfirmed,
-          // Training & Onboarding Confirmation
-          willingGitaTraining: data.willingGitaTraining,
-          salaryStructureAccepted: data.salaryStructureAccepted,
-          willingToStartIn2Weeks: data.willingToStartIn2Weeks,
-        };
-      case 'onboarding':
-        return {
-          onboardingEmailSent: data.onboardingEmailSent,
-          hireCallMade: data.hireCallMade,
-          joinedWhatsAppGroup: data.joinedWhatsAppGroup,
-          rejectEmailSent: data.rejectEmailSent,
-          internalComments: data.internalComments,
         };
       case 'induction':
         return {
@@ -382,7 +366,6 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'aiRound': return aiRoundStatus === 'completed' || aiRoundStatus === 'passed';
       // Journey-based statuses
       case 'demo': return journey?.demoStatus === 'SELECTED';
-      case 'onboarding': return journey?.onboardingEmailSent === 'YES' || journey?.hireCallMade === 'YES';
       case 'induction': return journey?.inductionAttendance === 'YES';
       case 'training': return journey?.trainingStatus === 'JOINED' || journey?.trainingStatus === 'COMPLETED';
       case 'certification': return journey?.certificationStatus === 'CLEARED';
@@ -412,18 +395,17 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
 
   /**
    * Get filtered tabs based on rejection status
-   * - If rejected, only show tabs up to and including onboarding
-   * - Change onboarding label to "Rejected" and icon to XCircle when rejected
+   * - If rejected, only show tabs up to and including Demo
+   * - Change Demo label to "Rejected" and icon to XCircle when rejected
    */
   const visibleTabs = useMemo(() => {
     if (isRejected) {
-      // Only show: AI Round, Demo, Onboarding (but label it as "Rejected" with XCircle icon)
+      // Only show: AI Round and Demo (but label Demo as "Rejected" with XCircle icon)
       return TABS.filter(tab => 
         tab.key === 'aiRound' || 
-        tab.key === 'demo' || 
-        tab.key === 'onboarding'
+        tab.key === 'demo'
       ).map(tab => 
-        tab.key === 'onboarding' 
+        tab.key === 'demo' 
           ? { ...tab, label: 'Rejected', icon: XCircle, gradient: 'from-red-500 to-red-600' }
           : tab
       );
@@ -434,8 +416,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   // Auto-switch to a valid tab if current activeTab is filtered out
   useEffect(() => {
     if (visibleTabs.length > 0 && !visibleTabs.find(tab => tab.key === activeTab)) {
-      // Current activeTab is not in visibleTabs, switch to onboarding (last visible tab)
-      setActiveTab('onboarding');
+      // Current activeTab is not in visibleTabs, switch to demo (last visible tab when rejected)
+      setActiveTab('demo');
       setEditMode(false);
       setEditData({});
     }
@@ -709,16 +691,6 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                   fieldErrors={fieldErrors}
                   onSendDemoEmail={handleSendDemoEmail}
                   sendingEmail={sendingEmail}
-                />
-              )}
-              {activeTab === 'onboarding' && journey && (
-                <OnboardingSection 
-                  journey={journey} 
-                  editMode={editMode} 
-                  editData={editData} 
-                  setEditData={setEditData} 
-                  fieldErrors={fieldErrors}
-                  isRejected={isRejected}
                 />
               )}
               {activeTab === 'induction' && journey && !isRejected && (
@@ -1822,123 +1794,6 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           </p>
         )}
       </FieldContainer>
-    </div>
-  );
-};
-
-// ONBOARDING SECTION
-interface OnboardingSectionProps extends SectionProps {
-  isRejected?: boolean;
-}
-
-const OnboardingSection: React.FC<OnboardingSectionProps> = ({ 
-  journey, 
-  editMode, 
-  editData, 
-  setEditData, 
-  fieldErrors = {},
-  isRejected = false
-}) => {
-  const data = editMode ? editData : journey;
-
-  return (
-    <div className="space-y-6">
-      {/* Rejection Status Banner - Show when candidate is rejected */}
-      {isRejected ? (
-        <div className="p-5 bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-300 rounded-xl shadow-sm">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-200 flex items-center justify-center">
-              <XCircle className="h-6 w-6 text-red-700" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-bold text-lg text-red-900 mb-1">Candidate Rejected</h4>
-              <p className="text-sm text-red-800 leading-relaxed">
-                Demo status: <span className="font-semibold">Not Selected</span> | Rejection email has been sent. Further journey stages are not applicable.
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FieldContainer editMode={editMode}>
-              <FieldLabel editMode={editMode}>Onboarding Email Sent?</FieldLabel>
-              {editMode ? (
-                <Select value={data.onboardingEmailSent || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, onboardingEmailSent: v as YesNo }))}>
-                  <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="YES">Yes</SelectItem>
-                    <SelectItem value="NO">No</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="mt-1"><YesNoBadge value={journey.onboardingEmailSent} /></div>
-              )}
-            </FieldContainer>
-
-            <FieldContainer editMode={editMode}>
-              <FieldLabel editMode={editMode}>Hire Call Made?</FieldLabel>
-              {editMode ? (
-                <Select value={data.hireCallMade || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, hireCallMade: v as YesNo }))}>
-                  <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="YES">Yes</SelectItem>
-                    <SelectItem value="NO">No</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="mt-1"><YesNoBadge value={journey.hireCallMade} /></div>
-              )}
-            </FieldContainer>
-
-            <FieldContainer editMode={editMode}>
-              <FieldLabel editMode={editMode}>Joined WhatsApp Group?</FieldLabel>
-              {editMode ? (
-                <Select value={data.joinedWhatsAppGroup || ''} 
-                  onValueChange={(v) => setEditData(prev => ({ ...prev, joinedWhatsAppGroup: v as WhatsAppGroupStatus }))}>
-                  <SelectTrigger className="mt-1 bg-white border-[#1E62F2]"><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DEMO">Demo Group</SelectItem>
-                    <SelectItem value="PAID">Paid Group</SelectItem>
-                    <SelectItem value="NO">No</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-medium ${
-                  journey.joinedWhatsAppGroup === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
-                  journey.joinedWhatsAppGroup === 'DEMO' ? 'bg-blue-100 text-blue-700' :
-                  journey.joinedWhatsAppGroup === 'NO' ? 'bg-red-100 text-red-700' :
-                  'bg-slate-100 text-slate-500'
-                }`}>
-                  {journey.joinedWhatsAppGroup || '—'}
-                </span>
-              )}
-            </FieldContainer>
-          </div>
-
-          {/* Full-width textarea fields */}
-          <div className="mt-3 space-y-3">
-            <FieldContainer editMode={editMode}>
-              <FieldLabel editMode={editMode}>Internal Comments</FieldLabel>
-              {editMode ? (
-                <Textarea 
-                  value={data.internalComments || ''} 
-                  placeholder="Internal notes and observations..."
-                  rows={3}
-                  className="mt-1 bg-white border-[#1E62F2]"
-                  onChange={(e) => setEditData(prev => ({ ...prev, internalComments: e.target.value }))} 
-                />
-              ) : (
-                <p className="text-sm text-slate-700 mt-1 whitespace-pre-wrap">
-                  {journey.internalComments || <span className="text-slate-400 italic">No internal comments</span>}
-                </p>
-              )}
-            </FieldContainer>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
