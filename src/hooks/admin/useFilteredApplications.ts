@@ -145,9 +145,17 @@ export const useFilteredApplications = () => {
     
     // Computed values
     isEmpty: applications?.length === 0 && !loading,
-    isFiltered: Object.keys(filters).some(key => 
-      key !== 'page' && key !== 'limit' && 
-      filters[key as keyof AppListFilters] !== DEFAULT_FILTERS[key as keyof AppListFilters]
-    )
+    isFiltered: Object.keys(filters).some(key => {
+      if (key === 'page' || key === 'limit') return false;
+      
+      const value = filters[key as keyof AppListFilters];
+      const defaultValue = DEFAULT_FILTERS[key as keyof AppListFilters];
+      
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      
+      return value !== defaultValue;
+    })
   };
 };

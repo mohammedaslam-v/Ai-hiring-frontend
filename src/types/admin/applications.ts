@@ -2,7 +2,7 @@
 
 export interface AppListFilters {
   search?: string;              // name, email, or phone number
-  status?: 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway';
+  status?: string | string[]; // multiple values
   minScore?: number;
   maxScore?: number;
   fromDate?: string;            // dd-mm-yyyy
@@ -13,12 +13,12 @@ export interface AppListFilters {
   limit?: number;
   directDemo?: 'all' | 'true' | 'false';
   // Teacher Journey filters
-  demoStatus?: string;
-  onboardingEmailSent?: string;
-  inductionAttendance?: string;
-  trainingStatus?: string;
-  certificationStatus?: string;
-  goLiveReadiness?: string;
+  demoStatus?: string | string[];
+  onboardingEmailSent?: string | string[];
+  inductionAttendance?: string | string[];
+  trainingStatus?: string | string[];
+  certificationStatus?: string | string[];
+  goLiveReadiness?: string | string[];
 }
 
 export interface AppListResponse {
@@ -84,7 +84,7 @@ export const PAGE_SIZE_OPTIONS = [
 // Default filter values
 export const DEFAULT_FILTERS: AppListFilters = {
   search: '',
-  status: 'all',
+  status: [],
   minScore: undefined,
   maxScore: undefined,
   fromDate: '',
@@ -94,10 +94,10 @@ export const DEFAULT_FILTERS: AppListFilters = {
   page: 1,
   limit: 10,
   directDemo: 'all',
-  demoStatus: 'all',
-  onboardingEmailSent: 'all',
-  inductionAttendance: 'all',
-  trainingStatus: 'all',
-  certificationStatus: 'all',
-  goLiveReadiness: 'all'
+  demoStatus: [],
+  onboardingEmailSent: [],
+  inductionAttendance: [],
+  trainingStatus: [],
+  certificationStatus: [],
+  goLiveReadiness: []
 };
