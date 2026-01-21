@@ -16,13 +16,42 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     const queryParams = new URLSearchParams();
     
     if (filters.search && filters.search.length > 0) queryParams.append('search', filters.search);
-    if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
+    // Handle status (single or multiple)
+    if (filters.status) {
+      if (Array.isArray(filters.status)) {
+        filters.status.forEach(status => queryParams.append('status', status));
+      } else if (filters.status !== 'all') {
+        queryParams.append('status', filters.status);
+      }
+    }
     if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
     if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
     if (filters.fromDate) queryParams.append('fromDate', filters.fromDate);
     if (filters.toDate) queryParams.append('toDate', filters.toDate);
     if (filters.sortBy) queryParams.append('sortBy', filters.sortBy);
     if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder);
+    if (filters.directDemo && filters.directDemo !== 'all') queryParams.append('directDemo', filters.directDemo);
+
+    // Teacher Journey filters (multi-select)
+    const journeyFilters = [
+      'demoStatus',
+      'onboardingEmailSent',
+      'inductionAttendance',
+      'trainingStatus',
+      'certificationStatus',
+      'goLiveReadiness'
+    ] as const;
+
+    journeyFilters.forEach(filterName => {
+      const value = (filters as any)[filterName];
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach((v: string) => queryParams.append(filterName, v));
+        } else if (value !== 'all') {
+          queryParams.append(filterName, value);
+        }
+      }
+    });
 
     // Make API request to backend
     const response = await axiosInstance.get(`/api/admin/applications/export/csv?${queryParams.toString()}`, {
@@ -105,13 +134,42 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
     const queryParams = new URLSearchParams();
     
     if (filters.search && filters.search.length > 0) queryParams.append('search', filters.search);
-    if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
+    // Handle status (single or multiple)
+    if (filters.status) {
+      if (Array.isArray(filters.status)) {
+        filters.status.forEach(status => queryParams.append('status', status));
+      } else if (filters.status !== 'all') {
+        queryParams.append('status', filters.status);
+      }
+    }
     if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
     if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
     if (filters.fromDate) queryParams.append('fromDate', filters.fromDate);
     if (filters.toDate) queryParams.append('toDate', filters.toDate);
     if (filters.sortBy) queryParams.append('sortBy', filters.sortBy);
     if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder);
+    if (filters.directDemo && filters.directDemo !== 'all') queryParams.append('directDemo', filters.directDemo);
+
+    // Teacher Journey filters (multi-select)
+    const journeyFilters = [
+      'demoStatus',
+      'onboardingEmailSent',
+      'inductionAttendance',
+      'trainingStatus',
+      'certificationStatus',
+      'goLiveReadiness'
+    ] as const;
+
+    journeyFilters.forEach(filterName => {
+      const value = (filters as any)[filterName];
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach((v: string) => queryParams.append(filterName, v));
+        } else if (value !== 'all') {
+          queryParams.append(filterName, value);
+        }
+      }
+    });
 
     // Make API request to backend
     const response = await axiosInstance.get(`/api/admin/applications/export/excel?${queryParams.toString()}`, {
