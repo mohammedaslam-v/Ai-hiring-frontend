@@ -53,7 +53,7 @@ const AppRoutes = () => {
 //triggerre
 
 
-      {/* <Route path="/admin/setup" element={<AuthSetup />} /> */}
+      {/* <Route path="/admin/setup" element={<AuthSetup />} />   */}
       <Route path="/admin/login" element={<AdminLogin />} />
       {/* <Route path="/admin/signup" element={<AdminSignup />} /> */}
       <Route path="/admin/dashboard" element={
