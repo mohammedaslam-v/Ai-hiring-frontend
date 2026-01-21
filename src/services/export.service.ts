@@ -62,7 +62,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     // Make API request to backend
     const response = await axiosInstance.get(`/api/admin/applications/export/csv?${queryParams.toString()}`, {
       responseType: 'blob', // Important for file download
-      timeout: 180000 // 3 minute timeout for large exports
+      timeout: 120000 // 2 minute timeout for large exports
     });
 
     // Create download link
