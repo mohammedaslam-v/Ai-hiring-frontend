@@ -437,19 +437,17 @@ const ApplicationsManagement: React.FC = () => {
               />
 
               {/* Direct Demo Filter */}
-              <Select
-                value={filters.directDemo || 'all'}
-                onValueChange={(value) => updateFilters({ directDemo: value as 'all' | 'true' | 'false' })}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-blue-400">
-                  <SelectValue placeholder="Direct Demo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Demo Types</SelectItem>
-                  <SelectItem value="true">Direct Demo</SelectItem>
-                  <SelectItem value="false">AI Round</SelectItem>
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={[
+                  { value: 'all', label: 'All Demo Types' },
+                  { value: 'true', label: 'Direct Demo' },
+                  { value: 'false', label: 'AI Round' }
+                ]}
+                selectedValues={Array.isArray(filters.directDemo) ? filters.directDemo : []}
+                onValuesChange={(values) => updateFilters({ directDemo: values })}
+                placeholder="All Demo Types"
+                activeColor="blue"
+              />
 
               {/* Score Range */}
               <div className="flex items-center gap-2">
@@ -744,9 +742,9 @@ const ApplicationsManagement: React.FC = () => {
                     Go-Live: {filters.goLiveReadiness.length > 1 ? `${filters.goLiveReadiness.length} selected` : filters.goLiveReadiness[0].replace(/_/g, ' ')}
                   </span>
                 )}
-                {filters.directDemo && filters.directDemo !== 'all' && (
+                {Array.isArray(filters.directDemo) && filters.directDemo.length > 0 && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 text-purple-700">
-                    Direct Demo: {filters.directDemo === 'true' ? 'Yes' : 'No'}
+                    Demo Types: {filters.directDemo.length > 1 ? `${filters.directDemo.length} selected` : (filters.directDemo[0] === 'true' ? 'Direct Demo' : 'AI Round')}
                   </span>
                 )}
               </div>
@@ -826,8 +824,8 @@ const ApplicationsManagement: React.FC = () => {
                             {isFiltered || isJourneyFiltered
                               ? (Array.isArray(filters.status) && filters.status.length > 0)
                                 ? `No applications found with the selected AI Round statuses. Try selecting a different status or reset the filters.`
-                                : (filters.status && filters.status !== 'all')
-                                  ? `No applications found with AI Round "${filters.status === 'no_interview' ? 'No Interview' : (filters.status as string).replace('_', ' ')}". Try selecting a different status or reset the filters.`
+                                : (typeof filters.status === 'string' && filters.status !== 'all')
+                                  ? `No applications found with AI Round "${filters.status === 'no_interview' ? 'No Interview' : filters.status.replace('_', ' ')}". Try selecting a different status or reset the filters.`
                                   : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
                               : 'There are no applications in the system yet.'
                             }

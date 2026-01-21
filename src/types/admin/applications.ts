@@ -11,7 +11,7 @@ export interface AppListFilters {
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
-  directDemo?: 'all' | 'true' | 'false';
+  directDemo?: string | string[];
   // Teacher Journey filters
   demoStatus?: string | string[];
   onboardingEmailSent?: string | string[];
@@ -93,7 +93,7 @@ export const DEFAULT_FILTERS: AppListFilters = {
   sortOrder: 'desc',
   page: 1,
   limit: 10,
-  directDemo: 'all',
+  directDemo: [],
   demoStatus: [],
   onboardingEmailSent: [],
   inductionAttendance: [],
