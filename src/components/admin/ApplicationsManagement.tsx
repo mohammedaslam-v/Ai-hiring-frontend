@@ -27,6 +27,7 @@ import {
   GO_LIVE_OPTIONS
 } from '@/types/teacherJourney';
 import FeedbackModal from './FeedbackModal';
+import { MultiSelectFilter } from './MultiSelectFilter';
 
 // Type for journey progress map
 type JourneyProgressMap = Record<string, JourneyStatusData>;
@@ -127,18 +128,19 @@ const ApplicationsManagement: React.FC = () => {
   }, [applications]);
 
   // Check if journey filters are active
-  const isJourneyFiltered = filters.demoStatus !== 'all' ||
-    filters.onboardingEmailSent !== 'all' ||
-    filters.inductionAttendance !== 'all' ||
-    filters.trainingStatus !== 'all' ||
-    filters.certificationStatus !== 'all' ||
-    filters.goLiveReadiness !== 'all';
+  const isJourneyFiltered = 
+    (Array.isArray(filters.demoStatus) ? filters.demoStatus.length > 0 : (filters.demoStatus !== 'all' && filters.demoStatus !== undefined)) ||
+    (Array.isArray(filters.onboardingEmailSent) ? filters.onboardingEmailSent.length > 0 : (filters.onboardingEmailSent !== 'all' && filters.onboardingEmailSent !== undefined)) ||
+    (Array.isArray(filters.inductionAttendance) ? filters.inductionAttendance.length > 0 : (filters.inductionAttendance !== 'all' && filters.inductionAttendance !== undefined)) ||
+    (Array.isArray(filters.trainingStatus) ? filters.trainingStatus.length > 0 : (filters.trainingStatus !== 'all' && filters.trainingStatus !== undefined)) ||
+    (Array.isArray(filters.certificationStatus) ? filters.certificationStatus.length > 0 : (filters.certificationStatus !== 'all' && filters.certificationStatus !== undefined)) ||
+    (Array.isArray(filters.goLiveReadiness) ? filters.goLiveReadiness.length > 0 : (filters.goLiveReadiness !== 'all' && filters.goLiveReadiness !== undefined));
 
   // Use applications directly from hook (now server-side filtered)
   const filteredApplications = applications;
 
   // Update journey filter
-  const updateJourneyFilter = (key: string, value: string) => {
+  const updateJourneyFilter = (key: string, value: string | string[]) => {
     updateFilters({ [key]: value });
   };
 
@@ -426,21 +428,13 @@ const ApplicationsManagement: React.FC = () => {
               </div>
 
               {/* Interview Status */}
-              <Select
-                value={filters.status || 'all'}
-                onValueChange={(value) => updateFilters({ status: value as 'all' | 'no_interview' | 'in_progress' | 'completed' | 'failed' | 'leftMidway' })}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-blue-400">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUS_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={STATUS_OPTIONS}
+                selectedValues={Array.isArray(filters.status) ? filters.status : []}
+                onValuesChange={(values) => updateFilters({ status: values })}
+                placeholder="AI Interview Status"
+                activeColor="blue"
+              />
 
               {/* Direct Demo Filter */}
               <Select
@@ -551,106 +545,58 @@ const ApplicationsManagement: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               {/* Demo Status */}
-              <Select
-                value={filters.demoStatus}
-                onValueChange={(value) => updateJourneyFilter('demoStatus', value)}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
-                  <SelectValue placeholder="Demo Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {DEMO_STATUS_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={DEMO_STATUS_OPTIONS}
+                selectedValues={Array.isArray(filters.demoStatus) ? filters.demoStatus : []}
+                onValuesChange={(values) => updateJourneyFilter('demoStatus', values)}
+                placeholder="Demo Status"
+                activeColor="emerald"
+              />
 
               {/* Onboarding Status */}
-              <Select
-                value={filters.onboardingEmailSent}
-                onValueChange={(value) => updateJourneyFilter('onboardingEmailSent', value)}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
-                  <SelectValue placeholder="Onboarding" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ONBOARDING_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={ONBOARDING_OPTIONS}
+                selectedValues={Array.isArray(filters.onboardingEmailSent) ? filters.onboardingEmailSent : []}
+                onValuesChange={(values) => updateJourneyFilter('onboardingEmailSent', values)}
+                placeholder="Onboarding"
+                activeColor="emerald"
+              />
 
               {/* Induction Status */}
-              <Select
-                value={filters.inductionAttendance}
-                onValueChange={(value) => updateJourneyFilter('inductionAttendance', value)}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
-                  <SelectValue placeholder="Induction" />
-                </SelectTrigger>
-                <SelectContent>
-                  {INDUCTION_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={INDUCTION_OPTIONS}
+                selectedValues={Array.isArray(filters.inductionAttendance) ? filters.inductionAttendance : []}
+                onValuesChange={(values) => updateJourneyFilter('inductionAttendance', values)}
+                placeholder="Induction"
+                activeColor="emerald"
+              />
 
               {/* Training Status */}
-              <Select
-                value={filters.trainingStatus}
-                onValueChange={(value) => updateJourneyFilter('trainingStatus', value)}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
-                  <SelectValue placeholder="Training Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TRAINING_STATUS_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={TRAINING_STATUS_OPTIONS}
+                selectedValues={Array.isArray(filters.trainingStatus) ? filters.trainingStatus : []}
+                onValuesChange={(values) => updateJourneyFilter('trainingStatus', values)}
+                placeholder="Training Status"
+                activeColor="emerald"
+              />
 
               {/* Certification Status */}
-              <Select
-                value={filters.certificationStatus}
-                onValueChange={(value) => updateJourneyFilter('certificationStatus', value)}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
-                  <SelectValue placeholder="Certification" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CERTIFICATION_STATUS_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={CERTIFICATION_STATUS_OPTIONS}
+                selectedValues={Array.isArray(filters.certificationStatus) ? filters.certificationStatus : []}
+                onValuesChange={(values) => updateJourneyFilter('certificationStatus', values)}
+                placeholder="Certification"
+                activeColor="emerald"
+              />
 
               {/* Go-Live Status */}
-              <Select
-                value={filters.goLiveReadiness}
-                onValueChange={(value) => updateJourneyFilter('goLiveReadiness', value)}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-emerald-400">
-                  <SelectValue placeholder="Go-Live Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {GO_LIVE_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={GO_LIVE_OPTIONS}
+                selectedValues={Array.isArray(filters.goLiveReadiness) ? filters.goLiveReadiness : []}
+                onValuesChange={(values) => updateJourneyFilter('goLiveReadiness', values)}
+                placeholder="Go-Live Status"
+                activeColor="emerald"
+              />
             </div>
           </div>
 
@@ -758,9 +704,9 @@ const ApplicationsManagement: React.FC = () => {
                      Search: "{filters.search}"
                    </span>
                  )}
-                 {filters.status && filters.status !== 'all' && (
+                 {Array.isArray(filters.status) && filters.status.length > 0 && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-700">
-                     AI: {filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}
+                     AI: {filters.status.length > 1 ? `${filters.status.length} statuses` : filters.status[0].replace('_', ' ')}
                    </span>
                  )}
                  {(filters.minScore !== undefined || filters.maxScore !== undefined) && (
@@ -773,29 +719,29 @@ const ApplicationsManagement: React.FC = () => {
                      {filters.fromDate} → {filters.toDate}
                    </span>
                  )}
-                 {filters.demoStatus !== 'all' && (
+                 {Array.isArray(filters.demoStatus) && filters.demoStatus.length > 0 && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan-100 text-cyan-700">
-                     Demo: {filters.demoStatus}
+                     Demo: {filters.demoStatus.length > 1 ? `${filters.demoStatus.length} selected` : filters.demoStatus[0]}
                    </span>
                  )}
-                 {filters.inductionAttendance !== 'all' && (
+                 {Array.isArray(filters.inductionAttendance) && filters.inductionAttendance.length > 0 && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-violet-100 text-violet-700">
-                     Induction: {filters.inductionAttendance}
+                     Induction: {filters.inductionAttendance.length > 1 ? `${filters.inductionAttendance.length} selected` : filters.inductionAttendance[0]}
                    </span>
                  )}
-                 {filters.trainingStatus !== 'all' && (
+                 {Array.isArray(filters.trainingStatus) && filters.trainingStatus.length > 0 && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700">
-                     Training: {filters.trainingStatus.replace(/_/g, ' ')}
+                     Training: {filters.trainingStatus.length > 1 ? `${filters.trainingStatus.length} selected` : filters.trainingStatus[0].replace(/_/g, ' ')}
                    </span>
                  )}
-                 {filters.certificationStatus !== 'all' && (
+                 {Array.isArray(filters.certificationStatus) && filters.certificationStatus.length > 0 && (
                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-700">
-                     Cert: {filters.certificationStatus}
+                     Cert: {filters.certificationStatus.length > 1 ? `${filters.certificationStatus.length} selected` : filters.certificationStatus[0]}
                    </span>
                  )}
-                 {filters.goLiveReadiness !== 'all' && (
+                 {Array.isArray(filters.goLiveReadiness) && filters.goLiveReadiness.length > 0 && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-teal-100 text-teal-700">
-                    Go-Live: {filters.goLiveReadiness.replace(/_/g, ' ')}
+                    Go-Live: {filters.goLiveReadiness.length > 1 ? `${filters.goLiveReadiness.length} selected` : filters.goLiveReadiness[0].replace(/_/g, ' ')}
                   </span>
                 )}
                 {filters.directDemo && filters.directDemo !== 'all' && (
@@ -878,9 +824,11 @@ const ApplicationsManagement: React.FC = () => {
                            </p>
                            <p className="text-sm mb-3">
                             {isFiltered || isJourneyFiltered
-                              ? filters.status && filters.status !== 'all' 
-                                ? `No applications found with AI Round "${filters.status === 'no_interview' ? 'No Interview' : filters.status?.replace('_', ' ') || ''}". Try selecting a different status or reset the filters.`
-                                : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
+                              ? (Array.isArray(filters.status) && filters.status.length > 0)
+                                ? `No applications found with the selected AI Round statuses. Try selecting a different status or reset the filters.`
+                                : (filters.status && filters.status !== 'all')
+                                  ? `No applications found with AI Round "${filters.status === 'no_interview' ? 'No Interview' : (filters.status as string).replace('_', ' ')}". Try selecting a different status or reset the filters.`
+                                  : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
                               : 'There are no applications in the system yet.'
                             }
                            </p>

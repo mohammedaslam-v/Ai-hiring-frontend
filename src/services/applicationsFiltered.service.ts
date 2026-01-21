@@ -16,7 +16,16 @@ class ApplicationsFilteredService {
       const queryParams = new URLSearchParams();
       
       if (filters.search && filters.search.length > 0) queryParams.append('search', filters.search);
-      if (filters.status && filters.status !== 'all') queryParams.append('status', filters.status);
+      
+      // Handle status (single or multiple)
+      if (filters.status) {
+        if (Array.isArray(filters.status)) {
+          filters.status.forEach(s => queryParams.append('status', s));
+        } else if (filters.status !== 'all') {
+          queryParams.append('status', filters.status);
+        }
+      }
+
       if (filters.minScore !== undefined && filters.minScore !== null) queryParams.append('minScore', filters.minScore.toString());
       if (filters.maxScore !== undefined && filters.maxScore !== null) queryParams.append('maxScore', filters.maxScore.toString());
       // Date range filters - only append if BOTH dates are complete
@@ -39,12 +48,25 @@ class ApplicationsFilteredService {
       if (filters.directDemo && filters.directDemo !== 'all') queryParams.append('directDemo', filters.directDemo);
       
       // Teacher Journey filters
-      if (filters.demoStatus && filters.demoStatus !== 'all') queryParams.append('demoStatus', filters.demoStatus);
-      if (filters.onboardingEmailSent && filters.onboardingEmailSent !== 'all') queryParams.append('onboardingEmailSent', filters.onboardingEmailSent);
-      if (filters.inductionAttendance && filters.inductionAttendance !== 'all') queryParams.append('inductionAttendance', filters.inductionAttendance);
-      if (filters.trainingStatus && filters.trainingStatus !== 'all') queryParams.append('trainingStatus', filters.trainingStatus);
-      if (filters.certificationStatus && filters.certificationStatus !== 'all') queryParams.append('certificationStatus', filters.certificationStatus);
-      if (filters.goLiveReadiness && filters.goLiveReadiness !== 'all') queryParams.append('goLiveReadiness', filters.goLiveReadiness);
+      const journeyFilters = [
+        'demoStatus',
+        'onboardingEmailSent',
+        'inductionAttendance',
+        'trainingStatus',
+        'certificationStatus',
+        'goLiveReadiness'
+      ];
+
+      journeyFilters.forEach(filterName => {
+        const value = (filters as any)[filterName];
+        if (value) {
+          if (Array.isArray(value)) {
+            value.forEach((v: string) => queryParams.append(filterName, v));
+          } else if (value !== 'all') {
+            queryParams.append(filterName, value);
+          }
+        }
+      });
 
       const response = await axiosInstance.get(`/api/admin/applications/filtered?${queryParams.toString()}`);
       const responseData = response.data as { 
