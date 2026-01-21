@@ -4,9 +4,19 @@ import ApplicationsFilteredService from '@/services/applicationsFiltered.service
 import { AppListFilters, AppListResponse, ApplicantRow, DEFAULT_FILTERS } from '@/types/admin/applications';
 
 const applicationsService = new ApplicationsFilteredService();
+const FILTERS_STORAGE_KEY = 'adminApplicationsFilters';
 
 export const useFilteredApplications = () => {
-  const [filters, setFilters] = useState<AppListFilters>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<AppListFilters>(() => {
+    try {
+      const raw = window.sessionStorage.getItem(FILTERS_STORAGE_KEY);
+      if (!raw) return DEFAULT_FILTERS;
+      const parsed = JSON.parse(raw) as Partial<AppListFilters>;
+      return { ...DEFAULT_FILTERS, ...parsed };
+    } catch {
+      return DEFAULT_FILTERS;
+    }
+  });
   const [applications, setApplications] = useState<ApplicantRow[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -105,6 +115,15 @@ export const useFilteredApplications = () => {
   useEffect(() => {
     fetchApplications(debouncedFilters);
   }, [debouncedFilters, fetchApplications]);
+
+  // Persist filters so returning to the page keeps selections
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(filters));
+    } catch {
+      // Ignore storage errors (private mode, quota, etc.)
+    }
+  }, [filters]);
 
   // Calculate pagination info
   const paginationInfo = useMemo(() => {

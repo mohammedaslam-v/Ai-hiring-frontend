@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +27,8 @@ export const MultiSelectFilter: React.FC<MultiSelectFilterProps> = ({
   className,
   activeColor = "blue"
 }) => {
+  const idPrefix = useId();
+
   const toggleOption = (value: string) => {
     if (selectedValues.includes(value)) {
       onValuesChange(selectedValues.filter(v => v !== value));
@@ -77,17 +78,31 @@ export const MultiSelectFilter: React.FC<MultiSelectFilterProps> = ({
               className="flex items-center space-x-2 p-1.5 rounded-md hover:bg-gray-100 cursor-pointer"
               onClick={() => toggleOption(option.value)}
             >
-              <Checkbox
-                id={`filter-${option.value}`}
-                checked={selectedValues.includes(option.value)}
-                onCheckedChange={() => toggleOption(option.value)}
-              />
-              <Label
-                htmlFor={`filter-${option.value}`}
-                className="flex-grow cursor-pointer text-sm font-normal"
-              >
-                {option.label}
-              </Label>
+              {(() => {
+                const checkboxId = `${idPrefix}-${option.value}`;
+                const labelId = `${checkboxId}-label`;
+                return (
+                  <>
+                    <Checkbox
+                      id={checkboxId}
+                      checked={selectedValues.includes(option.value)}
+                      aria-labelledby={labelId}
+                      onCheckedChange={() => toggleOption(option.value)}
+                      onClick={(event) => event.stopPropagation()}
+                    />
+                    <span
+                      id={labelId}
+                      className="flex-grow cursor-pointer text-sm font-normal"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        toggleOption(option.value);
+                      }}
+                    >
+                      {option.label}
+                    </span>
+                  </>
+                );
+              })()}
               {selectedValues.includes(option.value) && (
                 <Check className="h-4 w-4 text-blue-500" />
               )}

@@ -826,8 +826,8 @@ const ApplicationsManagement: React.FC = () => {
                             {isFiltered || isJourneyFiltered
                               ? (Array.isArray(filters.status) && filters.status.length > 0)
                                 ? `No applications found with the selected AI Round statuses. Try selecting a different status or reset the filters.`
-                                : (filters.status && filters.status !== 'all')
-                                  ? `No applications found with AI Round "${filters.status === 'no_interview' ? 'No Interview' : (filters.status as string).replace('_', ' ')}". Try selecting a different status or reset the filters.`
+                                : (typeof filters.status === 'string' && filters.status !== 'all')
+                                  ? `No applications found with AI Round "${filters.status === 'no_interview' ? 'No Interview' : filters.status.replace('_', ' ')}". Try selecting a different status or reset the filters.`
                                   : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
                               : 'There are no applications in the system yet.'
                             }
