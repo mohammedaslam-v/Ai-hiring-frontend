@@ -62,7 +62,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     // Make API request to backend
     const response = await axiosInstance.get(`/api/admin/applications/export/csv?${queryParams.toString()}`, {
       responseType: 'blob', // Important for file download
-      timeout: 60000 // 60 second timeout for large exports
+      timeout: 180000 // 3 minute timeout for large exports
     });
 
     // Create download link
@@ -186,7 +186,7 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
     // Make API request to backend
     const response = await axiosInstance.get(`/api/admin/applications/export/excel?${queryParams.toString()}`, {
       responseType: 'blob', // Important for file download
-      timeout: 60000 // 60 second timeout for large exports
+      timeout: 180000 // 3 minute timeout for large exports
     });
 
     // Create download link
