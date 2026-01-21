@@ -30,7 +30,13 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     if (filters.toDate) queryParams.append('toDate', filters.toDate);
     if (filters.sortBy) queryParams.append('sortBy', filters.sortBy);
     if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder);
-    if (filters.directDemo && filters.directDemo !== 'all') queryParams.append('directDemo', filters.directDemo);
+    if (filters.directDemo) {
+      if (Array.isArray(filters.directDemo)) {
+        filters.directDemo.forEach(value => queryParams.append('directDemo', value));
+      } else if (filters.directDemo !== 'all') {
+        queryParams.append('directDemo', filters.directDemo);
+      }
+    }
 
     // Teacher Journey filters (multi-select)
     const journeyFilters = [
@@ -148,7 +154,13 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
     if (filters.toDate) queryParams.append('toDate', filters.toDate);
     if (filters.sortBy) queryParams.append('sortBy', filters.sortBy);
     if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder);
-    if (filters.directDemo && filters.directDemo !== 'all') queryParams.append('directDemo', filters.directDemo);
+    if (filters.directDemo) {
+      if (Array.isArray(filters.directDemo)) {
+        filters.directDemo.forEach(value => queryParams.append('directDemo', value));
+      } else if (filters.directDemo !== 'all') {
+        queryParams.append('directDemo', filters.directDemo);
+      }
+    }
 
     // Teacher Journey filters (multi-select)
     const journeyFilters = [

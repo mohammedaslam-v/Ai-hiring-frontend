@@ -437,19 +437,17 @@ const ApplicationsManagement: React.FC = () => {
               />
 
               {/* Direct Demo Filter */}
-              <Select
-                value={filters.directDemo || 'all'}
-                onValueChange={(value) => updateFilters({ directDemo: value as 'all' | 'true' | 'false' })}
-              >
-                <SelectTrigger className="h-9 bg-white border-gray-200 focus:border-blue-400">
-                  <SelectValue placeholder="Direct Demo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Demo Types</SelectItem>
-                  <SelectItem value="true">Direct Demo</SelectItem>
-                  <SelectItem value="false">AI Round</SelectItem>
-                </SelectContent>
-              </Select>
+              <MultiSelectFilter
+                options={[
+                  { value: 'all', label: 'All Demo Types' },
+                  { value: 'true', label: 'Direct Demo' },
+                  { value: 'false', label: 'AI Round' }
+                ]}
+                selectedValues={Array.isArray(filters.directDemo) ? filters.directDemo : []}
+                onValuesChange={(values) => updateFilters({ directDemo: values })}
+                placeholder="All Demo Types"
+                activeColor="blue"
+              />
 
               {/* Score Range */}
               <div className="flex items-center gap-2">
@@ -744,9 +742,9 @@ const ApplicationsManagement: React.FC = () => {
                     Go-Live: {filters.goLiveReadiness.length > 1 ? `${filters.goLiveReadiness.length} selected` : filters.goLiveReadiness[0].replace(/_/g, ' ')}
                   </span>
                 )}
-                {filters.directDemo && filters.directDemo !== 'all' && (
+                {Array.isArray(filters.directDemo) && filters.directDemo.length > 0 && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 text-purple-700">
-                    Direct Demo: {filters.directDemo === 'true' ? 'Yes' : 'No'}
+                    Demo Types: {filters.directDemo.length > 1 ? `${filters.directDemo.length} selected` : (filters.directDemo[0] === 'true' ? 'Direct Demo' : 'AI Round')}
                   </span>
                 )}
               </div>

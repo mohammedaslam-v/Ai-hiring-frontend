@@ -45,7 +45,13 @@ class ApplicationsFilteredService {
       if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder);
       if (filters.page) queryParams.append('page', filters.page.toString());
       if (filters.limit) queryParams.append('limit', filters.limit.toString());
-      if (filters.directDemo && filters.directDemo !== 'all') queryParams.append('directDemo', filters.directDemo);
+      if (filters.directDemo) {
+        if (Array.isArray(filters.directDemo)) {
+          filters.directDemo.forEach(value => queryParams.append('directDemo', value));
+        } else if (filters.directDemo !== 'all') {
+          queryParams.append('directDemo', filters.directDemo);
+        }
+      }
       
       // Teacher Journey filters
       const journeyFilters = [
