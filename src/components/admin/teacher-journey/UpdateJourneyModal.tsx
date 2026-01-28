@@ -14,7 +14,9 @@ import {
   INDUCTION_OPTIONS,
   TRAINING_STATUS_OPTIONS,
   CERTIFICATION_STATUS_OPTIONS,
+
   GO_LIVE_OPTIONS,
+  READY_FOR_PAID_CLASS_OPTIONS,
   SUBJECT_OPTIONS_FOR_UPDATE
 } from '@/types/teacherJourney';
 import { useInterviewers } from '@/hooks/admin/useInterviewers';
@@ -53,7 +55,20 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
         certificationFeedback: journey.certificationFeedback || undefined,
         goLiveReadiness: journey.goLiveReadiness,
         goLiveDate: journey.goLiveDate ? new Date(journey.goLiveDate).toISOString().split('T')[0] : undefined,
-        assignedSubject: journey.assignedSubject
+
+        assignedSubject: journey.assignedSubject,
+        readyForPaidClass: journey.readyForPaidClass,
+
+        // Paid Journey
+        paidTrainingStatus: journey.paidTrainingStatus,
+        paidTrainingStartDate: journey.paidTrainingStartDate ? new Date(journey.paidTrainingStartDate).toISOString().split('T')[0] : undefined,
+        paidTrainingNotes: journey.paidTrainingNotes || undefined,
+        paidCertificationStatus: journey.paidCertificationStatus,
+        paidCertificationDate: journey.paidCertificationDate ? new Date(journey.paidCertificationDate).toISOString().split('T')[0] : undefined,
+        paidCertificationFeedback: journey.paidCertificationFeedback || undefined,
+        paidGoLiveReadiness: journey.paidGoLiveReadiness,
+        paidGoLiveDate: journey.paidGoLiveDate ? new Date(journey.paidGoLiveDate).toISOString().split('T')[0] : undefined,
+        paidAssignedSubject: journey.paidAssignedSubject
       });
     }
   }, [journey]);
@@ -80,7 +95,20 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
       if (formData.certificationFeedback !== undefined) cleanData.certificationFeedback = formData.certificationFeedback;
       if (formData.goLiveReadiness) cleanData.goLiveReadiness = formData.goLiveReadiness;
       if (formData.goLiveDate) cleanData.goLiveDate = formData.goLiveDate;
+
       cleanData.assignedSubject = formData.assignedSubject || null;
+      if (formData.readyForPaidClass) cleanData.readyForPaidClass = formData.readyForPaidClass;
+
+      // Paid Journey
+      if (formData.paidTrainingStatus) cleanData.paidTrainingStatus = formData.paidTrainingStatus;
+      if (formData.paidTrainingStartDate) cleanData.paidTrainingStartDate = formData.paidTrainingStartDate;
+      if (formData.paidTrainingNotes !== undefined) cleanData.paidTrainingNotes = formData.paidTrainingNotes;
+      if (formData.paidCertificationStatus) cleanData.paidCertificationStatus = formData.paidCertificationStatus;
+      if (formData.paidCertificationDate) cleanData.paidCertificationDate = formData.paidCertificationDate;
+      if (formData.paidCertificationFeedback !== undefined) cleanData.paidCertificationFeedback = formData.paidCertificationFeedback;
+      if (formData.paidGoLiveReadiness) cleanData.paidGoLiveReadiness = formData.paidGoLiveReadiness;
+      if (formData.paidGoLiveDate) cleanData.paidGoLiveDate = formData.paidGoLiveDate;
+      cleanData.paidAssignedSubject = formData.paidAssignedSubject || null;
 
       const success = await onSubmit(journey.id, cleanData);
       if (success) {
@@ -97,7 +125,9 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
   const isDemoDone = journey.demoStatus === 'SELECTED';
   const isInductionDone = journey.inductionAttendance === 'YES';
   const isTrainingDone = journey.trainingStatus === 'JOINED' || journey.trainingStatus === 'COMPLETED';
+
   const isCertificationDone = journey.certificationStatus === 'CLEARED';
+  const isGoLiveDone = journey.goLiveReadiness === 'YES';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -109,7 +139,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
         </DialogHeader>
 
         <Tabs defaultValue="demo" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="demo">Demo</TabsTrigger>
             <TabsTrigger value="induction" disabled={!isDemoDone} title={!isDemoDone ? "Complete Demo first" : ""}>
               Induction {!isDemoDone && "🔒"}
@@ -122,6 +152,18 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
             </TabsTrigger>
             <TabsTrigger value="golive" disabled={!isCertificationDone} title={!isCertificationDone ? "Complete Certification first" : ""}>
               Demo Go Live {!isCertificationDone && "🔒"}
+            </TabsTrigger>
+            <TabsTrigger value="readyForPaidClass" disabled={!isGoLiveDone} title={!isGoLiveDone ? "Complete Go Live first" : ""}>
+              Ready for Paid Class {!isGoLiveDone && "🔒"}
+            </TabsTrigger>
+            <TabsTrigger value="paidTraining">
+              Paid Training
+            </TabsTrigger>
+            <TabsTrigger value="paidCertification">
+              Paid Certification
+            </TabsTrigger>
+            <TabsTrigger value="paidGoLive">
+              Paid Go Live
             </TabsTrigger>
           </TabsList>
 
@@ -365,6 +407,104 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                     <Label htmlFor={`modal-${option.value}`} className="text-sm cursor-pointer font-normal">{option.label}</Label>
                   </div>
                 ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Ready For Paid Class Tab */}
+          <TabsContent value="readyForPaidClass" className="space-y-4 pt-4">
+            <div className="space-y-4">
+              <Label>Is this candidate ready for paid class training?</Label>
+              <Select
+                value={formData.readyForPaidClass || 'PENDING'}
+                onValueChange={(value) => setFormData(prev => ({
+                  ...prev,
+                  readyForPaidClass: value as any
+                }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {READY_FOR_PAID_CLASS_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </TabsContent>
+
+          {/* Paid Training Tab */}
+          <TabsContent value="paidTraining" className="space-y-4 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Paid Training Status</Label>
+                <Select
+                  value={formData.paidTrainingStatus || 'NOT_JOINED'}
+                  onValueChange={(value) => setFormData(prev => ({
+                    ...prev,
+                    paidTrainingStatus: value as any
+                  }))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {TRAINING_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                      <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Start Date</Label>
+                <Input type="date" value={formData.paidTrainingStartDate || ''} onChange={(e) => setFormData(prev => ({ ...prev, paidTrainingStartDate: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <Label>Notes</Label>
+              <Textarea value={formData.paidTrainingNotes || ''} onChange={(e) => setFormData(prev => ({ ...prev, paidTrainingNotes: e.target.value }))} />
+            </div>
+          </TabsContent>
+
+          {/* Paid Certification Tab */}
+          <TabsContent value="paidCertification" className="space-y-4 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Status</Label>
+                <Select value={formData.paidCertificationStatus || 'PENDING'} onValueChange={(v) => setFormData(prev => ({ ...prev, paidCertificationStatus: v as any }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Date</Label>
+                <Input type="date" value={formData.paidCertificationDate || ''} onChange={(e) => setFormData(prev => ({ ...prev, paidCertificationDate: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <Label>Feedback</Label>
+              <Textarea value={formData.paidCertificationFeedback || ''} onChange={(e) => setFormData(prev => ({ ...prev, paidCertificationFeedback: e.target.value }))} />
+            </div>
+          </TabsContent>
+
+          {/* Paid Go Live Tab */}
+          <TabsContent value="paidGoLive" className="space-y-4 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Readiness</Label>
+                <Select value={formData.paidGoLiveReadiness || 'PENDING'} onValueChange={(v) => setFormData(prev => ({ ...prev, paidGoLiveReadiness: v as any }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="YES">Yes</SelectItem>
+                    <SelectItem value="NEEDS_MORE_TRAINING">Needs More Training</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Date</Label>
+                <Input type="date" value={formData.paidGoLiveDate || ''} onChange={(e) => setFormData(prev => ({ ...prev, paidGoLiveDate: e.target.value }))} />
               </div>
             </div>
           </TabsContent>

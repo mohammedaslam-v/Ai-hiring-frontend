@@ -38,7 +38,14 @@ import {
   INDUCTION_OPTIONS,
   TrainingStatus,
   CertificationStatus,
+  CERTIFICATION_STATUS_OPTIONS,
   GoLiveStatus,
+  GoLiveStatus,
+  ReadyForPaidClassStatus,
+  PaidTrainingStatus,
+  PaidCertificationStatus,
+  PaidGoLiveStatus,
+  READY_FOR_PAID_CLASS_OPTIONS,
   Subject,
   TeachingStyleRating,
   YesNo,
@@ -59,7 +66,7 @@ import { useInterviewers } from '@/hooks/admin/useInterviewers';
 // ============================================
 // TYPES
 // ============================================
-type TabKey = 'aiRound' | 'demo' | 'induction' | 'training' | 'certification' | 'goLive';
+type TabKey = 'aiRound' | 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive';
 
 interface TeacherJourneySectionProps {
   applicationId: string;
@@ -86,6 +93,10 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: str
   { key: 'training', label: 'Demo Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'TSM' },
   { key: 'certification', label: 'Demo Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
   { key: 'goLive', label: 'Demo Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
+  { key: 'readyForPaidClass', label: 'Ready for Paid Class', icon: CheckCircle2, gradient: 'from-blue-500 to-cyan-500', owner: 'TSM' },
+  { key: 'paidTraining', label: 'Paid Training', icon: GraduationCap, gradient: 'from-violet-500 to-purple-500', owner: 'TSM' },
+  { key: 'paidCertification', label: 'Paid Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
+  { key: 'paidGoLive', label: 'Paid Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
 ];
 
 // ============================================
@@ -106,10 +117,16 @@ const getStatusBadge = (status: string) => {
     'DROPPED': { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: <XCircle className="h-3.5 w-3.5" /> },
     'CLEARED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Award className="h-3.5 w-3.5" /> },
     'NOT_CLEARED': { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: <XCircle className="h-3.5 w-3.5" /> },
+    'NOT_INTERESTED': { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: <XCircle className="h-3.5 w-3.5" /> },
+    'OFFER_LETTER_SENT': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Mail className="h-3.5 w-3.5" /> },
+    'PORTAL_CREATED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
     'NEEDS_MORE_TRAINING': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Clock className="h-3.5 w-3.5" /> },
     'COMPLETED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
   };
   const config = configs[status] || { bg: 'bg-slate-100 border-slate-200', text: 'text-slate-600', icon: <Clock className="h-3.5 w-3.5" /> };
+
+  if (!status) return null;
+
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${config.bg} ${config.text}`}>
       {config.icon}
@@ -368,6 +385,28 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           goLiveDate: data.goLiveDate,
           assignedSubject: data.assignedSubject,
         };
+      case 'readyForPaidClass':
+        return {
+          readyForPaidClass: data.readyForPaidClass,
+        };
+      case 'paidTraining':
+        return {
+          paidTrainingStatus: data.paidTrainingStatus,
+          paidTrainingStartDate: data.paidTrainingStartDate,
+          paidTrainingNotes: data.paidTrainingNotes,
+        };
+      case 'paidCertification':
+        return {
+          paidCertificationStatus: data.paidCertificationStatus,
+          paidCertificationDate: data.paidCertificationDate,
+          paidCertificationFeedback: data.paidCertificationFeedback,
+        };
+      case 'paidGoLive':
+        return {
+          paidGoLiveReadiness: data.paidGoLiveReadiness,
+          paidGoLiveDate: data.paidGoLiveDate,
+          paidAssignedSubject: data.paidAssignedSubject,
+        };
       default:
         return {};
     }
@@ -384,6 +423,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'training': return journey?.trainingStatus === 'JOINED' || journey?.trainingStatus === 'COMPLETED';
       case 'certification': return journey?.certificationStatus === 'CLEARED';
       case 'goLive': return journey?.goLiveReadiness === 'YES';
+      case 'readyForPaidClass': return journey?.readyForPaidClass === 'YES';
+      case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
+      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED';
+      case 'paidGoLive': return journey?.paidGoLiveReadiness === 'YES';
       default: return false;
     }
   };
@@ -485,8 +528,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           TAB NAVIGATION - Clickable stage indicators
           Tabs are disabled while in edit mode to prevent data loss
           ============================================ */}
-      <div className={`px-4 py-4 border-b transition-colors ${editMode ? 'bg-white border-[#1E62F2]' : 'bg-white border-[#F4F6FA]'
-        }`}>
+      <div className={`px-4 py-4 border-b transition-colors ${editMode ? 'bg-white border-[#1E62F2]' : 'bg-white border-[#F4F6FA]'}`}>
         {/* Edit mode warning banner */}
         {editMode && (
           <div className="flex items-center justify-center gap-2 mb-3 text-[#1E62F2] text-sm">
@@ -495,99 +537,173 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           </div>
         )}
 
-        <div className="flex items-center justify-center gap-2 overflow-x-auto">
-          {visibleTabs.map((tab, i) => {
-            const isActive = activeTab === tab.key;
-            const isDone = getTabStatus(tab.key);
-            const TabIcon = tab.icon;
+        <div className="flex flex-col gap-4">
+          {/* Row 1 */}
+          <div className="flex items-center justify-center gap-2 overflow-x-auto">
+            {visibleTabs.filter(t => ['aiRound', 'demo', 'induction', 'training', 'certification', 'goLive'].includes(t.key)).map((tab, i, arr) => {
+              const isActive = activeTab === tab.key;
+              const isDone = getTabStatus(tab.key);
+              const TabIcon = tab.icon;
 
-            // Calculate if this tab is locked (previous tab not done)
-            // AI Round and Demo are never locked by a previous stage
-            const isPreviousDone = i === 0 || tab.key === 'demo' || getTabStatus(visibleTabs[i - 1].key);
-            const isLocked = !isPreviousDone;
+              const isPreviousDone = i === 0 || TABS.findIndex(x => x.key === tab.key) === 0 || getTabStatus(visibleTabs[visibleTabs.findIndex(vt => vt.key === tab.key) - 1]?.key);
+              const isLocked = !isPreviousDone;
+              const isDisabled = editMode && !isActive;
 
-            // Disable other tabs while editing to prevent accidental data loss
-            const isDisabled = editMode && !isActive;
-
-            return (
-              <div key={tab.key} className="flex items-center">
-                {/* Tab Button */}
-                <button
-                  onClick={() => {
-                    if (isDisabled) return; // Prevent switching while editing
-                    setActiveTab(tab.key);
-                    setEditMode(false);
-                    setEditData({});
-                  }}
-                  disabled={isDisabled}
-                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${isDisabled
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
-                    : isActive
-                      ? editMode
-                        ? 'bg-[#1E62F2]/10 text-[#1E62F2] ring-2 ring-[#1E62F2]/20' // Active tab in edit mode
-                        : 'bg-teal-50 text-teal-700 ring-2 ring-teal-200' // Active tab in view mode
-                      : isLocked
-                        ? 'bg-slate-50 text-slate-400 cursor-default opacity-70' // Locked tab
-                        : isDone
-                          ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                          : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                    }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center ${isDisabled
-                      ? 'bg-slate-200 text-slate-400'
+              return (
+                <div key={tab.key} className="flex items-center">
+                  <button
+                    onClick={() => {
+                      if (isDisabled) return;
+                      setActiveTab(tab.key);
+                      setEditMode(false);
+                      setEditData({});
+                    }}
+                    disabled={isDisabled}
+                    className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${isDisabled
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
                       : isActive
                         ? editMode
-                          ? 'bg-[#1E62F2] text-white' // Edit mode indicator
-                          : `bg-gradient-to-br ${tab.gradient} text-white`
+                          ? 'bg-[#1E62F2]/10 text-[#1E62F2] ring-2 ring-[#1E62F2]/20'
+                          : 'bg-teal-50 text-teal-700 ring-2 ring-teal-200'
                         : isLocked
-                          ? 'bg-slate-200 text-slate-400' // Locked tab indicator
+                          ? 'bg-slate-50 text-slate-400 cursor-default opacity-70'
                           : isDone
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-slate-200 text-slate-500'
-                      }`}>
-                      {isDisabled ? (
-                        <Lock className="h-3.5 w-3.5" />
-                      ) : isLocked ? (
-                        <Lock className="h-3.5 w-3.5" />
-                      ) : isDone && !isActive ? (
-                        <CheckCircle2 className="h-4 w-4" />
-                      ) : (
-                        <TabIcon className="h-4 w-4" />
-                      )}
+                            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                            : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${isDisabled
+                        ? 'bg-slate-200 text-slate-400'
+                        : isActive
+                          ? editMode
+                            ? 'bg-[#1E62F2] text-white'
+                            : `bg-gradient-to-br ${tab.gradient} text-white`
+                          : isLocked
+                            ? 'bg-slate-200 text-slate-400'
+                            : isDone
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-slate-200 text-slate-500'
+                        }`}>
+                        {isDisabled ? (
+                          <Lock className="h-3.5 w-3.5" />
+                        ) : isLocked ? (
+                          <Lock className="h-3.5 w-3.5" />
+                        ) : isDone && !isActive ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : (
+                          <TabIcon className="h-4 w-4" />
+                        )}
+                      </div>
+                      <span className="text-sm font-medium">{tab.label}</span>
                     </div>
-                    <span className="text-sm font-medium">{tab.label}</span>
-                  </div>
-                  {tab.owner && (
-                    <span className={`text-[10px] font-normal ${isDisabled
-                      ? 'text-slate-400'
+                    {tab.owner && (
+                      <span className={`text-[10px] font-normal ${isDisabled
+                        ? 'text-slate-400'
+                        : isActive
+                          ? editMode
+                            ? 'text-[#1E62F2]/70'
+                            : 'text-teal-600/70'
+                          : isDone
+                            ? 'text-emerald-600/70'
+                            : 'text-slate-500/70'
+                        }`}>
+                        {tab.owner}
+                      </span>
+                    )}
+                  </button>
+                  {i < arr.length - 1 && (
+                    <div className={`hidden sm:block w-8 h-0.5 rounded ${editMode ? 'bg-[#1E62F2]/20' : getTabStatus(arr[i + 1].key) || isDone ? 'bg-emerald-300' : 'bg-slate-200'}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Row 2 */}
+          <div className="flex items-center justify-center gap-2 overflow-x-auto">
+            {visibleTabs.filter(t => !['aiRound', 'demo', 'induction', 'training', 'certification', 'goLive'].includes(t.key)).map((tab, i, arr) => {
+              const isActive = activeTab === tab.key;
+              const isDone = getTabStatus(tab.key);
+              const TabIcon = tab.icon;
+
+              const isPreviousDone = getTabStatus(visibleTabs[visibleTabs.findIndex(vt => vt.key === tab.key) - 1]?.key);
+              const isLocked = !isPreviousDone;
+              const isDisabled = editMode && !isActive;
+
+              return (
+                <div key={tab.key} className="flex items-center">
+                  <button
+                    onClick={() => {
+                      if (isDisabled) return;
+                      setActiveTab(tab.key);
+                      setEditMode(false);
+                      setEditData({});
+                    }}
+                    disabled={isDisabled}
+                    className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${isDisabled
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
                       : isActive
                         ? editMode
-                          ? 'text-[#1E62F2]/70'
-                          : 'text-teal-600/70'
-                        : isDone
-                          ? 'text-emerald-600/70'
-                          : 'text-slate-500/70'
-                      }`}>
-                      {tab.owner}
-                    </span>
+                          ? 'bg-[#1E62F2]/10 text-[#1E62F2] ring-2 ring-[#1E62F2]/20'
+                          : 'bg-teal-50 text-teal-700 ring-2 ring-teal-200'
+                        : isLocked
+                          ? 'bg-slate-50 text-slate-400 cursor-default opacity-70'
+                          : isDone
+                            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                            : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                      }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center ${isDisabled
+                        ? 'bg-slate-200 text-slate-400'
+                        : isActive
+                          ? editMode
+                            ? 'bg-[#1E62F2] text-white'
+                            : `bg-gradient-to-br ${tab.gradient} text-white`
+                          : isLocked
+                            ? 'bg-slate-200 text-slate-400'
+                            : isDone
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-slate-200 text-slate-500'
+                        }`}>
+                        {isDisabled ? (
+                          <Lock className="h-3.5 w-3.5" />
+                        ) : isLocked ? (
+                          <Lock className="h-3.5 w-3.5" />
+                        ) : isDone && !isActive ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : (
+                          <TabIcon className="h-4 w-4" />
+                        )}
+                      </div>
+                      <span className="text-sm font-medium">{tab.label}</span>
+                    </div>
+                    {tab.owner && (
+                      <span className={`text-[10px] font-normal ${isDisabled
+                        ? 'text-slate-400'
+                        : isActive
+                          ? editMode
+                            ? 'text-[#1E62F2]/70'
+                            : 'text-teal-600/70'
+                          : isDone
+                            ? 'text-emerald-600/70'
+                            : 'text-slate-500/70'
+                        }`}>
+                        {tab.owner}
+                      </span>
+                    )}
+                  </button>
+                  {i < arr.length - 1 && (
+                    <div className={`hidden sm:block w-8 h-0.5 rounded ${editMode ? 'bg-[#1E62F2]/20' : getTabStatus(arr[i + 1].key) || isDone ? 'bg-emerald-300' : 'bg-slate-200'}`} />
                   )}
-                </button>
-
-                {/* Connector Line */}
-                {i < visibleTabs.length - 1 && (
-                  <div className={`hidden sm:block w-8 h-0.5 rounded ${editMode
-                    ? 'bg-[#1E62F2]/20'
-                    : getTabStatus(visibleTabs[i + 1].key) || isDone
-                      ? 'bg-emerald-300'
-                      : 'bg-slate-200'
-                    }`} />
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
+
 
       {/* ============================================
           SECTION CONTENT - Shows active tab's data
@@ -710,6 +826,18 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               {activeTab === 'goLive' && journey && !isRejected && (
                 <GoLiveSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
               )}
+              {activeTab === 'readyForPaidClass' && journey && !isRejected && (
+                <ReadyForPaidClassSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
+              )}
+              {activeTab === 'paidTraining' && journey && !isRejected && (
+                <PaidTrainingSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
+              )}
+              {activeTab === 'paidCertification' && journey && !isRejected && (
+                <PaidCertificationSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
+              )}
+              {activeTab === 'paidGoLive' && journey && !isRejected && (
+                <PaidGoLiveSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
+              )}
             </div>
 
             {/* Edit mode footer hint */}
@@ -724,7 +852,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         </div>
       </div>
       <ConfirmDialog />
-    </div>
+    </div >
   );
 };
 
@@ -1906,9 +2034,11 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="CLEARED">Cleared</SelectItem>
-                <SelectItem value="NOT_CLEARED">Not Cleared</SelectItem>
+                {CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FieldError error={fieldErrors.certificationStatus} />
@@ -2025,6 +2155,133 @@ const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, se
               : <span className="text-slate-400 italic">Not assigned</span>}
           </p>
         )}
+      </div>
+    </div>
+  );
+};
+
+// READY FOR PAID CLASS SECTION
+const ReadyForPaidClassSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+  const data = editMode ? editData : journey;
+
+  return (
+    <div className="space-y-5">
+      <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
+        <span className={`text-sm font-medium ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>
+          Is this candidate ready for paid class training?
+        </span>
+        {editMode ? (
+          <div className="flex flex-col items-end">
+            <Select value={data.readyForPaidClass || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, readyForPaidClass: v as ReadyForPaidClassStatus }))}>
+              <SelectTrigger className={`w-48 bg-white ${fieldErrors.readyForPaidClass ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {READY_FOR_PAID_CLASS_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldError error={fieldErrors.readyForPaidClass} />
+          </div>
+        ) : getStatusBadge(journey.readyForPaidClass)}
+      </div>
+    </div>
+  );
+};
+
+const PaidTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+  const data = editMode ? editData : journey;
+  return (
+    <div className="space-y-5">
+      <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
+        <span className={`text-sm font-medium ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>Status</span>
+        {editMode ? (
+          <div className="flex flex-col items-end">
+            <Select value={data.paidTrainingStatus || 'NOT_JOINED'} onValueChange={(v) => setEditData(prev => ({ ...prev, paidTrainingStatus: v as PaidTrainingStatus }))}>
+              <SelectTrigger className="w-48 bg-white border-[#1E62F2]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {/* Reusing training status options but casting to PaidTrainingStatus */}
+                <SelectItem value="NOT_JOINED">Not Joined</SelectItem>
+                <SelectItem value="JOINED">Joined</SelectItem>
+                <SelectItem value="INCOMPLETE">Incomplete</SelectItem>
+                <SelectItem value="SHIFTED_TO_NEXT_WEEK">Shifted to Next Week</SelectItem>
+                <SelectItem value="DROPPED">Dropped</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : getStatusBadge(journey.paidTrainingStatus || 'NOT_JOINED')}
+      </div>
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
+        <Label className="text-xs text-slate-500">Training Start Date</Label>
+        {editMode ? (
+          <Input type="date" value={data.paidTrainingStartDate ? new Date(data.paidTrainingStartDate).toISOString().split('T')[0] : ''}
+            onChange={(e) => setEditData(prev => ({ ...prev, paidTrainingStartDate: e.target.value }))}
+            className="mt-1 bg-white border-[#1E62F2]" />
+        ) : (
+          <p className="text-sm font-medium">{data.paidTrainingStartDate ? new Date(data.paidTrainingStartDate).toLocaleDateString() : '—'}</p>
+        )}
+      </div>
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
+        <Label className="text-xs text-slate-500">Training Notes</Label>
+        {editMode ? (
+          <Textarea value={data.paidTrainingNotes || ''} onChange={(e) => setEditData(prev => ({ ...prev, paidTrainingNotes: e.target.value }))} placeholder="Add notes..." className="mt-1 bg-white border-[#1E62F2]" />
+        ) : (
+          <p className="text-sm text-slate-700 whitespace-pre-wrap">{journey.paidTrainingNotes || '—'}</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const PaidCertificationSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+  const data = editMode ? editData : journey;
+  return (
+    <div className="space-y-5">
+      <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
+        <span className="text-sm font-medium">Status</span>
+        {editMode ? (
+          <Select value={data.paidCertificationStatus || 'PENDING'} onValueChange={(v) => setEditData(prev => ({ ...prev, paidCertificationStatus: v as PaidCertificationStatus }))}>
+            <SelectTrigger className="w-48 bg-white border-[#1E62F2]"><SelectValue /></SelectTrigger>
+            <SelectContent>{CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+          </Select>
+        ) : getStatusBadge(journey.paidCertificationStatus || 'PENDING')}
+      </div>
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
+        <Label>Certification Date</Label>
+        {editMode ? <Input type="date" value={data.paidCertificationDate ? new Date(data.paidCertificationDate).toISOString().split('T')[0] : ''} onChange={e => setEditData(prev => ({ ...prev, paidCertificationDate: e.target.value }))} className="mt-1 bg-white border-[#1E62F2]" /> : <p>{data.paidCertificationDate ? new Date(data.paidCertificationDate).toLocaleDateString() : '—'}</p>}
+      </div>
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
+        <Label>Feedback</Label>
+        {editMode ? <Textarea value={data.paidCertificationFeedback || ''} onChange={e => setEditData(prev => ({ ...prev, paidCertificationFeedback: e.target.value }))} className="mt-1 bg-white border-[#1E62F2]" /> : <p>{journey.paidCertificationFeedback || '—'}</p>}
+      </div>
+    </div>
+  );
+};
+
+const PaidGoLiveSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+  const data = editMode ? editData : journey;
+  return (
+    <div className="space-y-5">
+      <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
+        <span className="text-sm font-medium">Readiness</span>
+        {editMode ? (
+          <Select value={data.paidGoLiveReadiness || 'PENDING'} onValueChange={(v) => setEditData(prev => ({ ...prev, paidGoLiveReadiness: v as PaidGoLiveStatus }))}>
+            <SelectTrigger className="w-48 bg-white border-[#1E62F2]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="YES">Yes</SelectItem>
+              <SelectItem value="NEEDS_MORE_TRAINING">Needs More Training</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : getStatusBadge(journey.paidGoLiveReadiness || 'PENDING')}
+      </div>
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
+        <Label>Go Live Date</Label>
+        {editMode ? <Input type="date" value={data.paidGoLiveDate ? new Date(data.paidGoLiveDate).toISOString().split('T')[0] : ''} onChange={e => setEditData(prev => ({ ...prev, paidGoLiveDate: e.target.value }))} className="mt-1 bg-white border-[#1E62F2]" /> : <p>{data.paidGoLiveDate ? new Date(data.paidGoLiveDate).toLocaleDateString() : '—'}</p>}
       </div>
     </div>
   );

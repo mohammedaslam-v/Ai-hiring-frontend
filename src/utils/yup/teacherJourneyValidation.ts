@@ -162,12 +162,12 @@ export const trainingSectionValidation = Yup.object().shape({
 export const certificationSectionValidation = Yup.object().shape({
   certificationStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_REQUIRED)
-    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
+    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'OFFER_LETTER_SENT', 'PORTAL_CREATED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
 
   certificationDate: Yup.string()
     .nullable()
     .when('certificationStatus', {
-      is: (status: CertificationStatus) => status === 'CLEARED' || status === 'NOT_CLEARED',
+      is: (status: CertificationStatus) => ['CLEARED', 'NOT_CLEARED', 'OFFER_LETTER_SENT', 'PORTAL_CREATED'].includes(status),
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_REQUIRED)
         .test('is-valid-date', TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_INVALID, (value) => isValidDate(value))
@@ -230,6 +230,12 @@ export const goLiveSectionValidation = Yup.object().shape({
     }),
 });
 
+const readyForPaidClassSectionValidation = Yup.object().shape({
+  readyForPaidClass: Yup.string()
+    .required('Status is required')
+    .oneOf(['PENDING', 'YES', 'NO'], 'Invalid status'),
+});
+
 // Combined validation schema for all sections
 export const teacherJourneyValidation = {
   demo: demoSectionValidation,
@@ -237,15 +243,17 @@ export const teacherJourneyValidation = {
   training: trainingSectionValidation,
   certification: certificationSectionValidation,
   goLive: goLiveSectionValidation,
+  readyForPaidClass: readyForPaidClassSectionValidation,
 };
 
 // Helper function to validate a specific section
 export const validateTeacherJourneySection = async (
-  section: 'demo' | 'induction' | 'training' | 'certification' | 'goLive',
+  section: 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass',
   data: Record<string, unknown>
 ): Promise<{ isValid: boolean; errors: Record<string, string> }> => {
   try {
     const schema = teacherJourneyValidation[section];
+    if (!schema) throw new Error(`Invalid validation section: ${section}`);
     await schema.validate(data, { abortEarly: false });
     return { isValid: true, errors: {} };
   } catch (error) {
