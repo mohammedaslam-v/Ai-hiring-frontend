@@ -1,10 +1,10 @@
 import * as Yup from 'yup';
 import { TEACHER_JOURNEY_ERROR_MESSAGES } from './teacherJourneyErrorMessages';
-import { 
-  DemoStatus, 
-  InductionStatus, 
-  TrainingStatus, 
-  CertificationStatus, 
+import {
+  DemoStatus,
+  InductionStatus,
+  TrainingStatus,
+  CertificationStatus,
   GoLiveStatus,
   Subject,
   TeachingStyleRating,
@@ -41,7 +41,7 @@ export const demoSectionValidation = Yup.object().shape({
   demoStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.STATUS_REQUIRED)
     .oneOf(['PENDING', 'SCHEDULED', 'SELECTED', 'NOT_SELECTED'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.STATUS_INVALID),
-  
+
   demoDate: Yup.string()
     .nullable()
     .when('demoStatus', {
@@ -60,7 +60,7 @@ export const demoSectionValidation = Yup.object().shape({
         }),
       otherwise: (schema) => schema.nullable(),
     }),
-  
+
   demoInterviewerName: Yup.string()
     .nullable()
     .when('demoStatus', {
@@ -68,7 +68,7 @@ export const demoSectionValidation = Yup.object().shape({
       then: (schema) => schema.required(TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.INTERVIEWER_REQUIRED),
       otherwise: (schema) => schema.nullable(),
     }),
-  
+
   demoFeedback: Yup.string()
     .nullable()
     .when('demoStatus', {
@@ -81,7 +81,7 @@ export const demoSectionValidation = Yup.object().shape({
         .nullable()
         .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.FEEDBACK_MAX_LENGTH),
     }),
-  
+
   // Extended Demo Evaluation
   overallTeachingStyle: Yup.string()
     .nullable()
@@ -92,11 +92,11 @@ export const demoSectionValidation = Yup.object().shape({
         .oneOf(['BAD', 'AVERAGE', 'GOOD', 'EXCELLENT'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.OVERALL_STYLE_INVALID),
       otherwise: (schema) => schema.nullable(),
     }),
-  
+
   demoConducted: Yup.string()
     .nullable()
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.DEMO_CONDUCTED_REQUIRED),
-  
+
   // Subjects - Always Required
   subjectsPrograms: Yup.array()
     .of(Yup.string())
@@ -114,8 +114,8 @@ export const demoSectionValidation = Yup.object().shape({
 export const inductionSectionValidation = Yup.object().shape({
   inductionAttendance: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.INDUCTION.ATTENDANCE_REQUIRED)
-    .oneOf(['PENDING', 'YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.INDUCTION.ATTENDANCE_INVALID),
-  
+    .oneOf(['PENDING', 'YES', 'NO', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.INDUCTION.ATTENDANCE_INVALID),
+
   inductionDate: Yup.string()
     .nullable()
     .when('inductionAttendance', {
@@ -136,9 +136,9 @@ export const inductionSectionValidation = Yup.object().shape({
 export const trainingSectionValidation = Yup.object().shape({
   trainingStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING.STATUS_REQUIRED)
-    .oneOf(['NOT_JOINED', 'JOINED', 'INCOMPLETE', 'SHIFTED_TO_NEXT_WEEK', 'DROPPED', 'COMPLETED'], 
+    .oneOf(['NOT_JOINED', 'JOINED', 'INCOMPLETE', 'SHIFTED_TO_NEXT_WEEK', 'DROPPED', 'COMPLETED'],
       TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING.STATUS_INVALID),
-  
+
   trainingStartDate: Yup.string()
     .nullable()
     .when('trainingStatus', {
@@ -152,7 +152,7 @@ export const trainingSectionValidation = Yup.object().shape({
         }),
       otherwise: (schema) => schema.nullable(),
     }),
-  
+
   trainingNotes: Yup.string()
     .nullable()
     .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING.NOTES_MAX_LENGTH),
@@ -163,7 +163,7 @@ export const certificationSectionValidation = Yup.object().shape({
   certificationStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_REQUIRED)
     .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
-  
+
   certificationDate: Yup.string()
     .nullable()
     .when('certificationStatus', {
@@ -178,7 +178,7 @@ export const certificationSectionValidation = Yup.object().shape({
         }),
       otherwise: (schema) => schema.nullable(),
     }),
-  
+
   certificationFeedback: Yup.string()
     .nullable()
     .when('certificationStatus', {
@@ -198,7 +198,7 @@ export const goLiveSectionValidation = Yup.object().shape({
   goLiveReadiness: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.READINESS_REQUIRED)
     .oneOf(['PENDING', 'YES', 'NEEDS_MORE_TRAINING'], TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.READINESS_INVALID),
-  
+
   goLiveDate: Yup.string()
     .nullable()
     .when('goLiveReadiness', {
@@ -212,7 +212,7 @@ export const goLiveSectionValidation = Yup.object().shape({
         }),
       otherwise: (schema) => schema.nullable(),
     }),
-  
+
   assignedSubject: Yup.array()
     .of(Yup.string())
     .nullable()

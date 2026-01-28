@@ -4,12 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  GraduationCap, 
-  Star, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
+import {
+  GraduationCap,
+  Star,
+  CheckCircle2,
+  XCircle,
+  Clock,
   Plus,
   Pencil,
   X,
@@ -31,12 +31,13 @@ import {
   FileText
 } from "lucide-react";
 import { teacherJourneyService } from '@/services/teacherJourney.service';
-import { 
-  TeacherJourney, 
-  DemoStatus, 
-  InductionStatus, 
-  TrainingStatus, 
-  CertificationStatus, 
+import {
+  TeacherJourney,
+  DemoStatus,
+  InductionStatus,
+  INDUCTION_OPTIONS,
+  TrainingStatus,
+  CertificationStatus,
   GoLiveStatus,
   Subject,
   TeachingStyleRating,
@@ -82,9 +83,9 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: str
   { key: 'aiRound', label: 'AI Round', icon: Brain, gradient: 'from-purple-500 to-pink-500' },
   { key: 'demo', label: 'Demo', icon: User, gradient: 'from-blue-500 to-indigo-500', owner: 'HR' },
   { key: 'induction', label: 'Induction', icon: Calendar, gradient: 'from-violet-500 to-purple-500', owner: 'HR' },
-  { key: 'training', label: 'Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'TSM' },
-  { key: 'certification', label: 'Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
-  { key: 'goLive', label: 'Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
+  { key: 'training', label: 'Demo Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'TSM' },
+  { key: 'certification', label: 'Demo Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
+  { key: 'goLive', label: 'Demo Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
 ];
 
 // ============================================
@@ -120,7 +121,7 @@ const getStatusBadge = (status: string) => {
 // ============================================
 // MAIN COMPONENT
 // ============================================
-const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({ 
+const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   applicationId,
   candidateName,
   candidateEmail,
@@ -174,12 +175,12 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   // Handler for sending demo result email
   const handleSendDemoEmail = useCallback(async (overrideStatus?: string) => {
     if (!applicationId || !journey) return;
-    
+
     // Use overrideStatus if provided (for automation), otherwise use current journey status
     const status = overrideStatus || journey.demoStatus;
     const isSelected = status === 'SELECTED';
     const actionText = isSelected ? 'Selection' : 'Rejection';
-    
+
     const confirmed = await confirm({
       title: `Send ${actionText} Email?`,
       description: `Are you sure you want to send the ${actionText.toLowerCase()} email to ${candidateName}? This will notify the candidate about their demo result.`,
@@ -212,7 +213,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   useEffect(() => {
     const fetchSession = async () => {
       if (!applicationId) return;
-      
+
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/session/by-application/${applicationId}`, {
           headers: {
@@ -220,7 +221,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
             'Accept': 'application/json',
           }
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
@@ -231,7 +232,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         console.error('Error fetching session:', error);
       }
     };
-    
+
     fetchSession();
   }, [applicationId]);
 
@@ -271,39 +272,39 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   // Save changes for current section only
   const handleSave = async () => {
     if (!journey?.id) return;
-    
+
     // Skip validation for aiRound tab (read-only)
     if (activeTab === 'aiRound') {
       toast.info('AI Round is read-only');
       return;
     }
-    
+
     setSaving(true);
     setFieldErrors({});
-    
+
     try {
       // Build update payload based on active tab
       const updatePayload = buildUpdatePayload(activeTab, editData);
-      
+
       // Check if status is changing to SELECTED or NOT_SELECTED for automation
-      const isStatusChangingToResult = activeTab === 'demo' && 
-                                       editData.demoStatus !== journey.demoStatus &&
-                                       (editData.demoStatus === 'SELECTED' || editData.demoStatus === 'NOT_SELECTED');
+      const isStatusChangingToResult = activeTab === 'demo' &&
+        editData.demoStatus !== journey.demoStatus &&
+        (editData.demoStatus === 'SELECTED' || editData.demoStatus === 'NOT_SELECTED');
 
       // Validate the section data
       const validation = await validateTeacherJourneySection(activeTab, updatePayload);
-      
+
       if (!validation.isValid) {
         // Set field errors for display
         setFieldErrors(validation.errors);
-        
+
         // Show first error in toast
         const firstError = Object.values(validation.errors)[0];
         toast.error(`Validation failed: ${firstError}`);
-        
+
         return;
       }
-      
+
       const response = await teacherJourneyService.updateJourney(journey.id, updatePayload);
       if (response.status) {
         toast.success(`${TABS.find(t => t.key === activeTab)?.label} updated!`);
@@ -398,7 +399,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
     if (!journey) return false;
     const currentDemoStatus = editMode ? editData.demoStatus : journey.demoStatus;
     const currentRejectEmailSent = editMode ? editData.rejectEmailSent : journey.rejectEmailSent;
-    
+
     return (
       currentDemoStatus === 'NOT_SELECTED' &&
       currentRejectEmailSent === 'YES'
@@ -414,11 +415,11 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   const visibleTabs = useMemo(() => {
     if (isRejected) {
       // Only show: AI Round and Demo (but label Demo as "Rejected" with XCircle icon)
-      return TABS.filter(tab => 
-        tab.key === 'aiRound' || 
+      return TABS.filter(tab =>
+        tab.key === 'aiRound' ||
         tab.key === 'demo'
-      ).map(tab => 
-        tab.key === 'demo' 
+      ).map(tab =>
+        tab.key === 'demo'
           ? { ...tab, label: 'Rejected', icon: XCircle, gradient: 'from-red-500 to-red-600' }
           : tab
       );
@@ -459,15 +460,15 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         <div className="text-center">
           <div className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
             <GraduationCap className="h-10 w-10 text-slate-400" />
-        </div>
+          </div>
           <h3 className="text-xl font-semibold text-slate-800 mb-2">No Journey Started</h3>
-        <p className="text-slate-500 mb-6 max-w-sm mx-auto">
-          Start tracking this candidate's journey from demo to going live
-        </p>
+          <p className="text-slate-500 mb-6 max-w-sm mx-auto">
+            Start tracking this candidate's journey from demo to going live
+          </p>
           <Button onClick={handleCreateJourney} disabled={creating} className="bg-teal-600 hover:bg-teal-700">
-          <Plus className="h-4 w-4 mr-2" />
-          {creating ? 'Creating...' : 'Start Teacher Journey'}
-        </Button>
+            <Plus className="h-4 w-4 mr-2" />
+            {creating ? 'Creating...' : 'Start Teacher Journey'}
+          </Button>
         </div>
       </div>
     );
@@ -484,9 +485,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           TAB NAVIGATION - Clickable stage indicators
           Tabs are disabled while in edit mode to prevent data loss
           ============================================ */}
-      <div className={`px-4 py-4 border-b transition-colors ${
-        editMode ? 'bg-white border-[#1E62F2]' : 'bg-white border-[#F4F6FA]'
-      }`}>
+      <div className={`px-4 py-4 border-b transition-colors ${editMode ? 'bg-white border-[#1E62F2]' : 'bg-white border-[#F4F6FA]'
+        }`}>
         {/* Edit mode warning banner */}
         {editMode && (
           <div className="flex items-center justify-center gap-2 mb-3 text-[#1E62F2] text-sm">
@@ -494,21 +494,21 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
             <span>You are editing <strong>{currentTab.label}</strong>. Save or cancel to switch sections.</span>
           </div>
         )}
-        
+
         <div className="flex items-center justify-center gap-2 overflow-x-auto">
           {visibleTabs.map((tab, i) => {
             const isActive = activeTab === tab.key;
             const isDone = getTabStatus(tab.key);
             const TabIcon = tab.icon;
-            
+
             // Calculate if this tab is locked (previous tab not done)
             // AI Round and Demo are never locked by a previous stage
             const isPreviousDone = i === 0 || tab.key === 'demo' || getTabStatus(visibleTabs[i - 1].key);
             const isLocked = !isPreviousDone;
-            
+
             // Disable other tabs while editing to prevent accidental data loss
             const isDisabled = editMode && !isActive;
-            
+
             return (
               <div key={tab.key} className="flex items-center">
                 {/* Tab Button */}
@@ -520,34 +520,32 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                     setEditData({});
                   }}
                   disabled={isDisabled}
-                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                    isDisabled
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
-                      : isActive 
-                        ? editMode
-                            ? 'bg-[#1E62F2]/10 text-[#1E62F2] ring-2 ring-[#1E62F2]/20' // Active tab in edit mode
-                          : 'bg-teal-50 text-teal-700 ring-2 ring-teal-200' // Active tab in view mode
-                        : isLocked
-                          ? 'bg-slate-50 text-slate-400 cursor-default opacity-70' // Locked tab
-                        : isDone 
-                          ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' 
+                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${isDisabled
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
+                    : isActive
+                      ? editMode
+                        ? 'bg-[#1E62F2]/10 text-[#1E62F2] ring-2 ring-[#1E62F2]/20' // Active tab in edit mode
+                        : 'bg-teal-50 text-teal-700 ring-2 ring-teal-200' // Active tab in view mode
+                      : isLocked
+                        ? 'bg-slate-50 text-slate-400 cursor-default opacity-70' // Locked tab
+                        : isDone
+                          ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                           : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
-                      isDisabled
-                        ? 'bg-slate-200 text-slate-400'
-                        : isActive 
-                          ? editMode
-                            ? 'bg-[#1E62F2] text-white' // Edit mode indicator
-                            : `bg-gradient-to-br ${tab.gradient} text-white`
-                          : isLocked
-                            ? 'bg-slate-200 text-slate-400' // Locked tab indicator
-                          : isDone 
-                            ? 'bg-emerald-500 text-white' 
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center ${isDisabled
+                      ? 'bg-slate-200 text-slate-400'
+                      : isActive
+                        ? editMode
+                          ? 'bg-[#1E62F2] text-white' // Edit mode indicator
+                          : `bg-gradient-to-br ${tab.gradient} text-white`
+                        : isLocked
+                          ? 'bg-slate-200 text-slate-400' // Locked tab indicator
+                          : isDone
+                            ? 'bg-emerald-500 text-white'
                             : 'bg-slate-200 text-slate-500'
-                    }`}>
+                      }`}>
                       {isDisabled ? (
                         <Lock className="h-3.5 w-3.5" />
                       ) : isLocked ? (
@@ -561,31 +559,29 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                     <span className="text-sm font-medium">{tab.label}</span>
                   </div>
                   {tab.owner && (
-                    <span className={`text-[10px] font-normal ${
-                      isDisabled
-                        ? 'text-slate-400'
-                        : isActive
-                          ? editMode
-                            ? 'text-[#1E62F2]/70'
-                            : 'text-teal-600/70'
-                          : isDone
-                            ? 'text-emerald-600/70'
-                            : 'text-slate-500/70'
-                    }`}>
+                    <span className={`text-[10px] font-normal ${isDisabled
+                      ? 'text-slate-400'
+                      : isActive
+                        ? editMode
+                          ? 'text-[#1E62F2]/70'
+                          : 'text-teal-600/70'
+                        : isDone
+                          ? 'text-emerald-600/70'
+                          : 'text-slate-500/70'
+                      }`}>
                       {tab.owner}
                     </span>
                   )}
                 </button>
-                
+
                 {/* Connector Line */}
                 {i < visibleTabs.length - 1 && (
-                  <div className={`hidden sm:block w-8 h-0.5 rounded ${
-                    editMode 
-                      ? 'bg-[#1E62F2]/20'
-                      : getTabStatus(visibleTabs[i + 1].key) || isDone 
-                        ? 'bg-emerald-300' 
-                        : 'bg-slate-200'
-                  }`} />
+                  <div className={`hidden sm:block w-8 h-0.5 rounded ${editMode
+                    ? 'bg-[#1E62F2]/20'
+                    : getTabStatus(visibleTabs[i + 1].key) || isDone
+                      ? 'bg-emerald-300'
+                      : 'bg-slate-200'
+                    }`} />
                 )}
               </div>
             );
@@ -597,43 +593,39 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           SECTION CONTENT - Shows active tab's data
           Visual distinction: View mode = white/slate, Edit mode = amber tint
           ============================================ */}
-      <div className={`flex-1 p-4 overflow-auto transition-colors ${
-        editMode ? 'bg-white' : 'bg-[#F4F6FA]'
-      }`}>
+      <div className={`flex-1 p-4 overflow-auto transition-colors ${editMode ? 'bg-white' : 'bg-[#F4F6FA]'
+        }`}>
         <div className="max-w-6xl mx-auto">
-          <div className={`rounded-xl shadow-sm overflow-hidden transition-all ${
-            editMode 
-              ? 'bg-white border-2 border-[#1E62F2] ring-4 ring-[#1E62F2]/10' 
-              : 'bg-white border border-slate-200'
-          }`}>
-            {/* Section Header - Distinct styling for edit mode */}
-            <div className={`px-4 py-3 flex items-center justify-between transition-colors ${
-              editMode 
-                ? 'bg-white border-b-2 border-[#1E62F2]' 
-                : 'bg-white border-b border-slate-100'
+          <div className={`rounded-xl shadow-sm overflow-hidden transition-all ${editMode
+            ? 'bg-white border-2 border-[#1E62F2] ring-4 ring-[#1E62F2]/10'
+            : 'bg-white border border-slate-200'
             }`}>
-          <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-                  editMode 
-                    ? 'bg-[#1E62F2]' 
-                    : `bg-gradient-to-br ${currentTab.gradient}`
-                }`}>
+            {/* Section Header - Distinct styling for edit mode */}
+            <div className={`px-4 py-3 flex items-center justify-between transition-colors ${editMode
+              ? 'bg-white border-b-2 border-[#1E62F2]'
+              : 'bg-white border-b border-slate-100'
+              }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${editMode
+                  ? 'bg-[#1E62F2]'
+                  : `bg-gradient-to-br ${currentTab.gradient}`
+                  }`}>
                   {editMode ? (
                     <Pencil className="h-4 w-4 text-white" />
                   ) : (
                     <currentTab.icon className="h-4 w-4 text-white" />
                   )}
-            </div>
-            <div>
+                </div>
+                <div>
                   <h3 className={`font-semibold text-base ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%)]'}`}>
                     {editMode ? `Editing ${currentTab.label}` : currentTab.label}
                   </h3>
                   <p className={`text-[10px] ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>
                     {editMode ? 'Make changes and save when done' : `View ${currentTab.label.toLowerCase()} details`}
                   </p>
-            </div>
-          </div>
-              
+                </div>
+              </div>
+
               {/* Edit / Save / Cancel Buttons - AI Round is read-only (data from interview) */}
               {activeTab === 'aiRound' ? (
                 <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Read Only</span>
@@ -643,7 +635,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                   // Demo section is always editable
                   const isLocked = currentTabIndex > 0 && activeTab !== 'demo' && !getTabStatus(visibleTabs[currentTabIndex - 1].key);
                   const prevStageLabel = currentTabIndex > 0 ? visibleTabs[currentTabIndex - 1].label : '';
-                  
+
                   return (
                     <button
                       onClick={handleStartEdit}
@@ -661,33 +653,33 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                 })()
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleCancelEdit} 
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEdit}
                     disabled={saving}
                     className="h-8 border-[#1E62F2] text-[#1E62F2] hover:bg-[#1E62F2]/10 rounded-xl text-xs"
                   >
                     <X className="h-3 w-3 mr-1" /> Cancel
                   </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={handleSave} 
-                    disabled={saving} 
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={saving}
                     className="h-8 bg-[#1E62F2] hover:bg-[hsl(216,88%,50%)] text-white rounded-xl text-xs"
                   >
                     <Save className="h-3 w-3 mr-1" /> {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
+                  </Button>
                 </div>
               )}
-        </div>
+            </div>
 
             {/* Section Content - Render based on active tab */}
             <div className={`p-4 transition-colors ${editMode ? 'bg-white' : 'bg-white'}`}>
               {activeTab === 'aiRound' && (
-                <AIRoundSection 
-                  status={aiRoundStatus} 
-                  score={aiRoundScore} 
+                <AIRoundSection
+                  status={aiRoundStatus}
+                  score={aiRoundScore}
                   completedAt={aiRoundCompletedAt}
                   strengths={aiRoundStrengths}
                   areasForImprovement={aiRoundAreasForImprovement}
@@ -696,10 +688,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                 />
               )}
               {activeTab === 'demo' && journey && (
-                <DemoSection 
-                  journey={journey} 
-                  editMode={editMode} 
-                  editData={editData} 
+                <DemoSection
+                  journey={journey}
+                  editMode={editMode}
+                  editData={editData}
                   setEditData={setEditData}
                   fieldErrors={fieldErrors}
                   onSendDemoEmail={handleSendDemoEmail}
@@ -718,8 +710,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               {activeTab === 'goLive' && journey && !isRejected && (
                 <GoLiveSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
               )}
-                  </div>
-            
+            </div>
+
             {/* Edit mode footer hint */}
             {editMode && (
               <div className="px-5 py-3 bg-[#1E62F2]/10 border-t border-[#1E62F2] text-center">
@@ -764,13 +756,13 @@ interface AIRoundSectionProps {
 const parseMarkdownText = (text: string): React.ReactNode => {
   // Remove markdown headers like "#### Key Strengths"
   if (text.startsWith('#')) return null;
-  
+
   // Remove leading "- " if present
   const cleanText = text.replace(/^-\s*/, '');
-  
+
   // Parse **bold** text
   const parts = cleanText.split(/(\*\*[^*]+\*\*)/g);
-  
+
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
@@ -797,11 +789,11 @@ const ReportCardSkillBar: React.FC<{ item: ReportCardItem; index: number }> = ({
     if (score >= 5) return { bar: 'bg-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', bg: 'bg-[hsl(38,92%,50%,0.1)]', border: 'border-[hsl(38,92%,50%)]' };
     return { bar: 'bg-red-500', text: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' };
   };
-  
+
   const colors = getScoreColor();
-  
+
   return (
-    <div 
+    <div
       className={`p-4 rounded-xl border ${colors.border} ${colors.bg} transition-all duration-300 hover:shadow-md hover:scale-[1.01]`}
       style={{ animationDelay: `${index * 50}ms` }}
     >
@@ -815,15 +807,15 @@ const ReportCardSkillBar: React.FC<{ item: ReportCardItem; index: number }> = ({
           <span className="text-slate-400 text-sm font-medium">/10</span>
         </div>
       </div>
-      
+
       {/* Progress Bar */}
       <div className="h-2 bg-slate-200/70 rounded-full overflow-hidden mb-3">
-        <div 
+        <div
           className={`h-full rounded-full ${colors.bar} transition-all duration-700 ease-out`}
           style={{ width: `${score * 10}%` }}
         />
       </div>
-      
+
       {/* Note - Collapsible */}
       <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 hover:line-clamp-none transition-all cursor-pointer">
         {item.note}
@@ -851,10 +843,10 @@ const InterviewRecording: React.FC<{ sessionId?: string }> = ({ sessionId }) => 
   useEffect(() => {
     let cancelled = false;
     const go = async () => {
-      if (!sessionId) { 
-        setUrl(null); 
+      if (!sessionId) {
+        setUrl(null);
         setError(null);
-        return; 
+        return;
       }
       try {
         setLoading(true);
@@ -942,8 +934,8 @@ const InterviewRecording: React.FC<{ sessionId?: string }> = ({ sessionId }) => 
 };
 
 const AIRoundSection: React.FC<AIRoundSectionProps> = ({
-  status, 
-  score, 
+  status,
+  score,
   strengths,
   areasForImprovement,
   evaluation,
@@ -951,8 +943,8 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
 }) => {
   // Determine if passed/failed based on score (threshold: 5)
   const isPassed = score !== null && score !== undefined && score >= 5;
-  const statusLabel = !status || status === 'no_interview' 
-    ? 'Not Started' 
+  const statusLabel = !status || status === 'no_interview'
+    ? 'Not Started'
     : status === 'completed' || status === 'passed'
       ? isPassed ? 'Passed' : 'Failed'
       : status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -975,14 +967,14 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
   // Filter out header lines from strengths and areas
   const filteredStrengths = strengths?.filter(s => !s.startsWith('#') && s.trim().length > 0) || [];
   const filteredAreas = areasForImprovement?.filter(s => !s.startsWith('#') && s.trim().length > 0) || [];
-  
+
   // Extract report card from evaluation
   const reportCard = (evaluation?.report_card as ReportCardItem[]) || [];
-  
+
   // Check if we have any feedback data to display
-  const hasFeedback = filteredStrengths.length > 0 || 
-                      filteredAreas.length > 0 ||
-                      reportCard.length > 0;
+  const hasFeedback = filteredStrengths.length > 0 ||
+    filteredAreas.length > 0 ||
+    reportCard.length > 0;
 
   return (
     <div className="space-y-6">
@@ -991,82 +983,79 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
           ============================================ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Hero Score Card - Takes 2 columns on large screens */}
-        <div className={`lg:col-span-2 relative overflow-hidden rounded-2xl p-6 shadow-xl ${
-          isPassed 
-            ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
-            : 'bg-gradient-to-br from-red-900 via-red-800 to-red-900'
-        }`}>
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          {isPassed ? (
-            <>
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
-            </>
-          ) : (
-            <>
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-red-400 to-red-600 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-red-500 to-red-700 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
-            </>
-          )}
-        </div>
-        
-        <div className="relative z-10">
-          {/* Status Badge */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${statusStyle.bg} ${statusStyle.border} border ${statusStyle.glow} shadow-lg`}>
-                {statusStyle.icon}
-              </div>
-              <div>
-                <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Interview Status</p>
-                <p className={`font-bold text-lg ${statusStyle.text}`}>{statusLabel}</p>
-              </div>
-            </div>
-            <div className={`px-4 py-2 rounded-full border-2 ${statusStyle.border} ${statusStyle.bg} shadow-lg ${statusStyle.glow}`}>
-              <span className={`font-bold text-sm ${statusStyle.text}`}>
-                {isPassed ? '✓ Qualified' : status === 'in_progress' ? '◷ In Progress' : status === 'no_interview' ? '○ Pending' : '✗ Not Qualified'}
-              </span>
-            </div>
-          </div>
-          
-          {/* Score Display */}
-          <div className="flex items-end gap-4">
-            <div className="flex items-baseline">
-              <span className={`text-7xl font-black tracking-tight ${
-                score === null || score === undefined 
-                  ? 'text-slate-600' 
-                  : isPassed 
-                    ? 'text-emerald-400' 
-                    : 'text-red-400'
-              }`}>
-                {score !== null && score !== undefined ? score.toFixed(1) : '—'}
-              </span>
-              <span className="text-3xl text-slate-500 font-light ml-1">/10</span>
-            </div>
-            
-            {score !== null && score !== undefined && (
-              <div className="flex-1 pb-3">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className={`text-2xl font-bold ${isPassed ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {(score * 10).toFixed(0)}%
-                  </span>
-                  <span className="text-slate-400 text-sm">Overall Performance</span>
-                </div>
-                <div className="h-3 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur-sm">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                      isPassed 
-                        ? 'bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400' 
-                        : 'bg-gradient-to-r from-[hsl(0,84%,60%)] via-[hsl(0,84%,55%)] to-[hsl(38,92%,50%)]'
-                    }`}
-                    style={{ width: `${Math.min(score * 10, 100)}%` }}
-                  />
-                </div>
-              </div>
+        <div className={`lg:col-span-2 relative overflow-hidden rounded-2xl p-6 shadow-xl ${isPassed
+          ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
+          : 'bg-gradient-to-br from-red-900 via-red-800 to-red-900'
+          }`}>
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            {isPassed ? (
+              <>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
+              </>
+            ) : (
+              <>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-red-400 to-red-600 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-red-500 to-red-700 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
+              </>
             )}
           </div>
-        </div>
+
+          <div className="relative z-10">
+            {/* Status Badge */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-xl ${statusStyle.bg} ${statusStyle.border} border ${statusStyle.glow} shadow-lg`}>
+                  {statusStyle.icon}
+                </div>
+                <div>
+                  <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">Interview Status</p>
+                  <p className={`font-bold text-lg ${statusStyle.text}`}>{statusLabel}</p>
+                </div>
+              </div>
+              <div className={`px-4 py-2 rounded-full border-2 ${statusStyle.border} ${statusStyle.bg} shadow-lg ${statusStyle.glow}`}>
+                <span className={`font-bold text-sm ${statusStyle.text}`}>
+                  {isPassed ? '✓ Qualified' : status === 'in_progress' ? '◷ In Progress' : status === 'no_interview' ? '○ Pending' : '✗ Not Qualified'}
+                </span>
+              </div>
+            </div>
+
+            {/* Score Display */}
+            <div className="flex items-end gap-4">
+              <div className="flex items-baseline">
+                <span className={`text-7xl font-black tracking-tight ${score === null || score === undefined
+                  ? 'text-slate-600'
+                  : isPassed
+                    ? 'text-emerald-400'
+                    : 'text-red-400'
+                  }`}>
+                  {score !== null && score !== undefined ? score.toFixed(1) : '—'}
+                </span>
+                <span className="text-3xl text-slate-500 font-light ml-1">/10</span>
+              </div>
+
+              {score !== null && score !== undefined && (
+                <div className="flex-1 pb-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`text-2xl font-bold ${isPassed ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {(score * 10).toFixed(0)}%
+                    </span>
+                    <span className="text-slate-400 text-sm">Overall Performance</span>
+                  </div>
+                  <div className="h-3 bg-slate-700/50 rounded-full overflow-hidden backdrop-blur-sm">
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ease-out ${isPassed
+                        ? 'bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400'
+                        : 'bg-gradient-to-r from-[hsl(0,84%,60%)] via-[hsl(0,84%,55%)] to-[hsl(38,92%,50%)]'
+                        }`}
+                      style={{ width: `${Math.min(score * 10, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Interview Recording - Takes 1 column on large screens, positioned top right */}
@@ -1081,7 +1070,7 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
                 <p className="text-slate-500 text-xs">Watch the complete AI interview recording</p>
               </div>
             </div>
-            
+
             <InterviewRecording sessionId={sessionId} />
           </div>
         )}
@@ -1110,7 +1099,7 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
               <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-lg shadow-emerald-100/50">
                 {/* Decorative */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-200/30 to-transparent rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
-                
+
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="p-1.5 rounded-lg bg-emerald-500 shadow-md shadow-emerald-200">
@@ -1121,7 +1110,7 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
                       {filteredStrengths.length} points
                     </span>
                   </div>
-                  
+
                   <ul className="space-y-3">
                     {filteredStrengths.map((strength, index) => (
                       <li key={index} className="flex items-start gap-3 group">
@@ -1143,7 +1132,7 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
               <div className="relative overflow-hidden rounded-2xl border-2 border-[#1E62F2]/20 bg-gradient-to-br from-white via-white to-[#1E62F2]/5 p-5 shadow-lg shadow-[#1E62F2]/10">
                 {/* Decorative */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#1E62F2]/20 to-transparent rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
-                
+
                 <div className="relative z-10">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="p-1.5 rounded-lg bg-[#1E62F2] shadow-md shadow-[#1E62F2]/20">
@@ -1154,7 +1143,7 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
                       {filteredAreas.length} points
                     </span>
                   </div>
-                  
+
                   <ul className="space-y-3">
                     {filteredAreas.map((area, index) => (
                       <li key={index} className="flex items-start gap-3 group">
@@ -1186,7 +1175,7 @@ const AIRoundSection: React.FC<AIRoundSectionProps> = ({
                   <p className="text-slate-500 text-xs">Detailed breakdown by evaluation criteria</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {reportCard.map((item, index) => (
                   <ReportCardSkillBar key={item.topic} item={item} index={index} />
@@ -1460,29 +1449,27 @@ const SubjectsMultiSelect: React.FC<SubjectsMultiSelectProps> = ({ selectedSubje
 // Defined outside to prevent re-creation on every render
 // ============================================
 
-const FieldContainer: React.FC<{ 
-  children: React.ReactNode; 
+const FieldContainer: React.FC<{
+  children: React.ReactNode;
   className?: string;
   editMode?: boolean;
 }> = ({ children, className = '', editMode = false }) => (
-  <div className={`p-3 rounded-lg transition-colors ${
-    editMode ? 'bg-white border border-[#1E62F2]' : 'bg-[#F4F6FA]'
-  } ${className}`}>
+  <div className={`p-3 rounded-lg transition-colors ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-[#F4F6FA]'
+    } ${className}`}>
     {children}
   </div>
 );
 
 const FieldLabel: React.FC<{ children: React.ReactNode; editMode?: boolean }> = ({ children, editMode = false }) => (
-  <Label className={`text-xs block mb-1 ${
-    editMode ? 'text-[#1E62F2] font-medium' : 'text-[hsl(214,100%,15%,0.6)]'
-  }`}>
+  <Label className={`text-xs block mb-1 ${editMode ? 'text-[#1E62F2] font-medium' : 'text-[hsl(214,100%,15%,0.6)]'
+    }`}>
     {children}
   </Label>
 );
 
-const FieldValue: React.FC<{ 
-  value: string | number | null | undefined; 
-  fallback?: string 
+const FieldValue: React.FC<{
+  value: string | number | null | undefined;
+  fallback?: string
 }> = ({ value, fallback = '—' }) => (
   <p className="text-sm text-slate-700 font-medium">
     {value || <span className="text-slate-400 italic font-normal">{fallback}</span>}
@@ -1503,9 +1490,8 @@ const YesNoBadge: React.FC<{ value?: string | null }> = ({ value }) => {
   if (!value) return <span className="text-slate-400 text-sm">—</span>;
   const isYes = value === 'YES';
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-      isYes ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-    }`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isYes ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+      }`}>
       {isYes ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
       {value}
     </span>
@@ -1518,27 +1504,24 @@ const RejectEmailBadge: React.FC<{ value?: string | null }> = ({ value }) => {
   const isYes = value === 'YES';
   // For reject email: YES = rejected (red), NO = not rejected (gray)
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-      isYes ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'
-    }`}>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isYes ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'
+      }`}>
       {isYes ? <XCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
       {value}
     </span>
   );
 };
 
-const DemoSectionHeader: React.FC<{ 
-  title: string; 
+const DemoSectionHeader: React.FC<{
+  title: string;
   icon: React.ReactNode;
   description?: string;
   editMode?: boolean;
 }> = ({ title, icon, description, editMode = false }) => (
-  <div className={`flex items-center gap-2 pb-3 mb-4 border-b ${
-    editMode ? 'border-[#1E62F2]' : 'border-[#F4F6FA]'
-  }`}>
-    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-      editMode ? 'bg-[#1E62F2]/10 text-[#1E62F2]' : 'bg-[#1E62F2]/10 text-[#1E62F2]'
+  <div className={`flex items-center gap-2 pb-3 mb-4 border-b ${editMode ? 'border-[#1E62F2]' : 'border-[#F4F6FA]'
     }`}>
+    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${editMode ? 'bg-[#1E62F2]/10 text-[#1E62F2]' : 'bg-[#1E62F2]/10 text-[#1E62F2]'
+      }`}>
       {icon}
     </div>
     <div>
@@ -1563,11 +1546,11 @@ interface DemoSectionProps extends SectionProps {
   sendingEmail?: boolean;
 }
 
-const DemoSection: React.FC<DemoSectionProps> = ({ 
-  journey, 
-  editMode, 
-  editData, 
-  setEditData, 
+const DemoSection: React.FC<DemoSectionProps> = ({
+  journey,
+  editMode,
+  editData,
+  setEditData,
   fieldErrors = {},
   onSendDemoEmail,
   sendingEmail = false
@@ -1582,9 +1565,8 @@ const DemoSection: React.FC<DemoSectionProps> = ({
   return (
     <div className="space-y-2.5">
       {/* Status Row */}
-      <div className={`flex items-center justify-between p-2 rounded-lg mb-2 ${
-        editMode ? 'bg-white border border-[#1E62F2]' : 'bg-[#F4F6FA]'
-      }`}>
+      <div className={`flex items-center justify-between p-2 rounded-lg mb-2 ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-[#F4F6FA]'
+        }`}>
         <span className={`text-sm font-medium ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>
           Demo Status
         </span>
@@ -1617,7 +1599,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           <FieldLabel editMode={editMode}>Demo Date</FieldLabel>
           {editMode ? (
             <>
-              <Input type="date" value={data.demoDate?.split('T')[0] || ''} 
+              <Input type="date" value={data.demoDate?.split('T')[0] || ''}
                 className={`mt-1 h-7 text-xs bg-white ${fieldErrors.demoDate ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}
                 onChange={(e) => setEditData(prev => ({ ...prev, demoDate: e.target.value }))} />
               <FieldError error={fieldErrors.demoDate} />
@@ -1631,7 +1613,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           <FieldLabel editMode={editMode}>Interviewer Name</FieldLabel>
           {editMode ? (
             <>
-              <Select value={data.demoInterviewerName || ''} 
+              <Select value={data.demoInterviewerName || ''}
                 onValueChange={(v) => setEditData(prev => ({ ...prev, demoInterviewerName: v }))}>
                 <SelectTrigger className={`mt-1 h-7 text-xs bg-white ${fieldErrors.demoInterviewerName ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
                   <SelectValue placeholder="Select interviewer" />
@@ -1655,7 +1637,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           <FieldLabel editMode={editMode}>Overall Teaching Style</FieldLabel>
           {editMode ? (
             <>
-              <Select value={data.overallTeachingStyle || ''} 
+              <Select value={data.overallTeachingStyle || ''}
                 onValueChange={(v) => setEditData(prev => ({ ...prev, overallTeachingStyle: v as TeachingStyleRating }))}>
                 <SelectTrigger className={`mt-1 h-7 text-xs bg-white ${fieldErrors.overallTeachingStyle ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
                   <SelectValue placeholder="Select rating" />
@@ -1670,13 +1652,12 @@ const DemoSection: React.FC<DemoSectionProps> = ({
               <FieldError error={fieldErrors.overallTeachingStyle} />
             </>
           ) : (
-            <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium ${
-              journey.overallTeachingStyle === 'EXCELLENT' ? 'bg-emerald-100 text-emerald-700' :
+            <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium ${journey.overallTeachingStyle === 'EXCELLENT' ? 'bg-emerald-100 text-emerald-700' :
               journey.overallTeachingStyle === 'GOOD' ? 'bg-blue-100 text-blue-700' :
-              journey.overallTeachingStyle === 'AVERAGE' ? 'bg-[hsl(38,92%,50%,0.1)] text-[hsl(38,92%,50%)]' :
-              journey.overallTeachingStyle === 'BAD' ? 'bg-red-100 text-red-700' :
-              'bg-slate-100 text-slate-500'
-            }`}>
+                journey.overallTeachingStyle === 'AVERAGE' ? 'bg-[hsl(38,92%,50%,0.1)] text-[hsl(38,92%,50%)]' :
+                  journey.overallTeachingStyle === 'BAD' ? 'bg-red-100 text-red-700' :
+                    'bg-slate-100 text-slate-500'
+              }`}>
               {journey.overallTeachingStyle || '—'}
             </span>
           )}
@@ -1714,7 +1695,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
             const emailType = journey.demoEmailType;
             const emailSentCount = journey.demoEmailSentCount || 0;
             const emailSentBy = journey.demoEmailSentBy;
-            
+
             if (!emailSent || emailSent === 'NO' || emailSentCount === 0) {
               return (
                 <div className="mt-1">
@@ -1724,23 +1705,23 @@ const DemoSection: React.FC<DemoSectionProps> = ({
                 </div>
               );
             }
-            
+
             const isSelected = emailType === 'SELECTED';
-            const formattedDateTime = emailSentAt 
+            const formattedDateTime = emailSentAt
               ? new Date(emailSentAt).toLocaleString('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                })
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+              })
               : 'N/A';
-            
+
             return (
               <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`h-5 text-[10px] ${isSelected ? 'bg-green-100 text-green-700 border-green-300' : 'bg-red-100 text-red-700 border-red-300'}`}
                 >
                   {isSelected ? 'Selected' : 'Not Selected'}
@@ -1761,43 +1742,42 @@ const DemoSection: React.FC<DemoSectionProps> = ({
       </div>
 
       {/* Action Row for Email */}
-      {!isHireEmail && ((!editMode && (journey.demoStatus === 'SELECTED' || journey.demoStatus === 'NOT_SELECTED')) || 
+      {!isHireEmail && ((!editMode && (journey.demoStatus === 'SELECTED' || journey.demoStatus === 'NOT_SELECTED')) ||
         (editMode && (data.demoStatus === 'SELECTED' || data.demoStatus === 'NOT_SELECTED'))) && onSendDemoEmail && (
-        <div className="mb-2 flex flex-wrap items-center gap-3">
-          <Button
-            onClick={() => onSendDemoEmail?.()}
-            disabled={sendingEmail || editMode}
-            className={`text-white shadow-sm h-7 px-3 text-[10px] ${
-              (!editMode && journey.demoStatus === 'SELECTED') || (editMode && data.demoStatus === 'SELECTED')
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <Button
+              onClick={() => onSendDemoEmail?.()}
+              disabled={sendingEmail || editMode}
+              className={`text-white shadow-sm h-7 px-3 text-[10px] ${(!editMode && journey.demoStatus === 'SELECTED') || (editMode && data.demoStatus === 'SELECTED')
                 ? 'bg-emerald-500 hover:bg-emerald-600'
                 : 'bg-slate-600 hover:bg-slate-700'
-            }`}
-          >
-            {sendingEmail ? (
-              <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5" />Sending...</>
-            ) : (
-              <><Mail className="h-3 w-3 mr-1.5" />Send Mail</>
+                }`}
+            >
+              {sendingEmail ? (
+                <><div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5" />Sending...</>
+              ) : (
+                <><Mail className="h-3 w-3 mr-1.5" />Send Mail</>
+              )}
+            </Button>
+            {editMode && (
+              <p className="text-[9px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                💡 Save changes first to enable sending email
+              </p>
             )}
-          </Button>
-          {editMode && (
-            <p className="text-[9px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
-              💡 Save changes first to enable sending email
-            </p>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
       {/* Feedback Textarea */}
       <FieldContainer editMode={editMode} className="mt-2 p-2">
         <FieldLabel editMode={editMode}>Demo Feedback</FieldLabel>
         {editMode ? (
           <>
-            <Textarea 
-              value={data.demoFeedback || ''} 
+            <Textarea
+              value={data.demoFeedback || ''}
               placeholder="Enter detailed feedback about the demo..."
               rows={2}
               className={`mt-1 text-xs bg-white ${fieldErrors.demoFeedback ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}
-              onChange={(e) => setEditData(prev => ({ ...prev, demoFeedback: e.target.value }))} 
+              onChange={(e) => setEditData(prev => ({ ...prev, demoFeedback: e.target.value }))}
             />
             <FieldError error={fieldErrors.demoFeedback} />
           </>
@@ -1814,7 +1794,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
 // INDUCTION SECTION
 const InductionSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
   const data = editMode ? editData : journey;
-  
+
   return (
     <div className="space-y-5">
       <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
@@ -1826,21 +1806,23 @@ const InductionSection: React.FC<SectionProps> = ({ journey, editMode, editData,
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="YES">Yes</SelectItem>
-                <SelectItem value="NO">No</SelectItem>
+                {INDUCTION_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FieldError error={fieldErrors.inductionAttendance} />
           </div>
         ) : getStatusBadge(journey.inductionAttendance)}
-              </div>
-      
+      </div>
+
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
         <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Induction Date</Label>
         {editMode ? (
           <>
-            <Input type="date" value={data.inductionDate?.split('T')[0] || ''} 
+            <Input type="date" value={data.inductionDate?.split('T')[0] || ''}
               className={`mt-1 bg-white ${fieldErrors.inductionDate ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`}
               onChange={(e) => setEditData(prev => ({ ...prev, inductionDate: e.target.value }))} />
             <FieldError error={fieldErrors.inductionDate} />
@@ -1848,15 +1830,15 @@ const InductionSection: React.FC<SectionProps> = ({ journey, editMode, editData,
         ) : (
           <p className="text-sm text-slate-700 mt-1 font-medium">{journey.inductionDate ? new Date(journey.inductionDate).toLocaleDateString() : '—'}</p>
         )}
-                </div>
-            </div>
+      </div>
+    </div>
   );
 };
 
 // TRAINING SECTION
 const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
   const data = editMode ? editData : journey;
-  
+
   return (
     <div className="space-y-5">
       <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
@@ -1879,13 +1861,13 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
             <FieldError error={fieldErrors.trainingStatus} />
           </div>
         ) : getStatusBadge(journey.trainingStatus)}
-          </div>
+      </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
         <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Start Date</Label>
         {editMode ? (
           <>
-            <Input type="date" value={data.trainingStartDate?.split('T')[0] || ''} 
+            <Input type="date" value={data.trainingStartDate?.split('T')[0] || ''}
               className={`mt-1 bg-white ${fieldErrors.trainingStartDate ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`}
               onChange={(e) => setEditData(prev => ({ ...prev, trainingStartDate: e.target.value }))} />
             <FieldError error={fieldErrors.trainingStartDate} />
@@ -1893,7 +1875,7 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
         ) : (
           <p className="text-sm text-slate-700 mt-1 font-medium">{journey.trainingStartDate ? new Date(journey.trainingStartDate).toLocaleDateString() : '—'}</p>
         )}
-                </div>
+      </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
         <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Notes</Label>
@@ -1903,16 +1885,16 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
             onChange={(e) => setEditData(prev => ({ ...prev, trainingNotes: e.target.value }))} />
         ) : (
           <p className="text-sm text-slate-700 mt-1">{journey.trainingNotes || <span className="text-slate-400 italic">No notes</span>}</p>
-                    )}
-                  </div>
-                </div>
+        )}
+      </div>
+    </div>
   );
 };
 
 // CERTIFICATION SECTION
 const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
   const data = editMode ? editData : journey;
-  
+
   return (
     <div className="space-y-5">
       <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
@@ -1932,13 +1914,13 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
             <FieldError error={fieldErrors.certificationStatus} />
           </div>
         ) : getStatusBadge(journey.certificationStatus)}
-              </div>
-      
+      </div>
+
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
         <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Certification Date</Label>
         {editMode ? (
           <>
-            <Input type="date" value={data.certificationDate?.split('T')[0] || ''} 
+            <Input type="date" value={data.certificationDate?.split('T')[0] || ''}
               className={`mt-1 bg-white ${fieldErrors.certificationDate ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`}
               onChange={(e) => setEditData(prev => ({ ...prev, certificationDate: e.target.value }))} />
             <FieldError error={fieldErrors.certificationDate} />
@@ -1946,7 +1928,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
         ) : (
           <p className="text-sm text-slate-700 mt-1 font-medium">{journey.certificationDate ? new Date(journey.certificationDate).toLocaleDateString() : '—'}</p>
         )}
-            </div>
+      </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
         <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Feedback</Label>
@@ -1960,15 +1942,15 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
         ) : (
           <p className="text-sm text-slate-700 mt-1">{journey.certificationFeedback || <span className="text-slate-400 italic">No feedback</span>}</p>
         )}
-          </div>
-        </div>
+      </div>
+    </div>
   );
 };
 
 // GO LIVE SECTION
 const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
   const data = editMode ? editData : journey;
-  
+
   return (
     <div className="space-y-5">
       <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
@@ -1994,7 +1976,7 @@ const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, se
         <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Go-Live Date</Label>
         {editMode ? (
           <>
-            <Input type="date" value={data.goLiveDate?.split('T')[0] || ''} 
+            <Input type="date" value={data.goLiveDate?.split('T')[0] || ''}
               className={`mt-1 bg-white ${fieldErrors.goLiveDate ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`}
               onChange={(e) => setEditData(prev => ({ ...prev, goLiveDate: e.target.value }))} />
             <FieldError error={fieldErrors.goLiveDate} />
@@ -2002,7 +1984,7 @@ const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, se
         ) : (
           <p className="text-sm text-slate-700 mt-1 font-medium">{journey.goLiveDate ? new Date(journey.goLiveDate).toLocaleDateString() : '—'}</p>
         )}
-            </div>
+      </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
         <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Assigned Subjects</Label>
@@ -2016,8 +1998,8 @@ const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, se
                 { id: 'ALPHA_MATH', label: 'Alpha Math' },
               ].map((subject) => (
                 <div key={subject.id} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={subject.id} 
+                  <Checkbox
+                    id={subject.id}
                     checked={Array.isArray(data.assignedSubject) && data.assignedSubject.includes(subject.id as Subject)}
                     onCheckedChange={(checked) => {
                       const current = Array.isArray(data.assignedSubject) ? data.assignedSubject : [];

@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   TeacherJourney,
   getDemoStatusLabel,
   getInductionLabel,
@@ -36,7 +36,7 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
 
   // Check if user is hire@bambinos.live
   const isHireEmail = user?.email === 'hire@bambinos.live';
-  
+
   // Badge color helpers using new color scheme
   const getDemoStatusBadgeClass = (status: string): string => {
     const colors = getStatusBadgeColors(status);
@@ -87,9 +87,9 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
               <TableHead>Contact</TableHead>
               <TableHead>Demo</TableHead>
               <TableHead>Induction</TableHead>
-              <TableHead>Training</TableHead>
-              <TableHead>Certification</TableHead>
-              <TableHead>Go-Live</TableHead>
+              <TableHead>Demo Training</TableHead>
+              <TableHead>Demo Certification</TableHead>
+              <TableHead>Demo Go Live</TableHead>
               <TableHead>Subject</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -131,17 +131,17 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
               <TableHead className="font-semibold text-[hsl(214,100%,15%)] min-w-[200px]">Contact</TableHead>
               <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[100px]">Demo</TableHead>
               <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[90px]">Induction</TableHead>
-              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[120px]">Training</TableHead>
-              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[100px]">Certification</TableHead>
-              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[120px]">Go-Live</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[120px]">Demo Training</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[100px]">Demo Certification</TableHead>
+              <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[120px]">Demo Go Live</TableHead>
               <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[100px]">Subject</TableHead>
               <TableHead className="font-semibold text-[hsl(214,100%,15%)] text-center min-w-[120px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {journeys.map((journey, index) => (
-              <TableRow 
-                key={journey.id} 
+              <TableRow
+                key={journey.id}
                 className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#F4F6FA]'} hover:bg-[#1E62F2]/5 transition-colors`}
               >
                 {/* Name */}
@@ -162,9 +162,9 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
 
                 {/* Demo Status */}
                 <TableCell className="text-center">
-                <Badge variant="outline" className={`${getDemoStatusBadgeClass(journey.demoStatus)} rounded-xl`}>
-                  {getDemoStatusLabel(journey.demoStatus)}
-                </Badge>
+                  <Badge variant="outline" className={`${getDemoStatusBadgeClass(journey.demoStatus)} rounded-xl`}>
+                    {getDemoStatusLabel(journey.demoStatus)}
+                  </Badge>
                   {journey.demoDate && (
                     <div className="text-xs text-[hsl(214,100%,15%,0.6)] mt-1">
                       {formatDate(journey.demoDate)}
@@ -174,30 +174,30 @@ const TeacherJourneyTable: React.FC<TeacherJourneyTableProps> = ({
 
                 {/* Induction */}
                 <TableCell className="text-center">
-                <Badge variant="outline" className={`${getInductionBadgeClass(journey.inductionAttendance)} rounded-xl`}>
-                  {getInductionLabel(journey.inductionAttendance)}
-                </Badge>
+                  <Badge variant="outline" className={`${getInductionBadgeClass(journey.inductionAttendance)} rounded-xl`}>
+                    {getInductionLabel(journey.inductionAttendance)}
+                  </Badge>
                 </TableCell>
 
                 {/* Training */}
                 <TableCell className="text-center">
-                <Badge variant="outline" className={`${getTrainingBadgeClass(journey.trainingStatus)} rounded-xl`}>
-                  {getTrainingStatusLabel(journey.trainingStatus)}
-                </Badge>
+                  <Badge variant="outline" className={`${getTrainingBadgeClass(journey.trainingStatus)} rounded-xl`}>
+                    {getTrainingStatusLabel(journey.trainingStatus)}
+                  </Badge>
                 </TableCell>
 
                 {/* Certification */}
                 <TableCell className="text-center">
-                <Badge variant="outline" className={`${getCertificationBadgeClass(journey.certificationStatus)} rounded-xl`}>
-                  {getCertificationLabel(journey.certificationStatus)}
-                </Badge>
+                  <Badge variant="outline" className={`${getCertificationBadgeClass(journey.certificationStatus)} rounded-xl`}>
+                    {getCertificationLabel(journey.certificationStatus)}
+                  </Badge>
                 </TableCell>
 
                 {/* Go-Live */}
                 <TableCell className="text-center">
-                <Badge variant="outline" className={`${getGoLiveBadgeClass(journey.goLiveReadiness)} rounded-xl`}>
-                  {getGoLiveLabel(journey.goLiveReadiness)}
-                </Badge>
+                  <Badge variant="outline" className={`${getGoLiveBadgeClass(journey.goLiveReadiness)} rounded-xl`}>
+                    {getGoLiveLabel(journey.goLiveReadiness)}
+                  </Badge>
                 </TableCell>
 
                 {/* Subject */}

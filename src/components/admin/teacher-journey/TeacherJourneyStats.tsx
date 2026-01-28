@@ -54,7 +54,7 @@ const TeacherJourneyStats: React.FC<TeacherJourneyStatsProps> = ({ stats, loadin
       borderColor: 'border-[hsl(217,91%,60%)]'
     },
     {
-      title: 'Training Completed',
+      title: 'Demo Training Completed',
       value: stats.trainingStats.completed,
       subtitle: `${stats.trainingStats.joined} in progress`,
       icon: BookOpen,
@@ -63,7 +63,7 @@ const TeacherJourneyStats: React.FC<TeacherJourneyStatsProps> = ({ stats, loadin
       borderColor: 'border-[hsl(38,92%,50%)]'
     },
     {
-      title: 'Certification Cleared',
+      title: 'Demo Certification Cleared',
       value: stats.certificationStats.cleared,
       subtitle: `${stats.certificationStats.notCleared} not cleared`,
       icon: Award,
@@ -72,7 +72,7 @@ const TeacherJourneyStats: React.FC<TeacherJourneyStatsProps> = ({ stats, loadin
       borderColor: 'border-[#FFCC00]'
     },
     {
-      title: 'Go-Live Ready',
+      title: 'Demo Go Live Ready',
       value: stats.goLiveStats.yes,
       subtitle: `${stats.goLiveStats.needsMoreTraining} need training`,
       icon: Rocket,
