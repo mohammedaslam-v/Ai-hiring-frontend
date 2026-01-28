@@ -29,6 +29,18 @@ export interface TeacherJourney {
   goLiveDate: string | null;
 
   assignedSubject: Subject[] | null;
+  readyForPaidClass?: ReadyForPaidClassStatus;
+
+  // Paid Journey
+  paidTrainingStatus?: PaidTrainingStatus;
+  paidTrainingStartDate?: string;
+  paidTrainingNotes?: string;
+  paidCertificationStatus?: PaidCertificationStatus;
+  paidCertificationDate?: string;
+  paidCertificationFeedback?: string;
+  paidGoLiveReadiness?: PaidGoLiveStatus;
+  paidGoLiveDate?: string;
+  paidAssignedSubject?: Subject[] | null;
 
   // Extended Demo Evaluation
   overallTeachingStyle: TeachingStyleRating | null;
@@ -61,8 +73,12 @@ export interface TeacherJourney {
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
 export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED';
-export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED';
+export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'OFFER_LETTER_SENT' | 'PORTAL_CREATED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING';
+export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
+export type PaidTrainingStatus = TrainingStatus;
+export type PaidCertificationStatus = CertificationStatus;
+export type PaidGoLiveStatus = GoLiveStatus;
 export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'PHONICS' | 'ALPHA_MATH';
 
 // New types for extended fields
@@ -161,6 +177,18 @@ export interface UpdateTeacherJourneyData {
   goLiveReadiness?: GoLiveStatus;
   goLiveDate?: string;
   assignedSubject?: Subject[] | null;
+  readyForPaidClass?: ReadyForPaidClassStatus;
+
+  // Paid Journey
+  paidTrainingStatus?: PaidTrainingStatus;
+  paidTrainingStartDate?: string;
+  paidTrainingNotes?: string;
+  paidCertificationStatus?: PaidCertificationStatus;
+  paidCertificationDate?: string;
+  paidCertificationFeedback?: string;
+  paidGoLiveReadiness?: PaidGoLiveStatus;
+  paidGoLiveDate?: string;
+  paidAssignedSubject?: Subject[] | null;
 
   // Extended Demo Evaluation
   overallTeachingStyle?: TeachingStyleRating;
@@ -210,7 +238,9 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'all', label: 'All Certification' },
   { value: 'PENDING', label: 'Pending' },
   { value: 'CLEARED', label: 'Cleared' },
-  { value: 'NOT_CLEARED', label: 'Not Cleared' }
+  { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'OFFER_LETTER_SENT', label: 'Offer Letter Sent' },
+  { value: 'PORTAL_CREATED', label: 'Portal Created' }
 ];
 
 export const GO_LIVE_OPTIONS = [
@@ -218,6 +248,13 @@ export const GO_LIVE_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'YES', label: 'Yes' },
   { value: 'NEEDS_MORE_TRAINING', label: 'Needs More Training' }
+];
+
+export const READY_FOR_PAID_CLASS_OPTIONS = [
+  { value: 'all', label: 'All Status' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'YES', label: 'Yes' },
+  { value: 'NO', label: 'No' }
 ];
 
 export const ONBOARDING_OPTIONS = [
@@ -289,7 +326,9 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
   const labels: Record<CertificationStatus, string> = {
     'PENDING': 'Pending',
     'CLEARED': 'Cleared',
-    'NOT_CLEARED': 'Not Cleared'
+    'NOT_CLEARED': 'Not Cleared',
+    'OFFER_LETTER_SENT': 'Offer Letter Sent',
+    'PORTAL_CREATED': 'Portal Created'
   };
   return labels[status] || status;
 };
@@ -299,6 +338,15 @@ export const getGoLiveLabel = (status: GoLiveStatus): string => {
     'PENDING': 'Pending',
     'YES': 'Yes',
     'NEEDS_MORE_TRAINING': 'Needs More Training'
+  };
+  return labels[status] || status;
+};
+
+export const getReadyForPaidClassLabel = (status: ReadyForPaidClassStatus): string => {
+  const labels: Record<ReadyForPaidClassStatus, string> = {
+    'PENDING': 'Pending',
+    'YES': 'Yes',
+    'NO': 'No'
   };
   return labels[status] || status;
 };
