@@ -8,58 +8,58 @@ export interface TeacherJourney {
   lastName?: string;
   email?: string;
   phoneNumber?: string;
-  
+
   demoStatus: DemoStatus;
   demoDate: string | null;
   demoFeedback: string | null;
   demoInterviewerName: string | null;
-  
+
   inductionAttendance: InductionStatus;
   inductionDate: string | null;
-  
+
   trainingStatus: TrainingStatus;
   trainingStartDate: string | null;
   trainingNotes: string | null;
-  
+
   certificationStatus: CertificationStatus;
   certificationDate: string | null;
   certificationFeedback: string | null;
-  
+
   goLiveReadiness: GoLiveStatus;
   goLiveDate: string | null;
-  
+
   assignedSubject: Subject[] | null;
-  
+
   // Extended Demo Evaluation
   overallTeachingStyle: TeachingStyleRating | null;
   demoConducted: YesNo | null;
   demoPaidStatus: DemoPaidType | null;
-  
+
   // Language & Subject Info
   subjectsPrograms: string[] | null;
-  
+
   // Internal Hiring Status
   onboardingEmailSent: YesNo | null;
   hireCallMade: YesNo | null;
   joinedWhatsAppGroup: WhatsAppGroupStatus | null;
   rejectComments: string | null;
   rejectEmailSent: YesNo | null;
-  
+
   // Demo Email Tracking
   demoEmailSent: YesNo | null;
   demoEmailSentAt: string | null;
   demoEmailType: string | null; // 'SELECTED' | 'NOT_SELECTED'
   demoEmailSentCount: number;
   demoEmailSentBy: string | null;
-  
+
   internalComments: string | null;
-  
+
   createdAt: string;
   updatedAt: string;
 }
 
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED';
-export type InductionStatus = 'PENDING' | 'YES' | 'NO';
+export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
 export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED';
 export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING';
@@ -93,20 +93,20 @@ export interface TeacherJourneyFilters {
 
 export interface TeacherJourneyStats {
   total: number;
-  
+
   demoStats: {
     pending: number;
     scheduled: number;
     selected: number;
     notSelected: number;
   };
-  
+
   inductionStats: {
     pending: number;
     yes: number;
     no: number;
   };
-  
+
   trainingStats: {
     notJoined: number;
     joined: number;
@@ -115,19 +115,19 @@ export interface TeacherJourneyStats {
     dropped: number;
     completed: number;
   };
-  
+
   certificationStats: {
     pending: number;
     cleared: number;
     notCleared: number;
   };
-  
+
   goLiveStats: {
     pending: number;
     yes: number;
     needsMoreTraining: number;
   };
-  
+
   subjectStats: {
     littleYogi: number;
     unbox7Plus: number;
@@ -161,15 +161,15 @@ export interface UpdateTeacherJourneyData {
   goLiveReadiness?: GoLiveStatus;
   goLiveDate?: string;
   assignedSubject?: Subject[] | null;
-  
+
   // Extended Demo Evaluation
   overallTeachingStyle?: TeachingStyleRating;
   demoConducted?: YesNo;
   demoPaidStatus?: DemoPaidType;
-  
+
   // Language & Subject Info
   subjectsPrograms?: string[];
-  
+
   // Internal Hiring Status
   onboardingEmailSent?: YesNo;
   hireCallMade?: YesNo;
@@ -192,7 +192,8 @@ export const INDUCTION_OPTIONS = [
   { value: 'all', label: 'All Induction' },
   { value: 'PENDING', label: 'Pending' },
   { value: 'YES', label: 'Yes' },
-  { value: 'NO', label: 'No' }
+  { value: 'NO', label: 'No' },
+  { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
 export const TRAINING_STATUS_OPTIONS = [
@@ -266,7 +267,8 @@ export const getInductionLabel = (status: InductionStatus): string => {
   const labels: Record<InductionStatus, string> = {
     'PENDING': 'Pending',
     'YES': 'Yes',
-    'NO': 'No'
+    'NO': 'No',
+    'NOT_INTERESTED': 'Not Interested'
   };
   return labels[status] || status;
 };
@@ -303,7 +305,7 @@ export const getGoLiveLabel = (status: GoLiveStatus): string => {
 
 export const getSubjectLabel = (subject: Subject | Subject[] | null): string => {
   if (!subject) return 'Not Assigned';
-  
+
   const labels: Record<Subject, string> = {
     'LITTLE_YOGI': 'Little Yogi',
     'UNBOX_7_PLUS': 'Unbox 7+',
@@ -315,7 +317,7 @@ export const getSubjectLabel = (subject: Subject | Subject[] | null): string => 
     if (subject.length === 0) return 'Not Assigned';
     return subject.map(s => labels[s] || s).join(', ');
   }
-  
+
   return labels[subject] || subject;
 };
 

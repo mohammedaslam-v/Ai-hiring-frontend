@@ -66,6 +66,11 @@ export const getStatusBadgeColors = (status: string): { bg: string; text: string
       text: 'text-[hsl(0,84%,60%)]',
       border: 'border-[hsl(0,84%,60%)]',
     },
+    'NOT_INTERESTED': {
+      bg: 'bg-[hsl(0,84%,60%,0.1)]',
+      text: 'text-[hsl(0,84%,60%)]',
+      border: 'border-[hsl(0,84%,60%)]',
+    },
     // Training
     'JOINED': {
       bg: 'bg-[hsl(217,91%,60%,0.1)]',

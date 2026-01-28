@@ -7,8 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  TeacherJourney, 
+import {
+  TeacherJourney,
   UpdateTeacherJourneyData,
   DEMO_STATUS_OPTIONS,
   INDUCTION_OPTIONS,
@@ -65,7 +65,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
     try {
       // Clean up undefined/empty values
       const cleanData: UpdateTeacherJourneyData = {};
-      
+
       if (formData.demoStatus) cleanData.demoStatus = formData.demoStatus;
       if (formData.demoDate) cleanData.demoDate = formData.demoDate;
       if (formData.demoInterviewerName !== undefined) cleanData.demoInterviewerName = formData.demoInterviewerName;
@@ -115,13 +115,13 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
               Induction {!isDemoDone && "🔒"}
             </TabsTrigger>
             <TabsTrigger value="training" disabled={!isInductionDone} title={!isInductionDone ? "Complete Induction first" : ""}>
-              Training {!isInductionDone && "🔒"}
+              Demo Training {!isInductionDone && "🔒"}
             </TabsTrigger>
             <TabsTrigger value="certification" disabled={!isTrainingDone} title={!isTrainingDone ? "Complete Training first" : ""}>
-              Certification {!isTrainingDone && "🔒"}
+              Demo Certification {!isTrainingDone && "🔒"}
             </TabsTrigger>
             <TabsTrigger value="golive" disabled={!isCertificationDone} title={!isCertificationDone ? "Complete Certification first" : ""}>
-              Go-Live {!isCertificationDone && "🔒"}
+              Demo Go Live {!isCertificationDone && "🔒"}
             </TabsTrigger>
           </TabsList>
 
@@ -132,9 +132,9 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                 <Label>Demo Status</Label>
                 <Select
                   value={formData.demoStatus || 'PENDING'}
-                  onValueChange={(value) => setFormData(prev => ({ 
-                    ...prev, 
-                    demoStatus: value as any 
+                  onValueChange={(value) => setFormData(prev => ({
+                    ...prev,
+                    demoStatus: value as any
                   }))}
                 >
                   <SelectTrigger>
@@ -194,9 +194,9 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                 <Label>Induction Attendance</Label>
                 <Select
                   value={formData.inductionAttendance || 'PENDING'}
-                  onValueChange={(value) => setFormData(prev => ({ 
-                    ...prev, 
-                    inductionAttendance: value as any 
+                  onValueChange={(value) => setFormData(prev => ({
+                    ...prev,
+                    inductionAttendance: value as any
                   }))}
                 >
                   <SelectTrigger>
@@ -226,12 +226,12 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
           <TabsContent value="training" className="space-y-4 pt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Training Status</Label>
+                <Label>Demo Training Status</Label>
                 <Select
                   value={formData.trainingStatus || 'NOT_JOINED'}
-                  onValueChange={(value) => setFormData(prev => ({ 
-                    ...prev, 
-                    trainingStatus: value as any 
+                  onValueChange={(value) => setFormData(prev => ({
+                    ...prev,
+                    trainingStatus: value as any
                   }))}
                 >
                   <SelectTrigger>
@@ -247,7 +247,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                 </Select>
               </div>
               <div>
-                <Label>Training Start Date</Label>
+                <Label>Demo Training Start Date</Label>
                 <Input
                   type="date"
                   value={formData.trainingStartDate || ''}
@@ -256,7 +256,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
               </div>
             </div>
             <div>
-              <Label>Training Notes</Label>
+              <Label>Demo Training Notes</Label>
               <Textarea
                 value={formData.trainingNotes || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, trainingNotes: e.target.value }))}
@@ -270,12 +270,12 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
           <TabsContent value="certification" className="space-y-4 pt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Certification Status</Label>
+                <Label>Demo Certification Status</Label>
                 <Select
                   value={formData.certificationStatus || 'PENDING'}
-                  onValueChange={(value) => setFormData(prev => ({ 
-                    ...prev, 
-                    certificationStatus: value as any 
+                  onValueChange={(value) => setFormData(prev => ({
+                    ...prev,
+                    certificationStatus: value as any
                   }))}
                 >
                   <SelectTrigger>
@@ -291,7 +291,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                 </Select>
               </div>
               <div>
-                <Label>Certification Date</Label>
+                <Label>Demo Certification Date</Label>
                 <Input
                   type="date"
                   value={formData.certificationDate || ''}
@@ -300,7 +300,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
               </div>
             </div>
             <div>
-              <Label>Certification Feedback</Label>
+              <Label>Demo Certification Feedback</Label>
               <Textarea
                 value={formData.certificationFeedback || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, certificationFeedback: e.target.value }))}
@@ -314,12 +314,12 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
           <TabsContent value="golive" className="space-y-4 pt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Go-Live Readiness</Label>
+                <Label>Demo Go Live Readiness</Label>
                 <Select
                   value={formData.goLiveReadiness || 'PENDING'}
-                  onValueChange={(value) => setFormData(prev => ({ 
-                    ...prev, 
-                    goLiveReadiness: value as any 
+                  onValueChange={(value) => setFormData(prev => ({
+                    ...prev,
+                    goLiveReadiness: value as any
                   }))}
                 >
                   <SelectTrigger>
@@ -335,7 +335,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                 </Select>
               </div>
               <div>
-                <Label>Go-Live Date</Label>
+                <Label>Demo Go Live Date</Label>
                 <Input
                   type="date"
                   value={formData.goLiveDate || ''}
@@ -348,8 +348,8 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
               <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-md border border-slate-200">
                 {SUBJECT_OPTIONS_FOR_UPDATE.filter(o => o.value !== 'NONE').map(option => (
                   <div key={option.value} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`modal-${option.value}`} 
+                    <Checkbox
+                      id={`modal-${option.value}`}
                       checked={Array.isArray(formData.assignedSubject) && formData.assignedSubject.includes(option.value as any)}
                       onCheckedChange={(checked) => {
                         const current = Array.isArray(formData.assignedSubject) ? formData.assignedSubject : [];

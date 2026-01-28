@@ -18,7 +18,7 @@ import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableAct
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { fetchSecondRoundStatus, SecondRoundMap } from '@/services/secondRound.service';
 import { teacherJourneyService, JourneyStatusData } from '@/services/teacherJourney.service';
-import { 
+import {
   DEMO_STATUS_OPTIONS,
   ONBOARDING_OPTIONS,
   INDUCTION_OPTIONS,
@@ -57,11 +57,11 @@ const ApplicationsManagement: React.FC = () => {
 
   const [secondRoundMap, setSecondRoundMap] = useState<SecondRoundMap>({});
   const [srLoading, setSrLoading] = useState(false);
-  
+
   // Journey progress state
   const [journeyProgressMap, setJourneyProgressMap] = useState<JourneyProgressMap>({});
   const [journeyLoading, setJourneyLoading] = useState(false);
-  
+
   // Feedback modal state
   const [selectedFeedback, setSelectedFeedback] = useState<{
     score: number;
@@ -97,15 +97,15 @@ const ApplicationsManagement: React.FC = () => {
       .map(a => a.applicationId || a.id)
       .filter(Boolean)
       .map(id => String(id).trim());
-    
+
     if (!applicationIds.length) {
       setJourneyProgressMap({});
       return;
     }
-    
+
     let cancelled = false;
     setJourneyLoading(true);
-    
+
     teacherJourneyService.getBatchJourneyStatus(applicationIds)
       .then(response => {
         if (!cancelled && response.status && response.data) {
@@ -115,7 +115,7 @@ const ApplicationsManagement: React.FC = () => {
             const normalizedKey = String(key).trim();
             normalizedMap[normalizedKey] = value;
           });
-          
+
           setJourneyProgressMap(normalizedMap);
         } else {
           setJourneyProgressMap({});
@@ -123,12 +123,12 @@ const ApplicationsManagement: React.FC = () => {
       })
       .catch(() => { if (!cancelled) setJourneyProgressMap({}); })
       .finally(() => { if (!cancelled) setJourneyLoading(false); });
-    
+
     return () => { cancelled = true; };
   }, [applications]);
 
   // Check if journey filters are active
-  const isJourneyFiltered = 
+  const isJourneyFiltered =
     (Array.isArray(filters.demoStatus) ? filters.demoStatus.length > 0 : (filters.demoStatus !== 'all' && filters.demoStatus !== undefined)) ||
     (Array.isArray(filters.onboardingEmailSent) ? filters.onboardingEmailSent.length > 0 : (filters.onboardingEmailSent !== 'all' && filters.onboardingEmailSent !== undefined)) ||
     (Array.isArray(filters.inductionAttendance) ? filters.inductionAttendance.length > 0 : (filters.inductionAttendance !== 'all' && filters.inductionAttendance !== undefined)) ||
@@ -178,8 +178,8 @@ const ApplicationsManagement: React.FC = () => {
   // Helper function to render sort icon
   const renderSortIcon = (currentKey: string) => {
     const config = getSortIconConfig(currentKey, filters.sortBy || 'appliedDate', filters.sortOrder || 'desc');
-    const IconComponent = config.icon === "ArrowUp" ? ArrowUp : 
-                         config.icon === "ArrowDown" ? ArrowDown : ArrowUpDown;
+    const IconComponent = config.icon === "ArrowUp" ? ArrowUp :
+      config.icon === "ArrowDown" ? ArrowDown : ArrowUpDown;
     return <IconComponent className={config.className} />;
   };
 
@@ -188,13 +188,13 @@ const ApplicationsManagement: React.FC = () => {
     try {
       setExporting(true);
       console.log('Export CSV clicked with filters:', filters);
-      
+
       // Import the export service
       const { exportApplicationsToExcel } = await import('@/services/export.service');
-      
+
       // Call the export service with current filters
       const result = await exportApplicationsToExcel(filters);
-      
+
       if (result.status) {
         // Show success message
         console.log('Excel export successful:', result.message);
@@ -239,7 +239,7 @@ const ApplicationsManagement: React.FC = () => {
       console.log('🔍 Feedback Button Clicked!');
       console.log('📋 Application ID:', applicationId);
       console.log('🔄 Opening feedback modal...');
-      
+
       // Get session data for this application
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/session/by-application/${applicationId}`, {
         headers: {
@@ -247,35 +247,35 @@ const ApplicationsManagement: React.FC = () => {
           'Accept': 'application/json',
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const sessionData = await response.json();
-      
+
       if (sessionData.success && sessionData.data && sessionData.data.evaluation) {
         const session = sessionData.data;
-        
+
         // Ensure strengths and improvements are arrays and filter out empty values
         const rawStrengths = session.evaluation?.strengths;
         const rawWeaknesses = session.evaluation?.weaknesses;
-        
-        const strengths = Array.isArray(rawStrengths) 
+
+        const strengths = Array.isArray(rawStrengths)
           ? rawStrengths.filter(s => s && s.trim() !== '')
           : (rawStrengths && rawStrengths.trim() !== '' ? [rawStrengths] : []);
-          
-        const improvements = Array.isArray(rawWeaknesses) 
+
+        const improvements = Array.isArray(rawWeaknesses)
           ? rawWeaknesses.filter(w => w && w.trim() !== '')
           : (rawWeaknesses && rawWeaknesses.trim() !== '' ? [rawWeaknesses] : []);
-        
+
         console.log('📊 Processed data:', {
           score: session.score,
           strengths,
           improvements,
           hasEvaluation: !!session.evaluation
         });
-        
+
         setSelectedFeedback({
           score: session.score || 0,
           evaluation: session.evaluation,
@@ -301,7 +301,7 @@ const ApplicationsManagement: React.FC = () => {
     try {
       setRefreshingFeedback(true);
       console.log('Refreshing feedback for application:', applicationId);
-      
+
       // Call the refresh endpoint
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/session/refresh-tough-tongue/${applicationId}`, {
         method: 'POST',
@@ -310,13 +310,13 @@ const ApplicationsManagement: React.FC = () => {
           'Accept': 'application/json',
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         // Refresh the feedback data
         await handleViewFeedback(applicationId);
@@ -393,15 +393,15 @@ const ApplicationsManagement: React.FC = () => {
           <div>
             <CardTitle className="text-2xl font-bold text-blue-600">Applications Management</CardTitle>
             <div className="text-sm text-gray-500 mt-1">
-               {loading ? (
-                 <span className="flex items-center gap-2">
-                   <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
-                   Loading...
-                 </span>
-               ) : (
-                 `Showing ${paginationInfo.startIndex}-${paginationInfo.endIndex} of ${total} applications`
-               )}
-             </div>
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                  Loading...
+                </span>
+              ) : (
+                `Showing ${paginationInfo.startIndex}-${paginationInfo.endIndex} of ${total} applications`
+              )}
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -409,7 +409,7 @@ const ApplicationsManagement: React.FC = () => {
       <CardContent>
         {/* Filters - Professional redesigned container */}
         <div className="mb-6 bg-gradient-to-br from-slate-50 to-gray-50 border border-gray-200/80 rounded-xl shadow-sm overflow-hidden">
-          
+
           {/* AI Interview Filters Section */}
           <div className="p-4 border-b border-gray-200/60">
             <div className="flex items-center gap-2 mb-3">
@@ -574,7 +574,7 @@ const ApplicationsManagement: React.FC = () => {
                 options={TRAINING_STATUS_OPTIONS}
                 selectedValues={Array.isArray(filters.trainingStatus) ? filters.trainingStatus : []}
                 onValuesChange={(values) => updateJourneyFilter('trainingStatus', values)}
-                placeholder="Training Status"
+                placeholder="Demo Training Status"
                 activeColor="emerald"
               />
 
@@ -583,7 +583,7 @@ const ApplicationsManagement: React.FC = () => {
                 options={CERTIFICATION_STATUS_OPTIONS}
                 selectedValues={Array.isArray(filters.certificationStatus) ? filters.certificationStatus : []}
                 onValuesChange={(values) => updateJourneyFilter('certificationStatus', values)}
-                placeholder="Certification"
+                placeholder="Demo Certification"
                 activeColor="emerald"
               />
 
@@ -592,7 +592,7 @@ const ApplicationsManagement: React.FC = () => {
                 options={GO_LIVE_OPTIONS}
                 selectedValues={Array.isArray(filters.goLiveReadiness) ? filters.goLiveReadiness : []}
                 onValuesChange={(values) => updateJourneyFilter('goLiveReadiness', values)}
-                placeholder="Go-Live Status"
+                placeholder="Demo Go Live Status"
                 activeColor="emerald"
               />
             </div>
@@ -684,62 +684,62 @@ const ApplicationsManagement: React.FC = () => {
           </div>
         </div>
 
-                 {/* Error Display */}
-         {error && (
-           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-             <p className="text-red-700 text-sm">{error}</p>
-           </div>
-         )}
+        {/* Error Display */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
 
-         {/* Active Filters Summary */}
-         {(isFiltered || isJourneyFiltered) && (
-           <div className="mb-4 px-3 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg">
-             <div className="flex items-center justify-between gap-3">
-               <div className="flex items-center gap-1.5 flex-wrap">
-                 <span className="text-xs font-medium text-blue-600 mr-1">Active:</span>
-                 {filters.search && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-white border border-gray-200 text-gray-700">
-                     Search: "{filters.search}"
-                   </span>
-                 )}
-                 {Array.isArray(filters.status) && filters.status.length > 0 && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-700">
-                     AI: {filters.status.length > 1 ? `${filters.status.length} statuses` : filters.status[0].replace('_', ' ')}
-                   </span>
-                 )}
-                 {(filters.minScore !== undefined || filters.maxScore !== undefined) && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 text-purple-700">
-                     Score: {filters.minScore ?? 0}-{filters.maxScore ?? 100}
-                   </span>
-                 )}
-                 {(filters.fromDate && filters.toDate && filters.fromDate.length === 10 && filters.toDate.length === 10) && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-100 text-orange-700">
-                     {filters.fromDate} → {filters.toDate}
-                   </span>
-                 )}
-                 {Array.isArray(filters.demoStatus) && filters.demoStatus.length > 0 && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan-100 text-cyan-700">
-                     Demo: {filters.demoStatus.length > 1 ? `${filters.demoStatus.length} selected` : filters.demoStatus[0]}
-                   </span>
-                 )}
-                 {Array.isArray(filters.inductionAttendance) && filters.inductionAttendance.length > 0 && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-violet-100 text-violet-700">
-                     Induction: {filters.inductionAttendance.length > 1 ? `${filters.inductionAttendance.length} selected` : filters.inductionAttendance[0]}
-                   </span>
-                 )}
-                 {Array.isArray(filters.trainingStatus) && filters.trainingStatus.length > 0 && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700">
-                     Training: {filters.trainingStatus.length > 1 ? `${filters.trainingStatus.length} selected` : filters.trainingStatus[0].replace(/_/g, ' ')}
-                   </span>
-                 )}
-                 {Array.isArray(filters.certificationStatus) && filters.certificationStatus.length > 0 && (
-                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-700">
-                     Cert: {filters.certificationStatus.length > 1 ? `${filters.certificationStatus.length} selected` : filters.certificationStatus[0]}
-                   </span>
-                 )}
-                 {Array.isArray(filters.goLiveReadiness) && filters.goLiveReadiness.length > 0 && (
+        {/* Active Filters Summary */}
+        {(isFiltered || isJourneyFiltered) && (
+          <div className="mb-4 px-3 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-medium text-blue-600 mr-1">Active:</span>
+                {filters.search && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-white border border-gray-200 text-gray-700">
+                    Search: "{filters.search}"
+                  </span>
+                )}
+                {Array.isArray(filters.status) && filters.status.length > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-700">
+                    AI: {filters.status.length > 1 ? `${filters.status.length} statuses` : filters.status[0].replace('_', ' ')}
+                  </span>
+                )}
+                {(filters.minScore !== undefined || filters.maxScore !== undefined) && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-100 text-purple-700">
+                    Score: {filters.minScore ?? 0}-{filters.maxScore ?? 100}
+                  </span>
+                )}
+                {(filters.fromDate && filters.toDate && filters.fromDate.length === 10 && filters.toDate.length === 10) && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-orange-100 text-orange-700">
+                    {filters.fromDate} → {filters.toDate}
+                  </span>
+                )}
+                {Array.isArray(filters.demoStatus) && filters.demoStatus.length > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan-100 text-cyan-700">
+                    Demo: {filters.demoStatus.length > 1 ? `${filters.demoStatus.length} selected` : filters.demoStatus[0]}
+                  </span>
+                )}
+                {Array.isArray(filters.inductionAttendance) && filters.inductionAttendance.length > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-violet-100 text-violet-700">
+                    Induction: {filters.inductionAttendance.length > 1 ? `${filters.inductionAttendance.length} selected` : filters.inductionAttendance[0]}
+                  </span>
+                )}
+                {Array.isArray(filters.trainingStatus) && filters.trainingStatus.length > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700">
+                    Demo Training: {filters.trainingStatus.length > 1 ? `${filters.trainingStatus.length} selected` : filters.trainingStatus[0].replace(/_/g, ' ')}
+                  </span>
+                )}
+                {Array.isArray(filters.certificationStatus) && filters.certificationStatus.length > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-700">
+                    Demo Cert: {filters.certificationStatus.length > 1 ? `${filters.certificationStatus.length} selected` : filters.certificationStatus[0]}
+                  </span>
+                )}
+                {Array.isArray(filters.goLiveReadiness) && filters.goLiveReadiness.length > 0 && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-teal-100 text-teal-700">
-                    Go-Live: {filters.goLiveReadiness.length > 1 ? `${filters.goLiveReadiness.length} selected` : filters.goLiveReadiness[0].replace(/_/g, ' ')}
+                    Demo Go Live: {filters.goLiveReadiness.length > 1 ? `${filters.goLiveReadiness.length} selected` : filters.goLiveReadiness[0].replace(/_/g, ' ')}
                   </span>
                 )}
                 {Array.isArray(filters.directDemo) && filters.directDemo.length > 0 && (
@@ -749,14 +749,14 @@ const ApplicationsManagement: React.FC = () => {
                 )}
               </div>
               <button
-                 onClick={resetAllFilters}
-                 className="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline shrink-0"
-               >
-                 Clear all
-               </button>
-             </div>
-           </div>
-         )}
+                onClick={resetAllFilters}
+                className="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline shrink-0"
+              >
+                Clear all
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Applications Table */}
         <div className="rounded-lg shadow-md border overflow-hidden">
@@ -806,21 +806,21 @@ const ApplicationsManagement: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-                              {isEmpty || filteredApplications.length === 0 ? (
+              {isEmpty || filteredApplications.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8">
-                     <div className="text-gray-500">
-                       {loading ? (
-                         <div className="flex items-center justify-center gap-2">
-                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-bambinos-blue"></div>
-                           Loading applications...
-                         </div>
-                       ) : (
-                         <div>
-                           <p className="text-lg font-medium mb-2">
-                             {isFiltered || isJourneyFiltered ? 'No applications found' : 'No applications available'}
-                           </p>
-                           <p className="text-sm mb-3">
+                    <div className="text-gray-500">
+                      {loading ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-bambinos-blue"></div>
+                          Loading applications...
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-lg font-medium mb-2">
+                            {isFiltered || isJourneyFiltered ? 'No applications found' : 'No applications available'}
+                          </p>
+                          <p className="text-sm mb-3">
                             {isFiltered || isJourneyFiltered
                               ? (Array.isArray(filters.status) && filters.status.length > 0)
                                 ? `No applications found with the selected AI Round statuses. Try selecting a different status or reset the filters.`
@@ -829,70 +829,70 @@ const ApplicationsManagement: React.FC = () => {
                                   : 'No applications match the current filters. Try adjusting your search criteria or reset the filters.'
                               : 'There are no applications in the system yet.'
                             }
-                           </p>
-                           {(isFiltered || isJourneyFiltered) && (
-                             <div className="flex gap-2 justify-center">
-                               <Button
-                                 variant="outline"
-                                 size="sm"
-                                 onClick={resetAllFilters}
-                                 className="text-blue-600 hover:text-blue-700"
-                               >
-                                 Reset All Filters
-                               </Button>
-                               <Button
-                                 variant="ghost"
-                                 size="sm"
-                                 onClick={() => updateFilters({ page: 1 })}
-                                 className="text-gray-600 hover:text-gray-800"
-                               >
-                                 Go to First Page
-                               </Button>
-                             </div>
-                           )}
-                         </div>
-                       )}
-                     </div>
-                   </TableCell>
-                 </TableRow>
-               ) : (
-                                 filteredApplications.map((application, index) => (
-                   <TableRow key={application.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-all duration-200`}>
-                    <TableCell className="font-mono text-xs">
-                       {formatDate(application.appliedDate)}
-                     </TableCell>
-                     <TableCell>
-                       <div className="space-y-0.5">
-                         <div className="font-semibold text-slate-800">{application.name}</div>
-                         <div className="text-sm text-slate-500 truncate">{application.email}</div>
-                         <div className="text-xs text-slate-400">{application.phone}</div>
-                       </div>
-                     </TableCell>
-                   <TableCell className="text-center">
-                     <div className="flex flex-col items-center gap-1">
-                       {renderInterviewStatusBadge(application.interviewStatus, application.score)}
-                       {application.score !== null && application.score !== undefined ? (
-                         <span className={`text-sm font-semibold ${application.score >= PASS_SCORE_THRESHOLD ? 'text-green-600' : 'text-red-600'}`}>
-                           {(application.score * 10)}%
-                        </span>
-                      ) : null}
-                      {application.interviewCompletedAt && (
-                        <span className="text-xs text-gray-500">
-                          {formatDate(application.interviewCompletedAt)}
-                        </span>
+                          </p>
+                          {(isFiltered || isJourneyFiltered) && (
+                            <div className="flex gap-2 justify-center">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={resetAllFilters}
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                Reset All Filters
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => updateFilters({ page: 1 })}
+                                className="text-gray-600 hover:text-gray-800"
+                              >
+                                Go to First Page
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-center">
-                    {application.directDemo ? (
-                      <Badge className="bg-purple-100 text-purple-700 border-purple-300" variant="outline">
-                        Yes
-                      </Badge>
-                    ) : (
-                      <span className="text-gray-400 text-xs">No</span>
-                    )}
-                  </TableCell>
-                   <TableCell className="text-center">
+                </TableRow>
+              ) : (
+                filteredApplications.map((application, index) => (
+                  <TableRow key={application.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 transition-all duration-200`}>
+                    <TableCell className="font-mono text-xs">
+                      {formatDate(application.appliedDate)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-0.5">
+                        <div className="font-semibold text-slate-800">{application.name}</div>
+                        <div className="text-sm text-slate-500 truncate">{application.email}</div>
+                        <div className="text-xs text-slate-400">{application.phone}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex flex-col items-center gap-1">
+                        {renderInterviewStatusBadge(application.interviewStatus, application.score)}
+                        {application.score !== null && application.score !== undefined ? (
+                          <span className={`text-sm font-semibold ${application.score >= PASS_SCORE_THRESHOLD ? 'text-green-600' : 'text-red-600'}`}>
+                            {(application.score * 10)}%
+                          </span>
+                        ) : null}
+                        {application.interviewCompletedAt && (
+                          <span className="text-xs text-gray-500">
+                            {formatDate(application.interviewCompletedAt)}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {application.directDemo ? (
+                        <Badge className="bg-purple-100 text-purple-700 border-purple-300" variant="outline">
+                          Yes
+                        </Badge>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
                       {(() => {
                         const key = (application.email || '').toLowerCase();
                         const data = secondRoundMap[key];
@@ -902,13 +902,13 @@ const ApplicationsManagement: React.FC = () => {
                         if (!data) {
                           return <span className="text-gray-400">N/A</span>;
                         }
-                        
+
                         // Check if attended status is valid
                         const hasValidAttendedStatus = data.attended === 'Yes' || data.attended === 'No';
                         if (!hasValidAttendedStatus) {
                           return <span className="text-gray-400">N/A</span>;
                         }
-                        
+
                         const isYes = data.attended === 'Yes';
                         return (
                           <div className="flex flex-col gap-1">
@@ -926,30 +926,30 @@ const ApplicationsManagement: React.FC = () => {
                       {(() => {
                         const appId = String(application.applicationId || application.id).trim();
                         const journeyData = journeyProgressMap[appId];
-                        
+
                         if (journeyLoading && !journeyData) {
                           return <span className="text-gray-400 text-xs">Loading…</span>;
                         }
-                        
+
                         if (!journeyData || !journeyData.demoEmailSent || journeyData.demoEmailSent === 'NO' || (journeyData.demoEmailSentCount || 0) === 0) {
                           return <span className="text-gray-400 text-xs">Not Sent</span>;
                         }
-                        
+
                         // Email was sent
                         const isSelected = journeyData.demoEmailType === 'SELECTED';
                         const sentDate = journeyData.demoEmailSentAt ? formatDate(journeyData.demoEmailSentAt) : 'N/A';
                         const emailCount = journeyData.demoEmailSentCount || 0;
                         const emailSentBy = journeyData.demoEmailSentBy;
-                        
+
                         return (
                           <div className="flex flex-col gap-1 items-center">
                             <div className="flex items-center gap-1 flex-wrap justify-center">
-                              <Badge 
+                              <Badge
                                 className={
-                                  isSelected 
-                                    ? 'bg-green-100 text-green-700 border-green-300' 
+                                  isSelected
+                                    ? 'bg-green-100 text-green-700 border-green-300'
                                     : 'bg-red-100 text-red-700 border-red-300'
-                                } 
+                                }
                                 variant="outline"
                               >
                                 {isSelected ? 'Selected' : 'Not Selected'}
@@ -976,15 +976,15 @@ const ApplicationsManagement: React.FC = () => {
                       {(() => {
                         const appId = String(application.applicationId || application.id).trim();
                         const journeyData = journeyProgressMap[appId];
-                        
+
                         if (journeyLoading && !journeyData) {
                           return <span className="text-gray-400 text-xs">Loading…</span>;
                         }
-                        
+
                         if (!journeyData) {
                           return <span className="text-gray-400 text-xs">Not Started</span>;
                         }
-                        
+
                         const stages = [
                           { done: journeyData.demoStatus === 'SELECTED', label: 'D' },
                           { done: journeyData.inductionAttendance === 'YES', label: 'I' },
@@ -992,17 +992,16 @@ const ApplicationsManagement: React.FC = () => {
                           { done: journeyData.certificationStatus === 'CLEARED', label: 'C' },
                           { done: journeyData.goLiveReadiness === 'YES', label: 'G' },
                         ];
-                        
+
                         return (
                           <div className="flex items-center justify-center gap-0.5">
                             {stages.map((stage, idx) => (
                               <div
                                 key={idx}
-                                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold transition-all ${
-                                  stage.done 
-                                    ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-sm' 
-                                    : 'bg-gray-100 text-gray-400 border border-gray-200'
-                                }`}
+                                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold transition-all ${stage.done
+                                  ? 'bg-gradient-to-br from-teal-500 to-emerald-500 text-white shadow-sm'
+                                  : 'bg-gray-100 text-gray-400 border border-gray-200'
+                                  }`}
                                 title={['Demo', 'Induction', 'Training', 'Certification', 'Go Live'][idx]}
                               >
                                 {stage.done ? <CheckCircle2 className="w-3 h-3" /> : stage.label}
@@ -1045,70 +1044,70 @@ const ApplicationsManagement: React.FC = () => {
           </Table>
         </div>
 
-         {/* Results Summary and Pagination */}
-         <div className="flex items-center justify-between space-x-2 py-4">
-           <div className="flex items-center space-x-4">
-             <div className="flex items-center space-x-2">
-               <p className="text-sm font-medium">Rows per page</p>
-               <Select
-                 value={filters.limit?.toString() || '10'}
-                 onValueChange={(value) => updatePageSize(parseInt(value))}
-               >
-                 <SelectTrigger className="w-[100px]">
-                   <SelectValue />
-                 </SelectTrigger>
-                 <SelectContent>
-                   {PAGE_SIZE_OPTIONS.map(option => (
-                     <SelectItem key={option.value} value={option.value.toString()}>
-                       {option.value}
-                     </SelectItem>
-                   ))}
-                 </SelectContent>
-               </Select>
-             </div>
-             
-             {/* Results Summary */}
-             <div className="text-sm text-gray-600">
-               {!loading && (
-                 <span>
-                   Showing {filteredApplications.length} of {total} applications
-                   {(isFiltered || isJourneyFiltered) && ' (filtered)'}
-                 </span>
-               )}
-             </div>
-           </div>
-           
-           <div className="flex items-center space-x-2">
-             <p className="text-sm font-medium">
-               {paginationInfo.startIndex} to {paginationInfo.endIndex} of {total}
-             </p>
-             <div className="flex items-center space-x-1">
-               <Button
-                 variant="outline"
-                 size="sm"
-                 onClick={() => updatePage(paginationInfo.currentPage - 1)}
-                 disabled={!paginationInfo.hasPrev}
-                 className="h-8 w-8 p-0"
-               >
-                 <span className="sr-only">Go to previous page</span>
-                 <ArrowUp className="h-4 w-4" />
-               </Button>
-               <Button
-                 variant="outline"
-                 size="sm"
-                 onClick={() => updatePage(paginationInfo.currentPage + 1)}
-                 disabled={!paginationInfo.hasNext}
-                 className="h-8 w-8 p-0"
-               >
-                 <span className="sr-only">Go to next page</span>
-                 <ArrowDown className="h-4 w-4" />
-               </Button>
-             </div>
-           </div>
-         </div>
+        {/* Results Summary and Pagination */}
+        <div className="flex items-center justify-between space-x-2 py-4">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <p className="text-sm font-medium">Rows per page</p>
+              <Select
+                value={filters.limit?.toString() || '10'}
+                onValueChange={(value) => updatePageSize(parseInt(value))}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGE_SIZE_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value.toString()}>
+                      {option.value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Results Summary */}
+            <div className="text-sm text-gray-600">
+              {!loading && (
+                <span>
+                  Showing {filteredApplications.length} of {total} applications
+                  {(isFiltered || isJourneyFiltered) && ' (filtered)'}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <p className="text-sm font-medium">
+              {paginationInfo.startIndex} to {paginationInfo.endIndex} of {total}
+            </p>
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => updatePage(paginationInfo.currentPage - 1)}
+                disabled={!paginationInfo.hasPrev}
+                className="h-8 w-8 p-0"
+              >
+                <span className="sr-only">Go to previous page</span>
+                <ArrowUp className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => updatePage(paginationInfo.currentPage + 1)}
+                disabled={!paginationInfo.hasNext}
+                className="h-8 w-8 p-0"
+              >
+                <span className="sr-only">Go to next page</span>
+                <ArrowDown className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
       </CardContent>
       <ConfirmDialog />
-      
+
       {/* Feedback Modal */}
       <FeedbackModal
         isOpen={isFeedbackModalOpen}

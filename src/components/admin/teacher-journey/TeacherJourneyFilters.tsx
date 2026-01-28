@@ -2,7 +2,7 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
+import {
   TeacherJourneyFilters as FiltersType,
   DEMO_STATUS_OPTIONS,
   TRAINING_STATUS_OPTIONS,
@@ -66,7 +66,7 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
           onValueChange={(value) => onUpdateFilters({ trainingStatus: value })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Training Status" />
+            <SelectValue placeholder="Demo Training Status" />
           </SelectTrigger>
           <SelectContent>
             {TRAINING_STATUS_OPTIONS.map(option => (
@@ -83,7 +83,7 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
           onValueChange={(value) => onUpdateFilters({ certificationStatus: value })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Certification" />
+            <SelectValue placeholder="Demo Certification" />
           </SelectTrigger>
           <SelectContent>
             {CERTIFICATION_STATUS_OPTIONS.map(option => (
@@ -103,7 +103,7 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
           onValueChange={(value) => onUpdateFilters({ goLiveReadiness: value })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Go-Live Status" />
+            <SelectValue placeholder="Demo Go Live Status" />
           </SelectTrigger>
           <SelectContent>
             {GO_LIVE_OPTIONS.map(option => (
@@ -176,54 +176,54 @@ const TeacherJourneyFilters: React.FC<TeacherJourneyFiltersProps> = ({
           {filters.search && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#1E62F2]/10 text-[#1E62F2] rounded-xl text-xs">
               Search: "{filters.search}"
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onUpdateFilters({ search: '' })} 
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => onUpdateFilters({ search: '' })}
               />
             </span>
           )}
           {filters.demoStatus && filters.demoStatus !== 'all' && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(142,76%,36%,0.1)] text-[hsl(142,76%,36%)] rounded-xl text-xs">
               Demo: {filters.demoStatus}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onUpdateFilters({ demoStatus: 'all' })} 
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => onUpdateFilters({ demoStatus: 'all' })}
               />
             </span>
           )}
           {filters.trainingStatus && filters.trainingStatus !== 'all' && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(38,92%,50%,0.1)] text-[hsl(38,92%,50%)] rounded-xl text-xs">
-              Training: {filters.trainingStatus.replace(/_/g, ' ')}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onUpdateFilters({ trainingStatus: 'all' })} 
+              Demo Training: {filters.trainingStatus.replace(/_/g, ' ')}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => onUpdateFilters({ trainingStatus: 'all' })}
               />
             </span>
           )}
           {filters.certificationStatus && filters.certificationStatus !== 'all' && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#FFCC00]/10 text-[#FFCC00] rounded-xl text-xs">
-              Certification: {filters.certificationStatus}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onUpdateFilters({ certificationStatus: 'all' })} 
+              Demo Certification: {filters.certificationStatus}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => onUpdateFilters({ certificationStatus: 'all' })}
               />
             </span>
           )}
           {filters.goLiveReadiness && filters.goLiveReadiness !== 'all' && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(142,76%,36%,0.1)] text-[hsl(142,76%,36%)] rounded-xl text-xs">
-              Go-Live: {filters.goLiveReadiness.replace(/_/g, ' ')}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onUpdateFilters({ goLiveReadiness: 'all' })} 
+              Demo Go Live: {filters.goLiveReadiness.replace(/_/g, ' ')}
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => onUpdateFilters({ goLiveReadiness: 'all' })}
               />
             </span>
           )}
           {filters.assignedSubject && filters.assignedSubject !== 'all' && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-[hsl(217,91%,60%,0.1)] text-[hsl(217,91%,60%)] rounded-xl text-xs">
               Subject: {filters.assignedSubject.replace(/_/g, ' ')}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => onUpdateFilters({ assignedSubject: 'all' })} 
+              <X
+                className="h-3 w-3 cursor-pointer"
+                onClick={() => onUpdateFilters({ assignedSubject: 'all' })}
               />
             </span>
           )}
