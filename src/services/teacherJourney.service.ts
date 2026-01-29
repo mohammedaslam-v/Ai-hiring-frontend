@@ -31,14 +31,28 @@ export interface JourneyStatusData {
   demoStatus: string;
   onboardingEmailSent: string | null;
   inductionAttendance: string;
+  inductionDate: string | null;
   trainingStatus: string;
+  trainingStartDate: string | null;
   certificationStatus: string;
+  certificationDate: string | null;
   goLiveReadiness: string;
+  goLiveDate: string | null;
+  assignedSubject: any | null;
   demoEmailSent: string | null;
   demoEmailSentAt: string | null;
   demoEmailType: string | null;
   demoEmailSentCount: number;
   demoEmailSentBy: string | null;
+  hireCallMade: string | null;
+  joinedWhatsAppGroup: string | null;
+  readyForPaidClass: string | null;
+  paidTrainingStatus: string | null;
+  paidTrainingStartDate: string | null;
+  paidCertificationStatus: string | null;
+  paidCertificationDate: string | null;
+  paidGoLiveReadiness: string | null;
+  paidGoLiveDate: string | null;
   progress: number;
 }
 
