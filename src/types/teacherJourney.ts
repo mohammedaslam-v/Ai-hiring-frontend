@@ -72,8 +72,8 @@ export interface TeacherJourney {
 
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
-export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED';
-export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'OFFER_LETTER_SENT' | 'PORTAL_CREATED';
+export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING';
+export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING';
 export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
@@ -231,7 +231,8 @@ export const TRAINING_STATUS_OPTIONS = [
   { value: 'INCOMPLETE', label: 'Incomplete' },
   { value: 'SHIFTED_TO_NEXT_WEEK', label: 'Shifted to Next Week' },
   { value: 'DROPPED', label: 'Dropped' },
-  { value: 'COMPLETED', label: 'Completed' }
+  { value: 'COMPLETED', label: 'Completed' },
+  { value: 'REJECTED_IN_TRAINING', label: 'Rejected in Training' }
 ];
 
 export const CERTIFICATION_STATUS_OPTIONS = [
@@ -239,8 +240,9 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'CLEARED', label: 'Cleared' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
-  { value: 'OFFER_LETTER_SENT', label: 'Offer Letter Sent' },
-  { value: 'PORTAL_CREATED', label: 'Portal Created' }
+  { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
+  { value: 'JOINING_FORM_SENT', label: 'Joining Form Sent' },
+  { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' }
 ];
 
 export const GO_LIVE_OPTIONS = [
@@ -317,7 +319,8 @@ export const getTrainingStatusLabel = (status: TrainingStatus): string => {
     'INCOMPLETE': 'Incomplete',
     'SHIFTED_TO_NEXT_WEEK': 'Shifted to Next Week',
     'DROPPED': 'Dropped',
-    'COMPLETED': 'Completed'
+    'COMPLETED': 'Completed',
+    'REJECTED_IN_TRAINING': 'Rejected in Training'
   };
   return labels[status] || status;
 };
@@ -327,8 +330,9 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
     'PENDING': 'Pending',
     'CLEARED': 'Cleared',
     'NOT_CLEARED': 'Not Cleared',
-    'OFFER_LETTER_SENT': 'Offer Letter Sent',
-    'PORTAL_CREATED': 'Portal Created'
+    'NEED_MORE_TRAINING': 'Need More Training',
+    'JOINING_FORM_SENT': 'Joining Form Sent',
+    'OFFER_LETTER_SENT_PORTAL_CREATED': 'Offer Letter Sent / Portal Created'
   };
   return labels[status] || status;
 };
