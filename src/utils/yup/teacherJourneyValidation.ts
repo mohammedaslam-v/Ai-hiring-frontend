@@ -236,6 +236,65 @@ const readyForPaidClassSectionValidation = Yup.object().shape({
     .oneOf(['PENDING', 'YES', 'NO'], 'Invalid status'),
 });
 
+// Paid Training Section Validation Schema
+const paidTrainingSectionValidation = Yup.object().shape({
+  paidTrainingStatus: Yup.string()
+    .required('Paid training status is required')
+    .oneOf(['NOT_JOINED', 'JOINED', 'INCOMPLETE', 'SHIFTED_TO_NEXT_WEEK', 'DROPPED', 'COMPLETED', 'REJECTED_IN_TRAINING'],
+      'Invalid paid training status'),
+
+  paidTrainingStartDate: Yup.string()
+    .nullable()
+    .when('paidTrainingStatus', {
+      is: (status: string) => status === 'JOINED' || status === 'COMPLETED',
+      then: (schema) => schema.required('Start date is required when training is joined or completed'),
+      otherwise: (schema) => schema.nullable(),
+    }),
+
+  paidTrainingNotes: Yup.string()
+    .nullable()
+    .max(2000, 'Notes cannot exceed 2000 characters'),
+});
+
+// Paid Certification Section Validation Schema
+const paidCertificationSectionValidation = Yup.object().shape({
+  paidCertificationStatus: Yup.string()
+    .required('Paid certification status is required')
+    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED'],
+      'Invalid paid certification status'),
+
+  paidCertificationDate: Yup.string()
+    .nullable()
+    .when('paidCertificationStatus', {
+      is: (status: string) => status === 'CLEARED' || status === 'NOT_CLEARED' || status === 'OFFER_LETTER_SENT_PORTAL_CREATED',
+      then: (schema) => schema.required('Certification date is required'),
+      otherwise: (schema) => schema.nullable(),
+    }),
+
+  paidCertificationFeedback: Yup.string()
+    .nullable()
+    .when('paidCertificationStatus', {
+      is: 'NOT_CLEARED',
+      then: (schema) => schema.required('Feedback is required when certification is not cleared'),
+      otherwise: (schema) => schema.nullable().max(2000, 'Feedback cannot exceed 2000 characters'),
+    }),
+});
+
+// Paid Go-Live Section Validation Schema
+const paidGoLiveSectionValidation = Yup.object().shape({
+  paidGoLiveReadiness: Yup.string()
+    .required('Paid go live readiness is required')
+    .oneOf(['PENDING', 'YES', 'NEEDS_MORE_TRAINING'], 'Invalid paid go live readiness status'),
+
+  paidGoLiveDate: Yup.string()
+    .nullable()
+    .when('paidGoLiveReadiness', {
+      is: 'YES',
+      then: (schema) => schema.required('Go live date is required when readiness is YES'),
+      otherwise: (schema) => schema.nullable(),
+    }),
+});
+
 // Combined validation schema for all sections
 export const teacherJourneyValidation = {
   demo: demoSectionValidation,
@@ -244,6 +303,9 @@ export const teacherJourneyValidation = {
   certification: certificationSectionValidation,
   goLive: goLiveSectionValidation,
   readyForPaidClass: readyForPaidClassSectionValidation,
+  paidTraining: paidTrainingSectionValidation,
+  paidCertification: paidCertificationSectionValidation,
+  paidGoLive: paidGoLiveSectionValidation,
 };
 
 // Helper function to validate a specific section
