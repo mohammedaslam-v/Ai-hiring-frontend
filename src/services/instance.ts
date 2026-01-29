@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance for backend API
 export const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL , // Backend server URL from env
+    baseURL: import.meta.env.VITE_API_URL, // Backend server URL from env
     headers: {
         'Content-Type': 'application/json',
     },
@@ -12,13 +12,13 @@ export const axiosInstance = axios.create({
 // Request interceptor for logging and auth
 axiosInstance.interceptors.request.use((config) => {
     console.log('API Request:', config.method?.toUpperCase(), config.url);
-    
+
     // Add Authorization header if token exists
     const adminToken = localStorage.getItem('adminToken');
     if (adminToken) {
         config.headers.Authorization = `Bearer ${adminToken}`;
     }
-    
+
     return config;
 });
 

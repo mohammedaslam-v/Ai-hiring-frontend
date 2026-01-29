@@ -14,7 +14,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
   try {
     // Build query parameters from filters
     const queryParams = new URLSearchParams();
-    
+
     if (filters.search && filters.search.length > 0) queryParams.append('search', filters.search);
     // Handle status (single or multiple)
     if (filters.status) {
@@ -70,7 +70,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    
+
     // Extract filename from response headers or use default
     const contentDisposition = response.headers['content-disposition'];
     let filename = 'applications-export.csv';
@@ -80,7 +80,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
         filename = filenameMatch[1];
       }
     }
-    
+
     link.download = filename;
     document.body.appendChild(link);
     link.click();
@@ -94,7 +94,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
 
   } catch (error: unknown) {
     console.error('CSV export error:', error);
-    
+
     // Handle different types of errors
     const axiosError = error as { response?: { status: number; data?: { message?: string; details?: Array<{ message: string }> } }; code?: string };
     if (axiosError.response?.status === 400) {
@@ -107,14 +107,14 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
           error: 'VALIDATION_ERROR'
         };
       }
-      
+
       return {
         status: false,
         message: axiosError.response.data?.message || 'No data available for export',
         error: 'NO_DATA'
       };
     }
-    
+
     if (axiosError.code === 'ECONNABORTED') {
       return {
         status: false,
@@ -122,7 +122,7 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
         error: 'TIMEOUT'
       };
     }
-    
+
     return {
       status: false,
       message: 'Failed to export CSV. Please try again.',
@@ -138,7 +138,7 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
   try {
     // Build query parameters from filters
     const queryParams = new URLSearchParams();
-    
+
     if (filters.search && filters.search.length > 0) queryParams.append('search', filters.search);
     // Handle status (single or multiple)
     if (filters.status) {
@@ -186,17 +186,17 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
     // Make API request to backend
     const response = await axiosInstance.get(`/api/admin/applications/export/excel?${queryParams.toString()}`, {
       responseType: 'blob', // Important for file download
-      timeout: 180000 // 3 minute timeout for large exports
+      timeout: 600000 // 10 minute timeout for large exports (5000+ records)
     });
 
     // Create download link
-    const blob = new Blob([response.data as BlobPart], { 
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    const blob = new Blob([response.data as BlobPart], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    
+
     // Extract filename from response headers or use default
     const contentDisposition = response.headers['content-disposition'];
     let filename = 'applications-export.xlsx';
@@ -206,7 +206,7 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
         filename = filenameMatch[1];
       }
     }
-    
+
     link.download = filename;
     document.body.appendChild(link);
     link.click();
@@ -220,7 +220,7 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
 
   } catch (error: unknown) {
     console.error('Excel export error:', error);
-    
+
     // Handle different types of errors
     const axiosError = error as { response?: { status: number; data?: { message?: string } }; code?: string };
     if (axiosError.response?.status === 400) {
@@ -230,7 +230,7 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
         error: 'NO_DATA'
       };
     }
-    
+
     if (axiosError.code === 'ECONNABORTED') {
       return {
         status: false,
@@ -238,7 +238,7 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
         error: 'TIMEOUT'
       };
     }
-    
+
     return {
       status: false,
       message: 'Failed to export Excel. Please try again.',

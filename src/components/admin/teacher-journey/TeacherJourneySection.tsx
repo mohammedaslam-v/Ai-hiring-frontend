@@ -37,9 +37,9 @@ import {
   InductionStatus,
   INDUCTION_OPTIONS,
   TrainingStatus,
+  TRAINING_STATUS_OPTIONS,
   CertificationStatus,
   CERTIFICATION_STATUS_OPTIONS,
-  GoLiveStatus,
   GoLiveStatus,
   ReadyForPaidClassStatus,
   PaidTrainingStatus,
@@ -421,7 +421,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'demo': return journey?.demoStatus === 'SELECTED';
       case 'induction': return journey?.inductionAttendance === 'YES';
       case 'training': return journey?.trainingStatus === 'JOINED' || journey?.trainingStatus === 'COMPLETED';
-      case 'certification': return journey?.certificationStatus === 'CLEARED';
+      case 'certification': return journey?.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED';
       case 'goLive': return journey?.goLiveReadiness === 'YES';
       case 'readyForPaidClass': return journey?.readyForPaidClass === 'YES';
       case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
@@ -1978,12 +1978,11 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="NOT_JOINED">Not Joined</SelectItem>
-                <SelectItem value="JOINED">Joined</SelectItem>
-                <SelectItem value="INCOMPLETE">Incomplete</SelectItem>
-                <SelectItem value="SHIFTED_TO_NEXT_WEEK">Shifted to Next Week</SelectItem>
-                <SelectItem value="DROPPED">Dropped</SelectItem>
-                <SelectItem value="COMPLETED">Completed</SelectItem>
+                {TRAINING_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FieldError error={fieldErrors.trainingStatus} />
@@ -2203,13 +2202,11 @@ const PaidTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, ed
             <Select value={data.paidTrainingStatus || 'NOT_JOINED'} onValueChange={(v) => setEditData(prev => ({ ...prev, paidTrainingStatus: v as PaidTrainingStatus }))}>
               <SelectTrigger className="w-48 bg-white border-[#1E62F2]"><SelectValue /></SelectTrigger>
               <SelectContent>
-                {/* Reusing training status options but casting to PaidTrainingStatus */}
-                <SelectItem value="NOT_JOINED">Not Joined</SelectItem>
-                <SelectItem value="JOINED">Joined</SelectItem>
-                <SelectItem value="INCOMPLETE">Incomplete</SelectItem>
-                <SelectItem value="SHIFTED_TO_NEXT_WEEK">Shifted to Next Week</SelectItem>
-                <SelectItem value="DROPPED">Dropped</SelectItem>
-                <SelectItem value="COMPLETED">Completed</SelectItem>
+                {TRAINING_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
