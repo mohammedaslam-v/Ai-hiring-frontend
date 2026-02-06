@@ -40,6 +40,7 @@ import {
   TRAINING_STATUS_OPTIONS,
   CertificationStatus,
   CERTIFICATION_STATUS_OPTIONS,
+  CERTIFICATION_TRAINING_COUNT_OPTIONS,
   GoLiveStatus,
   ReadyForPaidClassStatus,
   PaidTrainingStatus,
@@ -296,6 +297,54 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       return;
     }
 
+    // Certification Email Confirmation Guard
+    // Check if certificationStatus is changing to a status that triggers automated emails
+    if (activeTab === 'certification') {
+      const isChangingToGoLive =
+        editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
+        journey.certificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
+
+      const isChangingToNotCleared =
+        editData.certificationStatus === 'NOT_CLEARED' &&
+        journey.certificationStatus !== 'NOT_CLEARED';
+
+      const isChangingToNeedMoreTraining =
+        editData.certificationStatus === 'NEED_MORE_TRAINING' &&
+        journey.certificationStatus !== 'NEED_MORE_TRAINING';
+
+      if (isChangingToGoLive || isChangingToNotCleared || isChangingToNeedMoreTraining) {
+        const emailType = isChangingToGoLive
+          ? 'Go Live'
+          : isChangingToNotCleared
+            ? 'Not Cleared'
+            : 'Need More Training';
+
+        const emailDescription = isChangingToGoLive
+          ? 'A congratulations email with offer letter details and portal access information will be sent to the candidate.'
+          : isChangingToNotCleared
+            ? 'A rejection email notifying the candidate that they did not clear certification will be sent.'
+            : 'An email informing the educator about refresher training and re-mock requirements will be sent. Lezniak from HR will be mentioned as the contact person.';
+
+        const confirmed = await confirm({
+          title: `📧 Confirm ${emailType} Email`,
+          description: `You are about to change the certification status to \"${isChangingToGoLive
+              ? 'Offer Letter Sent / Portal Created'
+              : isChangingToNotCleared
+                ? 'Not Cleared'
+                : 'Need More Training'
+            }\". ${emailDescription}\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?`,
+          confirmText: 'Confirm & Send Email',
+          cancelText: 'Cancel',
+          variant: isChangingToGoLive ? 'default' : 'destructive'
+        });
+
+        if (!confirmed) {
+          setSaving(false);
+          return;
+        }
+      }
+    }
+
     setSaving(true);
     setFieldErrors({});
 
@@ -378,6 +427,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           certificationStatus: data.certificationStatus,
           certificationDate: data.certificationDate,
           certificationFeedback: data.certificationFeedback,
+          certificationTrainingCount: data.certificationTrainingCount,
         };
       case 'goLive':
         return {
@@ -2072,6 +2122,39 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
           <p className="text-sm text-slate-700 mt-1">{journey.certificationFeedback || <span className="text-slate-400 italic">No feedback</span>}</p>
         )}
       </div>
+
+      {/* Conditional Training Count - Only shown when "Need More Training" is selected */}
+      {((editMode ? editData.certificationStatus : journey.certificationStatus) === 'NEED_MORE_TRAINING') && (
+        <div className={`p-3 rounded-lg ${editMode ? 'bg-amber-50 border border-amber-300' : 'bg-amber-50 border border-amber-200'}`}>
+          <Label className={`text-xs ${editMode ? 'text-amber-700 font-medium' : 'text-amber-600'}`}>
+            Number of Lessons Needed {editMode && <span className="text-red-500">*</span>}
+          </Label>
+          {editMode ? (
+            <>
+              <Select
+                value={data.certificationTrainingCount?.toString() || ''}
+                onValueChange={(v) => setEditData(prev => ({ ...prev, certificationTrainingCount: parseInt(v) }))}
+              >
+                <SelectTrigger className={`mt-1 bg-white ${fieldErrors.certificationTrainingCount ? 'border-red-500' : 'border-amber-400'} focus:ring-amber-400`}>
+                  <SelectValue placeholder="Select number of lessons" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CERTIFICATION_TRAINING_COUNT_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value.toString()}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldError error={fieldErrors.certificationTrainingCount} />
+            </>
+          ) : (
+            <p className="text-sm text-amber-700 mt-1 font-semibold">
+              {journey.certificationTrainingCount ? `${journey.certificationTrainingCount} ${journey.certificationTrainingCount === 1 ? 'Lesson' : 'Lessons'}` : <span className="text-amber-600 italic">Not specified</span>}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 };
