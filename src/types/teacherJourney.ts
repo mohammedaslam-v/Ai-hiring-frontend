@@ -25,6 +25,8 @@ export interface TeacherJourney {
   certificationDate: string | null;
   certificationFeedback: string | null;
   certificationTrainingCount: number | null;
+  demoTrainerIds: number[] | null;
+  certificationTsmId: number | null;
 
   goLiveReadiness: GoLiveStatus;
   goLiveDate: string | null;
@@ -36,6 +38,7 @@ export interface TeacherJourney {
   paidTrainingStatus?: PaidTrainingStatus;
   paidTrainingStartDate?: string;
   paidTrainingNotes?: string;
+  paidDemoTrainerIds?: number[] | null;
   paidCertificationStatus?: PaidCertificationStatus;
   paidCertificationDate?: string;
   paidCertificationFeedback?: string;
@@ -176,6 +179,7 @@ export interface UpdateTeacherJourneyData {
   certificationDate?: string;
   certificationFeedback?: string;
   certificationTrainingCount?: number;
+  certificationTsmId?: number | null;
   goLiveReadiness?: GoLiveStatus;
   goLiveDate?: string;
   assignedSubject?: Subject[] | null;

@@ -63,6 +63,7 @@ import { getEvaluationMedia } from "@/services/evaluationService";
 import { useAuth } from '@/contexts/AuthContext';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { useInterviewers } from '@/hooks/admin/useInterviewers';
+import { useDemoTrainers } from '@/hooks/demo/useDemoTrainers';
 
 // ============================================
 // TYPES
@@ -154,6 +155,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   const { user } = useAuth();
   const { confirm, ConfirmDialog } = useConfirmDialog();
   const { interviewers } = useInterviewers();
+  const { trainers: demoTrainers } = useDemoTrainers();
 
   const [journey, setJourney] = useState<TeacherJourney | null>(null);
   const [loading, setLoading] = useState(true);
@@ -328,10 +330,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         const confirmed = await confirm({
           title: `📧 Confirm ${emailType} Email`,
           description: `You are about to change the certification status to \"${isChangingToGoLive
-              ? 'Offer Letter Sent / Portal Created'
-              : isChangingToNotCleared
-                ? 'Not Cleared'
-                : 'Need More Training'
+            ? 'Offer Letter Sent / Portal Created'
+            : isChangingToNotCleared
+              ? 'Not Cleared'
+              : 'Need More Training'
             }\". ${emailDescription}\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?`,
           confirmText: 'Confirm & Send Email',
           cancelText: 'Cancel',
@@ -421,6 +423,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           trainingStatus: data.trainingStatus,
           trainingStartDate: data.trainingStartDate,
           trainingNotes: data.trainingNotes,
+          demoTrainerIds: data.demoTrainerIds,
         };
       case 'certification':
         return {
@@ -428,6 +431,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           certificationDate: data.certificationDate,
           certificationFeedback: data.certificationFeedback,
           certificationTrainingCount: data.certificationTrainingCount,
+          certificationTsmId: data.certificationTsmId,
         };
       case 'goLive':
         return {
@@ -444,6 +448,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           paidTrainingStatus: data.paidTrainingStatus,
           paidTrainingStartDate: data.paidTrainingStartDate,
           paidTrainingNotes: data.paidTrainingNotes,
+          paidDemoTrainerIds: data.paidDemoTrainerIds,
         };
       case 'paidCertification':
         return {
@@ -868,10 +873,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                 <InductionSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
               )}
               {activeTab === 'training' && journey && !isRejected && (
-                <TrainingSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
+                <TrainingSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} demoTrainers={demoTrainers} />
               )}
               {activeTab === 'certification' && journey && !isRejected && (
-                <CertificationSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
+                <CertificationSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} interviewers={interviewers} />
               )}
               {activeTab === 'goLive' && journey && !isRejected && (
                 <GoLiveSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
@@ -880,7 +885,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                 <ReadyForPaidClassSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
               )}
               {activeTab === 'paidTraining' && journey && !isRejected && (
-                <PaidTrainingSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
+                <PaidTrainingSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} demoTrainers={demoTrainers} />
               )}
               {activeTab === 'paidCertification' && journey && !isRejected && (
                 <PaidCertificationSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
@@ -916,6 +921,8 @@ interface SectionProps {
   editData: Partial<TeacherJourney>;
   setEditData: React.Dispatch<React.SetStateAction<Partial<TeacherJourney>>>;
   fieldErrors?: Record<string, string>;
+  demoTrainers?: { id: number; name: string }[];
+  interviewers?: { id: number; name: string }[];
 }
 
 // AI ROUND SECTION (Read-only - data from interview, not editable in journey)
@@ -2014,7 +2021,7 @@ const InductionSection: React.FC<SectionProps> = ({ journey, editMode, editData,
 };
 
 // TRAINING SECTION
-const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, demoTrainers = [] }) => {
   const data = editMode ? editData : journey;
 
   return (
@@ -2064,12 +2071,95 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
           <p className="text-sm text-slate-700 mt-1">{journey.trainingNotes || <span className="text-slate-400 italic">No notes</span>}</p>
         )}
       </div>
+
+      {/* Demo Trainers Multi-Select - Required Field */}
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-blue-50 border border-blue-300' : 'bg-blue-50 border border-blue-200'}`}>
+        <Label className={`text-xs ${editMode ? 'text-blue-700 font-medium' : 'text-blue-600'}`}>
+          Demo Trainers {editMode && <span className="text-red-500">*</span>}
+        </Label>
+        {editMode ? (
+          <>
+            <div className="mt-2 space-y-2">
+              {/* Multi-select checkboxes */}
+              <div className="max-h-40 overflow-y-auto space-y-1.5 bg-white p-2 rounded border border-blue-300">
+                {demoTrainers.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic p-2">No trainers available</p>
+                ) : (
+                  demoTrainers.map((trainer) => {
+                    const isSelected = (editData.demoTrainerIds || []).includes(trainer.id);
+                    return (
+                      <label
+                        key={trainer.id}
+                        className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${isSelected ? 'bg-purple-50 border border-purple-300' : 'hover:bg-slate-50 border border-transparent'
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const currentIds = editData.demoTrainerIds || [];
+                            const newIds = e.target.checked
+                              ? [...currentIds, trainer.id]
+                              : currentIds.filter(id => id !== trainer.id);
+                            setEditData(prev => ({ ...prev, demoTrainerIds: newIds }));
+                          }}
+                          className="w-4 h-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500"
+                        />
+                        <span className={`text-sm ${isSelected ? 'text-purple-700 font-medium' : 'text-slate-700'}`}>
+                          {trainer.name}
+                        </span>
+                        {isSelected && (
+                          <CheckCircle2 className="ml-auto h-4 w-4 text-purple-600" />
+                        )}
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Selected trainers preview */}
+              {(editData.demoTrainerIds || []).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {editData.demoTrainerIds!.map(trainerId => {
+                    const trainer = demoTrainers.find(t => t.id === trainerId);
+                    if (!trainer) return null;
+                    return (
+                      <Badge key={trainerId} variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                        {trainer.name}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <FieldError error={fieldErrors.demoTrainerIds} />
+          </>
+        ) : (
+          <div className="mt-1">
+            {journey.demoTrainerIds && journey.demoTrainerIds.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {journey.demoTrainerIds.map(trainerId => {
+                  const trainer = demoTrainers.find(t => t.id === trainerId);
+                  if (!trainer) return null;
+                  return (
+                    <Badge key={trainerId} variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                      {trainer.name}
+                    </Badge>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 italic">No trainers selected</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 // CERTIFICATION SECTION
-const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, interviewers = [] }) => {
   const data = editMode ? editData : journey;
 
   return (
@@ -2106,6 +2196,35 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
           </>
         ) : (
           <p className="text-sm text-slate-700 mt-1 font-medium">{journey.certificationDate ? new Date(journey.certificationDate).toLocaleDateString() : '—'}</p>
+        )}
+      </div>
+
+      {/* Name of the TSM - Dropdown */}
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
+        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Name of the TSM</Label>
+        {editMode ? (
+          <>
+            <Select value={data.certificationTsmId?.toString() || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, certificationTsmId: parseInt(v) }))}>
+              <SelectTrigger className={`mt-1 bg-white ${fieldErrors.certificationTsmId ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`}>
+                <SelectValue placeholder="Select TSM" />
+              </SelectTrigger>
+              <SelectContent>
+                {interviewers.map((interviewer) => (
+                  <SelectItem key={interviewer.id} value={interviewer.id.toString()}>
+                    {interviewer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldError error={fieldErrors.certificationTsmId} />
+          </>
+        ) : (
+          <p className="text-sm text-slate-700 mt-1 font-medium">
+            {journey.certificationTsmId
+              ? interviewers.find(i => i.id === journey.certificationTsmId)?.name || '—'
+              : '—'
+            }
+          </p>
         )}
       </div>
 
@@ -2274,7 +2393,7 @@ const ReadyForPaidClassSection: React.FC<SectionProps> = ({ journey, editMode, e
   );
 };
 
-const PaidTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+const PaidTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, demoTrainers = [] }) => {
   const data = editMode ? editData : journey;
   return (
     <div className="space-y-5">
@@ -2311,6 +2430,89 @@ const PaidTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, ed
           <Textarea value={data.paidTrainingNotes || ''} onChange={(e) => setEditData(prev => ({ ...prev, paidTrainingNotes: e.target.value }))} placeholder="Add notes..." className="mt-1 bg-white border-[#1E62F2]" />
         ) : (
           <p className="text-sm text-slate-700 whitespace-pre-wrap">{journey.paidTrainingNotes || '—'}</p>
+        )}
+      </div>
+
+      {/* Demo Trainers Multi-Select - Required Field */}
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-blue-50 border border-blue-300' : 'bg-blue-50 border border-blue-200'}`}>
+        <Label className={`text-xs ${editMode ? 'text-blue-700 font-medium' : 'text-blue-600'}`}>
+          Demo Trainers {editMode && <span className="text-red-500">*</span>}
+        </Label>
+        {editMode ? (
+          <>
+            <div className="mt-2 space-y-2">
+              {/* Multi-select checkboxes */}
+              <div className="max-h-40 overflow-y-auto space-y-1.5 bg-white p-2 rounded border border-blue-300">
+                {demoTrainers.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic p-2">No trainers available</p>
+                ) : (
+                  demoTrainers.map((trainer) => {
+                    const isSelected = (editData.paidDemoTrainerIds || []).includes(trainer.id);
+                    return (
+                      <label
+                        key={trainer.id}
+                        className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${isSelected ? 'bg-purple-50 border border-purple-300' : 'hover:bg-slate-50 border border-transparent'
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const currentIds = editData.paidDemoTrainerIds || [];
+                            const newIds = e.target.checked
+                              ? [...currentIds, trainer.id]
+                              : currentIds.filter(id => id !== trainer.id);
+                            setEditData(prev => ({ ...prev, paidDemoTrainerIds: newIds }));
+                          }}
+                          className="w-4 h-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500"
+                        />
+                        <span className={`text-sm ${isSelected ? 'text-purple-700 font-medium' : 'text-slate-700'}`}>
+                          {trainer.name}
+                        </span>
+                        {isSelected && (
+                          <CheckCircle2 className="ml-auto h-4 w-4 text-purple-600" />
+                        )}
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Selected trainers preview */}
+              {(editData.paidDemoTrainerIds || []).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {editData.paidDemoTrainerIds!.map(trainerId => {
+                    const trainer = demoTrainers.find(t => t.id === trainerId);
+                    if (!trainer) return null;
+                    return (
+                      <Badge key={trainerId} variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                        {trainer.name}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <FieldError error={fieldErrors.paidDemoTrainerIds} />
+          </>
+        ) : (
+          <div className="mt-1">
+            {journey.paidDemoTrainerIds && journey.paidDemoTrainerIds.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {journey.paidDemoTrainerIds.map(trainerId => {
+                  const trainer = demoTrainers.find(t => t.id === trainerId);
+                  if (!trainer) return null;
+                  return (
+                    <Badge key={trainerId} variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                      {trainer.name}
+                    </Badge>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 italic">No trainers selected</p>
+            )}
+          </div>
         )}
       </div>
     </div>
