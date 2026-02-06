@@ -1,8 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Users, Play, CheckCircle, Award, Rocket, Settings } from "lucide-react";
+import { ChevronDown, Users, Play, CheckCircle, Award, Rocket, Settings, GraduationCap } from "lucide-react";
 import ApplicantDetailsModal from "@/components/admin/ApplicantDetailsModal";
 import { InterviewerManagementModal } from "@/components/admin/teacher-journey/InterviewerManagementModal";
+import { DemoTrainerManagementModal } from "@/components/demo/DemoTrainerManagementModal";
 
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
@@ -18,7 +19,7 @@ import { useApplicationManagement } from "@/hooks/admin/useApplicationManagement
 import { useDashboardSummary } from "@/hooks/admin/useDashboardSummary";
 import { useApplicantDetails } from "@/hooks/admin/useApplicantDetails";
 import { useDashboardAnalytics } from "@/hooks/admin/useDashboardAnalytics";
- 
+
 import { useAdminAuth } from "@/hooks/admin/useAdminAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/admin/usePermissions";
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
   const { user } = useAuth();
   const { canManageInterviewers } = usePermissions();
   const [isInterviewerModalOpen, setIsInterviewerModalOpen] = useState(false);
+  const [isDemoTrainerModalOpen, setIsDemoTrainerModalOpen] = useState(false);
 
   // Use the new dashboard analytics hook for real-time data
   const {
@@ -81,7 +83,7 @@ const AdminDashboard = () => {
     closeModal
   } = useApplicantDetails();
 
-   
+
   const {
     handleLogout
   } = useAdminAuth();
@@ -140,13 +142,22 @@ const AdminDashboard = () => {
           <div className="flex justify-end items-center">
             <div className="flex items-center space-x-2">
               {canManageInterviewers && (
-                <button
-                  onClick={() => setIsInterviewerModalOpen(true)}
-                  className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded text-xs hover:bg-emerald-200 flex items-center gap-1.5 transition-colors border border-emerald-200"
-                >
-                  <Settings className="h-3 w-3" />
-                  Manage Interviewers
-                </button>
+                <>
+                  <button
+                    onClick={() => setIsInterviewerModalOpen(true)}
+                    className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded text-xs hover:bg-emerald-200 flex items-center gap-1.5 transition-colors border border-emerald-200"
+                  >
+                    <Settings className="h-3 w-3" />
+                    Manage Interviewers
+                  </button>
+                  <button
+                    onClick={() => setIsDemoTrainerModalOpen(true)}
+                    className="px-3 py-1 bg-purple-100 text-purple-700 rounded text-xs hover:bg-purple-200 flex items-center gap-1.5 transition-colors border border-purple-200"
+                  >
+                    <GraduationCap className="h-3 w-3" />
+                    Manage Demo Trainers
+                  </button>
+                </>
               )}
               {dashboardError && (
                 <button
@@ -346,15 +357,21 @@ const AdminDashboard = () => {
         />
 
         {canManageInterviewers && (
-          <InterviewerManagementModal
-            isOpen={isInterviewerModalOpen}
-            onClose={() => setIsInterviewerModalOpen(false)}
-          />
+          <>
+            <InterviewerManagementModal
+              isOpen={isInterviewerModalOpen}
+              onClose={() => setIsInterviewerModalOpen(false)}
+            />
+            <DemoTrainerManagementModal
+              isOpen={isDemoTrainerModalOpen}
+              onClose={() => setIsDemoTrainerModalOpen(false)}
+            />
+          </>
         )}
 
-      
 
-       
+
+
 
 
       </div>
