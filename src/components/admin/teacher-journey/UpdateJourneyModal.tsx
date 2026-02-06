@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +38,8 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
   const { interviewers } = useInterviewers();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<UpdateTeacherJourneyData>({});
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [pendingEmailType, setPendingEmailType] = useState<'go_live' | 'not_cleared' | null>(null);
 
   useEffect(() => {
     if (journey) {
@@ -74,6 +77,39 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
   }, [journey]);
 
   const handleSubmit = async () => {
+    if (!journey) return;
+
+    // Debug logging
+    console.log('=== DEBUG: handleSubmit ===');
+    console.log('formData.certificationStatus:', formData.certificationStatus);
+    console.log('journey.certificationStatus:', journey.certificationStatus);
+
+    // Check if certificationStatus is changing to a status that triggers automated emails
+    const isChangingToGoLive =
+      formData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
+      journey.certificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
+
+    const isChangingToNotCleared =
+      formData.certificationStatus === 'NOT_CLEARED' &&
+      journey.certificationStatus !== 'NOT_CLEARED';
+
+    console.log('isChangingToGoLive:', isChangingToGoLive);
+    console.log('isChangingToNotCleared:', isChangingToNotCleared);
+
+    // If changing to a status that triggers emails, show confirmation modal first
+    if (isChangingToGoLive || isChangingToNotCleared) {
+      console.log('🔔 SHOWING CONFIRMATION MODAL');
+      setPendingEmailType(isChangingToGoLive ? 'go_live' : 'not_cleared');
+      setShowEmailConfirmation(true);
+      return;
+    }
+
+    console.log('✅ No email trigger - proceeding with normal submit');
+    // Otherwise proceed with normal submission
+    await performSubmit();
+  };
+
+  const performSubmit = async () => {
     if (!journey) return;
 
     setLoading(true);
@@ -117,6 +153,17 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleConfirmEmail = async () => {
+    setShowEmailConfirmation(false);
+    setPendingEmailType(null);
+    await performSubmit();
+  };
+
+  const handleCancelEmail = () => {
+    setShowEmailConfirmation(false);
+    setPendingEmailType(null);
   };
 
   if (!journey) return null;
@@ -519,6 +566,65 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Email Confirmation Modal */}
+      <AlertDialog open={showEmailConfirmation} onOpenChange={setShowEmailConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>📧 Confirm Email Notification</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              {pendingEmailType === 'go_live' && (
+                <>
+                  <p>
+                    You are about to change the certification status to{' '}
+                    <strong>Offer Letter Sent / Portal Created</strong>.
+                  </p>
+                  <p>
+                    An automated <strong className="text-green-600">congratulations email</strong> will be sent to the candidate with:
+                  </p>
+                  <ul className="list-disc ml-6 space-y-1">
+                    <li>Offer letter details</li>
+                    <li>Portal access information</li>
+                    <li>Next steps for going live</li>
+                  </ul>
+                  <p className="text-orange-600 font-semibold">
+                    ⚠️ This email cannot be recalled once sent.
+                  </p>
+                </>
+              )}
+              {pendingEmailType === 'not_cleared' && (
+                <>
+                  <p>
+                    You are about to change the certification status to{' '}
+                    <strong>Not Cleared</strong>.
+                  </p>
+                  <p>
+                    An automated <strong className="text-red-600">rejection email</strong> will be sent to the candidate with:
+                  </p>
+                  <ul className="list-disc ml-6 space-y-1">
+                    <li>Notification that they did not clear certification</li>
+                    <li>Encouragement to re-apply after the cooling-off period</li>
+                  </ul>
+                  <p className="text-orange-600 font-semibold">
+                    ⚠️ This email cannot be recalled once sent.
+                  </p>
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelEmail}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmEmail}
+              className={pendingEmailType === 'go_live' ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700'}
+            >
+              Confirm & Send Email
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };

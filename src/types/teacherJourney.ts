@@ -24,6 +24,7 @@ export interface TeacherJourney {
   certificationStatus: CertificationStatus;
   certificationDate: string | null;
   certificationFeedback: string | null;
+  certificationTrainingCount: number | null;
 
   goLiveReadiness: GoLiveStatus;
   goLiveDate: string | null;
@@ -174,6 +175,7 @@ export interface UpdateTeacherJourneyData {
   certificationStatus?: CertificationStatus;
   certificationDate?: string;
   certificationFeedback?: string;
+  certificationTrainingCount?: number;
   goLiveReadiness?: GoLiveStatus;
   goLiveDate?: string;
   assignedSubject?: Subject[] | null;
@@ -257,6 +259,19 @@ export const READY_FOR_PAID_CLASS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'YES', label: 'Yes' },
   { value: 'NO', label: 'No' }
+];
+
+export const CERTIFICATION_TRAINING_COUNT_OPTIONS = [
+  { value: 1, label: '1 Lesson' },
+  { value: 2, label: '2 Lessons' },
+  { value: 3, label: '3 Lessons' },
+  { value: 4, label: '4 Lessons' },
+  { value: 5, label: '5 Lessons' },
+  { value: 6, label: '6 Lessons' },
+  { value: 7, label: '7 Lessons' },
+  { value: 8, label: '8 Lessons' },
+  { value: 9, label: '9 Lessons' },
+  { value: 10, label: '10 Lessons' },
 ];
 
 export const ONBOARDING_OPTIONS = [
