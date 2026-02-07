@@ -88,14 +88,14 @@ interface TeacherJourneySectionProps {
 // ============================================
 // TAB CONFIGURATION
 // ============================================
-const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: string; owner?: 'HR' | 'TSM' }[] = [
+const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: string; owner?: 'HR' | 'TSM' | 'Trainer' }[] = [
   { key: 'aiRound', label: 'AI Round', icon: Brain, gradient: 'from-purple-500 to-pink-500' },
   { key: 'demo', label: 'Demo', icon: User, gradient: 'from-blue-500 to-indigo-500', owner: 'HR' },
   { key: 'induction', label: 'Induction', icon: Calendar, gradient: 'from-violet-500 to-purple-500', owner: 'HR' },
-  { key: 'training', label: 'Demo Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'TSM' },
+  { key: 'training', label: 'Demo Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'Trainer' },
   { key: 'certification', label: 'Demo Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
   { key: 'goLive', label: 'Demo Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
-  { key: 'readyForPaidClass', label: 'Ready for Paid Class', icon: CheckCircle2, gradient: 'from-blue-500 to-cyan-500', owner: 'TSM' },
+  { key: 'readyForPaidClass', label: 'Ready for Paid Class', icon: CheckCircle2, gradient: 'from-blue-500 to-cyan-500', owner: 'Trainer' },
   { key: 'paidTraining', label: 'Paid Training', icon: GraduationCap, gradient: 'from-violet-500 to-purple-500', owner: 'TSM' },
   { key: 'paidCertification', label: 'Paid Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
   { key: 'paidGoLive', label: 'Paid Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
@@ -303,8 +303,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
     // Check if certificationStatus is changing to a status that triggers automated emails
     if (activeTab === 'certification') {
       const isChangingToGoLive =
-        editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
-        journey.certificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
+        editData.certificationStatus === 'CLEARED' &&
+        journey.certificationStatus !== 'CLEARED';
 
       const isChangingToNotCleared =
         editData.certificationStatus === 'NOT_CLEARED' &&
@@ -330,7 +330,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         const confirmed = await confirm({
           title: `📧 Confirm ${emailType} Email`,
           description: `You are about to change the certification status to \"${isChangingToGoLive
-            ? 'Offer Letter Sent / Portal Created'
+            ? 'Cleared'
             : isChangingToNotCleared
               ? 'Not Cleared'
               : 'Need More Training'
@@ -476,7 +476,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'demo': return journey?.demoStatus === 'SELECTED';
       case 'induction': return journey?.inductionAttendance === 'YES';
       case 'training': return journey?.trainingStatus === 'JOINED' || journey?.trainingStatus === 'COMPLETED';
-      case 'certification': return journey?.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED';
+      case 'certification': return journey?.certificationStatus === 'CLEARED';
       case 'goLive': return journey?.goLiveReadiness === 'YES';
       case 'readyForPaidClass': return journey?.readyForPaidClass === 'YES';
       case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
