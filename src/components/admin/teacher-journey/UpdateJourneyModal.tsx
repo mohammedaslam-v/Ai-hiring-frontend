@@ -86,8 +86,8 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
 
     // Check if certificationStatus is changing to a status that triggers automated emails
     const isChangingToGoLive =
-      formData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
-      journey.certificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
+      formData.certificationStatus === 'CLEARED' &&
+      journey.certificationStatus !== 'CLEARED';
 
     const isChangingToNotCleared =
       formData.certificationStatus === 'NOT_CLEARED' &&
@@ -577,7 +577,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                 <>
                   <p>
                     You are about to change the certification status to{' '}
-                    <strong>Offer Letter Sent / Portal Created</strong>.
+                    <strong>Cleared</strong>.
                   </p>
                   <p>
                     An automated <strong className="text-green-600">congratulations email</strong> will be sent to the candidate with:
