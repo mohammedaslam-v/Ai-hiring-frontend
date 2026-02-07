@@ -96,7 +96,7 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: str
   { key: 'certification', label: 'Demo Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
   { key: 'goLive', label: 'Demo Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
   { key: 'readyForPaidClass', label: 'Ready for Paid Class', icon: CheckCircle2, gradient: 'from-blue-500 to-cyan-500', owner: 'Trainer' },
-  { key: 'paidTraining', label: 'Paid Training', icon: GraduationCap, gradient: 'from-violet-500 to-purple-500', owner: 'TSM' },
+  { key: 'paidTraining', label: 'Paid Training', icon: GraduationCap, gradient: 'from-violet-500 to-purple-500', owner: 'Trainer' },
   { key: 'paidCertification', label: 'Paid Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
   { key: 'paidGoLive', label: 'Paid Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
 ];
