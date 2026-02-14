@@ -316,18 +316,26 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         editData.certificationStatus === 'NEED_MORE_TRAINING' &&
         journey.certificationStatus !== 'NEED_MORE_TRAINING';
 
-      if (isChangingToGoLive || isChangingToNotCleared || isChangingToNeedMoreTraining) {
+      const isChangingToOfferLetterSent =
+        editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
+        journey.certificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
+
+      if (isChangingToGoLive || isChangingToNotCleared || isChangingToNeedMoreTraining || isChangingToOfferLetterSent) {
         const emailType = isChangingToGoLive
           ? 'Go Live'
           : isChangingToNotCleared
             ? 'Not Cleared'
-            : 'Need More Training';
+            : isChangingToNeedMoreTraining
+              ? 'Need More Training'
+              : 'Offer Letter';
 
         const emailDescription = isChangingToGoLive
           ? 'A congratulations email with offer letter details and portal access information will be sent to the candidate.'
           : isChangingToNotCleared
             ? 'A rejection email notifying the candidate that they did not clear certification will be sent.'
-            : 'An email informing the educator about refresher training and re-mock requirements will be sent. Lezniak from HR will be mentioned as the contact person.';
+            : isChangingToNeedMoreTraining
+              ? 'An email informing the educator about refresher training and re-mock requirements will be sent. Lezniak from HR will be mentioned as the contact person.'
+              : 'A welcome email with 4 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy) will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.';
 
         const confirmed = await confirm({
           title: `📧 Confirm ${emailType} Email`,
@@ -335,11 +343,13 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
             ? 'Cleared'
             : isChangingToNotCleared
               ? 'Not Cleared'
-              : 'Need More Training'
+              : isChangingToNeedMoreTraining
+                ? 'Need More Training'
+                : 'Offer Letter Sent / Portal Created'
             }\". ${emailDescription}\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?`,
           confirmText: 'Confirm & Send Email',
           cancelText: 'Cancel',
-          variant: isChangingToGoLive ? 'default' : 'destructive'
+          variant: isChangingToGoLive || isChangingToOfferLetterSent ? 'default' : 'destructive'
         });
 
         if (!confirmed) {
@@ -377,7 +387,16 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
 
       const response = await teacherJourneyService.updateJourney(journey.id, updatePayload);
       if (response.status) {
-        toast.success(`${TABS.find(t => t.key === activeTab)?.label} updated!`);
+        // Check if offer letter email was sent
+        const isOfferLetterSent = activeTab === 'certification' &&
+          editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED';
+
+        if (isOfferLetterSent) {
+          toast.success('✅ Status updated! Offer letter email sent with 4 PDF attachments.');
+        } else {
+          toast.success(`${TABS.find(t => t.key === activeTab)?.label} updated!`);
+        }
+
         await fetchJourney();
         setEditMode(false);
         setEditData({});
