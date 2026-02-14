@@ -118,6 +118,16 @@ export const getStatusBadgeColors = (status: string): { bg: string; text: string
       text: 'text-[hsl(38,92%,50%)]',
       border: 'border-[hsl(38,92%,50%)]',
     },
+    'OFFER_LETTER_SENT_PORTAL_CREATED': {
+      bg: 'bg-[hsl(142,76%,36%,0.1)]',
+      text: 'text-[hsl(142,76%,36%)]',
+      border: 'border-[hsl(142,76%,36%)]',
+    },
+    'JOINING_FORM_SENT': {
+      bg: 'bg-[hsl(142,76%,36%,0.1)]',
+      text: 'text-[hsl(142,76%,36%)]',
+      border: 'border-[hsl(142,76%,36%)]',
+    },
     'PORTAL_CREATED': {
       bg: 'bg-[hsl(142,76%,36%,0.1)]',
       text: 'text-[hsl(142,76%,36%)]',
