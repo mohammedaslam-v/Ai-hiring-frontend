@@ -77,7 +77,7 @@ export interface TeacherJourney {
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
 export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING';
-export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED';
+export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING';
 export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
@@ -248,7 +248,8 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
   { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
   { value: 'JOINING_FORM_SENT', label: 'Joining Form Sent' },
-  { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' }
+  { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
+  { value: 'PORTAL_HW_SUBMITTED', label: 'Portal HW Submitted' }
 ];
 
 export const GO_LIVE_OPTIONS = [
@@ -351,7 +352,8 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
     'NOT_CLEARED': 'Not Cleared',
     'NEED_MORE_TRAINING': 'Need More Training',
     'JOINING_FORM_SENT': 'Joining Form Sent',
-    'OFFER_LETTER_SENT_PORTAL_CREATED': 'Offer Letter Sent / Portal Created'
+    'OFFER_LETTER_SENT_PORTAL_CREATED': 'Offer Letter Sent / Portal Created',
+    'PORTAL_HW_SUBMITTED': 'Portal HW Submitted'
   };
   return labels[status] || status;
 };

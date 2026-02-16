@@ -122,6 +122,7 @@ const getStatusBadge = (status: string) => {
     'NOT_INTERESTED': { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: <XCircle className="h-3.5 w-3.5" /> },
     'OFFER_LETTER_SENT': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Mail className="h-3.5 w-3.5" /> },
     'OFFER_LETTER_SENT_PORTAL_CREATED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
+    'PORTAL_HW_SUBMITTED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
     'JOINING_FORM_SENT': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <FileText className="h-3.5 w-3.5" /> },
     'PORTAL_CREATED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
     'NEEDS_MORE_TRAINING': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Clock className="h-3.5 w-3.5" /> },
@@ -497,11 +498,11 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'demo': return journey?.demoStatus === 'SELECTED';
       case 'induction': return journey?.inductionAttendance === 'YES';
       case 'training': return journey?.trainingStatus === 'JOINED' || journey?.trainingStatus === 'COMPLETED';
-      case 'certification': return journey?.certificationStatus === 'CLEARED' || journey?.certificationStatus === 'JOINING_FORM_SENT' || journey?.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED';
+      case 'certification': return journey?.certificationStatus === 'CLEARED' || journey?.certificationStatus === 'JOINING_FORM_SENT' || journey?.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.certificationStatus === 'PORTAL_HW_SUBMITTED';
       case 'goLive': return journey?.goLiveReadiness === 'YES';
       case 'readyForPaidClass': return journey?.readyForPaidClass === 'YES';
       case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
-      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED';
+      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED' || journey?.paidCertificationStatus === 'PORTAL_HW_SUBMITTED';
       case 'paidGoLive': return journey?.paidGoLiveReadiness === 'YES';
       default: return false;
     }
