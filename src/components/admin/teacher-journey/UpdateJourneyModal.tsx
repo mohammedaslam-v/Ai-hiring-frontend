@@ -173,7 +173,11 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
   const isInductionDone = journey.inductionAttendance === 'YES';
   const isTrainingDone = journey.trainingStatus === 'JOINED' || journey.trainingStatus === 'COMPLETED';
 
-  const isCertificationDone = journey.certificationStatus === 'CLEARED';
+  const isCertificationDone =
+    journey.certificationStatus === 'CLEARED' ||
+    journey.certificationStatus === 'JOINING_FORM_SENT' ||
+    journey.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' ||
+    journey.certificationStatus === 'PORTAL_HW_SUBMITTED';
   const isGoLiveDone = journey.goLiveReadiness === 'YES';
 
   return (
