@@ -39,7 +39,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<UpdateTeacherJourneyData>({});
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
-  const [pendingEmailType, setPendingEmailType] = useState<'go_live' | 'not_cleared' | null>(null);
+  const [pendingEmailType, setPendingEmailType] = useState<'go_live' | 'not_cleared' | 'rejected_in_training' | null>(null);
 
   useEffect(() => {
     if (journey) {
@@ -93,13 +93,18 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
       formData.certificationStatus === 'NOT_CLEARED' &&
       journey.certificationStatus !== 'NOT_CLEARED';
 
+    const isChangingToRejectedInTraining =
+      formData.trainingStatus === 'REJECTED_IN_TRAINING' &&
+      journey.trainingStatus !== 'REJECTED_IN_TRAINING';
+
     console.log('isChangingToGoLive:', isChangingToGoLive);
     console.log('isChangingToNotCleared:', isChangingToNotCleared);
+    console.log('isChangingToRejectedInTraining:', isChangingToRejectedInTraining);
 
     // If changing to a status that triggers emails, show confirmation modal first
-    if (isChangingToGoLive || isChangingToNotCleared) {
+    if (isChangingToGoLive || isChangingToNotCleared || isChangingToRejectedInTraining) {
       console.log('🔔 SHOWING CONFIRMATION MODAL');
-      setPendingEmailType(isChangingToGoLive ? 'go_live' : 'not_cleared');
+      setPendingEmailType(isChangingToGoLive ? 'go_live' : isChangingToNotCleared ? 'not_cleared' : 'rejected_in_training');
       setShowEmailConfirmation(true);
       return;
     }
@@ -614,6 +619,24 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                   </p>
                 </>
               )}
+              {pendingEmailType === 'rejected_in_training' && (
+                <>
+                  <p>
+                    You are about to change the training status to{' '}
+                    <strong>Rejected in Training</strong>.
+                  </p>
+                  <p>
+                    An automated <strong className="text-red-600">rejection email</strong> will be sent to the educator with:
+                  </p>
+                  <ul className="list-disc ml-6 space-y-1">
+                    <li>Notification that the SME was unable to clear them during training</li>
+                    <li>Information that this is mandatory before Final Certification</li>
+                  </ul>
+                  <p className="text-orange-600 font-semibold">
+                    ⚠️ This email cannot be recalled once sent.
+                  </p>
+                </>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -622,7 +645,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmEmail}
-              className={pendingEmailType === 'go_live' ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700'}
+              className={pendingEmailType === 'go_live' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
             >
               Confirm & Send Email
             </AlertDialogAction>
