@@ -360,6 +360,29 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       }
     }
 
+    // Training Rejection Email Confirmation Guard
+    // Check if trainingStatus is changing to REJECTED_IN_TRAINING
+    if (activeTab === 'training') {
+      const isChangingToRejectedInTraining =
+        editData.trainingStatus === 'REJECTED_IN_TRAINING' &&
+        journey.trainingStatus !== 'REJECTED_IN_TRAINING';
+
+      if (isChangingToRejectedInTraining) {
+        const confirmed = await confirm({
+          title: '📧 Confirm Training Rejection Email',
+          description: 'You are about to change the training status to "Rejected in Training". An automated rejection email will be sent to the educator informing them that the Subject Matter Expert was unable to clear them during training.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?',
+          confirmText: 'Confirm & Send Email',
+          cancelText: 'Cancel',
+          variant: 'destructive'
+        });
+
+        if (!confirmed) {
+          setSaving(false);
+          return;
+        }
+      }
+    }
+
     setSaving(true);
     setFieldErrors({});
 
