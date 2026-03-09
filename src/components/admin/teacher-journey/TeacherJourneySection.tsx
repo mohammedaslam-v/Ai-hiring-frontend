@@ -336,7 +336,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
             ? 'A rejection email notifying the candidate that they did not clear certification will be sent.'
             : isChangingToNeedMoreTraining
               ? 'An email informing the educator about refresher training and re-mock requirements will be sent. Lezniak from HR will be mentioned as the contact person.'
-              : 'A welcome email with 4 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy) will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.';
+              : 'A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.';
 
         const confirmed = await confirm({
           title: `📧 Confirm ${emailType} Email`,
@@ -416,7 +416,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED';
 
         if (isOfferLetterSent) {
-          toast.success('✅ Status updated! Offer letter email sent with 4 PDF attachments.');
+          toast.success('✅ Status updated! Offer letter email sent with 5 PDFs (incl. POSH) and POSH training link.');
         } else {
           toast.success(`${TABS.find(t => t.key === activeTab)?.label} updated!`);
         }
