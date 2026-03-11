@@ -40,7 +40,7 @@ const isFutureDate = (dateString: string | null | undefined, maxMonthsFuture: nu
 export const demoSectionValidation = Yup.object().shape({
   demoStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.STATUS_REQUIRED)
-    .oneOf(['PENDING', 'SCHEDULED', 'SELECTED', 'NOT_SELECTED'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.STATUS_INVALID),
+    .oneOf(['PENDING', 'SCHEDULED', 'SELECTED', 'NOT_SELECTED', 'HOLD'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.STATUS_INVALID),
 
   demoDate: Yup.string()
     .nullable()

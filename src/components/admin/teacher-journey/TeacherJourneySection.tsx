@@ -110,6 +110,7 @@ const getStatusBadge = (status: string) => {
     'SCHEDULED': { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700', icon: <Clock className="h-3.5 w-3.5" /> },
     'SELECTED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
     'NOT_SELECTED': { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: <XCircle className="h-3.5 w-3.5" /> },
+    'HOLD': { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700', icon: <Clock className="h-3.5 w-3.5" /> },
     'YES': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
     'NO': { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: <XCircle className="h-3.5 w-3.5" /> },
     'JOINED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
@@ -1811,6 +1812,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
                 <SelectItem value="SCHEDULED">Scheduled</SelectItem>
                 <SelectItem value="SELECTED">Selected</SelectItem>
                 <SelectItem value="NOT_SELECTED">Not Selected</SelectItem>
+                <SelectItem value="HOLD">Hold</SelectItem>
               </SelectContent>
             </Select>
             <FieldError error={fieldErrors.demoStatus} />

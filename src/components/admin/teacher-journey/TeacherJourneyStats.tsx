@@ -38,7 +38,7 @@ const TeacherJourneyStats: React.FC<TeacherJourneyStatsProps> = ({ stats, loadin
     {
       title: 'Demo Selected',
       value: stats.demoStats.selected,
-      subtitle: `${stats.demoStats.notSelected} not selected`,
+      subtitle: `${stats.demoStats.notSelected} not selected, ${stats.demoStats.hold ?? 0} on hold`,
       icon: UserCheck,
       color: 'text-[hsl(142,76%,36%)]',
       bgColor: 'bg-[hsl(142,76%,36%,0.1)]',
