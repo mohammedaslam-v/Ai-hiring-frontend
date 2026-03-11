@@ -240,7 +240,7 @@ const AdminDashboard = () => {
             </div>
             <div className="text-xs text-gray-600">Selected</div>
             <div className="mt-2 text-xs text-gray-500">
-              Pending: {journeyStats?.demoStats.pending ?? 0} | Not Selected: {journeyStats?.demoStats.notSelected ?? 0}
+              Pending: {journeyStats?.demoStats.pending ?? 0} | Hold: {journeyStats?.demoStats.hold ?? 0} | Not Selected: {journeyStats?.demoStats.notSelected ?? 0}
             </div>
           </div>
 
@@ -327,7 +327,7 @@ const AdminDashboard = () => {
                 {/* Teacher Journey Summary */}
                 <h4 className="font-semibold text-gray-700 mb-2">Teacher Journey</h4>
                 <ul className="list-disc pl-5 space-y-1 text-gray-700">
-                  <li>Demo: {journeyStats?.demoStats.selected ?? 0} selected, {journeyStats?.demoStats.pending ?? 0} pending, {journeyStats?.demoStats.notSelected ?? 0} not selected</li>
+                  <li>Demo: {journeyStats?.demoStats.selected ?? 0} selected, {journeyStats?.demoStats.pending ?? 0} pending, {journeyStats?.demoStats.hold ?? 0} on hold, {journeyStats?.demoStats.notSelected ?? 0} not selected</li>
                   <li>Induction: {journeyStats?.inductionStats.yes ?? 0} attended, {journeyStats?.inductionStats.pending ?? 0} pending</li>
                   <li>Training: {journeyStats?.trainingStats.completed ?? 0} completed, {journeyStats?.trainingStats.joined ?? 0} joined, {journeyStats?.trainingStats.dropped ?? 0} dropped</li>
                   <li>Certification: {journeyStats?.certificationStats.cleared ?? 0} cleared, {journeyStats?.certificationStats.pending ?? 0} pending, {journeyStats?.certificationStats.notCleared ?? 0} not cleared</li>

@@ -74,7 +74,7 @@ export interface TeacherJourney {
   updatedAt: string;
 }
 
-export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED';
+export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED' | 'HOLD';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
 export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING';
 export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED';
@@ -119,6 +119,7 @@ export interface TeacherJourneyStats {
     scheduled: number;
     selected: number;
     notSelected: number;
+    hold: number;
   };
 
   inductionStats: {
@@ -219,7 +220,8 @@ export const DEMO_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'SCHEDULED', label: 'Scheduled' },
   { value: 'SELECTED', label: 'Selected' },
-  { value: 'NOT_SELECTED', label: 'Not Selected' }
+  { value: 'NOT_SELECTED', label: 'Not Selected' },
+  { value: 'HOLD', label: 'Hold' }
 ];
 
 export const INDUCTION_OPTIONS = [
@@ -317,7 +319,8 @@ export const getDemoStatusLabel = (status: DemoStatus): string => {
     'PENDING': 'Pending',
     'SCHEDULED': 'Scheduled',
     'SELECTED': 'Selected',
-    'NOT_SELECTED': 'Not Selected'
+    'NOT_SELECTED': 'Not Selected',
+    'HOLD': 'Hold'
   };
   return labels[status] || status;
 };
