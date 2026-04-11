@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import { AlertsBannerProps } from '@/types/admin';
 
+
+//f
 const AlertsBanner = ({ detailedStats }: AlertsBannerProps) => {
   const [alerts, setAlerts] = useState<string[]>([]);
 
