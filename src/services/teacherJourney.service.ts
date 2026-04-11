@@ -404,7 +404,9 @@ class TeacherJourneyService {
   }> {
     try {
       const response = await axiosInstance.post(
-        `${this.baseUrl}/${applicationId}/send-demo-email`
+        `${this.baseUrl}/${applicationId}/send-demo-email`,
+        {},
+        { timeout: 60000 } // 60s timeout for email sending (SMTP can be slow)
       );
 
       if (response.data.success) {
