@@ -40,7 +40,7 @@ const isFutureDate = (dateString: string | null | undefined, maxMonthsFuture: nu
 export const demoSectionValidation = Yup.object().shape({
   demoStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.STATUS_REQUIRED)
-    .oneOf(['PENDING', 'SCHEDULED', 'SELECTED', 'NOT_SELECTED', 'HOLD'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.STATUS_INVALID),
+    .oneOf(['PENDING', 'SCHEDULED', 'SELECTED', 'NOT_SELECTED', 'HOLD', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO.STATUS_INVALID),
 
   demoDate: Yup.string()
     .nullable()
@@ -136,7 +136,7 @@ export const inductionSectionValidation = Yup.object().shape({
 export const trainingSectionValidation = Yup.object().shape({
   trainingStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING.STATUS_REQUIRED)
-    .oneOf(['NOT_JOINED', 'JOINED', 'INCOMPLETE', 'SHIFTED_TO_NEXT_WEEK', 'DROPPED', 'COMPLETED', 'REJECTED_IN_TRAINING'],
+    .oneOf(['NOT_JOINED', 'JOINED', 'INCOMPLETE', 'SHIFTED_TO_NEXT_WEEK', 'DROPPED', 'COMPLETED', 'REJECTED_IN_TRAINING', 'NOT_INTERESTED'],
       TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING.STATUS_INVALID),
 
   trainingStartDate: Yup.string()
@@ -162,7 +162,7 @@ export const trainingSectionValidation = Yup.object().shape({
 export const certificationSectionValidation = Yup.object().shape({
   certificationStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_REQUIRED)
-    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
+    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
 
   certificationDate: Yup.string()
     .nullable()
@@ -197,7 +197,7 @@ export const certificationSectionValidation = Yup.object().shape({
 export const goLiveSectionValidation = Yup.object().shape({
   goLiveReadiness: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.READINESS_REQUIRED)
-    .oneOf(['PENDING', 'YES', 'NEEDS_MORE_TRAINING'], TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.READINESS_INVALID),
+    .oneOf(['PENDING', 'YES', 'NEEDS_MORE_TRAINING', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.READINESS_INVALID),
 
   goLiveDate: Yup.string()
     .nullable()

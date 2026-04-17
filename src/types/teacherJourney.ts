@@ -74,11 +74,11 @@ export interface TeacherJourney {
   updatedAt: string;
 }
 
-export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED' | 'HOLD';
+export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED' | 'HOLD' | 'NOT_INTERESTED';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
-export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING';
-export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED';
-export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING';
+export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING' | 'NOT_INTERESTED';
+export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
+export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING' | 'NOT_INTERESTED';
 export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
 export type PaidCertificationStatus = CertificationStatus;
@@ -221,7 +221,8 @@ export const DEMO_STATUS_OPTIONS = [
   { value: 'SCHEDULED', label: 'Scheduled' },
   { value: 'SELECTED', label: 'Selected' },
   { value: 'NOT_SELECTED', label: 'Not Selected' },
-  { value: 'HOLD', label: 'Hold' }
+  { value: 'HOLD', label: 'Hold' },
+  { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
 export const INDUCTION_OPTIONS = [
@@ -240,7 +241,8 @@ export const TRAINING_STATUS_OPTIONS = [
   { value: 'SHIFTED_TO_NEXT_WEEK', label: 'Shifted to Next Week' },
   { value: 'DROPPED', label: 'Dropped' },
   { value: 'COMPLETED', label: 'Completed' },
-  { value: 'REJECTED_IN_TRAINING', label: 'Rejected in Training' }
+  { value: 'REJECTED_IN_TRAINING', label: 'Rejected in Training' },
+  { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
 export const CERTIFICATION_STATUS_OPTIONS = [
@@ -251,14 +253,16 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
   { value: 'JOINING_FORM_SENT', label: 'Joining Form Sent' },
   { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
-  { value: 'PORTAL_HW_SUBMITTED', label: 'Portal HW Submitted' }
+  { value: 'PORTAL_HW_SUBMITTED', label: 'Portal HW Submitted' },
+  { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
 export const GO_LIVE_OPTIONS = [
   { value: 'all', label: 'All Go-Live Status' },
   { value: 'PENDING', label: 'Pending' },
   { value: 'YES', label: 'Yes' },
-  { value: 'NEEDS_MORE_TRAINING', label: 'Needs More Training' }
+  { value: 'NEEDS_MORE_TRAINING', label: 'Needs More Training' },
+  { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
 export const READY_FOR_PAID_CLASS_OPTIONS = [
@@ -320,7 +324,8 @@ export const getDemoStatusLabel = (status: DemoStatus): string => {
     'SCHEDULED': 'Scheduled',
     'SELECTED': 'Selected',
     'NOT_SELECTED': 'Not Selected',
-    'HOLD': 'Hold'
+    'HOLD': 'Hold',
+    'NOT_INTERESTED': 'Not Interested'
   };
   return labels[status] || status;
 };
@@ -343,7 +348,8 @@ export const getTrainingStatusLabel = (status: TrainingStatus): string => {
     'SHIFTED_TO_NEXT_WEEK': 'Shifted to Next Week',
     'DROPPED': 'Dropped',
     'COMPLETED': 'Completed',
-    'REJECTED_IN_TRAINING': 'Rejected in Training'
+    'REJECTED_IN_TRAINING': 'Rejected in Training',
+    'NOT_INTERESTED': 'Not Interested'
   };
   return labels[status] || status;
 };
@@ -356,7 +362,8 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
     'NEED_MORE_TRAINING': 'Need More Training',
     'JOINING_FORM_SENT': 'Joining Form Sent',
     'OFFER_LETTER_SENT_PORTAL_CREATED': 'Offer Letter Sent / Portal Created',
-    'PORTAL_HW_SUBMITTED': 'Portal HW Submitted'
+    'PORTAL_HW_SUBMITTED': 'Portal HW Submitted',
+    'NOT_INTERESTED': 'Not Interested'
   };
   return labels[status] || status;
 };
@@ -365,7 +372,8 @@ export const getGoLiveLabel = (status: GoLiveStatus): string => {
   const labels: Record<GoLiveStatus, string> = {
     'PENDING': 'Pending',
     'YES': 'Yes',
-    'NEEDS_MORE_TRAINING': 'Needs More Training'
+    'NEEDS_MORE_TRAINING': 'Needs More Training',
+    'NOT_INTERESTED': 'Not Interested'
   };
   return labels[status] || status;
 };
