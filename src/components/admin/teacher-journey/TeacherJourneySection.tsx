@@ -1813,6 +1813,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
                 <SelectItem value="SELECTED">Selected</SelectItem>
                 <SelectItem value="NOT_SELECTED">Not Selected</SelectItem>
                 <SelectItem value="HOLD">Hold</SelectItem>
+                <SelectItem value="NOT_INTERESTED">Not Interested</SelectItem>
               </SelectContent>
             </Select>
             <FieldError error={fieldErrors.demoStatus} />
@@ -2343,6 +2344,7 @@ const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, se
                 <SelectItem value="PENDING">Pending</SelectItem>
                 <SelectItem value="YES">Yes</SelectItem>
                 <SelectItem value="NEEDS_MORE_TRAINING">Needs More Training</SelectItem>
+                <SelectItem value="NOT_INTERESTED">Not Interested</SelectItem>
               </SelectContent>
             </Select>
             <FieldError error={fieldErrors.goLiveReadiness} />
