@@ -114,6 +114,9 @@ const ApplicationFilters = () => {
           <SelectItem value="math">Math</SelectItem>
           <SelectItem value="phonics">Phonics</SelectItem>
           <SelectItem value="gita">Gita</SelectItem>
+          <SelectItem value="science">Science</SelectItem>
+          <SelectItem value="sanatan-unbox">Sanatan Unbox</SelectItem>
+          <SelectItem value="kannada">Kannada</SelectItem>
         </SelectContent>
       </Select>
 
