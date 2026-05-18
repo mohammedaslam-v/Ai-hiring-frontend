@@ -9,20 +9,25 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
+
+
+//t
+
+
 const ApplicationFilters = () => {
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-6 flex-wrap">
       <div className="flex-1 min-w-[300px]">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input 
-            placeholder="Search by name or email..." 
-            className="pl-10 border-bambinos-blue/30 focus:border-bambinos-blue focus:ring-bambinos-blue" 
+          <Input
+            placeholder="Search by name or email..."
+            className="pl-10 border-bambinos-blue/30 focus:border-bambinos-blue focus:ring-bambinos-blue"
             disabled
           />
         </div>
       </div>
-      
+
       {/* Date Range Filters */}
       <div className="flex flex-wrap gap-2 items-center">
         <div>
@@ -46,7 +51,7 @@ const ApplicationFilters = () => {
             </PopoverContent>
           </Popover>
         </div>
-        
+
         <div>
           <Popover>
             <PopoverTrigger asChild>
@@ -69,7 +74,7 @@ const ApplicationFilters = () => {
           </Popover>
         </div>
 
-        <Button 
+        <Button
           variant="ghost"
           size="sm"
           className="text-red-500"
@@ -78,7 +83,7 @@ const ApplicationFilters = () => {
           Clear Dates
         </Button>
       </div>
-      
+
       <Select disabled>
         <SelectTrigger className="w-full md:w-48 border-bambinos-blue/30">
           <SelectValue placeholder="Filter by status" />
