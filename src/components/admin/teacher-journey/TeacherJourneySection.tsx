@@ -1582,7 +1582,9 @@ const SUBJECT_OPTIONS = [
   'Unbox English',
   'Little Yogi',
   'Alpha Maths',
-  'Phonics'
+  'Phonics',
+  'Science',
+  'Kannada'
 ] as const;
 
 const SubjectsMultiSelect: React.FC<SubjectsMultiSelectProps> = ({ selectedSubjects, onSubjectsChange }) => {
