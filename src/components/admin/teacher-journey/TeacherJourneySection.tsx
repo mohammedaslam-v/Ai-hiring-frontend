@@ -56,6 +56,14 @@ import { toast } from 'react-toastify';
 import { getStatusBadgeColors } from '@/constants/teacherJourney/colors';
 import { getSortedIndianLanguages } from '@/constants/indianLanguages';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { validateTeacherJourneySection } from '@/utils/yup/teacherJourneyValidation';
@@ -169,6 +177,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
   const [saving, setSaving] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [showHoldEmailModal, setShowHoldEmailModal] = useState(false);
 
   // Edit form state - stores temporary edits before saving
   const [editData, setEditData] = useState<Partial<TeacherJourney>>({});
@@ -391,10 +400,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       // Build update payload based on active tab
       const updatePayload = buildUpdatePayload(activeTab, editData);
 
-      // Check if status is changing to SELECTED or NOT_SELECTED for automation
+      // Check if status is changing to SELECTED, NOT_SELECTED, or HOLD for automation
       const isStatusChangingToResult = activeTab === 'demo' &&
         editData.demoStatus !== journey.demoStatus &&
-        (editData.demoStatus === 'SELECTED' || editData.demoStatus === 'NOT_SELECTED');
+        (editData.demoStatus === 'SELECTED' || editData.demoStatus === 'NOT_SELECTED' || editData.demoStatus === 'HOLD');
 
       // Validate the section data
       const validation = await validateTeacherJourneySection(activeTab, updatePayload);
@@ -429,8 +438,12 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
 
         // Automatically trigger email sending logic if status changed to a final result
         if (isStatusChangingToResult) {
-          // Pass the new status explicitly to avoid stale state issues
-          handleSendDemoEmail(editData.demoStatus);
+          if (editData.demoStatus === 'HOLD') {
+            setShowHoldEmailModal(true);
+          } else {
+            // Pass the new status explicitly to avoid stale state issues
+            handleSendDemoEmail(editData.demoStatus);
+          }
         }
       } else {
         toast.error(response.message || 'Failed to update');
@@ -913,6 +926,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                   fieldErrors={fieldErrors}
                   onSendDemoEmail={handleSendDemoEmail}
                   sendingEmail={sendingEmail}
+                  onSendHoldEmail={() => setShowHoldEmailModal(true)}
                 />
               )}
               {activeTab === 'induction' && journey && !isRejected && (
@@ -953,7 +967,72 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         </div>
       </div>
       <ConfirmDialog />
-    </div >
+
+      {/* Hold Email Preview Modal */}
+      <Dialog open={showHoldEmailModal} onOpenChange={setShowHoldEmailModal}>
+        <DialogContent className="max-w-md bg-white rounded-lg p-6 shadow-xl border border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600 text-lg font-semibold border-b pb-2">
+              <Mail className="h-5 w-5 animate-pulse" />
+              Send Hold Email?
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 text-xs mt-2">
+              Please review the email content below which will be sent to the candidate:
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="my-4 p-4 bg-slate-50 border border-slate-200 rounded-lg text-[13px] space-y-3 text-slate-700 leading-relaxed font-sans shadow-inner">
+            <div className="font-semibold text-slate-900 border-b pb-2 mb-2 flex justify-between items-center">
+              <span>Subject: Application Status Update - Bambinos.live</span>
+              <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">Preview</span>
+            </div>
+            <p>Dear Candidate,</p>
+            <p>Thank you for applying for the Online Teacher's role at Bambinos.live. Your application is currently on hold as we review the next steps in our selection process.</p>
+            <p>We will get back to you with an update soon. We appreciate your patience and interest in joining our team.</p>
+            <p className="pt-2">Best regards,<br/><strong>Team HR Bambinos.live</strong></p>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0 mt-4 flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowHoldEmailModal(false)}
+              disabled={sendingEmail}
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                setSendingEmail(true);
+                try {
+                  const response = await teacherJourneyService.sendDemoResultEmail(applicationId);
+                  if (response.status) {
+                    toast.success('Hold email sent successfully!');
+                    setShowHoldEmailModal(false);
+                    await fetchJourney();
+                  } else {
+                    toast.error(`Failed to send email: ${response.message}`);
+                  }
+                } catch (error) {
+                  console.error('Error sending hold email:', error);
+                  toast.error('Failed to send hold email');
+                } finally {
+                  setSendingEmail(false);
+                }
+              }}
+              disabled={sendingEmail}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              {sendingEmail ? (
+                <><span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5" />Sending...</>
+              ) : (
+                'Send Email'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 
@@ -1777,6 +1856,7 @@ const DemoSectionHeader: React.FC<{
 interface DemoSectionProps extends SectionProps {
   onSendDemoEmail?: () => void;
   sendingEmail?: boolean;
+  onSendHoldEmail?: () => void;
 }
 
 const DemoSection: React.FC<DemoSectionProps> = ({
@@ -1786,7 +1866,8 @@ const DemoSection: React.FC<DemoSectionProps> = ({
   setEditData,
   fieldErrors = {},
   onSendDemoEmail,
-  sendingEmail = false
+  sendingEmail = false,
+  onSendHoldEmail
 }) => {
   const { user } = useAuth();
   const { interviewers } = useInterviewers();
@@ -1942,6 +2023,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({
             }
 
             const isSelected = emailType === 'SELECTED';
+            const isHold = emailType === 'HOLD';
             const formattedDateTime = emailSentAt
               ? new Date(emailSentAt).toLocaleString('en-GB', {
                 day: '2-digit',
@@ -1957,9 +2039,15 @@ const DemoSection: React.FC<DemoSectionProps> = ({
               <div className="mt-1 flex items-center gap-1.5 flex-wrap">
                 <Badge
                   variant="outline"
-                  className={`h-5 text-[10px] ${isSelected ? 'bg-green-100 text-green-700 border-green-300' : 'bg-red-100 text-red-700 border-red-300'}`}
+                  className={`h-5 text-[10px] ${
+                    isHold 
+                      ? 'bg-amber-100 text-amber-700 border-amber-300' 
+                      : isSelected 
+                        ? 'bg-green-100 text-green-700 border-green-300' 
+                        : 'bg-red-100 text-red-700 border-red-300'
+                  }`}
                 >
-                  {isSelected ? 'Selected' : 'Not Selected'}
+                  {isHold ? 'Hold' : isSelected ? 'Selected' : 'Not Selected'}
                 </Badge>
                 {emailSentCount > 1 && (
                   <Badge variant="outline" className="h-5 text-[10px] bg-blue-100 text-blue-700 border-blue-300">
@@ -1977,15 +2065,23 @@ const DemoSection: React.FC<DemoSectionProps> = ({
       </div>
 
       {/* Action Row for Email */}
-      {!isHireEmail && ((!editMode && (journey.demoStatus === 'SELECTED' || journey.demoStatus === 'NOT_SELECTED')) ||
-        (editMode && (data.demoStatus === 'SELECTED' || data.demoStatus === 'NOT_SELECTED'))) && onSendDemoEmail && (
+      {!isHireEmail && ((!editMode && (journey.demoStatus === 'SELECTED' || journey.demoStatus === 'NOT_SELECTED' || journey.demoStatus === 'HOLD')) ||
+        (editMode && (data.demoStatus === 'SELECTED' || data.demoStatus === 'NOT_SELECTED' || data.demoStatus === 'HOLD'))) && onSendDemoEmail && (
           <div className="mb-2 flex flex-wrap items-center gap-3">
             <Button
-              onClick={() => onSendDemoEmail?.()}
+              onClick={() => {
+                if ((!editMode && journey.demoStatus === 'HOLD') || (editMode && data.demoStatus === 'HOLD')) {
+                  onSendHoldEmail?.();
+                } else {
+                  onSendDemoEmail?.();
+                }
+              }}
               disabled={sendingEmail || editMode}
-              className={`text-white shadow-sm h-7 px-3 text-[10px] ${(!editMode && journey.demoStatus === 'SELECTED') || (editMode && data.demoStatus === 'SELECTED')
+              className={`text-white shadow-sm h-7 px-3 text-[10px] ${((!editMode && journey.demoStatus === 'SELECTED') || (editMode && data.demoStatus === 'SELECTED'))
                 ? 'bg-emerald-500 hover:bg-emerald-600'
-                : 'bg-slate-600 hover:bg-slate-700'
+                : ((!editMode && journey.demoStatus === 'HOLD') || (editMode && data.demoStatus === 'HOLD'))
+                  ? 'bg-amber-600 hover:bg-amber-700'
+                  : 'bg-slate-600 hover:bg-slate-700'
                 }`}
             >
               {sendingEmail ? (
