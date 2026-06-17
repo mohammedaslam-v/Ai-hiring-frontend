@@ -28,7 +28,8 @@ import {
   Video,
   Eye,
   Download,
-  FileText
+  FileText,
+  ClipboardCheck
 } from "lucide-react";
 import { teacherJourneyService } from '@/services/teacherJourney.service';
 import {
@@ -72,6 +73,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { useInterviewers } from '@/hooks/admin/useInterviewers';
 import { useDemoTrainers } from '@/hooks/demo/useDemoTrainers';
+import ScorecardGraderDialog from './ScorecardGraderDialog';
 
 // ============================================
 // TYPES
@@ -937,7 +939,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                 <TrainingSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} demoTrainers={demoTrainers} />
               )}
               {activeTab === 'certification' && journey && !isRejected && (
-                <CertificationSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} interviewers={interviewers} />
+                <CertificationSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} interviewers={interviewers} candidateName={candidateName} />
               )}
               {activeTab === 'goLive' && journey && !isRejected && (
                 <GoLiveSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
@@ -1049,6 +1051,7 @@ interface SectionProps {
   fieldErrors?: Record<string, string>;
   demoTrainers?: { id: number; name: string }[];
   interviewers?: { id: number; name: string }[];
+  candidateName?: string;
 }
 
 // AI ROUND SECTION (Read-only - data from interview, not editable in journey)
@@ -2306,8 +2309,9 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
 };
 
 // CERTIFICATION SECTION
-const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, interviewers = [] }) => {
+const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, interviewers = [], candidateName }) => {
   const data = editMode ? editData : journey;
+  const [scorecardOpen, setScorecardOpen] = useState(false);
 
   return (
     <div className="space-y-5">
@@ -2375,6 +2379,22 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
         )}
       </div>
 
+      {/* Mock-assessment scorecard launcher (frontend-only grader) */}
+      <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
+        <div>
+          <p className="text-sm font-medium text-slate-700">Mock Assessment Scorecard</p>
+          <p className="text-xs text-slate-400">Open the rubric grader to score this candidate's demo.</p>
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          className="h-8 rounded-xl text-xs bg-[#1E62F2] hover:bg-[#1751cc]"
+          onClick={() => setScorecardOpen(true)}
+        >
+          <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" /> Score
+        </Button>
+      </div>
+
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
         <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Feedback</Label>
         {editMode ? (
@@ -2388,6 +2408,12 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
           <p className="text-sm text-slate-700 mt-1">{journey.certificationFeedback || <span className="text-slate-400 italic">No feedback</span>}</p>
         )}
       </div>
+
+      <ScorecardGraderDialog
+        open={scorecardOpen}
+        onOpenChange={setScorecardOpen}
+        defaultCandidateName={candidateName}
+      />
 
       {/* Conditional Training Count - Only shown when "Need More Training" is selected */}
       {((editMode ? editData.certificationStatus : journey.certificationStatus) === 'NEED_MORE_TRAINING') && (
