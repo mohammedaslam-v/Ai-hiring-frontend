@@ -162,12 +162,12 @@ export const trainingSectionValidation = Yup.object().shape({
 export const certificationSectionValidation = Yup.object().shape({
   certificationStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_REQUIRED)
-    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
+    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
 
   certificationDate: Yup.string()
     .nullable()
     .when('certificationStatus', {
-      is: (status: CertificationStatus) => ['CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'].includes(status),
+      is: (status: CertificationStatus) => ['CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'].includes(status),
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_REQUIRED)
         .test('is-valid-date', TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_INVALID, (value) => isValidDate(value))
@@ -260,7 +260,7 @@ const paidTrainingSectionValidation = Yup.object().shape({
 const paidCertificationSectionValidation = Yup.object().shape({
   paidCertificationStatus: Yup.string()
     .required('Paid certification status is required')
-    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'],
+    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'],
       'Invalid paid certification status'),
 
   paidCertificationDate: Yup.string()

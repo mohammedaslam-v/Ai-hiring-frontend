@@ -148,6 +148,11 @@ export const getStatusBadgeColors = (status: string): { bg: string; text: string
       text: 'text-[hsl(38,92%,50%)]',
       border: 'border-[hsl(38,92%,50%)]',
     },
+    'SECOND_MOCK_REQUIRED': {
+      bg: 'bg-[hsl(38,92%,50%,0.1)]',
+      text: 'text-[hsl(38,92%,50%)]',
+      border: 'border-[hsl(38,92%,50%)]',
+    },
   };
 
   return statusMap[status] || {
