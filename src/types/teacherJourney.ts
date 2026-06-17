@@ -77,7 +77,7 @@ export interface TeacherJourney {
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED' | 'HOLD' | 'NOT_INTERESTED';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
 export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING' | 'NOT_INTERESTED';
-export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
+export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'SECOND_MOCK_REQUIRED' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING' | 'NOT_INTERESTED';
 export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
@@ -251,6 +251,7 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'CLEARED', label: 'Cleared' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
   { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
+  { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'JOINING_FORM_SENT', label: 'Joining Form Sent' },
   { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
   { value: 'PORTAL_HW_SUBMITTED', label: 'Portal HW Submitted' },
@@ -360,6 +361,7 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
     'CLEARED': 'Cleared',
     'NOT_CLEARED': 'Not Cleared',
     'NEED_MORE_TRAINING': 'Need More Training',
+    'SECOND_MOCK_REQUIRED': 'Second Mock Required',
     'JOINING_FORM_SENT': 'Joining Form Sent',
     'OFFER_LETTER_SENT_PORTAL_CREATED': 'Offer Letter Sent / Portal Created',
     'PORTAL_HW_SUBMITTED': 'Portal HW Submitted',
