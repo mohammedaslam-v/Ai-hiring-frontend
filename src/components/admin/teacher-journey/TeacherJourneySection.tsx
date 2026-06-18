@@ -31,7 +31,7 @@ import {
   FileText,
   ClipboardCheck
 } from "lucide-react";
-import { teacherJourneyService } from '@/services/teacherJourney.service';
+import { teacherJourneyService, MockAssessment } from '@/services/teacherJourney.service';
 import {
   TeacherJourney,
   DemoStatus,
@@ -2312,6 +2312,29 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
 const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, interviewers = [], candidateName }) => {
   const data = editMode ? editData : journey;
   const [scorecardOpen, setScorecardOpen] = useState(false);
+  const [latestScorecard, setLatestScorecard] = useState<MockAssessment | null>(null);
+
+  // Load the latest submitted scorecard so we can show a badge / change the button label
+  const loadScorecard = useCallback(() => {
+    if (!journey.applicationId) return;
+    teacherJourneyService.getMockAssessments(journey.applicationId).then(res => {
+      setLatestScorecard(res.status && res.data && res.data.length > 0 ? res.data[0] : null);
+    });
+  }, [journey.applicationId]);
+
+  useEffect(() => { loadScorecard(); }, [loadScorecard]);
+
+  const scorecardResult = latestScorecard?.overallResult;
+  const scorecardBadgeClass = scorecardResult === 'SELECTED'
+    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    : scorecardResult === 'REJECTED'
+      ? 'bg-red-50 text-red-700 border-red-200'
+      : 'bg-blue-50 text-blue-700 border-blue-200';
+  const scorecardBadgeLabel = scorecardResult === 'SELECTED'
+    ? 'Scored · Selected'
+    : scorecardResult === 'REJECTED'
+      ? 'Scored · Rejected'
+      : 'Scored';
 
   return (
     <div className="space-y-5">
@@ -2379,11 +2402,23 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
         )}
       </div>
 
-      {/* Mock-assessment scorecard launcher (frontend-only grader) */}
+      {/* Mock-assessment scorecard launcher */}
       <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
         <div>
-          <p className="text-sm font-medium text-slate-700">Mock Assessment Scorecard</p>
-          <p className="text-xs text-slate-400">Open the rubric grader to score this candidate's demo.</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-slate-700">Mock Assessment Scorecard</p>
+            {latestScorecard && (
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${scorecardBadgeClass}`}>
+                {scorecardResult === 'SELECTED' ? <CheckCircle2 className="w-3 h-3" />
+                  : scorecardResult === 'REJECTED' ? <XCircle className="w-3 h-3" />
+                    : <ClipboardCheck className="w-3 h-3" />}
+                {scorecardBadgeLabel}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-slate-400">
+            {latestScorecard ? "Scorecard submitted — view or update the candidate's scores." : "Open the rubric grader to score this candidate's demo."}
+          </p>
         </div>
         <Button
           type="button"
@@ -2391,7 +2426,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
           className="h-8 rounded-xl text-xs bg-[#1E62F2] hover:bg-[#1751cc]"
           onClick={() => setScorecardOpen(true)}
         >
-          <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" /> Score
+          <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" /> {latestScorecard ? 'View / Edit Score' : 'Score'}
         </Button>
       </div>
 
@@ -2413,6 +2448,8 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
         open={scorecardOpen}
         onOpenChange={setScorecardOpen}
         defaultCandidateName={candidateName}
+        applicationId={journey.applicationId}
+        onSaved={loadScorecard}
       />
 
       {/* Conditional Training Count - Only shown when "Need More Training" is selected */}

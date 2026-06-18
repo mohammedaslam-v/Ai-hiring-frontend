@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./styles/toastify.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -94,10 +95,10 @@ const App = () => (
         <Toaster />
         <Sonner />
         <ToastContainer
-          position="top-right"
-          autoClose={5000}
+          position="top-center"
+          autoClose={3500}
           hideProgressBar={false}
-          newestOnTop={false}
+          newestOnTop
           closeOnClick
           rtl={false}
           pauseOnFocusLoss
