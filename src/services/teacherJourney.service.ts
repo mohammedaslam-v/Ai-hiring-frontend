@@ -56,6 +56,50 @@ export interface JourneyStatusData {
   progress: number;
 }
 
+// ===== Mock Assessment (certification scorecard) =====
+export interface MockAssessmentScores {
+  [criterionKey: string]: number;
+}
+
+export interface SaveMockAssessmentData {
+  applicationId: string;
+  evaluatorName?: string;
+  assessmentDate?: string;
+  subject?: string;
+  gradeSegment?: string;
+  demoTopic?: string;
+  scores?: MockAssessmentScores;
+  overallResult?: 'SELECTED' | 'REJECTED';
+  strengths?: string;
+  improvements?: string;
+  nextSteps?: string;
+}
+
+export interface MockAssessment {
+  id: number;
+  candidateId: number;
+  applicationId: string;
+  evaluatorName: string | null;
+  assessmentDate: string | null;
+  subject: string | null;
+  gradeSegment: string | null;
+  demoTopic: string | null;
+  scores: MockAssessmentScores | null;
+  languageAverage: number | null;
+  deliveryAverage: number | null;
+  parentAverage: number | null;
+  overallResult: string | null;
+  strengths: string | null;
+  improvements: string | null;
+  nextSteps: string | null;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 class TeacherJourneyService {
   private baseUrl = '/api/admin/teacher-journey';
 
@@ -564,6 +608,116 @@ class TeacherJourneyService {
       };
     } catch (error: unknown) {
       console.error('Error deleting interviewer:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
+      };
+    }
+  }
+
+  // Save (create) a mock assessment scorecard
+  async saveMockAssessment(data: SaveMockAssessmentData): Promise<{
+    status: boolean;
+    message: string;
+    data?: MockAssessment;
+    error?: string;
+  }> {
+    try {
+      const response = await axiosInstance.post<ApiResponse<MockAssessment>>(
+        `${this.baseUrl}/mock-assessment`,
+        data
+      );
+
+      if (response.data.status) {
+        return {
+          status: true,
+          message: response.data.msg,
+          data: response.data.data
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.msg || 'Failed to save mock assessment',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error saving mock assessment:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
+      };
+    }
+  }
+
+  // Update an existing mock assessment scorecard
+  async updateMockAssessment(id: number, data: Partial<SaveMockAssessmentData>): Promise<{
+    status: boolean;
+    message: string;
+    data?: MockAssessment;
+    error?: string;
+  }> {
+    try {
+      const response = await axiosInstance.patch<ApiResponse<MockAssessment>>(
+        `${this.baseUrl}/mock-assessment/${id}`,
+        data
+      );
+
+      if (response.data.status) {
+        return {
+          status: true,
+          message: response.data.msg,
+          data: response.data.data
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.msg || 'Failed to update mock assessment',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error updating mock assessment:', error);
+      const err = error as { response?: { data?: { msg?: string } }; message?: string };
+      return {
+        status: false,
+        message: err?.response?.data?.msg || 'Network error',
+        error: err?.message
+      };
+    }
+  }
+
+  // List a candidate's mock assessment scorecards (newest first)
+  async getMockAssessments(applicationId: string): Promise<{
+    status: boolean;
+    message: string;
+    data?: MockAssessment[];
+    error?: string;
+  }> {
+    try {
+      const response = await axiosInstance.get<ApiResponse<MockAssessment[]>>(
+        `${this.baseUrl}/mock-assessment/application/${applicationId}`
+      );
+
+      if (response.data.status) {
+        return {
+          status: true,
+          message: response.data.msg,
+          data: response.data.data
+        };
+      }
+
+      return {
+        status: false,
+        message: response.data.msg || 'Failed to fetch mock assessments',
+        error: response.data.error
+      };
+    } catch (error: unknown) {
+      console.error('Error fetching mock assessments:', error);
       const err = error as { response?: { data?: { msg?: string } }; message?: string };
       return {
         status: false,

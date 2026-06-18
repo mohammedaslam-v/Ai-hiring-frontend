@@ -10,8 +10,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Printer, RotateCcw, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Printer, RotateCcw, CheckCircle2, XCircle, Clock, Save, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "react-toastify";
+import { teacherJourneyService } from "@/services/teacherJourney.service";
 
 // ============================================
 // SCORECARD CONFIG
@@ -28,6 +30,7 @@ const SUBJECTS = [
   { value: 'Maths', label: 'Mathematics' },
   { value: 'English', label: 'English' },
   { value: 'Gita', label: 'Gita' },
+  { value: 'Phonics', label: 'Phonics' },
 ] as const;
 
 const GRADE_SEGMENTS = [
@@ -84,12 +87,16 @@ interface ScorecardGraderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultCandidateName?: string;
+  applicationId?: string;
+  onSaved?: () => void;
 }
 
 const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
   open,
   onOpenChange,
   defaultCandidateName = '',
+  applicationId,
+  onSaved,
 }) => {
   // Metadata
   const [candidateName, setCandidateName] = useState(defaultCandidateName);
@@ -107,10 +114,53 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
   const [improvements, setImprovements] = useState('');
   const [nextSteps, setNextSteps] = useState('');
 
+  // Save state
+  const [saving, setSaving] = useState(false);
+  // Loading + the id of the existing scorecard (so we update instead of duplicating)
+  const [loading, setLoading] = useState(false);
+  const [loadedId, setLoadedId] = useState<number | null>(null);
+  // Becomes true after a save attempt with missing fields — drives the red highlighting
+  const [showErrors, setShowErrors] = useState(false);
+
   // Prefill candidate name when reopened
   React.useEffect(() => {
     if (open) setCandidateName(prev => prev || defaultCandidateName);
   }, [open, defaultCandidateName]);
+
+  // When opened, load the latest saved scorecard for this candidate (if any) and prefill the form
+  React.useEffect(() => {
+    if (!open || !applicationId) return;
+    let cancelled = false;
+    setLoading(true);
+    setShowErrors(false);
+    teacherJourneyService.getMockAssessments(applicationId)
+      .then(res => {
+        if (cancelled) return;
+        const latest = res.status && res.data && res.data.length > 0 ? res.data[0] : null;
+        if (latest) {
+          setLoadedId(latest.id);
+          setEvaluatorName(latest.evaluatorName || '');
+          setAssessDate(latest.assessmentDate ? latest.assessmentDate.split('T')[0] : '');
+          setSubject(latest.subject || 'Science');
+          setGrade(latest.gradeSegment || '1-4');
+          setDemoTopic(latest.demoTopic || '');
+          setScores(latest.scores || {});
+          setRecommendation(
+            latest.overallResult === 'SELECTED' ? 'YES'
+              : latest.overallResult === 'REJECTED' ? 'NO'
+                : null
+          );
+          setStrengths(latest.strengths || '');
+          setImprovements(latest.improvements || '');
+          setNextSteps(latest.nextSteps || '');
+          setCandidateName(latest.firstName ? `${latest.firstName} ${latest.lastName || ''}`.trim() : defaultCandidateName);
+        } else {
+          setLoadedId(null);
+        }
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [open, applicationId, defaultCandidateName]);
 
   const setScore = (key: string, value: number) =>
     setScores(prev => ({ ...prev, [key]: value }));
@@ -132,12 +182,24 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
     return result;
   }, [scores]);
 
-  // Final recommendation: selected only when ALL sections fully averaged and >= threshold
-  const recommendation = useMemo<'YES' | 'NO' | null>(() => {
-    const avgs = SECTIONS.map(s => sectionAverages[s.key]);
-    if (avgs.some(a => a === null)) return null;
-    return avgs.every(a => (a as number) >= PASS_THRESHOLD) ? 'YES' : 'NO';
-  }, [sectionAverages]);
+  // Final recommendation — chosen MANUALLY by the evaluator (not auto-derived from scores)
+  const [recommendation, setRecommendation] = useState<'YES' | 'NO' | null>(null);
+
+  // ----- required-field validation -----
+  const allScoreKeys = useMemo(() => SECTIONS.flatMap(s => s.criteria.map(c => c.key)), []);
+  const missingScoreKeys = allScoreKeys.filter(k => scores[k] === undefined);
+  const errors = {
+    candidateName: !candidateName.trim(),
+    evaluatorName: !evaluatorName.trim(),
+    assessDate: !assessDate,
+    demoTopic: !demoTopic.trim(),
+    strengths: !strengths.trim(),
+    improvements: !improvements.trim(),
+    nextSteps: !nextSteps.trim(),
+    recommendation: recommendation === null,
+    scores: missingScoreKeys.length > 0,
+  };
+  const hasErrors = Object.values(errors).some(Boolean);
 
   const handleReset = () => {
     setScores({});
@@ -150,6 +212,51 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
     setSubject('Science');
     setGrade('1-4');
     setCandidateName(defaultCandidateName);
+    setRecommendation(null);
+    setShowErrors(false);
+  };
+
+  const handleSave = async () => {
+    if (!applicationId) {
+      toast.error('Missing application ID — cannot save scorecard.');
+      return;
+    }
+    if (hasErrors) {
+      setShowErrors(true);
+      toast.error('Please fill all required fields before saving.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const payload = {
+        applicationId,
+        evaluatorName: evaluatorName || undefined,
+        assessmentDate: assessDate || undefined,
+        subject,
+        gradeSegment: grade,
+        demoTopic: demoTopic || undefined,
+        scores,
+        overallResult: recommendation === 'YES' ? 'SELECTED' : recommendation === 'NO' ? 'REJECTED' : undefined,
+        strengths: strengths || undefined,
+        improvements: improvements || undefined,
+        nextSteps: nextSteps || undefined,
+      } as const;
+
+      // Update the existing scorecard if one was loaded, otherwise create a new one
+      const result = loadedId
+        ? await teacherJourneyService.updateMockAssessment(loadedId, payload)
+        : await teacherJourneyService.saveMockAssessment(payload);
+
+      if (result.status) {
+        toast.success(loadedId ? 'Scorecard updated' : 'Scorecard saved successfully');
+        onSaved?.();
+        onOpenChange(false);
+      } else {
+        toast.error(result.message || 'Failed to save scorecard');
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -180,37 +287,46 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="mt-5 flex justify-end gap-3">
-            <Button type="button" variant="outline" size="sm" className="h-9 rounded-lg text-[11px] font-bold uppercase tracking-wide" onClick={handleReset}>
+          {/* Utility actions */}
+          <div className="mt-5 flex items-center justify-end gap-3">
+            {loading && (
+              <span className="mr-auto flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading saved scorecard…
+              </span>
+            )}
+            <Button type="button" variant="outline" size="sm" className="h-9 rounded-lg text-[11px] font-bold uppercase tracking-wide" onClick={handleReset} disabled={saving || loading}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Clear Form
             </Button>
-            <Button type="button" size="sm" className="h-9 rounded-lg bg-[#2563eb] text-[11px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-[#1d4ed8]" onClick={() => window.print()}>
+            <Button type="button" variant="outline" size="sm" className="h-9 rounded-lg text-[11px] font-bold uppercase tracking-wide" onClick={() => window.print()} disabled={saving || loading}>
               <Printer className="mr-1.5 h-3.5 w-3.5" /> Print / Save PDF
             </Button>
           </div>
 
           {/* Metadata grid */}
           <div className="mt-5 grid grid-cols-1 gap-3 rounded-xl border border-[#2563eb]/15 bg-[#2563eb]/[0.06] p-4 sm:grid-cols-3">
-            <MetaField label="Candidate Name">
-              <Input value={candidateName} onChange={e => setCandidateName(e.target.value)} placeholder="Enter name" className="h-9 bg-white text-xs font-semibold" />
+            <MetaField label="Candidate Name" required>
+              <Input value={candidateName} onChange={e => setCandidateName(e.target.value)} placeholder="Enter name"
+                className={cn('h-9 bg-white text-xs font-semibold', showErrors && errors.candidateName && 'border-red-500 focus-visible:ring-red-500')} />
             </MetaField>
-            <MetaField label="Evaluator Name">
-              <Input value={evaluatorName} onChange={e => setEvaluatorName(e.target.value)} placeholder="Enter name" className="h-9 bg-white text-xs font-semibold" />
+            <MetaField label="Evaluator Name" required>
+              <Input value={evaluatorName} onChange={e => setEvaluatorName(e.target.value)} placeholder="Enter name"
+                className={cn('h-9 bg-white text-xs font-semibold', showErrors && errors.evaluatorName && 'border-red-500 focus-visible:ring-red-500')} />
             </MetaField>
-            <MetaField label="Assessment Date">
-              <Input type="date" value={assessDate} onChange={e => setAssessDate(e.target.value)} className="h-9 bg-white text-xs font-semibold" />
+            <MetaField label="Assessment Date" required>
+              <Input type="date" value={assessDate} onChange={e => setAssessDate(e.target.value)}
+                className={cn('h-9 bg-white text-xs font-semibold', showErrors && errors.assessDate && 'border-red-500 focus-visible:ring-red-500')} />
             </MetaField>
 
-            <MetaField label="Subject / Course" className="sm:col-span-2">
+            <MetaField label="Subject / Course" className="sm:col-span-2" required>
               <PillGroup options={SUBJECTS} value={subject} onChange={setSubject} />
             </MetaField>
-            <MetaField label="Grade Segment">
+            <MetaField label="Grade Segment" required>
               <PillGroup options={GRADE_SEGMENTS} value={grade} onChange={setGrade} />
             </MetaField>
 
-            <MetaField label="Demo Topic Covered" className="sm:col-span-3">
-              <Input value={demoTopic} onChange={e => setDemoTopic(e.target.value)} placeholder="e.g. Fractions, Gravity, Subject-Verb Agreement" className="h-9 bg-white text-xs font-semibold" />
+            <MetaField label="Demo Topic Covered" className="sm:col-span-3" required>
+              <Input value={demoTopic} onChange={e => setDemoTopic(e.target.value)} placeholder="e.g. Fractions, Gravity, Subject-Verb Agreement"
+                className={cn('h-9 bg-white text-xs font-semibold', showErrors && errors.demoTopic && 'border-red-500 focus-visible:ring-red-500')} />
             </MetaField>
           </div>
 
@@ -230,13 +346,15 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
                   <div className={cn(ROW_GRID, 'hidden border-b border-slate-200 bg-slate-50 px-4 py-2 sm:grid')}>
                     <span className="text-[9px] font-bold uppercase tracking-wide text-slate-600">Assessment Rubric</span>
                     <span className="text-[9px] font-bold uppercase tracking-wide text-slate-600">Detailed Criteria Description</span>
-                    <span className="text-center text-[9px] font-bold uppercase tracking-wide text-slate-600">Score (0 - 5)</span>
+                    <span className="text-center text-[9px] font-bold uppercase tracking-wide text-slate-600">Score (0 - 5)<span className="ml-0.5 text-red-500">*</span></span>
                   </div>
 
                   {/* Criteria rows */}
                   <div className="divide-y divide-slate-100">
-                    {section.criteria.map(c => (
-                      <div key={c.key} className={cn(ROW_GRID, 'items-center px-4 py-3')}>
+                    {section.criteria.map(c => {
+                      const rowMissing = showErrors && scores[c.key] === undefined;
+                      return (
+                      <div key={c.key} className={cn(ROW_GRID, 'items-center px-4 py-3', rowMissing && 'bg-red-50')}>
                         <div className="text-xs font-semibold text-slate-900">{c.title}</div>
                         <div className="text-[11px] leading-relaxed text-slate-500">{c.desc}</div>
                         <div className="flex justify-start gap-1.5 sm:justify-center">
@@ -251,7 +369,9 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
                                   'h-[22px] w-[22px] rounded border text-[10px] font-bold transition-colors',
                                   selected
                                     ? 'border-[#2563eb] bg-[#2563eb] text-white shadow-[0_2px_4px_rgba(37,99,235,0.3)]'
-                                    : 'border-slate-300 bg-white text-slate-500 hover:border-[#2563eb] hover:bg-[#2563eb]/5 hover:text-[#2563eb]'
+                                    : rowMissing
+                                      ? 'border-red-400 bg-white text-red-500 hover:border-[#2563eb] hover:bg-[#2563eb]/5 hover:text-[#2563eb]'
+                                      : 'border-slate-300 bg-white text-slate-500 hover:border-[#2563eb] hover:bg-[#2563eb]/5 hover:text-[#2563eb]'
                                 )}
                               >
                                 {v}
@@ -260,7 +380,8 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
                           })}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
 
                     {/* Section summary */}
                     <div className="flex items-center justify-between bg-slate-50 px-4 py-3">
@@ -282,29 +403,40 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
               'mt-6 flex items-center justify-between rounded-xl border-2 px-5 py-4 transition-colors',
               recommendation === 'YES' && 'border-emerald-600 bg-emerald-50',
               recommendation === 'NO' && 'border-red-600 bg-red-50',
-              recommendation === null && 'border-slate-900 bg-slate-50'
+              recommendation === null && (showErrors && errors.recommendation ? 'border-red-500 bg-red-50' : 'border-slate-900 bg-slate-50')
             )}
           >
             <span className="text-[13px] font-extrabold uppercase tracking-wide text-slate-900">
-              Selected for Demo / Paid Sessions:
+              Selected for Demo / Paid Sessions:<span className="ml-0.5 text-red-500">*</span>
             </span>
             <div className="flex items-center gap-5">
-              <RecommendationChoice label="YES" active={recommendation === 'YES'} tone="yes" />
-              <RecommendationChoice label="NO" active={recommendation === 'NO'} tone="no" />
+              <RecommendationChoice label="YES" active={recommendation === 'YES'} tone="yes" onClick={() => setRecommendation('YES')} />
+              <RecommendationChoice label="NO" active={recommendation === 'NO'} tone="no" onClick={() => setRecommendation('NO')} />
             </div>
           </div>
 
           {/* Qualitative comments */}
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <CommentField label="Candidate Key Strengths" value={strengths} onChange={setStrengths} placeholder="Write key strengths..." />
-            <CommentField label="Areas of Improvement / Action Items" value={improvements} onChange={setImprovements} placeholder="Write areas to improve..." />
-            <CommentField label="Actionable Next Steps" value={nextSteps} onChange={setNextSteps} placeholder="Write next steps..." className="sm:col-span-2" />
+            <CommentField label="Candidate Key Strengths" value={strengths} onChange={setStrengths} placeholder="Write key strengths..." required error={showErrors && errors.strengths} />
+            <CommentField label="Areas of Improvement / Action Items" value={improvements} onChange={setImprovements} placeholder="Write areas to improve..." required error={showErrors && errors.improvements} />
+            <CommentField label="Actionable Next Steps" value={nextSteps} onChange={setNextSteps} placeholder="Write next steps..." className="sm:col-span-2" required error={showErrors && errors.nextSteps} />
           </div>
 
           {/* Footer */}
           <p className="mt-6 border-t border-slate-200 pt-3 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400">
             Bambinos Learning Solutions © 2026 | Private and Confidential
           </p>
+        </div>
+
+        {/* Sticky action footer (always visible while scrolling) */}
+        <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 border-t border-slate-200 bg-white px-6 py-3">
+          <Button type="button" variant="outline" size="sm" className="h-9 rounded-lg text-[11px] font-bold uppercase tracking-wide" onClick={() => onOpenChange(false)} disabled={saving}>
+            Cancel
+          </Button>
+          <Button type="button" size="sm" className="h-9 rounded-lg bg-[#2563eb] text-[11px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-[#1d4ed8]" onClick={handleSave} disabled={saving || loading}>
+            {saving ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Save className="mr-1.5 h-3.5 w-3.5" />}
+            {saving ? 'Saving...' : loadedId ? 'Update Scorecard' : 'Save Scorecard'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -313,9 +445,11 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
 
 // ---- small presentational helpers ----
 
-const MetaField: React.FC<{ label: string; className?: string; children: React.ReactNode }> = ({ label, className, children }) => (
+const MetaField: React.FC<{ label: string; className?: string; required?: boolean; children: React.ReactNode }> = ({ label, className, required, children }) => (
   <div className={cn('flex flex-col gap-1', className)}>
-    <Label className="text-[9px] font-extrabold uppercase tracking-wide text-[#2563eb]">{label}</Label>
+    <Label className="text-[9px] font-extrabold uppercase tracking-wide text-[#2563eb]">
+      {label}{required && <span className="ml-0.5 text-red-500">*</span>}
+    </Label>
     {children}
   </div>
 );
@@ -350,15 +484,19 @@ const CommentField: React.FC<{
   onChange: (v: string) => void;
   placeholder: string;
   className?: string;
-}> = ({ label, value, onChange, placeholder, className }) => (
+  required?: boolean;
+  error?: boolean;
+}> = ({ label, value, onChange, placeholder, className, required, error }) => (
   <div className={cn('flex flex-col gap-1.5', className)}>
-    <Label className="text-[9px] font-extrabold uppercase tracking-wide text-[#2563eb]">{label}</Label>
+    <Label className="text-[9px] font-extrabold uppercase tracking-wide text-[#2563eb]">
+      {label}{required && <span className="ml-0.5 text-red-500">*</span>}
+    </Label>
     <Textarea
       value={value}
       onChange={e => onChange(e.target.value)}
       rows={3}
       placeholder={placeholder}
-      className="border-dashed text-[11px] font-medium focus:border-solid"
+      className={cn('border-dashed text-[11px] font-medium focus:border-solid', error && 'border-red-500 border-solid focus-visible:ring-red-500')}
     />
   </div>
 );
@@ -387,11 +525,11 @@ const SectionBadge: React.FC<{ avg: number | null }> = ({ avg }) => {
 };
 
 // Read-only YES / NO indicator (auto-derived from scores)
-const RecommendationChoice: React.FC<{ label: string; active: boolean; tone: 'yes' | 'no' }> = ({ label, active, tone }) => (
-  <span className="flex items-center gap-2 text-xs font-bold text-slate-900">
+const RecommendationChoice: React.FC<{ label: string; active: boolean; tone: 'yes' | 'no'; onClick: () => void }> = ({ label, active, tone, onClick }) => (
+  <button type="button" onClick={onClick} className="flex items-center gap-2 text-xs font-bold text-slate-900">
     <span
       className={cn(
-        'flex h-4 w-4 items-center justify-center rounded-[3px] border-2',
+        'flex h-4 w-4 items-center justify-center rounded-[3px] border-2 transition-colors',
         !active && 'border-slate-900 bg-white',
         active && tone === 'yes' && 'border-emerald-600 bg-emerald-600',
         active && tone === 'no' && 'border-red-600 bg-red-600'
@@ -404,7 +542,7 @@ const RecommendationChoice: React.FC<{ label: string; active: boolean; tone: 'ye
       )}
     </span>
     {label}
-  </span>
+  </button>
 );
 
 export default ScorecardGraderDialog;
