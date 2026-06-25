@@ -77,7 +77,7 @@ export interface TeacherJourney {
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED' | 'HOLD' | 'NOT_INTERESTED';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
 export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING' | 'NOT_INTERESTED';
-export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'SECOND_MOCK_REQUIRED' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
+export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'SECOND_MOCK_REQUIRED' | 'CALIBRATION_REQUIRED' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING' | 'NOT_INTERESTED';
 export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
@@ -258,6 +258,40 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
+// Demo Certification update dropdown options. This list intentionally diverges
+// from CERTIFICATION_STATUS_OPTIONS: it drops the post-clearance statuses
+// (Joining Form Sent, Offer Letter Sent / Portal Created, Portal HW Submitted)
+// and adds the Demo-only "Calibration Required" status after "Second Mock Required".
+// The full CERTIFICATION_STATUS_OPTIONS list above is still used by the Paid
+// Certification dropdown and the certification filters.
+export const DEMO_CERTIFICATION_STATUS_OPTIONS = [
+  { value: 'all', label: 'All Certification' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'CLEARED', label: 'Cleared' },
+  { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
+  { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
+  { value: 'CALIBRATION_REQUIRED', label: 'Calibration Required' },
+  { value: 'NOT_INTERESTED', label: 'Not Interested' }
+];
+
+// Paid Certification update dropdown options. Like the Demo list it adds
+// "Calibration Required" after "Second Mock Required" and hides "Joining Form
+// Sent" and "Portal HW Submitted" — but unlike Demo it KEEPS "Offer Letter Sent
+// / Portal Created". The full CERTIFICATION_STATUS_OPTIONS list above is still
+// used by the certification filters.
+export const PAID_CERTIFICATION_STATUS_OPTIONS = [
+  { value: 'all', label: 'All Certification' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'CLEARED', label: 'Cleared' },
+  { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
+  { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
+  { value: 'CALIBRATION_REQUIRED', label: 'Calibration Required' },
+  { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
+  { value: 'NOT_INTERESTED', label: 'Not Interested' }
+];
+
 export const GO_LIVE_OPTIONS = [
   { value: 'all', label: 'All Go-Live Status' },
   { value: 'PENDING', label: 'Pending' },
@@ -362,6 +396,7 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
     'NOT_CLEARED': 'Not Cleared',
     'NEED_MORE_TRAINING': 'Need More Training',
     'SECOND_MOCK_REQUIRED': 'Second Mock Required',
+    'CALIBRATION_REQUIRED': 'Calibration Required',
     'JOINING_FORM_SENT': 'Joining Form Sent',
     'OFFER_LETTER_SENT_PORTAL_CREATED': 'Offer Letter Sent / Portal Created',
     'PORTAL_HW_SUBMITTED': 'Portal HW Submitted',
