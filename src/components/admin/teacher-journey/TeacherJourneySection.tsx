@@ -40,7 +40,8 @@ import {
   TrainingStatus,
   TRAINING_STATUS_OPTIONS,
   CertificationStatus,
-  CERTIFICATION_STATUS_OPTIONS,
+  DEMO_CERTIFICATION_STATUS_OPTIONS,
+  PAID_CERTIFICATION_STATUS_OPTIONS,
   CERTIFICATION_TRAINING_COUNT_OPTIONS,
   GoLiveStatus,
   ReadyForPaidClassStatus,
@@ -138,6 +139,7 @@ const getStatusBadge = (status: string) => {
     'PORTAL_CREATED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
     'NEEDS_MORE_TRAINING': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Clock className="h-3.5 w-3.5" /> },
     'SECOND_MOCK_REQUIRED': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Clock className="h-3.5 w-3.5" /> },
+    'CALIBRATION_REQUIRED': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Clock className="h-3.5 w-3.5" /> },
     'COMPLETED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
   };
   const config = configs[status] || { bg: 'bg-slate-100 border-slate-200', text: 'text-slate-600', icon: <Clock className="h-3.5 w-3.5" /> };
@@ -2347,7 +2349,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                {DEMO_CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -2739,7 +2741,7 @@ const PaidCertificationSectionImpl: React.FC<SectionProps> = ({ journey, editMod
         {editMode ? (
           <Select value={data.paidCertificationStatus || 'PENDING'} onValueChange={(v) => setEditData(prev => ({ ...prev, paidCertificationStatus: v as PaidCertificationStatus }))}>
             <SelectTrigger className="w-48 bg-white border-[#1E62F2]"><SelectValue /></SelectTrigger>
-            <SelectContent>{CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+            <SelectContent>{PAID_CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
           </Select>
         ) : getStatusBadge(journey.paidCertificationStatus || 'PENDING')}
       </div>

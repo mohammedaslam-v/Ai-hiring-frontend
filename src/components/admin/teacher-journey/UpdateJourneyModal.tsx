@@ -14,7 +14,8 @@ import {
   DEMO_STATUS_OPTIONS,
   INDUCTION_OPTIONS,
   TRAINING_STATUS_OPTIONS,
-  CERTIFICATION_STATUS_OPTIONS,
+  DEMO_CERTIFICATION_STATUS_OPTIONS,
+  PAID_CERTIFICATION_STATUS_OPTIONS,
 
   GO_LIVE_OPTIONS,
   READY_FOR_PAID_CLASS_OPTIONS,
@@ -380,7 +381,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
+                    {DEMO_CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -530,7 +531,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                 <Label>Status</Label>
                 <Select value={formData.paidCertificationStatus || 'PENDING'} onValueChange={(v) => setFormData(prev => ({ ...prev, paidCertificationStatus: v as any }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                  <SelectContent>{PAID_CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
