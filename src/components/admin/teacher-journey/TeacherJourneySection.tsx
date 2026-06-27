@@ -398,6 +398,28 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       }
     }
 
+    // Paid Certification Email Confirmation Guard
+    if (activeTab === 'paidCertification') {
+      const isChangingToPaidGoLive =
+        editData.paidCertificationStatus === 'CLEARED' &&
+        journey.paidCertificationStatus !== 'CLEARED';
+
+      if (isChangingToPaidGoLive) {
+        const confirmed = await confirm({
+          title: '📧 Confirm Paid Go Live Email',
+          description: 'You are about to change the Paid Certification status to "Cleared". A congratulations email with offer letter details and portal access information will be sent to the candidate.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?',
+          confirmText: 'Confirm & Send Email',
+          cancelText: 'Cancel',
+          variant: 'default'
+        });
+
+        if (!confirmed) {
+          setSaving(false);
+          return;
+        }
+      }
+    }
+
     setSaving(true);
     setFieldErrors({});
 
