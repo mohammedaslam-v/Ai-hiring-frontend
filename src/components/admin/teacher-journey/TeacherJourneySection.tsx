@@ -336,22 +336,30 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
         journey.certificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
 
-      if (isChangingToGoLive || isChangingToNotCleared || isChangingToNeedMoreTraining || isChangingToOfferLetterSent) {
+      const isChangingToSecondMock =
+        editData.certificationStatus === 'SECOND_MOCK_REQUIRED' &&
+        journey.certificationStatus !== 'SECOND_MOCK_REQUIRED';
+
+      if (isChangingToGoLive || isChangingToNotCleared || isChangingToNeedMoreTraining || isChangingToSecondMock || isChangingToOfferLetterSent) {
         const emailType = isChangingToGoLive
           ? 'Go Live'
           : isChangingToNotCleared
             ? 'Not Cleared'
             : isChangingToNeedMoreTraining
               ? 'Need More Training'
-              : 'Offer Letter';
+              : isChangingToSecondMock
+                ? 'Second Mock'
+                : 'Offer Letter';
 
         const emailDescription = isChangingToGoLive
           ? 'A congratulations email with offer letter details and portal access information will be sent to the candidate.'
           : isChangingToNotCleared
             ? 'A rejection email notifying the candidate that they did not clear certification will be sent.'
             : isChangingToNeedMoreTraining
-              ? 'An email informing the educator about refresher training and re-mock requirements will be sent. Lezniak from HR will be mentioned as the contact person.'
-              : 'A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.';
+              ? 'An email informing the educator about re-training and re-appearing for Demo Certification will be sent. Monika from HR will be mentioned as the contact person.'
+              : isChangingToSecondMock
+                ? 'An email informing the educator that a second mock is required before proceeding with training will be sent. Our HR team will connect with them to schedule it.'
+                : 'A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.';
 
         const confirmed = await confirm({
           title: `📧 Confirm ${emailType} Email`,
@@ -361,11 +369,13 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               ? 'Not Cleared'
               : isChangingToNeedMoreTraining
                 ? 'Need More Training'
-                : 'Offer Letter Sent / Portal Created'
+                : isChangingToSecondMock
+                  ? 'Second Mock Required'
+                  : 'Offer Letter Sent / Portal Created'
             }\". ${emailDescription}\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?`,
           confirmText: 'Confirm & Send Email',
           cancelText: 'Cancel',
-          variant: isChangingToGoLive || isChangingToOfferLetterSent ? 'default' : 'destructive'
+          variant: isChangingToGoLive || isChangingToOfferLetterSent || isChangingToSecondMock ? 'default' : 'destructive'
         });
 
         if (!confirmed) {
@@ -408,15 +418,41 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         editData.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
         journey.paidCertificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
 
-      if (isChangingToPaidGoLive || isChangingToPaidOfferLetter) {
+      const isChangingToPaidNotCleared =
+        editData.paidCertificationStatus === 'NOT_CLEARED' &&
+        journey.paidCertificationStatus !== 'NOT_CLEARED';
+
+      const isChangingToPaidNeedMoreTraining =
+        editData.paidCertificationStatus === 'NEED_MORE_TRAINING' &&
+        journey.paidCertificationStatus !== 'NEED_MORE_TRAINING';
+
+      const isChangingToPaidSecondMock =
+        editData.paidCertificationStatus === 'SECOND_MOCK_REQUIRED' &&
+        journey.paidCertificationStatus !== 'SECOND_MOCK_REQUIRED';
+
+      if (isChangingToPaidGoLive || isChangingToPaidOfferLetter || isChangingToPaidNotCleared || isChangingToPaidNeedMoreTraining || isChangingToPaidSecondMock) {
         const confirmed = await confirm({
-          title: isChangingToPaidOfferLetter ? '📧 Confirm Offer Letter Email' : '📧 Confirm Paid Go Live Email',
+          title: isChangingToPaidOfferLetter
+            ? '📧 Confirm Offer Letter Email'
+            : isChangingToPaidNotCleared
+              ? '📧 Confirm Not Cleared Email'
+              : isChangingToPaidNeedMoreTraining
+                ? '📧 Confirm Need More Training Email'
+                : isChangingToPaidSecondMock
+                  ? '📧 Confirm Second Mock Email'
+                  : '📧 Confirm Paid Go Live Email',
           description: isChangingToPaidOfferLetter
             ? 'You are about to change the Paid Certification status to "Offer Letter Sent / Portal Created". A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
-            : 'You are about to change the Paid Certification status to "Cleared". A congratulations email with offer letter details and portal access information will be sent to the candidate.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?',
+            : isChangingToPaidNotCleared
+              ? 'You are about to change the Paid Certification status to "Not Cleared". A rejection email (Application Update from Bambinos.live) notifying the candidate that they have not been selected will be sent.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
+              : isChangingToPaidNeedMoreTraining
+                ? 'You are about to change the Paid Certification status to "Need More Training". An email informing the educator about re-training and re-appearing for Paid Certification will be sent. Monika from HR will be mentioned as the contact person.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
+                : isChangingToPaidSecondMock
+                  ? 'You are about to change the Paid Certification status to "Second Mock Required". An email informing the educator that a second mock is required before proceeding will be sent. Our HR team will connect with them to schedule it.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
+                  : 'You are about to change the Paid Certification status to "Cleared". A congratulations email with offer letter details and portal access information will be sent to the candidate.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?',
           confirmText: 'Confirm & Send Email',
           cancelText: 'Cancel',
-          variant: 'default'
+          variant: isChangingToPaidNotCleared ? 'destructive' : 'default'
         });
 
         if (!confirmed) {
@@ -1025,7 +1061,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
             <p>Dear Candidate,</p>
             <p>Thank you for applying for the Online Teacher's role at Bambinos.live. Your application is currently on hold as we review the next steps in our selection process.</p>
             <p>We will get back to you with an update soon. We appreciate your patience and interest in joining our team.</p>
-            <p className="pt-2">Best regards,<br/><strong>Team HR Bambinos.live</strong></p>
+            <p className="pt-2">Best regards,<br/><strong>Team Bambinos.live</strong></p>
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0 mt-4 flex justify-end">
