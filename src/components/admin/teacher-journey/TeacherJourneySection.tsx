@@ -404,10 +404,16 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         editData.paidCertificationStatus === 'CLEARED' &&
         journey.paidCertificationStatus !== 'CLEARED';
 
-      if (isChangingToPaidGoLive) {
+      const isChangingToPaidOfferLetter =
+        editData.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
+        journey.paidCertificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
+
+      if (isChangingToPaidGoLive || isChangingToPaidOfferLetter) {
         const confirmed = await confirm({
-          title: '📧 Confirm Paid Go Live Email',
-          description: 'You are about to change the Paid Certification status to "Cleared". A congratulations email with offer letter details and portal access information will be sent to the candidate.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?',
+          title: isChangingToPaidOfferLetter ? '📧 Confirm Offer Letter Email' : '📧 Confirm Paid Go Live Email',
+          description: isChangingToPaidOfferLetter
+            ? 'You are about to change the Paid Certification status to "Offer Letter Sent / Portal Created". A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
+            : 'You are about to change the Paid Certification status to "Cleared". A congratulations email with offer letter details and portal access information will be sent to the candidate.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?',
           confirmText: 'Confirm & Send Email',
           cancelText: 'Cancel',
           variant: 'default'
@@ -448,9 +454,12 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
 
       const response = await teacherJourneyService.updateJourney(journey.id, updatePayload);
       if (response.status) {
-        // Check if offer letter email was sent
-        const isOfferLetterSent = activeTab === 'certification' &&
-          editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED';
+        // Check if offer letter email was sent (free or paid certification tab)
+        const isOfferLetterSent =
+          (activeTab === 'certification' &&
+            editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED') ||
+          (activeTab === 'paidCertification' &&
+            editData.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED');
 
         if (isOfferLetterSent) {
           toast.success('✅ Status updated! Offer letter email sent with 5 PDFs (incl. POSH) and POSH training link.');
