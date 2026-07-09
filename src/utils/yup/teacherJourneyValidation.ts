@@ -105,7 +105,7 @@ export const demoSectionValidation = Yup.object().shape({
     .max(4, TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.MAX_SELECTION)
     .test('valid-subjects', TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.INVALID_SUBJECT, (value) => {
       if (!value || value.length === 0) return false;
-      const validSubjects = ['Unbox English', 'Little Yogi', 'Alpha Maths', 'Phonics', 'Science', 'Kannada'];
+      const validSubjects = ['Unbox English', 'Little Yogi', 'Alpha Maths', 'Phonics', 'Science', 'Kannada', 'Demo+Sales'];
       return value.every(subj => validSubjects.includes(subj));
     }),
 });
