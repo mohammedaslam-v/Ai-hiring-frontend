@@ -358,7 +358,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
                         <div className="text-xs font-semibold text-slate-900">{c.title}</div>
                         <div className="text-[11px] leading-relaxed text-slate-500">{c.desc}</div>
                         <div className="flex justify-start gap-1.5 sm:justify-center">
-                          {SCORE_VALUES.map(v => {
+                          {(c.key === 'lang_g3' ? [...SCORE_VALUES].reverse() : SCORE_VALUES).map(v => {
                             const selected = scores[c.key] === v;
                             return (
                               <button
