@@ -118,6 +118,16 @@ export const getStatusBadgeColors = (status: string): { bg: string; text: string
       text: 'text-[hsl(0,84%,60%)]',
       border: 'border-[hsl(0,84%,60%)]',
     },
+    'DEMO_ONLY': {
+      bg: 'bg-[hsl(142,76%,36%,0.1)]',
+      text: 'text-[hsl(142,76%,36%)]',
+      border: 'border-[hsl(142,76%,36%)]',
+    },
+    'DEMO_SALES': {
+      bg: 'bg-[hsl(142,76%,36%,0.1)]',
+      text: 'text-[hsl(142,76%,36%)]',
+      border: 'border-[hsl(142,76%,36%)]',
+    },
     'CALIBRATION_REQUIRED': {
       bg: 'bg-[hsl(38,92%,50%,0.1)]',
       text: 'text-[hsl(38,92%,50%)]',

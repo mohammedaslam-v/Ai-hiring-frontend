@@ -77,7 +77,7 @@ export interface TeacherJourney {
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED' | 'HOLD' | 'NOT_INTERESTED';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
 export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING' | 'NOT_INTERESTED';
-export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'NEED_MORE_TRAINING' | 'SECOND_MOCK_REQUIRED' | 'CALIBRATION_REQUIRED' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
+export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'DEMO_ONLY' | 'DEMO_SALES' | 'NEED_MORE_TRAINING' | 'SECOND_MOCK_REQUIRED' | 'CALIBRATION_REQUIRED' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING' | 'NOT_INTERESTED';
 export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
@@ -250,6 +250,8 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'CLEARED', label: 'Cleared' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'DEMO_ONLY', label: 'Demo Only' },
+  { value: 'DEMO_SALES', label: 'Demo + Sales' },
   { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
   { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'JOINING_FORM_SENT', label: 'Joining Form Sent' },
@@ -269,6 +271,8 @@ export const DEMO_CERTIFICATION_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'CLEARED', label: 'Cleared' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'DEMO_ONLY', label: 'Demo Only' },
+  { value: 'DEMO_SALES', label: 'Demo + Sales' },
   { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
   { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'CALIBRATION_REQUIRED', label: 'Calibration Required' },
@@ -285,6 +289,8 @@ export const PAID_CERTIFICATION_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'CLEARED', label: 'Cleared' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'DEMO_ONLY', label: 'Demo Only' },
+  { value: 'DEMO_SALES', label: 'Demo + Sales' },
   { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
   { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'CALIBRATION_REQUIRED', label: 'Calibration Required' },
@@ -394,6 +400,8 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
     'PENDING': 'Pending',
     'CLEARED': 'Cleared',
     'NOT_CLEARED': 'Not Cleared',
+    'DEMO_ONLY': 'Demo Only',
+    'DEMO_SALES': 'Demo + Sales',
     'NEED_MORE_TRAINING': 'Need More Training',
     'SECOND_MOCK_REQUIRED': 'Second Mock Required',
     'CALIBRATION_REQUIRED': 'Calibration Required',
