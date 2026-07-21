@@ -140,6 +140,8 @@ const getStatusBadge = (status: string) => {
     'NEEDS_MORE_TRAINING': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Clock className="h-3.5 w-3.5" /> },
     'SECOND_MOCK_REQUIRED': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Clock className="h-3.5 w-3.5" /> },
     'CALIBRATION_REQUIRED': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Clock className="h-3.5 w-3.5" /> },
+    'DEMO_ONLY': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Award className="h-3.5 w-3.5" /> },
+    'DEMO_SALES': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Award className="h-3.5 w-3.5" /> },
     'COMPLETED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
   };
   const config = configs[status] || { bg: 'bg-slate-100 border-slate-200', text: 'text-slate-600', icon: <Clock className="h-3.5 w-3.5" /> };
@@ -320,62 +322,59 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
     // Certification Email Confirmation Guard
     // Check if certificationStatus is changing to a status that triggers automated emails
     if (activeTab === 'certification') {
-      const isChangingToGoLive =
-        editData.certificationStatus === 'CLEARED' &&
-        journey.certificationStatus !== 'CLEARED';
+      // Keyed by the target status, so adding a new email-triggering status is a single entry.
+      const CERTIFICATION_EMAIL_PROMPTS: Record<string, { emailType: string; statusLabel: string; description: string; destructive?: boolean }> = {
+        CLEARED: {
+          emailType: 'Go Live',
+          statusLabel: 'Cleared',
+          description: 'A congratulations email with offer letter details and portal access information will be sent to the candidate.',
+        },
+        NOT_CLEARED: {
+          emailType: 'Not Cleared',
+          statusLabel: 'Not Cleared',
+          description: 'A rejection email notifying the candidate that they did not clear certification will be sent.',
+          destructive: true,
+        },
+        NEED_MORE_TRAINING: {
+          emailType: 'Need More Training',
+          statusLabel: 'Need More Training',
+          description: 'An email informing the educator about re-training and re-appearing for Demo Certification will be sent. Monika from HR will be mentioned as the contact person.',
+          destructive: true,
+        },
+        SECOND_MOCK_REQUIRED: {
+          emailType: 'Second Mock',
+          statusLabel: 'Second Mock Required',
+          description: 'An email informing the educator that a second mock is required before proceeding with training will be sent. Our HR team will connect with them to schedule it.',
+        },
+        DEMO_ONLY: {
+          emailType: 'Demo Only',
+          statusLabel: 'Demo Only',
+          description: 'A congratulations email will be sent informing the educator that they cleared the Demo Certification and are selected for Demo only, and will be made live the following week. It includes the joining form link, and Monika will be mentioned as their POC.',
+        },
+        DEMO_SALES: {
+          emailType: 'Demo + Sales',
+          statusLabel: 'Demo + Sales',
+          description: 'A congratulations email will be sent informing the educator that they cleared the Demo Certification and are selected for Demo+Enrollment, and will be made live the following week. It includes the joining form link, and Priyal will be mentioned as their POC.',
+        },
+        OFFER_LETTER_SENT_PORTAL_CREATED: {
+          emailType: 'Offer Letter',
+          statusLabel: 'Offer Letter Sent / Portal Created',
+          description: 'A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
+        },
+      };
 
-      const isChangingToNotCleared =
-        editData.certificationStatus === 'NOT_CLEARED' &&
-        journey.certificationStatus !== 'NOT_CLEARED';
+      const targetStatus = editData.certificationStatus;
+      const prompt = targetStatus && targetStatus !== journey.certificationStatus
+        ? CERTIFICATION_EMAIL_PROMPTS[targetStatus]
+        : undefined;
 
-      const isChangingToNeedMoreTraining =
-        editData.certificationStatus === 'NEED_MORE_TRAINING' &&
-        journey.certificationStatus !== 'NEED_MORE_TRAINING';
-
-      const isChangingToOfferLetterSent =
-        editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
-        journey.certificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
-
-      const isChangingToSecondMock =
-        editData.certificationStatus === 'SECOND_MOCK_REQUIRED' &&
-        journey.certificationStatus !== 'SECOND_MOCK_REQUIRED';
-
-      if (isChangingToGoLive || isChangingToNotCleared || isChangingToNeedMoreTraining || isChangingToSecondMock || isChangingToOfferLetterSent) {
-        const emailType = isChangingToGoLive
-          ? 'Go Live'
-          : isChangingToNotCleared
-            ? 'Not Cleared'
-            : isChangingToNeedMoreTraining
-              ? 'Need More Training'
-              : isChangingToSecondMock
-                ? 'Second Mock'
-                : 'Offer Letter';
-
-        const emailDescription = isChangingToGoLive
-          ? 'A congratulations email with offer letter details and portal access information will be sent to the candidate.'
-          : isChangingToNotCleared
-            ? 'A rejection email notifying the candidate that they did not clear certification will be sent.'
-            : isChangingToNeedMoreTraining
-              ? 'An email informing the educator about re-training and re-appearing for Demo Certification will be sent. Monika from HR will be mentioned as the contact person.'
-              : isChangingToSecondMock
-                ? 'An email informing the educator that a second mock is required before proceeding with training will be sent. Our HR team will connect with them to schedule it.'
-                : 'A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.';
-
+      if (prompt) {
         const confirmed = await confirm({
-          title: `📧 Confirm ${emailType} Email`,
-          description: `You are about to change the certification status to \"${isChangingToGoLive
-            ? 'Cleared'
-            : isChangingToNotCleared
-              ? 'Not Cleared'
-              : isChangingToNeedMoreTraining
-                ? 'Need More Training'
-                : isChangingToSecondMock
-                  ? 'Second Mock Required'
-                  : 'Offer Letter Sent / Portal Created'
-            }\". ${emailDescription}\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?`,
+          title: `📧 Confirm ${prompt.emailType} Email`,
+          description: `You are about to change the certification status to "${prompt.statusLabel}". ${prompt.description}\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?`,
           confirmText: 'Confirm & Send Email',
           cancelText: 'Cancel',
-          variant: isChangingToGoLive || isChangingToOfferLetterSent || isChangingToSecondMock ? 'default' : 'destructive'
+          variant: prompt.destructive ? 'destructive' : 'default'
         });
 
         if (!confirmed) {
@@ -410,49 +409,58 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
 
     // Paid Certification Email Confirmation Guard
     if (activeTab === 'paidCertification') {
-      const isChangingToPaidGoLive =
-        editData.paidCertificationStatus === 'CLEARED' &&
-        journey.paidCertificationStatus !== 'CLEARED';
+      // Keyed by the target status, so adding a new email-triggering status is a single entry.
+      const PAID_CERTIFICATION_EMAIL_PROMPTS: Record<string, { title: string; statusLabel: string; description: string; destructive?: boolean }> = {
+        CLEARED: {
+          title: '📧 Confirm Paid Go Live Email',
+          statusLabel: 'Cleared',
+          description: 'A congratulations email with offer letter details and portal access information will be sent to the candidate.',
+        },
+        OFFER_LETTER_SENT_PORTAL_CREATED: {
+          title: '📧 Confirm Offer Letter Email',
+          statusLabel: 'Offer Letter Sent / Portal Created',
+          description: 'A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
+        },
+        NOT_CLEARED: {
+          title: '📧 Confirm Not Cleared Email',
+          statusLabel: 'Not Cleared',
+          description: 'A rejection email (Application Update from Bambinos.live) notifying the candidate that they have not been selected will be sent.',
+          destructive: true,
+        },
+        NEED_MORE_TRAINING: {
+          title: '📧 Confirm Need More Training Email',
+          statusLabel: 'Need More Training',
+          description: 'An email informing the educator about re-training and re-appearing for Paid Certification will be sent. Monika from HR will be mentioned as the contact person.',
+        },
+        SECOND_MOCK_REQUIRED: {
+          title: '📧 Confirm Second Mock Email',
+          statusLabel: 'Second Mock Required',
+          description: 'An email informing the educator that a second mock is required before proceeding will be sent. Our HR team will connect with them to schedule it.',
+        },
+        DEMO_ONLY: {
+          title: '📧 Confirm Demo Only Email',
+          statusLabel: 'Demo Only',
+          description: 'A congratulations email will be sent informing the educator that they are selected for Demo only and will be made live the following week. It includes the joining form link, and Monika will be mentioned as their POC.',
+        },
+        DEMO_SALES: {
+          title: '📧 Confirm Demo + Sales Email',
+          statusLabel: 'Demo + Sales',
+          description: 'A congratulations email will be sent informing the educator that they are selected for Demo+Enrollment and will be made live the following week. It includes the joining form link, and Priyal will be mentioned as their POC.',
+        },
+      };
 
-      const isChangingToPaidOfferLetter =
-        editData.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' &&
-        journey.paidCertificationStatus !== 'OFFER_LETTER_SENT_PORTAL_CREATED';
+      const targetPaidStatus = editData.paidCertificationStatus;
+      const paidPrompt = targetPaidStatus && targetPaidStatus !== journey.paidCertificationStatus
+        ? PAID_CERTIFICATION_EMAIL_PROMPTS[targetPaidStatus]
+        : undefined;
 
-      const isChangingToPaidNotCleared =
-        editData.paidCertificationStatus === 'NOT_CLEARED' &&
-        journey.paidCertificationStatus !== 'NOT_CLEARED';
-
-      const isChangingToPaidNeedMoreTraining =
-        editData.paidCertificationStatus === 'NEED_MORE_TRAINING' &&
-        journey.paidCertificationStatus !== 'NEED_MORE_TRAINING';
-
-      const isChangingToPaidSecondMock =
-        editData.paidCertificationStatus === 'SECOND_MOCK_REQUIRED' &&
-        journey.paidCertificationStatus !== 'SECOND_MOCK_REQUIRED';
-
-      if (isChangingToPaidGoLive || isChangingToPaidOfferLetter || isChangingToPaidNotCleared || isChangingToPaidNeedMoreTraining || isChangingToPaidSecondMock) {
+      if (paidPrompt) {
         const confirmed = await confirm({
-          title: isChangingToPaidOfferLetter
-            ? '📧 Confirm Offer Letter Email'
-            : isChangingToPaidNotCleared
-              ? '📧 Confirm Not Cleared Email'
-              : isChangingToPaidNeedMoreTraining
-                ? '📧 Confirm Need More Training Email'
-                : isChangingToPaidSecondMock
-                  ? '📧 Confirm Second Mock Email'
-                  : '📧 Confirm Paid Go Live Email',
-          description: isChangingToPaidOfferLetter
-            ? 'You are about to change the Paid Certification status to "Offer Letter Sent / Portal Created". A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
-            : isChangingToPaidNotCleared
-              ? 'You are about to change the Paid Certification status to "Not Cleared". A rejection email (Application Update from Bambinos.live) notifying the candidate that they have not been selected will be sent.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
-              : isChangingToPaidNeedMoreTraining
-                ? 'You are about to change the Paid Certification status to "Need More Training". An email informing the educator about re-training and re-appearing for Paid Certification will be sent. Monika from HR will be mentioned as the contact person.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
-                : isChangingToPaidSecondMock
-                  ? 'You are about to change the Paid Certification status to "Second Mock Required". An email informing the educator that a second mock is required before proceeding will be sent. Our HR team will connect with them to schedule it.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?'
-                  : 'You are about to change the Paid Certification status to "Cleared". A congratulations email with offer letter details and portal access information will be sent to the candidate.\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?',
+          title: paidPrompt.title,
+          description: `You are about to change the Paid Certification status to "${paidPrompt.statusLabel}". ${paidPrompt.description}\n\n⚠️ This email cannot be recalled once sent.\n\nAre you sure you want to proceed?`,
           confirmText: 'Confirm & Send Email',
           cancelText: 'Cancel',
-          variant: isChangingToPaidNotCleared ? 'destructive' : 'default'
+          variant: paidPrompt.destructive ? 'destructive' : 'default'
         });
 
         if (!confirmed) {
@@ -607,11 +615,11 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'demo': return journey?.demoStatus === 'SELECTED';
       case 'induction': return journey?.inductionAttendance === 'YES';
       case 'training': return journey?.trainingStatus === 'JOINED' || journey?.trainingStatus === 'COMPLETED';
-      case 'certification': return journey?.certificationStatus === 'CLEARED' || journey?.certificationStatus === 'JOINING_FORM_SENT' || journey?.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.certificationStatus === 'PORTAL_HW_SUBMITTED';
+      case 'certification': return journey?.certificationStatus === 'CLEARED' || journey?.certificationStatus === 'DEMO_ONLY' || journey?.certificationStatus === 'DEMO_SALES' || journey?.certificationStatus === 'JOINING_FORM_SENT' || journey?.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.certificationStatus === 'PORTAL_HW_SUBMITTED';
       case 'goLive': return journey?.goLiveReadiness === 'YES';
       case 'readyForPaidClass': return journey?.readyForPaidClass === 'YES';
       case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
-      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED' || journey?.paidCertificationStatus === 'PORTAL_HW_SUBMITTED';
+      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED' || journey?.paidCertificationStatus === 'DEMO_ONLY' || journey?.paidCertificationStatus === 'DEMO_SALES' || journey?.paidCertificationStatus === 'PORTAL_HW_SUBMITTED';
       case 'paidGoLive': return journey?.paidGoLiveReadiness === 'YES';
       default: return false;
     }

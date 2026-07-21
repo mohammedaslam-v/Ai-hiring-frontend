@@ -162,12 +162,12 @@ export const trainingSectionValidation = Yup.object().shape({
 export const certificationSectionValidation = Yup.object().shape({
   certificationStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_REQUIRED)
-    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
+    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'DEMO_ONLY', 'DEMO_SALES', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
 
   certificationDate: Yup.string()
     .nullable()
     .when('certificationStatus', {
-      is: (status: CertificationStatus) => ['CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'].includes(status),
+      is: (status: CertificationStatus) => ['CLEARED', 'NOT_CLEARED', 'DEMO_ONLY', 'DEMO_SALES', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'].includes(status),
       then: (schema) => schema
         .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_REQUIRED)
         .test('is-valid-date', TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_INVALID, (value) => isValidDate(value))
@@ -260,13 +260,13 @@ const paidTrainingSectionValidation = Yup.object().shape({
 const paidCertificationSectionValidation = Yup.object().shape({
   paidCertificationStatus: Yup.string()
     .required('Paid certification status is required')
-    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'],
+    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'DEMO_ONLY', 'DEMO_SALES', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'],
       'Invalid paid certification status'),
 
   paidCertificationDate: Yup.string()
     .nullable()
     .when('paidCertificationStatus', {
-      is: (status: string) => status === 'CLEARED' || status === 'NOT_CLEARED' || status === 'OFFER_LETTER_SENT_PORTAL_CREATED' || status === 'PORTAL_HW_SUBMITTED',
+      is: (status: string) => status === 'CLEARED' || status === 'NOT_CLEARED' || status === 'DEMO_ONLY' || status === 'DEMO_SALES' || status === 'OFFER_LETTER_SENT_PORTAL_CREATED' || status === 'PORTAL_HW_SUBMITTED',
       then: (schema) => schema.required('Certification date is required'),
       otherwise: (schema) => schema.nullable(),
     }),

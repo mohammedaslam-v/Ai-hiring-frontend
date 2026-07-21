@@ -40,7 +40,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<UpdateTeacherJourneyData>({});
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
-  const [pendingEmailType, setPendingEmailType] = useState<'go_live' | 'paid_go_live' | 'not_cleared' | 'rejected_in_training' | null>(null);
+  const [pendingEmailType, setPendingEmailType] = useState<'go_live' | 'paid_go_live' | 'demo_only' | 'paid_demo_only' | 'demo_sales' | 'paid_demo_sales' | 'not_cleared' | 'rejected_in_training' | null>(null);
 
   useEffect(() => {
     if (journey) {
@@ -102,15 +102,51 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
       formData.paidCertificationStatus === 'CLEARED' &&
       journey.paidCertificationStatus !== 'CLEARED';
 
+    const isChangingToDemoOnly =
+      formData.certificationStatus === 'DEMO_ONLY' &&
+      journey.certificationStatus !== 'DEMO_ONLY';
+
+    const isChangingToPaidDemoOnly =
+      formData.paidCertificationStatus === 'DEMO_ONLY' &&
+      journey.paidCertificationStatus !== 'DEMO_ONLY';
+
+    const isChangingToDemoSales =
+      formData.certificationStatus === 'DEMO_SALES' &&
+      journey.certificationStatus !== 'DEMO_SALES';
+
+    const isChangingToPaidDemoSales =
+      formData.paidCertificationStatus === 'DEMO_SALES' &&
+      journey.paidCertificationStatus !== 'DEMO_SALES';
+
     console.log('isChangingToGoLive:', isChangingToGoLive);
     console.log('isChangingToNotCleared:', isChangingToNotCleared);
     console.log('isChangingToRejectedInTraining:', isChangingToRejectedInTraining);
     console.log('isChangingToPaidGoLive:', isChangingToPaidGoLive);
+    console.log('isChangingToDemoOnly:', isChangingToDemoOnly);
+    console.log('isChangingToPaidDemoOnly:', isChangingToPaidDemoOnly);
+    console.log('isChangingToDemoSales:', isChangingToDemoSales);
+    console.log('isChangingToPaidDemoSales:', isChangingToPaidDemoSales);
 
     // If changing to a status that triggers emails, show confirmation modal first
-    if (isChangingToGoLive || isChangingToNotCleared || isChangingToRejectedInTraining || isChangingToPaidGoLive) {
+    if (isChangingToGoLive || isChangingToNotCleared || isChangingToRejectedInTraining || isChangingToPaidGoLive || isChangingToDemoOnly || isChangingToPaidDemoOnly || isChangingToDemoSales || isChangingToPaidDemoSales) {
       console.log('🔔 SHOWING CONFIRMATION MODAL');
-      setPendingEmailType(isChangingToGoLive ? 'go_live' : isChangingToPaidGoLive ? 'paid_go_live' : isChangingToNotCleared ? 'not_cleared' : 'rejected_in_training');
+      setPendingEmailType(
+        isChangingToGoLive
+          ? 'go_live'
+          : isChangingToPaidGoLive
+            ? 'paid_go_live'
+            : isChangingToDemoOnly
+              ? 'demo_only'
+              : isChangingToPaidDemoOnly
+                ? 'paid_demo_only'
+                : isChangingToDemoSales
+                  ? 'demo_sales'
+                  : isChangingToPaidDemoSales
+                    ? 'paid_demo_sales'
+                    : isChangingToNotCleared
+                      ? 'not_cleared'
+                      : 'rejected_in_training'
+      );
       setShowEmailConfirmation(true);
       return;
     }
@@ -186,6 +222,8 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
 
   const isCertificationDone =
     journey.certificationStatus === 'CLEARED' ||
+    journey.certificationStatus === 'DEMO_ONLY' ||
+    journey.certificationStatus === 'DEMO_SALES' ||
     journey.certificationStatus === 'JOINING_FORM_SENT' ||
     journey.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' ||
     journey.certificationStatus === 'PORTAL_HW_SUBMITTED';
@@ -626,6 +664,48 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                   </p>
                 </>
               )}
+              {(pendingEmailType === 'demo_only' || pendingEmailType === 'paid_demo_only') && (
+                <>
+                  <p>
+                    You are about to change the{' '}
+                    {pendingEmailType === 'paid_demo_only' ? 'Paid Certification' : 'certification'} status to{' '}
+                    <strong>Demo Only</strong>.
+                  </p>
+                  <p>
+                    An automated <strong className="text-green-600">congratulations email</strong> will be sent to the educator with:
+                  </p>
+                  <ul className="list-disc ml-6 space-y-1">
+                    <li>Confirmation that they cleared the Demo Certification</li>
+                    <li>A note that they are selected for <strong>Demo only</strong> and will be made live the following week</li>
+                    <li>The joining form link for the offer letter and Educator Portal setup</li>
+                    <li>Monika as their point of contact</li>
+                  </ul>
+                  <p className="text-orange-600 font-semibold">
+                    ⚠️ This email cannot be recalled once sent.
+                  </p>
+                </>
+              )}
+              {(pendingEmailType === 'demo_sales' || pendingEmailType === 'paid_demo_sales') && (
+                <>
+                  <p>
+                    You are about to change the{' '}
+                    {pendingEmailType === 'paid_demo_sales' ? 'Paid Certification' : 'certification'} status to{' '}
+                    <strong>Demo + Sales</strong>.
+                  </p>
+                  <p>
+                    An automated <strong className="text-green-600">congratulations email</strong> will be sent to the educator with:
+                  </p>
+                  <ul className="list-disc ml-6 space-y-1">
+                    <li>Confirmation that they cleared the Demo Certification</li>
+                    <li>A note that they are selected for <strong>Demo+Enrollment</strong> and will be made live the following week</li>
+                    <li>The joining form link for the offer letter and Educator Portal setup</li>
+                    <li>Priyal as their point of contact</li>
+                  </ul>
+                  <p className="text-orange-600 font-semibold">
+                    ⚠️ This email cannot be recalled once sent.
+                  </p>
+                </>
+              )}
               {pendingEmailType === 'not_cleared' && (
                 <>
                   <p>
@@ -670,7 +750,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmEmail}
-              className={pendingEmailType === 'go_live' || pendingEmailType === 'paid_go_live' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
+              className={pendingEmailType === 'not_cleared' || pendingEmailType === 'rejected_in_training' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}
             >
               Confirm & Send Email
             </AlertDialogAction>
