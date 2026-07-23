@@ -295,6 +295,23 @@ const paidGoLiveSectionValidation = Yup.object().shape({
     }),
 });
 
+// Cross Training Section Validation Schema (repeatable entries; every field required per entry)
+const crossTrainingSectionValidation = Yup.object().shape({
+  crossTrainings: Yup.array()
+    .of(
+      Yup.object().shape({
+        trainingDate: Yup.string().nullable().required('Date of training is required'),
+        subject: Yup.string().nullable().required('Subject is required'),
+        certifiedTsmId: Yup.number().nullable().required('TSM is required'),
+        certificationDate: Yup.string().nullable().required('Certification date is required'),
+        feedback: Yup.string().nullable().required('Feedback is required'),
+        trainerId: Yup.number().nullable().required('Trainer is required'),
+        status: Yup.string().oneOf(['PENDING', 'CERTIFIED'], 'Invalid cross training status').required('Status is required'),
+      })
+    )
+    .nullable(),
+});
+
 // Combined validation schema for all sections
 export const teacherJourneyValidation = {
   demo: demoSectionValidation,
@@ -306,11 +323,12 @@ export const teacherJourneyValidation = {
   paidTraining: paidTrainingSectionValidation,
   paidCertification: paidCertificationSectionValidation,
   paidGoLive: paidGoLiveSectionValidation,
+  crossTraining: crossTrainingSectionValidation,
 };
 
 // Helper function to validate a specific section
 export const validateTeacherJourneySection = async (
-  section: 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive',
+  section: 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive' | 'crossTraining',
   data: Record<string, unknown>
 ): Promise<{ isValid: boolean; errors: Record<string, string> }> => {
   try {

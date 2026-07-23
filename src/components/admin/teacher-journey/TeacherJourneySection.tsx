@@ -52,7 +52,11 @@ import {
   Subject,
   TeachingStyleRating,
   YesNo,
-  WhatsAppGroupStatus
+  WhatsAppGroupStatus,
+  CrossTrainingEntry,
+  CrossTrainingStatus,
+  CROSS_TRAINING_STATUS_OPTIONS,
+  SUBJECT_OPTIONS_FOR_UPDATE
 } from '@/types/teacherJourney';
 import { toast } from 'react-toastify';
 import { getStatusBadgeColors } from '@/constants/teacherJourney/colors';
@@ -79,7 +83,7 @@ import ScorecardGraderDialog from './ScorecardGraderDialog';
 // ============================================
 // TYPES
 // ============================================
-type TabKey = 'aiRound' | 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive';
+type TabKey = 'aiRound' | 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive' | 'crossTraining';
 
 interface TeacherJourneySectionProps {
   applicationId: string;
@@ -110,6 +114,7 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: str
   { key: 'paidTraining', label: 'Paid Training', icon: GraduationCap, gradient: 'from-violet-500 to-purple-500', owner: 'Trainer' },
   { key: 'paidCertification', label: 'Paid Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
   { key: 'paidGoLive', label: 'Paid Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
+  { key: 'crossTraining', label: 'Cross Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'TSM' },
 ];
 
 // ============================================
@@ -155,6 +160,17 @@ const getStatusBadge = (status: string) => {
     </span>
   );
 };
+
+// ============================================
+// CROSS TRAINING HELPERS
+// ============================================
+const blankCrossTraining = (): CrossTrainingEntry => ({
+  trainingDate: null, subject: null, certifiedTsmId: null, certificationDate: null, feedback: null, trainerId: null, status: 'PENDING',
+});
+// A brand-new, untouched entry — used to avoid saving the default first row if left empty.
+const isBlankCrossTraining = (e: CrossTrainingEntry): boolean =>
+  !e.trainingDate && !e.subject && e.certifiedTsmId == null && !e.certificationDate &&
+  !(e.feedback && e.feedback.trim()) && e.trainerId == null && (!e.status || e.status === 'PENDING');
 
 // ============================================
 // MAIN COMPONENT
@@ -536,6 +552,24 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
     }
   };
 
+  // Persist cross training entries immediately (from the Add/Edit modal's Save button)
+  const saveCrossTrainings = useCallback(async (list: CrossTrainingEntry[]) => {
+    if (!journey) return;
+    try {
+      const response = await teacherJourneyService.updateJourney(journey.id, { crossTrainings: list });
+      if (response.status && response.data) {
+        setJourney(response.data);
+        setEditData(prev => ({ ...prev, crossTrainings: response.data!.crossTrainings ?? [] }));
+        toast.success('Cross training saved!');
+      } else {
+        toast.error(response.message || 'Failed to save cross training');
+      }
+    } catch (error) {
+      console.error('Error saving cross training:', error);
+      toast.error('Failed to save cross training');
+    }
+  }, [journey]);
+
   // Build payload for specific section
   const buildUpdatePayload = (tab: TabKey, data: Partial<TeacherJourney>) => {
     switch (tab) {
@@ -601,6 +635,11 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           paidGoLiveDate: data.paidGoLiveDate,
           paidAssignedSubject: data.paidAssignedSubject,
         };
+      case 'crossTraining':
+        return {
+          // Keep saved rows (have an id) and any filled-in new rows; drop an untouched default row.
+          crossTrainings: (data.crossTrainings ?? []).filter(e => e.id != null || !isBlankCrossTraining(e)),
+        };
       default:
         return {};
     }
@@ -621,6 +660,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
       case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED' || journey?.paidCertificationStatus === 'DEMO_ONLY' || journey?.paidCertificationStatus === 'DEMO_SALES' || journey?.paidCertificationStatus === 'PORTAL_HW_SUBMITTED';
       case 'paidGoLive': return journey?.paidGoLiveReadiness === 'YES';
+      case 'crossTraining': {
+        const entries = journey?.crossTrainings ?? [];
+        return entries.length > 0 && entries.every((c) => c.status === 'CERTIFIED');
+      }
       default: return false;
     }
   };
@@ -1033,6 +1076,9 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               {activeTab === 'paidGoLive' && journey && !isRejected && (
                 <PaidGoLiveSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
               )}
+              {activeTab === 'crossTraining' && journey && !isRejected && (
+                <CrossTrainingSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} interviewers={interviewers} onSaveCrossTrainings={saveCrossTrainings} />
+              )}
             </div>
 
             {/* Edit mode footer hint */}
@@ -1129,6 +1175,7 @@ interface SectionProps {
   demoTrainers?: { id: number; name: string }[];
   interviewers?: { id: number; name: string }[];
   candidateName?: string;
+  onSaveCrossTrainings?: (list: CrossTrainingEntry[]) => Promise<void>;
 }
 
 // AI ROUND SECTION (Read-only - data from interview, not editable in journey)
@@ -2854,6 +2901,203 @@ const PaidGoLiveSectionImpl: React.FC<SectionProps> = ({ journey, editMode, edit
         <Label>Go Live Date</Label>
         {editMode ? <Input type="date" value={data.paidGoLiveDate ? new Date(data.paidGoLiveDate).toISOString().split('T')[0] : ''} onChange={e => setEditData(prev => ({ ...prev, paidGoLiveDate: e.target.value }))} className="mt-1 bg-white border-[#1E62F2]" /> : <p>{data.paidGoLiveDate ? new Date(data.paidGoLiveDate).toLocaleDateString() : '—'}</p>}
       </div>
+    </div>
+  );
+};
+
+// CROSS TRAINING SECTION — summary (first entry) + "View all" modal; add/edit via a modal form
+const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, interviewers = [], onSaveCrossTrainings }) => {
+  const entries: CrossTrainingEntry[] = (editMode ? editData.crossTrainings : journey.crossTrainings) ?? [];
+
+  const [viewAllOpen, setViewAllOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [draft, setDraft] = useState<CrossTrainingEntry>(blankCrossTraining());
+  const [draftErrors, setDraftErrors] = useState<Record<string, string>>({});
+  const [savingDraft, setSavingDraft] = useState(false);
+
+  const subjectLabel = (v: string | null) => SUBJECT_OPTIONS_FOR_UPDATE.find(o => o.value === v)?.label ?? '—';
+  const personName = (id: number | null) => interviewers.find(i => i.id === id)?.name ?? '—';
+  const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString() : '—';
+  const setD = (patch: Partial<CrossTrainingEntry>) => setDraft(prev => ({ ...prev, ...patch }));
+
+  const openAdd = () => { setDraft(blankCrossTraining()); setEditingIndex(null); setDraftErrors({}); setFormOpen(true); };
+  const openEdit = (index: number) => { setDraft({ ...entries[index] }); setEditingIndex(index); setDraftErrors({}); setFormOpen(true); };
+
+  const validateDraft = (): boolean => {
+    const e: Record<string, string> = {};
+    if (!draft.trainingDate) e.trainingDate = 'Date of training is required';
+    if (!draft.subject) e.subject = 'Subject is required';
+    if (draft.certifiedTsmId == null) e.certifiedTsmId = 'TSM is required';
+    if (!draft.certificationDate) e.certificationDate = 'Certification date is required';
+    if (draft.trainerId == null) e.trainerId = 'Trainer is required';
+    if (!(draft.feedback && draft.feedback.trim())) e.feedback = 'Feedback is required';
+    setDraftErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const saveDraft = async () => {
+    if (!validateDraft()) return;
+    const list = [...(editData.crossTrainings ?? journey.crossTrainings ?? [])];
+    if (editingIndex === null) list.push(draft); else list[editingIndex] = draft;
+    if (onSaveCrossTrainings) {
+      // Persist to the DB right away, then close.
+      setSavingDraft(true);
+      try {
+        await onSaveCrossTrainings(list);
+        setFormOpen(false);
+      } finally {
+        setSavingDraft(false);
+      }
+    } else {
+      // Fallback: keep in memory until the section's Save.
+      setEditData(prev => ({ ...prev, crossTrainings: list }));
+      setFormOpen(false);
+    }
+  };
+
+  const renderStatus = (status: CrossTrainingStatus) => (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${status === 'CERTIFIED' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
+      {status === 'CERTIFIED' ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
+      {status === 'CERTIFIED' ? 'Certified' : 'Pending'}
+    </span>
+  );
+
+  const renderCard = (entry: CrossTrainingEntry, index: number, clickable: boolean) => (
+    <div key={entry.id ?? `e-${index}`} onClick={clickable ? () => openEdit(index) : undefined}
+      className={`rounded-xl border p-4 bg-white border-slate-200 ${clickable ? 'cursor-pointer hover:border-[#1E62F2] hover:shadow-sm transition' : ''}`}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-semibold text-[hsl(214,100%,15%)]">{subjectLabel(entry.subject)}</span>
+        {renderStatus(entry.status)}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs">
+        <div><span className="text-slate-400">Training: </span><span className="text-slate-700 font-medium">{fmtDate(entry.trainingDate)}</span></div>
+        <div><span className="text-slate-400">Certified: </span><span className="text-slate-700 font-medium">{fmtDate(entry.certificationDate)}</span></div>
+        <div><span className="text-slate-400">TSM: </span><span className="text-slate-700 font-medium">{personName(entry.certifiedTsmId)}</span></div>
+        <div><span className="text-slate-400">Trainer: </span><span className="text-slate-700 font-medium">{personName(entry.trainerId)}</span></div>
+        <div className="sm:col-span-2"><span className="text-slate-400">Feedback: </span><span className="text-slate-700">{entry.feedback || '—'}</span></div>
+      </div>
+      {clickable && <div className="mt-2 text-[11px] text-[#1E62F2] font-medium">Click to edit</div>}
+    </div>
+  );
+
+  const fieldCls = (hasErr?: string) => `mt-1 bg-white ${hasErr ? 'border-[hsl(0,84%,60%)]' : ''}`;
+
+  return (
+    <div className="space-y-4">
+      {entries.length === 0 ? (
+        <div className="p-6 text-center text-sm text-slate-400 bg-slate-50 rounded-lg">No cross training recorded yet.</div>
+      ) : (
+        <>
+          {renderCard(entries[0], 0, editMode)}
+          {entries.length > 1 && (
+            <button type="button" onClick={() => setViewAllOpen(true)}
+              className="inline-flex items-center gap-1 text-sm font-medium text-[#1E62F2] hover:underline">
+              View all ({entries.length})
+            </button>
+          )}
+        </>
+      )}
+
+      {editMode && (
+        <button type="button" onClick={openAdd}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border-2 border-dashed border-[#1E62F2] text-[#1E62F2] text-sm font-medium hover:bg-[#1E62F2]/5">
+          <Plus className="h-4 w-4" /> Add another
+        </button>
+      )}
+
+      {/* VIEW ALL MODAL */}
+      <Dialog open={viewAllOpen} onOpenChange={setViewAllOpen}>
+        <DialogContent className="max-w-2xl bg-white rounded-2xl p-0 overflow-hidden gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4 bg-gradient-to-r from-[#1E62F2] to-[hsl(216,88%,64%)]">
+            <DialogTitle className="text-white text-lg font-semibold flex items-center gap-2">
+              <GraduationCap className="h-5 w-5" /> Cross Training · {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
+            </DialogTitle>
+            <DialogDescription className="text-white/80 text-xs">
+              All cross training records for this teacher.{editMode ? ' Click an entry to edit it.' : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-6 py-4 space-y-3 max-h-[60vh] overflow-y-auto">
+            {entries.map((entry, index) => renderCard(entry, index, editMode))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ADD / EDIT MODAL */}
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="max-w-lg bg-white rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-[hsl(214,100%,15%)] text-lg font-semibold">
+              {editingIndex === null ? 'Add Cross Training' : 'Edit Cross Training'}
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 text-xs">All fields are required.</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-1">
+            <div>
+              <Label className="text-xs font-medium">Date of training <span className="text-red-500">*</span></Label>
+              <Input type="date" value={draft.trainingDate?.split('T')[0] || ''} onChange={e => setD({ trainingDate: e.target.value })} className={fieldCls(draftErrors.trainingDate)} />
+              <FieldError error={draftErrors.trainingDate} />
+            </div>
+            <div>
+              <Label className="text-xs font-medium">Subject <span className="text-red-500">*</span></Label>
+              <Select value={draft.subject || ''} onValueChange={v => setD({ subject: v })}>
+                <SelectTrigger className={fieldCls(draftErrors.subject)}><SelectValue placeholder="Select subject" /></SelectTrigger>
+                <SelectContent>
+                  {SUBJECT_OPTIONS_FOR_UPDATE.filter(o => o.value !== 'NONE').map(o => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldError error={draftErrors.subject} />
+            </div>
+            <div>
+              <Label className="text-xs font-medium">Name of the TSM (who certified) <span className="text-red-500">*</span></Label>
+              <Select value={draft.certifiedTsmId?.toString() || ''} onValueChange={v => setD({ certifiedTsmId: parseInt(v) })}>
+                <SelectTrigger className={fieldCls(draftErrors.certifiedTsmId)}><SelectValue placeholder="Select TSM" /></SelectTrigger>
+                <SelectContent>
+                  {interviewers.map(i => <SelectItem key={i.id} value={i.id.toString()}>{i.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <FieldError error={draftErrors.certifiedTsmId} />
+            </div>
+            <div>
+              <Label className="text-xs font-medium">Certification date <span className="text-red-500">*</span></Label>
+              <Input type="date" value={draft.certificationDate?.split('T')[0] || ''} onChange={e => setD({ certificationDate: e.target.value })} className={fieldCls(draftErrors.certificationDate)} />
+              <FieldError error={draftErrors.certificationDate} />
+            </div>
+            <div>
+              <Label className="text-xs font-medium">Cross training Trainer <span className="text-red-500">*</span></Label>
+              <Select value={draft.trainerId?.toString() || ''} onValueChange={v => setD({ trainerId: parseInt(v) })}>
+                <SelectTrigger className={fieldCls(draftErrors.trainerId)}><SelectValue placeholder="Select trainer" /></SelectTrigger>
+                <SelectContent>
+                  {interviewers.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <FieldError error={draftErrors.trainerId} />
+            </div>
+            <div>
+              <Label className="text-xs font-medium">Status <span className="text-red-500">*</span></Label>
+              <Select value={draft.status || 'PENDING'} onValueChange={v => setD({ status: v as CrossTrainingStatus })}>
+                <SelectTrigger className="mt-1 bg-white"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CROSS_TRAINING_STATUS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="sm:col-span-2">
+              <Label className="text-xs font-medium">Feedback <span className="text-red-500">*</span></Label>
+              <Textarea value={draft.feedback || ''} rows={3} placeholder="Add feedback..." onChange={e => setD({ feedback: e.target.value })} className={fieldCls(draftErrors.feedback)} />
+              <FieldError error={draftErrors.feedback} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setFormOpen(false)} disabled={savingDraft} className="border-slate-300 text-slate-600 rounded-xl">Cancel</Button>
+            <Button onClick={saveDraft} disabled={savingDraft} className="bg-[#1E62F2] hover:bg-[#1E62F2]/90 text-white rounded-xl">
+              {savingDraft ? 'Saving…' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
