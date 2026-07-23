@@ -2936,6 +2936,8 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
     return Object.keys(e).length === 0;
   };
 
+  const resetDraft = () => { setDraft(blankCrossTraining()); setEditingIndex(null); setDraftErrors({}); };
+
   const saveDraft = async () => {
     if (!validateDraft()) return;
     const list = [...(editData.crossTrainings ?? journey.crossTrainings ?? [])];
@@ -2946,6 +2948,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
       try {
         await onSaveCrossTrainings(list);
         setFormOpen(false);
+        resetDraft();
       } finally {
         setSavingDraft(false);
       }
@@ -2953,6 +2956,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
       // Fallback: keep in memory until the section's Save.
       setEditData(prev => ({ ...prev, crossTrainings: list }));
       setFormOpen(false);
+      resetDraft();
     }
   };
 
@@ -2983,10 +2987,85 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
 
   const fieldCls = (hasErr?: string) => `mt-1 bg-white ${hasErr ? 'border-[hsl(0,84%,60%)]' : ''}`;
 
+  const renderFields = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-1">
+      <div>
+        <Label className="text-xs font-medium">Date of training <span className="text-red-500">*</span></Label>
+        <Input type="date" value={draft.trainingDate?.split('T')[0] || ''} onChange={e => setD({ trainingDate: e.target.value })} className={fieldCls(draftErrors.trainingDate)} />
+        <FieldError error={draftErrors.trainingDate} />
+      </div>
+      <div>
+        <Label className="text-xs font-medium">Subject <span className="text-red-500">*</span></Label>
+        <Select value={draft.subject || ''} onValueChange={v => setD({ subject: v })}>
+          <SelectTrigger className={fieldCls(draftErrors.subject)}><SelectValue placeholder="Select subject" /></SelectTrigger>
+          <SelectContent>
+            {SUBJECT_OPTIONS_FOR_UPDATE.filter(o => o.value !== 'NONE').map(o => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <FieldError error={draftErrors.subject} />
+      </div>
+      <div>
+        <Label className="text-xs font-medium">Name of the TSM (who certified) <span className="text-red-500">*</span></Label>
+        <Select value={draft.certifiedTsmId?.toString() || ''} onValueChange={v => setD({ certifiedTsmId: parseInt(v) })}>
+          <SelectTrigger className={fieldCls(draftErrors.certifiedTsmId)}><SelectValue placeholder="Select TSM" /></SelectTrigger>
+          <SelectContent>
+            {interviewers.map(i => <SelectItem key={i.id} value={i.id.toString()}>{i.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <FieldError error={draftErrors.certifiedTsmId} />
+      </div>
+      <div>
+        <Label className="text-xs font-medium">Certification date <span className="text-red-500">*</span></Label>
+        <Input type="date" value={draft.certificationDate?.split('T')[0] || ''} onChange={e => setD({ certificationDate: e.target.value })} className={fieldCls(draftErrors.certificationDate)} />
+        <FieldError error={draftErrors.certificationDate} />
+      </div>
+      <div>
+        <Label className="text-xs font-medium">Cross training Trainer <span className="text-red-500">*</span></Label>
+        <Select value={draft.trainerId?.toString() || ''} onValueChange={v => setD({ trainerId: parseInt(v) })}>
+          <SelectTrigger className={fieldCls(draftErrors.trainerId)}><SelectValue placeholder="Select trainer" /></SelectTrigger>
+          <SelectContent>
+            {interviewers.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <FieldError error={draftErrors.trainerId} />
+      </div>
+      <div>
+        <Label className="text-xs font-medium">Status <span className="text-red-500">*</span></Label>
+        <Select value={draft.status || 'PENDING'} onValueChange={v => setD({ status: v as CrossTrainingStatus })}>
+          <SelectTrigger className="mt-1 bg-white"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {CROSS_TRAINING_STATUS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="sm:col-span-2">
+        <Label className="text-xs font-medium">Feedback <span className="text-red-500">*</span></Label>
+        <Textarea value={draft.feedback || ''} rows={3} placeholder="Add feedback..." onChange={e => setD({ feedback: e.target.value })} className={fieldCls(draftErrors.feedback)} />
+        <FieldError error={draftErrors.feedback} />
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-4">
       {entries.length === 0 ? (
-        <div className="p-6 text-center text-sm text-slate-400 bg-slate-50 rounded-lg">No cross training recorded yet.</div>
+        editMode ? (
+          // First entry: show the fields inline to fill straight away (no "Add another" yet).
+          <div className="rounded-xl border border-[#1E62F2] p-4 bg-white">
+            <div className="text-sm font-semibold text-[hsl(214,100%,15%)] mb-1">Add Cross Training</div>
+            <p className="text-xs text-slate-400 mb-2">All fields are required.</p>
+            {renderFields()}
+            <div className="flex justify-end pt-3">
+              <Button onClick={saveDraft} disabled={savingDraft} className="bg-[#1E62F2] hover:bg-[#1E62F2]/90 text-white rounded-xl">
+                {savingDraft ? 'Saving…' : 'Save'}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="p-6 text-center text-sm text-slate-400 bg-slate-50 rounded-lg">No cross training recorded yet.</div>
+        )
       ) : (
         <>
           {renderCard(entries[0], 0, editMode)}
@@ -2996,14 +3075,13 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
               View all ({entries.length})
             </button>
           )}
+          {editMode && (
+            <button type="button" onClick={openAdd}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border-2 border-dashed border-[#1E62F2] text-[#1E62F2] text-sm font-medium hover:bg-[#1E62F2]/5">
+              <Plus className="h-4 w-4" /> Add another
+            </button>
+          )}
         </>
-      )}
-
-      {editMode && (
-        <button type="button" onClick={openAdd}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border-2 border-dashed border-[#1E62F2] text-[#1E62F2] text-sm font-medium hover:bg-[#1E62F2]/5">
-          <Plus className="h-4 w-4" /> Add another
-        </button>
       )}
 
       {/* VIEW ALL MODAL */}
@@ -3032,64 +3110,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
             </DialogTitle>
             <DialogDescription className="text-slate-500 text-xs">All fields are required.</DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-1">
-            <div>
-              <Label className="text-xs font-medium">Date of training <span className="text-red-500">*</span></Label>
-              <Input type="date" value={draft.trainingDate?.split('T')[0] || ''} onChange={e => setD({ trainingDate: e.target.value })} className={fieldCls(draftErrors.trainingDate)} />
-              <FieldError error={draftErrors.trainingDate} />
-            </div>
-            <div>
-              <Label className="text-xs font-medium">Subject <span className="text-red-500">*</span></Label>
-              <Select value={draft.subject || ''} onValueChange={v => setD({ subject: v })}>
-                <SelectTrigger className={fieldCls(draftErrors.subject)}><SelectValue placeholder="Select subject" /></SelectTrigger>
-                <SelectContent>
-                  {SUBJECT_OPTIONS_FOR_UPDATE.filter(o => o.value !== 'NONE').map(o => (
-                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError error={draftErrors.subject} />
-            </div>
-            <div>
-              <Label className="text-xs font-medium">Name of the TSM (who certified) <span className="text-red-500">*</span></Label>
-              <Select value={draft.certifiedTsmId?.toString() || ''} onValueChange={v => setD({ certifiedTsmId: parseInt(v) })}>
-                <SelectTrigger className={fieldCls(draftErrors.certifiedTsmId)}><SelectValue placeholder="Select TSM" /></SelectTrigger>
-                <SelectContent>
-                  {interviewers.map(i => <SelectItem key={i.id} value={i.id.toString()}>{i.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <FieldError error={draftErrors.certifiedTsmId} />
-            </div>
-            <div>
-              <Label className="text-xs font-medium">Certification date <span className="text-red-500">*</span></Label>
-              <Input type="date" value={draft.certificationDate?.split('T')[0] || ''} onChange={e => setD({ certificationDate: e.target.value })} className={fieldCls(draftErrors.certificationDate)} />
-              <FieldError error={draftErrors.certificationDate} />
-            </div>
-            <div>
-              <Label className="text-xs font-medium">Cross training Trainer <span className="text-red-500">*</span></Label>
-              <Select value={draft.trainerId?.toString() || ''} onValueChange={v => setD({ trainerId: parseInt(v) })}>
-                <SelectTrigger className={fieldCls(draftErrors.trainerId)}><SelectValue placeholder="Select trainer" /></SelectTrigger>
-                <SelectContent>
-                  {interviewers.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <FieldError error={draftErrors.trainerId} />
-            </div>
-            <div>
-              <Label className="text-xs font-medium">Status <span className="text-red-500">*</span></Label>
-              <Select value={draft.status || 'PENDING'} onValueChange={v => setD({ status: v as CrossTrainingStatus })}>
-                <SelectTrigger className="mt-1 bg-white"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CROSS_TRAINING_STATUS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="sm:col-span-2">
-              <Label className="text-xs font-medium">Feedback <span className="text-red-500">*</span></Label>
-              <Textarea value={draft.feedback || ''} rows={3} placeholder="Add feedback..." onChange={e => setD({ feedback: e.target.value })} className={fieldCls(draftErrors.feedback)} />
-              <FieldError error={draftErrors.feedback} />
-            </div>
-          </div>
+          {renderFields()}
           <DialogFooter>
             <Button variant="outline" onClick={() => setFormOpen(false)} disabled={savingDraft} className="border-slate-300 text-slate-600 rounded-xl">Cancel</Button>
             <Button onClick={saveDraft} disabled={savingDraft} className="bg-[#1E62F2] hover:bg-[#1E62F2]/90 text-white rounded-xl">
