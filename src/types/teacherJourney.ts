@@ -70,8 +70,26 @@ export interface TeacherJourney {
 
   internalComments: string | null;
 
+  // Cross Training (repeatable entries)
+  crossTrainings?: CrossTrainingEntry[];
+
   createdAt: string;
   updatedAt: string;
+}
+
+export type CrossTrainingStatus = 'PENDING' | 'CERTIFIED';
+
+// One repeatable Cross Training entry. `id` is present for saved rows,
+// absent for newly-added (unsaved) ones.
+export interface CrossTrainingEntry {
+  id?: number;
+  trainingDate: string | null;
+  subject: string | null;
+  certifiedTsmId: number | null;
+  certificationDate: string | null;
+  feedback: string | null;
+  trainerId: number | null;
+  status: CrossTrainingStatus;
 }
 
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED' | 'HOLD' | 'NOT_INTERESTED';
@@ -212,6 +230,9 @@ export interface UpdateTeacherJourneyData {
   rejectComments?: string;
   rejectEmailSent?: YesNo;
   internalComments?: string;
+
+  // Cross Training (full desired set of entries; backend syncs to this)
+  crossTrainings?: CrossTrainingEntry[];
 }
 
 // Constants for dropdown options
@@ -311,6 +332,11 @@ export const READY_FOR_PAID_CLASS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'YES', label: 'Yes' },
   { value: 'NO', label: 'No' }
+];
+
+export const CROSS_TRAINING_STATUS_OPTIONS = [
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'CERTIFIED', label: 'Certified' }
 ];
 
 export const CERTIFICATION_TRAINING_COUNT_OPTIONS = [
