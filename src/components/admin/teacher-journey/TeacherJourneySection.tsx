@@ -864,7 +864,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               const isDone = getTabStatus(tab.key);
               const TabIcon = tab.icon;
 
-              const isPreviousDone = getTabStatus(visibleTabs[visibleTabs.findIndex(vt => vt.key === tab.key) - 1]?.key);
+              let isPreviousDone = getTabStatus(visibleTabs[visibleTabs.findIndex(vt => vt.key === tab.key) - 1]?.key);
+              if (tab.key === 'crossTraining') {
+                isPreviousDone = ['CLEARED', 'DEMO_ONLY', 'DEMO_SALES'].includes(journey?.certificationStatus || '');
+              }
               const isLocked = !isPreviousDone;
               const isDisabled = editMode && !isActive;
 
@@ -985,9 +988,12 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               ) : !editMode ? (
                 (() => {
                   const currentTabIndex = visibleTabs.findIndex(t => t.key === activeTab);
-                  // Demo section is always editable
-                  const isLocked = currentTabIndex > 0 && activeTab !== 'demo' && !getTabStatus(visibleTabs[currentTabIndex - 1].key);
-                  const prevStageLabel = currentTabIndex > 0 ? visibleTabs[currentTabIndex - 1].label : '';
+                  let isLocked = currentTabIndex > 0 && activeTab !== 'demo' && !getTabStatus(visibleTabs[currentTabIndex - 1].key);
+                  if (activeTab === 'crossTraining') {
+                    isLocked = !['CLEARED', 'DEMO_ONLY', 'DEMO_SALES'].includes(journey?.certificationStatus || '');
+                  }
+                  
+                  const prevStageLabel = activeTab === 'crossTraining' ? 'Demo Certification (Cleared/Demo Only/Demo+Sales)' : (currentTabIndex > 0 ? visibleTabs[currentTabIndex - 1].label : '');
 
                   return (
                     <button
