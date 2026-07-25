@@ -865,7 +865,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               const TabIcon = tab.icon;
 
               const isPreviousDone = getTabStatus(visibleTabs[visibleTabs.findIndex(vt => vt.key === tab.key) - 1]?.key);
-              const isLocked = !isPreviousDone;
+              const isLocked = tab.key === 'crossTraining' ? false : !isPreviousDone;
               const isDisabled = editMode && !isActive;
 
               return (
@@ -985,8 +985,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               ) : !editMode ? (
                 (() => {
                   const currentTabIndex = visibleTabs.findIndex(t => t.key === activeTab);
-                  // Demo section is always editable
-                  const isLocked = currentTabIndex > 0 && activeTab !== 'demo' && !getTabStatus(visibleTabs[currentTabIndex - 1].key);
+                  // Demo and Cross Training sections are always editable
+                  const isLocked = currentTabIndex > 0 && activeTab !== 'demo' && activeTab !== 'crossTraining' && !getTabStatus(visibleTabs[currentTabIndex - 1].key);
                   const prevStageLabel = currentTabIndex > 0 ? visibleTabs[currentTabIndex - 1].label : '';
 
                   return (
