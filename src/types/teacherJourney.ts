@@ -101,7 +101,7 @@ export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
 export type PaidCertificationStatus = CertificationStatus;
 export type PaidGoLiveStatus = GoLiveStatus;
-export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'PHONICS' | 'ALPHA_MATH';
+export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'UNBOX_SCIENCE' | 'PHONICS' | 'ALPHA_MATH';
 
 // New types for extended fields
 export type TeachingStyleRating = 'BAD' | 'AVERAGE' | 'GOOD' | 'EXCELLENT';
@@ -170,6 +170,7 @@ export interface TeacherJourneyStats {
   subjectStats: {
     littleYogi: number;
     unbox7Plus: number;
+    unboxScience: number;
     phonics: number;
     alphaMath: number;
     unassigned: number;
@@ -361,7 +362,8 @@ export const ONBOARDING_OPTIONS = [
 export const SUBJECT_OPTIONS = [
   { value: 'all', label: 'All Subjects' },
   { value: 'LITTLE_YOGI', label: 'Little Yogi' },
-  { value: 'UNBOX_7_PLUS', label: 'Unbox 7+' },
+  { value: 'UNBOX_7_PLUS', label: 'Unbox English 7+' },
+  { value: 'UNBOX_SCIENCE', label: 'Unbox Science' },
   { value: 'PHONICS', label: 'Phonics' },
   { value: 'ALPHA_MATH', label: 'Alpha Math' }
 ];
@@ -369,7 +371,8 @@ export const SUBJECT_OPTIONS = [
 export const SUBJECT_OPTIONS_FOR_UPDATE = [
   { value: 'NONE', label: 'Not Assigned' },
   { value: 'LITTLE_YOGI', label: 'Little Yogi' },
-  { value: 'UNBOX_7_PLUS', label: 'Unbox 7+' },
+  { value: 'UNBOX_7_PLUS', label: 'Unbox English 7+' },
+  { value: 'UNBOX_SCIENCE', label: 'Unbox Science' },
   { value: 'PHONICS', label: 'Phonics' },
   { value: 'ALPHA_MATH', label: 'Alpha Math' }
 ];
@@ -463,7 +466,8 @@ export const getSubjectLabel = (subject: Subject | Subject[] | null): string => 
 
   const labels: Record<Subject, string> = {
     'LITTLE_YOGI': 'Little Yogi',
-    'UNBOX_7_PLUS': 'Unbox 7+',
+    'UNBOX_7_PLUS': 'Unbox English 7+',
+    'UNBOX_SCIENCE': 'Unbox Science',
     'PHONICS': 'Phonics',
     'ALPHA_MATH': 'Alpha Math'
   };
