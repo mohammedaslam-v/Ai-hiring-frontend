@@ -1786,7 +1786,7 @@ interface SubjectsMultiSelectProps {
 }
 
 const SUBJECT_OPTIONS = [
-  'Unbox English',
+  'Unbox English 7+',
   'Little Yogi',
   'Alpha Maths',
   'Phonics',
@@ -2660,7 +2660,8 @@ const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, se
             <div className="grid grid-cols-2 gap-y-2 gap-x-4 mt-2">
               {[
                 { id: 'LITTLE_YOGI', label: 'Little Yogi' },
-                { id: 'UNBOX_7_PLUS', label: 'Unbox 7+' },
+                { id: 'UNBOX_7_PLUS', label: 'Unbox English 7+' },
+                { id: 'UNBOX_SCIENCE', label: 'Unbox Science' },
                 { id: 'PHONICS', label: 'Phonics' },
                 { id: 'ALPHA_MATH', label: 'Alpha Math' },
               ].map((subject) => (
@@ -3007,21 +3008,6 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
         <FieldError error={draftErrors.subject} />
       </div>
       <div>
-        <Label className="text-xs font-medium">Name of the TSM (who certified) <span className="text-red-500">*</span></Label>
-        <Select value={draft.certifiedTsmId?.toString() || ''} onValueChange={v => setD({ certifiedTsmId: parseInt(v) })}>
-          <SelectTrigger className={fieldCls(draftErrors.certifiedTsmId)}><SelectValue placeholder="Select TSM" /></SelectTrigger>
-          <SelectContent>
-            {interviewers.map(i => <SelectItem key={i.id} value={i.id.toString()}>{i.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <FieldError error={draftErrors.certifiedTsmId} />
-      </div>
-      <div>
-        <Label className="text-xs font-medium">Certification date <span className="text-red-500">*</span></Label>
-        <Input type="date" value={draft.certificationDate?.split('T')[0] || ''} onChange={e => setD({ certificationDate: e.target.value })} className={fieldCls(draftErrors.certificationDate)} />
-        <FieldError error={draftErrors.certificationDate} />
-      </div>
-      <div>
         <Label className="text-xs font-medium">Cross training Trainer <span className="text-red-500">*</span></Label>
         <Select value={draft.trainerId?.toString() || ''} onValueChange={v => setD({ trainerId: parseInt(v) })}>
           <SelectTrigger className={fieldCls(draftErrors.trainerId)}><SelectValue placeholder="Select trainer" /></SelectTrigger>
@@ -3039,6 +3025,21 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
             {CROSS_TRAINING_STATUS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
           </SelectContent>
         </Select>
+      </div>
+      <div>
+        <Label className="text-xs font-medium">Name of the TSM (who certified) <span className="text-red-500">*</span></Label>
+        <Select value={draft.certifiedTsmId?.toString() || ''} onValueChange={v => setD({ certifiedTsmId: parseInt(v) })}>
+          <SelectTrigger className={fieldCls(draftErrors.certifiedTsmId)}><SelectValue placeholder="Select TSM" /></SelectTrigger>
+          <SelectContent>
+            {interviewers.map(i => <SelectItem key={i.id} value={i.id.toString()}>{i.name}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <FieldError error={draftErrors.certifiedTsmId} />
+      </div>
+      <div>
+        <Label className="text-xs font-medium">Certification date <span className="text-red-500">*</span></Label>
+        <Input type="date" value={draft.certificationDate?.split('T')[0] || ''} onChange={e => setD({ certificationDate: e.target.value })} className={fieldCls(draftErrors.certificationDate)} />
+        <FieldError error={draftErrors.certificationDate} />
       </div>
       <div className="sm:col-span-2">
         <Label className="text-xs font-medium">Feedback <span className="text-red-500">*</span></Label>

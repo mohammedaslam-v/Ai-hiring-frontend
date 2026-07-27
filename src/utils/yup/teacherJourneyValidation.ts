@@ -105,7 +105,7 @@ export const demoSectionValidation = Yup.object().shape({
     .max(4, TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.MAX_SELECTION)
     .test('valid-subjects', TEACHER_JOURNEY_ERROR_MESSAGES.SUBJECTS.INVALID_SUBJECT, (value) => {
       if (!value || value.length === 0) return false;
-      const validSubjects = ['Unbox English', 'Little Yogi', 'Alpha Maths', 'Phonics', 'Science', 'Kannada', 'Demo+Sales'];
+      const validSubjects = ['Unbox English 7+', 'Little Yogi', 'Alpha Maths', 'Phonics', 'Science', 'Kannada', 'Demo+Sales'];
       return value.every(subj => validSubjects.includes(subj));
     }),
 });
@@ -223,7 +223,7 @@ export const goLiveSectionValidation = Yup.object().shape({
         .min(1, TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.SUBJECT_REQUIRED)
         .test('valid-subjects', TEACHER_JOURNEY_ERROR_MESSAGES.GO_LIVE.SUBJECT_INVALID, (value) => {
           if (!value) return true;
-          const validSubjects = ['LITTLE_YOGI', 'UNBOX_7_PLUS', 'PHONICS', 'ALPHA_MATH'];
+          const validSubjects = ['LITTLE_YOGI', 'UNBOX_7_PLUS', 'UNBOX_SCIENCE', 'PHONICS', 'ALPHA_MATH'];
           return value.every(subj => validSubjects.includes(subj));
         }),
       otherwise: (schema) => schema.nullable(),
