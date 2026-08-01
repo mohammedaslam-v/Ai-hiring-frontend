@@ -628,6 +628,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           paidCertificationStatus: data.paidCertificationStatus,
           paidCertificationDate: data.paidCertificationDate,
           paidCertificationFeedback: data.paidCertificationFeedback,
+          paidCertificationTsmId: data.paidCertificationTsmId,
         };
       case 'paidGoLive':
         return {
@@ -658,7 +659,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'goLive': return journey?.goLiveReadiness === 'YES';
       case 'readyForPaidClass': return journey?.readyForPaidClass === 'YES';
       case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
-      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED' || journey?.paidCertificationStatus === 'DEMO_ONLY' || journey?.paidCertificationStatus === 'DEMO_SALES' || journey?.paidCertificationStatus === 'PORTAL_HW_SUBMITTED';
+      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED' || journey?.paidCertificationStatus === 'DEMO_ONLY' || journey?.paidCertificationStatus === 'DEMO_SALES' || journey?.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.paidCertificationStatus === 'PORTAL_HW_SUBMITTED';
       case 'paidGoLive': return journey?.paidGoLiveReadiness === 'YES';
       case 'crossTraining': {
         const entries = journey?.crossTrainings ?? [];
@@ -1071,7 +1072,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                 <PaidTrainingSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} demoTrainers={demoTrainers} />
               )}
               {activeTab === 'paidCertification' && journey && !isRejected && (
-                <PaidCertificationSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
+                <PaidCertificationSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} interviewers={interviewers} />
               )}
               {activeTab === 'paidGoLive' && journey && !isRejected && (
                 <PaidGoLiveSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
@@ -2856,7 +2857,7 @@ const PaidTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, ed
   );
 };
 
-const PaidCertificationSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+const PaidCertificationSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, interviewers = [] }) => {
   const data = editMode ? editData : journey;
   return (
     <div className="space-y-5">
@@ -2873,6 +2874,35 @@ const PaidCertificationSectionImpl: React.FC<SectionProps> = ({ journey, editMod
         <Label>Certification Date</Label>
         {editMode ? <Input type="date" value={data.paidCertificationDate ? new Date(data.paidCertificationDate).toISOString().split('T')[0] : ''} onChange={e => setEditData(prev => ({ ...prev, paidCertificationDate: e.target.value }))} className="mt-1 bg-white border-[#1E62F2]" /> : <p>{data.paidCertificationDate ? new Date(data.paidCertificationDate).toLocaleDateString() : '—'}</p>}
       </div>
+      {/* Name of the TSM - Dropdown */}
+      <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
+        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Name of the TSM</Label>
+        {editMode ? (
+          <>
+            <Select value={data.paidCertificationTsmId?.toString() || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, paidCertificationTsmId: parseInt(v) }))}>
+              <SelectTrigger className={`mt-1 bg-white ${fieldErrors.paidCertificationTsmId ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`}>
+                <SelectValue placeholder="Select TSM" />
+              </SelectTrigger>
+              <SelectContent>
+                {interviewers.map((interviewer) => (
+                  <SelectItem key={interviewer.id} value={interviewer.id.toString()}>
+                    {interviewer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldError error={fieldErrors.paidCertificationTsmId} />
+          </>
+        ) : (
+          <p className="text-sm text-slate-700 mt-1 font-medium">
+            {journey.paidCertificationTsmId
+              ? interviewers.find(i => i.id === journey.paidCertificationTsmId)?.name || '—'
+              : '—'
+            }
+          </p>
+        )}
+      </div>
+
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
         <Label>Feedback</Label>
         {editMode ? <Textarea value={data.paidCertificationFeedback || ''} onChange={e => setEditData(prev => ({ ...prev, paidCertificationFeedback: e.target.value }))} className="mt-1 bg-white border-[#1E62F2]" /> : <p>{journey.paidCertificationFeedback || '—'}</p>}
