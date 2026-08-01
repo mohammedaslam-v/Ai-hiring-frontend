@@ -42,6 +42,7 @@ export interface TeacherJourney {
   paidCertificationStatus?: PaidCertificationStatus;
   paidCertificationDate?: string;
   paidCertificationFeedback?: string;
+  paidCertificationTsmId?: number | null;
   paidGoLiveReadiness?: PaidGoLiveStatus;
   paidGoLiveDate?: string;
   paidAssignedSubject?: Subject[] | null;
@@ -212,6 +213,7 @@ export interface UpdateTeacherJourneyData {
   paidCertificationStatus?: PaidCertificationStatus;
   paidCertificationDate?: string;
   paidCertificationFeedback?: string;
+  paidCertificationTsmId?: number | null;
   paidGoLiveReadiness?: PaidGoLiveStatus;
   paidGoLiveDate?: string;
   paidAssignedSubject?: Subject[] | null;
