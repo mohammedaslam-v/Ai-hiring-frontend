@@ -102,7 +102,7 @@ export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
 export type PaidCertificationStatus = CertificationStatus;
 export type PaidGoLiveStatus = GoLiveStatus;
-export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'UNBOX_SCIENCE' | 'PHONICS' | 'ALPHA_MATH';
+export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'UNBOX_SCIENCE' | 'PHONICS' | 'ALPHA_MATH' | 'ARTIFICIAL_INTELLIGENCE' | 'CHESS';
 
 // New types for extended fields
 export type TeachingStyleRating = 'BAD' | 'AVERAGE' | 'GOOD' | 'EXCELLENT';
@@ -174,6 +174,8 @@ export interface TeacherJourneyStats {
     unboxScience: number;
     phonics: number;
     alphaMath: number;
+    artificialIntelligence: number;
+    chess: number;
     unassigned: number;
   };
 }
@@ -300,6 +302,7 @@ export const DEMO_CERTIFICATION_STATUS_OPTIONS = [
   { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
   { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'CALIBRATION_REQUIRED', label: 'Calibration Required' },
+  { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
   { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
@@ -367,7 +370,9 @@ export const SUBJECT_OPTIONS = [
   { value: 'UNBOX_7_PLUS', label: 'Unbox English 7+' },
   { value: 'UNBOX_SCIENCE', label: 'Unbox Science' },
   { value: 'PHONICS', label: 'Phonics' },
-  { value: 'ALPHA_MATH', label: 'Alpha Math' }
+  { value: 'ALPHA_MATH', label: 'Alpha Math' },
+  { value: 'ARTIFICIAL_INTELLIGENCE', label: 'Artificial Intelligence' },
+  { value: 'CHESS', label: 'Chess' }
 ];
 
 export const SUBJECT_OPTIONS_FOR_UPDATE = [
@@ -376,7 +381,9 @@ export const SUBJECT_OPTIONS_FOR_UPDATE = [
   { value: 'UNBOX_7_PLUS', label: 'Unbox English 7+' },
   { value: 'UNBOX_SCIENCE', label: 'Unbox Science' },
   { value: 'PHONICS', label: 'Phonics' },
-  { value: 'ALPHA_MATH', label: 'Alpha Math' }
+  { value: 'ALPHA_MATH', label: 'Alpha Math' },
+  { value: 'ARTIFICIAL_INTELLIGENCE', label: 'Artificial Intelligence' },
+  { value: 'CHESS', label: 'Chess' }
 ];
 
 export const SORT_OPTIONS = [
@@ -471,7 +478,9 @@ export const getSubjectLabel = (subject: Subject | Subject[] | null): string => 
     'UNBOX_7_PLUS': 'Unbox English 7+',
     'UNBOX_SCIENCE': 'Unbox Science',
     'PHONICS': 'Phonics',
-    'ALPHA_MATH': 'Alpha Math'
+    'ALPHA_MATH': 'Alpha Math',
+    'ARTIFICIAL_INTELLIGENCE': 'Artificial Intelligence',
+    'CHESS': 'Chess'
   };
 
   if (Array.isArray(subject)) {
