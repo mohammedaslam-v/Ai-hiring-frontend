@@ -49,6 +49,8 @@ export const SUBJECTS = [
   'Music',
   'Physical Education',
   'Foreign Languages',
+  'Artificial Intelligence',
+  'Chess',
 ] as const;
 
 export const POSITIONS = [
