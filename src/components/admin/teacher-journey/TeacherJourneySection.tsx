@@ -55,7 +55,9 @@ import {
   WhatsAppGroupStatus,
   CrossTrainingEntry,
   CrossTrainingStatus,
+  CrossTrainingType,
   CROSS_TRAINING_STATUS_OPTIONS,
+  CROSS_TRAINING_TYPE_OPTIONS,
   SUBJECT_OPTIONS_FOR_UPDATE
 } from '@/types/teacherJourney';
 import { toast } from 'react-toastify';
@@ -165,11 +167,11 @@ const getStatusBadge = (status: string) => {
 // CROSS TRAINING HELPERS
 // ============================================
 const blankCrossTraining = (): CrossTrainingEntry => ({
-  trainingDate: null, subject: null, certifiedTsmId: null, certificationDate: null, feedback: null, trainerId: null, status: 'PENDING',
+  trainingType: null, trainingDate: null, subject: null, certifiedTsmId: null, certificationDate: null, feedback: null, trainerId: null, status: 'PENDING',
 });
 // A brand-new, untouched entry — used to avoid saving the default first row if left empty.
 const isBlankCrossTraining = (e: CrossTrainingEntry): boolean =>
-  !e.trainingDate && !e.subject && e.certifiedTsmId == null && !e.certificationDate &&
+  !e.trainingType && !e.trainingDate && !e.subject && e.certifiedTsmId == null && !e.certificationDate &&
   !(e.feedback && e.feedback.trim()) && e.trainerId == null && (!e.status || e.status === 'PENDING');
 
 // ============================================
@@ -2952,6 +2954,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
   const [savingDraft, setSavingDraft] = useState(false);
 
   const subjectLabel = (v: string | null) => SUBJECT_OPTIONS_FOR_UPDATE.find(o => o.value === v)?.label ?? '—';
+  const typeLabel = (v: string | null) => CROSS_TRAINING_TYPE_OPTIONS.find(o => o.value === v)?.label ?? '—';
   const personName = (id: number | null) => interviewers.find(i => i.id === id)?.name ?? '—';
   const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString() : '—';
   const setD = (patch: Partial<CrossTrainingEntry>) => setDraft(prev => ({ ...prev, ...patch }));
@@ -2961,6 +2964,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
 
   const validateDraft = (): boolean => {
     const e: Record<string, string> = {};
+    if (!draft.trainingType) e.trainingType = 'Type is required';
     if (!draft.trainingDate) e.trainingDate = 'Date of training is required';
     if (!draft.subject) e.subject = 'Subject is required';
     if (draft.certifiedTsmId == null) e.certifiedTsmId = 'TSM is required';
@@ -3010,6 +3014,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
         {renderStatus(entry.status)}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs">
+        <div><span className="text-slate-400">Type: </span><span className="text-slate-700 font-medium">{typeLabel(entry.trainingType)}</span></div>
         <div><span className="text-slate-400">Training: </span><span className="text-slate-700 font-medium">{fmtDate(entry.trainingDate)}</span></div>
         <div><span className="text-slate-400">Certified: </span><span className="text-slate-700 font-medium">{fmtDate(entry.certificationDate)}</span></div>
         <div><span className="text-slate-400">TSM: </span><span className="text-slate-700 font-medium">{personName(entry.certifiedTsmId)}</span></div>
@@ -3024,6 +3029,16 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
 
   const renderFields = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-1">
+      <div>
+        <Label className="text-xs font-medium">Type <span className="text-red-500">*</span></Label>
+        <Select value={draft.trainingType || ''} onValueChange={v => setD({ trainingType: v as CrossTrainingType })}>
+          <SelectTrigger className={fieldCls(draftErrors.trainingType)}><SelectValue placeholder="Select type" /></SelectTrigger>
+          <SelectContent>
+            {CROSS_TRAINING_TYPE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <FieldError error={draftErrors.trainingType} />
+      </div>
       <div>
         <Label className="text-xs font-medium">Date of training <span className="text-red-500">*</span></Label>
         <Input type="date" value={draft.trainingDate?.split('T')[0] || ''} onChange={e => setD({ trainingDate: e.target.value })} className={fieldCls(draftErrors.trainingDate)} />

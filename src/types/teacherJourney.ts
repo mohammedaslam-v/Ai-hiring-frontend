@@ -79,11 +79,13 @@ export interface TeacherJourney {
 }
 
 export type CrossTrainingStatus = 'PENDING' | 'CERTIFIED';
+export type CrossTrainingType = 'PAID_TRAINING' | 'DEMO_TRAINING';
 
 // One repeatable Cross Training entry. `id` is present for saved rows,
 // absent for newly-added (unsaved) ones.
 export interface CrossTrainingEntry {
   id?: number;
+  trainingType: CrossTrainingType | null;
   trainingDate: string | null;
   subject: string | null;
   certifiedTsmId: number | null;
@@ -343,6 +345,11 @@ export const READY_FOR_PAID_CLASS_OPTIONS = [
 export const CROSS_TRAINING_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'CERTIFIED', label: 'Certified' }
+];
+
+export const CROSS_TRAINING_TYPE_OPTIONS = [
+  { value: 'PAID_TRAINING', label: 'Paid Training' },
+  { value: 'DEMO_TRAINING', label: 'Demo Training' }
 ];
 
 export const CERTIFICATION_TRAINING_COUNT_OPTIONS = [
