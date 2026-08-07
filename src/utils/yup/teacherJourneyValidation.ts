@@ -300,6 +300,7 @@ const crossTrainingSectionValidation = Yup.object().shape({
   crossTrainings: Yup.array()
     .of(
       Yup.object().shape({
+        trainingType: Yup.string().oneOf(['PAID_TRAINING', 'DEMO_TRAINING'], 'Invalid cross training type').nullable().required('Type is required'),
         trainingDate: Yup.string().nullable().required('Date of training is required'),
         subject: Yup.string().nullable().required('Subject is required'),
         certifiedTsmId: Yup.number().nullable().required('TSM is required'),
