@@ -1053,13 +1053,14 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                   onSendDemoEmail={handleSendDemoEmail}
                   sendingEmail={sendingEmail}
                   onSendHoldEmail={() => setShowHoldEmailModal(true)}
+                  candidateName={candidateName}
                 />
               )}
               {activeTab === 'induction' && journey && !isRejected && (
                 <InductionSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
               )}
               {activeTab === 'training' && journey && !isRejected && (
-                <TrainingSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} demoTrainers={demoTrainers} />
+                <TrainingSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} demoTrainers={demoTrainers} candidateName={candidateName} />
               )}
               {activeTab === 'certification' && journey && !isRejected && (
                 <CertificationSection journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} interviewers={interviewers} candidateName={candidateName} />
@@ -2001,7 +2002,8 @@ const DemoSection: React.FC<DemoSectionProps> = ({
   fieldErrors = {},
   onSendDemoEmail,
   sendingEmail = false,
-  onSendHoldEmail
+  onSendHoldEmail,
+  candidateName
 }) => {
   const { user } = useAuth();
   const { interviewers } = useInterviewers();
@@ -2009,6 +2011,31 @@ const DemoSection: React.FC<DemoSectionProps> = ({
 
   // Check if user is hire@bambinos.live
   const isHireEmail = user?.email === 'hire@bambinos.live';
+
+  // ---- Demo HR Scorecard ----
+  const [demoHrScorecardOpen, setDemoHrScorecardOpen] = useState(false);
+  const [demoHrLatestScorecard, setDemoHrLatestScorecard] = useState<MockAssessment | null>(null);
+
+  const loadDemoHrScorecard = useCallback(() => {
+    if (!journey.applicationId) return;
+    teacherJourneyService.getMockAssessments(journey.applicationId, 'DEMO_HR').then(res => {
+      setDemoHrLatestScorecard(res.status && res.data && res.data.length > 0 ? res.data[0] : null);
+    });
+  }, [journey.applicationId]);
+
+  useEffect(() => { loadDemoHrScorecard(); }, [loadDemoHrScorecard]);
+
+  const demoHrResult = demoHrLatestScorecard?.overallResult;
+  const demoHrBadgeClass = demoHrResult === 'SELECTED'
+    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    : demoHrResult === 'REJECTED'
+      ? 'bg-red-50 text-red-700 border-red-200'
+      : 'bg-blue-50 text-blue-700 border-blue-200';
+  const demoHrBadgeLabel = demoHrResult === 'SELECTED'
+    ? 'Scored · Selected'
+    : demoHrResult === 'REJECTED'
+      ? 'Scored · Rejected'
+      : 'Scored';
 
   return (
     <div className="space-y-2.5">
@@ -2252,6 +2279,43 @@ const DemoSection: React.FC<DemoSectionProps> = ({
           </p>
         )}
       </FieldContainer>
+
+      {/* Demo HR Scorecard launcher */}
+      <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 mt-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-slate-700">Demo HR Scorecard</p>
+            {demoHrLatestScorecard && (
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${demoHrBadgeClass}`}>
+                {demoHrResult === 'SELECTED' ? <CheckCircle2 className="w-3 h-3" />
+                  : demoHrResult === 'REJECTED' ? <XCircle className="w-3 h-3" />
+                    : <ClipboardCheck className="w-3 h-3" />}
+                {demoHrBadgeLabel}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-slate-400">
+            {demoHrLatestScorecard ? "Scorecard submitted — view or update the candidate's scores." : "Open the rubric grader to score this candidate's demo."}
+          </p>
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          className="h-8 rounded-xl text-xs bg-[#1E62F2] hover:bg-[#1751cc]"
+          onClick={() => setDemoHrScorecardOpen(true)}
+        >
+          <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" /> {demoHrLatestScorecard ? 'View / Edit Score' : 'Score'}
+        </Button>
+      </div>
+
+      <ScorecardGraderDialog
+        open={demoHrScorecardOpen}
+        onOpenChange={setDemoHrScorecardOpen}
+        defaultCandidateName={candidateName}
+        applicationId={journey.applicationId}
+        onSaved={loadDemoHrScorecard}
+        phase="DEMO_HR"
+      />
     </div>
   );
 };
@@ -2301,8 +2365,33 @@ const InductionSection: React.FC<SectionProps> = ({ journey, editMode, editData,
 };
 
 // TRAINING SECTION
-const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, demoTrainers = [] }) => {
+const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, demoTrainers = [], candidateName }) => {
   const data = editMode ? editData : journey;
+
+  // ---- Demo Training Scorecard ----
+  const [demoTrainingScorecardOpen, setDemoTrainingScorecardOpen] = useState(false);
+  const [demoTrainingLatestScorecard, setDemoTrainingLatestScorecard] = useState<MockAssessment | null>(null);
+
+  const loadDemoTrainingScorecard = useCallback(() => {
+    if (!journey.applicationId) return;
+    teacherJourneyService.getMockAssessments(journey.applicationId, 'DEMO_TRAINING').then(res => {
+      setDemoTrainingLatestScorecard(res.status && res.data && res.data.length > 0 ? res.data[0] : null);
+    });
+  }, [journey.applicationId]);
+
+  useEffect(() => { loadDemoTrainingScorecard(); }, [loadDemoTrainingScorecard]);
+
+  const demoTrainingResult = demoTrainingLatestScorecard?.overallResult;
+  const demoTrainingBadgeClass = demoTrainingResult === 'SELECTED'
+    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    : demoTrainingResult === 'REJECTED'
+      ? 'bg-red-50 text-red-700 border-red-200'
+      : 'bg-blue-50 text-blue-700 border-blue-200';
+  const demoTrainingBadgeLabel = demoTrainingResult === 'SELECTED'
+    ? 'Scored · Selected'
+    : demoTrainingResult === 'REJECTED'
+      ? 'Scored · Rejected'
+      : 'Scored';
 
   return (
     <div className="space-y-5">
@@ -2434,6 +2523,42 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
           </div>
         )}
       </div>
+      {/* Demo Training Scorecard launcher */}
+      <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 mt-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-slate-700">Demo Training Scorecard</p>
+            {demoTrainingLatestScorecard && (
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${demoTrainingBadgeClass}`}>
+                {demoTrainingResult === 'SELECTED' ? <CheckCircle2 className="w-3 h-3" />
+                  : demoTrainingResult === 'REJECTED' ? <XCircle className="w-3 h-3" />
+                    : <ClipboardCheck className="w-3 h-3" />}
+                {demoTrainingBadgeLabel}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-slate-400">
+            {demoTrainingLatestScorecard ? "Scorecard submitted — view or update the candidate's scores." : "Open the rubric grader to score this candidate's demo training."}
+          </p>
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          className="h-8 rounded-xl text-xs bg-[#1E62F2] hover:bg-[#1751cc]"
+          onClick={() => setDemoTrainingScorecardOpen(true)}
+        >
+          <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" /> {demoTrainingLatestScorecard ? 'View / Edit Score' : 'Score'}
+        </Button>
+      </div>
+
+      <ScorecardGraderDialog
+        open={demoTrainingScorecardOpen}
+        onOpenChange={setDemoTrainingScorecardOpen}
+        defaultCandidateName={candidateName}
+        applicationId={journey.applicationId}
+        onSaved={loadDemoTrainingScorecard}
+        phase="DEMO_TRAINING"
+      />
     </div>
   );
 };
@@ -2447,7 +2572,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
   // Load the latest submitted scorecard so we can show a badge / change the button label
   const loadScorecard = useCallback(() => {
     if (!journey.applicationId) return;
-    teacherJourneyService.getMockAssessments(journey.applicationId).then(res => {
+    teacherJourneyService.getMockAssessments(journey.applicationId, 'CERTIFICATION').then(res => {
       setLatestScorecard(res.status && res.data && res.data.length > 0 ? res.data[0] : null);
     });
   }, [journey.applicationId]);
@@ -2580,6 +2705,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
         defaultCandidateName={candidateName}
         applicationId={journey.applicationId}
         onSaved={loadScorecard}
+        phase="CERTIFICATION"
       />
 
       {/* Conditional Training Count - Only shown when "Need More Training" is selected */}

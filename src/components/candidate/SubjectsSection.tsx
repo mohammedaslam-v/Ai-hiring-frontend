@@ -28,7 +28,7 @@ const SubjectsSection = ({
   onLanguageChange,
   subjectError
 }: SubjectsSectionProps) => {
-  const subjects = ["English", "Phonics", "Maths", "Bhagavad Gita", "Science", "Sanatan Unbox", "Kannada", "Artificial Intelligence", "Chess"];
+  const subjects = ["English", "Phonics", "Maths", "Bhagavad Gita", "Science", "Sanatan Unbox", "Kannada" /*, "Artificial Intelligence", "Chess"*/];
   const additionalLanguages = ["Bengali", "Tamil", "Marathi", "Malayalam", "Telugu", "Kannada"];
 
   return (

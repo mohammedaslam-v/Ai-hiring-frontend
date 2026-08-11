@@ -89,7 +89,14 @@ interface ScorecardGraderDialogProps {
   defaultCandidateName?: string;
   applicationId?: string;
   onSaved?: () => void;
+  phase?: 'CERTIFICATION' | 'DEMO_HR' | 'DEMO_TRAINING';
 }
+
+const PHASE_TITLES: Record<string, { main: string; subtitle: string }> = {
+  CERTIFICATION: { main: 'Teacher Mock Assessment', subtitle: 'Grader: Multi-Subject Scorecard' },
+  DEMO_HR: { main: 'Demo HR Assessment', subtitle: 'Grader: Demo Round Scorecard' },
+  DEMO_TRAINING: { main: 'Demo Training Assessment', subtitle: 'Grader: Training Round Scorecard' },
+};
 
 const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
   open,
@@ -97,6 +104,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
   defaultCandidateName = '',
   applicationId,
   onSaved,
+  phase = 'CERTIFICATION',
 }) => {
   // Metadata
   const [candidateName, setCandidateName] = useState(defaultCandidateName);
@@ -133,7 +141,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
     let cancelled = false;
     setLoading(true);
     setShowErrors(false);
-    teacherJourneyService.getMockAssessments(applicationId)
+    teacherJourneyService.getMockAssessments(applicationId, phase)
       .then(res => {
         if (cancelled) return;
         const latest = res.status && res.data && res.data.length > 0 ? res.data[0] : null;
@@ -160,7 +168,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [open, applicationId, defaultCandidateName]);
+  }, [open, applicationId, defaultCandidateName, phase]);
 
   const setScore = (key: string, value: number) =>
     setScores(prev => ({ ...prev, [key]: value }));
@@ -240,6 +248,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
         strengths: strengths || undefined,
         improvements: improvements || undefined,
         nextSteps: nextSteps || undefined,
+        phase,
       } as const;
 
       // Update the existing scorecard if one was loaded, otherwise create a new one
@@ -267,7 +276,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
       >
         {/* a11y title (visually replaced by the styled header below) */}
         <DialogHeader className="sr-only">
-          <DialogTitle>Bambinos Teacher Assessment Grader</DialogTitle>
+          <DialogTitle>{PHASE_TITLES[phase]?.main || 'Teacher Mock Assessment'}</DialogTitle>
           <DialogDescription>Multi-subject mock assessment scorecard</DialogDescription>
         </DialogHeader>
 
@@ -279,10 +288,10 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
             </span>
             <div className="text-right">
               <h2 className="text-xl font-extrabold uppercase tracking-wide text-slate-900">
-                Teacher Mock Assessment
+                {PHASE_TITLES[phase]?.main || 'Teacher Mock Assessment'}
               </h2>
               <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                Grader: Multi-Subject Scorecard
+                {PHASE_TITLES[phase]?.subtitle || 'Grader: Multi-Subject Scorecard'}
               </p>
             </div>
           </div>
