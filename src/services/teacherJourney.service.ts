@@ -73,6 +73,7 @@ export interface SaveMockAssessmentData {
   strengths?: string;
   improvements?: string;
   nextSteps?: string;
+  phase?: 'CERTIFICATION' | 'DEMO_HR' | 'DEMO_TRAINING';
 }
 
 export interface MockAssessment {
@@ -92,6 +93,7 @@ export interface MockAssessment {
   strengths: string | null;
   improvements: string | null;
   nextSteps: string | null;
+  phase: string | null;
   createdBy: string | null;
   createdAt: string;
   updatedAt: string;
@@ -692,16 +694,18 @@ class TeacherJourneyService {
   }
 
   // List a candidate's mock assessment scorecards (newest first)
-  async getMockAssessments(applicationId: string): Promise<{
+  async getMockAssessments(applicationId: string, phase?: string): Promise<{
     status: boolean;
     message: string;
     data?: MockAssessment[];
     error?: string;
   }> {
     try {
-      const response = await axiosInstance.get<ApiResponse<MockAssessment[]>>(
-        `${this.baseUrl}/mock-assessment/application/${applicationId}`
-      );
+      let url = `${this.baseUrl}/mock-assessment/application/${applicationId}`;
+      if (phase) {
+        url += `?phase=${encodeURIComponent(phase)}`;
+      }
+      const response = await axiosInstance.get<ApiResponse<MockAssessment[]>>(url);
 
       if (response.data.status) {
         return {
