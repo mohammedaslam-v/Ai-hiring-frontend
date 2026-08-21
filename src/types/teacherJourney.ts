@@ -347,8 +347,7 @@ export const CROSS_TRAINING_STATUS_OPTIONS = [
   { value: 'CLEARED', label: 'Cleared' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
   { value: 'RE_TRAINING', label: 'Re-training' },
-  { value: 'ABSENT', label: 'Absent' },
-  { value: 'CERTIFIED', label: 'Certified' }
+  { value: 'ABSENT', label: 'Absent' }
 ];
 
 export const CROSS_TRAINING_TYPE_OPTIONS = [
