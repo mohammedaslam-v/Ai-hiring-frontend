@@ -78,7 +78,7 @@ export interface TeacherJourney {
   updatedAt: string;
 }
 
-export type CrossTrainingStatus = 'PENDING' | 'CERTIFIED';
+export type CrossTrainingStatus = 'PENDING' | 'CERTIFIED' | 'CLEARED' | 'NOT_CLEARED' | 'RE_TRAINING' | 'ABSENT';
 export type CrossTrainingType = 'PAID_TRAINING' | 'DEMO_TRAINING';
 
 // One repeatable Cross Training entry. `id` is present for saved rows,
@@ -344,6 +344,10 @@ export const READY_FOR_PAID_CLASS_OPTIONS = [
 
 export const CROSS_TRAINING_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
+  { value: 'CLEARED', label: 'Cleared' },
+  { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'RE_TRAINING', label: 'Re-training' },
+  { value: 'ABSENT', label: 'Absent' },
   { value: 'CERTIFIED', label: 'Certified' }
 ];
 

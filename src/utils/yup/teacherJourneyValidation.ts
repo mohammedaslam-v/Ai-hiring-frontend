@@ -307,7 +307,7 @@ const crossTrainingSectionValidation = Yup.object().shape({
         certificationDate: Yup.string().nullable().required('Certification date is required'),
         feedback: Yup.string().nullable().required('Feedback is required'),
         trainerId: Yup.number().nullable().required('Trainer is required'),
-        status: Yup.string().oneOf(['PENDING', 'CERTIFIED'], 'Invalid cross training status').required('Status is required'),
+        status: Yup.string().oneOf(['PENDING', 'CERTIFIED', 'CLEARED', 'NOT_CLEARED', 'RE_TRAINING', 'ABSENT'], 'Invalid cross training status').required('Status is required'),
       })
     )
     .nullable(),
