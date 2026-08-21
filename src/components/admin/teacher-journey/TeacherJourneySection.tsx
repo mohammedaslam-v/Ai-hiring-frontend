@@ -665,7 +665,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'paidGoLive': return journey?.paidGoLiveReadiness === 'YES';
       case 'crossTraining': {
         const entries = journey?.crossTrainings ?? [];
-        return entries.length > 0 && entries.every((c) => c.status === 'CERTIFIED');
+        return entries.length > 0 && entries.every((c) => c.status === 'CERTIFIED' || c.status === 'CLEARED');
       }
       default: return false;
     }
@@ -3068,6 +3068,16 @@ const PaidGoLiveSectionImpl: React.FC<SectionProps> = ({ journey, editMode, edit
   );
 };
 
+// Badge look for each cross training status (label + icon + colour classes).
+const CROSS_TRAINING_STATUS_BADGE: Record<CrossTrainingStatus, { label: string; icon: React.ElementType; cls: string }> = {
+  PENDING: { label: 'Pending', icon: Clock, cls: 'bg-slate-100 border-slate-200 text-slate-600' },
+  CLEARED: { label: 'Cleared', icon: CheckCircle2, cls: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
+  NOT_CLEARED: { label: 'Not Cleared', icon: XCircle, cls: 'bg-red-50 border-red-200 text-red-700' },
+  RE_TRAINING: { label: 'Re-training', icon: AlertTriangle, cls: 'bg-amber-50 border-amber-200 text-amber-700' },
+  ABSENT: { label: 'Absent', icon: XCircle, cls: 'bg-slate-100 border-slate-200 text-slate-600' },
+  CERTIFIED: { label: 'Certified', icon: Award, cls: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
+};
+
 // CROSS TRAINING SECTION — summary (first entry) + "View all" modal; add/edit via a modal form
 const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, interviewers = [], onSaveCrossTrainings }) => {
   const entries: CrossTrainingEntry[] = (editMode ? editData.crossTrainings : journey.crossTrainings) ?? [];
@@ -3125,12 +3135,16 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
     }
   };
 
-  const renderStatus = (status: CrossTrainingStatus) => (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${status === 'CERTIFIED' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
-      {status === 'CERTIFIED' ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
-      {status === 'CERTIFIED' ? 'Certified' : 'Pending'}
-    </span>
-  );
+  const renderStatus = (status: CrossTrainingStatus) => {
+    const meta = CROSS_TRAINING_STATUS_BADGE[status] ?? CROSS_TRAINING_STATUS_BADGE.PENDING;
+    const Icon = meta.icon;
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${meta.cls}`}>
+        <Icon className="h-3.5 w-3.5" />
+        {meta.label}
+      </span>
+    );
+  };
 
   const renderCard = (entry: CrossTrainingEntry, index: number, clickable: boolean) => (
     <div key={entry.id ?? `e-${index}`} onClick={clickable ? () => openEdit(index) : undefined}
