@@ -97,6 +97,10 @@ export const demoSectionValidation = Yup.object().shape({
     .nullable()
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.DEMO_CONDUCTED_REQUIRED),
 
+  isRehire: Yup.string()
+    .nullable()
+    .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.IS_REHIRE_INVALID),
+
   // Subjects - Always Required
   subjectsPrograms: Yup.array()
     .of(Yup.string())

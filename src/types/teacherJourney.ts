@@ -51,6 +51,7 @@ export interface TeacherJourney {
   overallTeachingStyle: TeachingStyleRating | null;
   demoConducted: YesNo | null;
   demoPaidStatus: DemoPaidType | null;
+  isRehire: YesNo | null;
 
   // Language & Subject Info
   subjectsPrograms: string[] | null;
@@ -226,6 +227,7 @@ export interface UpdateTeacherJourneyData {
   overallTeachingStyle?: TeachingStyleRating;
   demoConducted?: YesNo;
   demoPaidStatus?: DemoPaidType;
+  isRehire?: YesNo;
 
   // Language & Subject Info
   subjectsPrograms?: string[];
