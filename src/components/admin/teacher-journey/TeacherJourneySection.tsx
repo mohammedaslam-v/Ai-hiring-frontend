@@ -586,6 +586,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           overallTeachingStyle: data.overallTeachingStyle,
           demoConducted: data.demoConducted,
           demoPaidStatus: data.demoPaidStatus,
+          isRehire: data.isRehire,
           subjectsPrograms: data.subjectsPrograms,
         };
       case 'induction':
@@ -2222,6 +2223,29 @@ const DemoSection: React.FC<DemoSectionProps> = ({
               </div>
             );
           })()}
+        </FieldContainer>
+
+        <FieldContainer editMode={editMode} className="p-2">
+          <FieldLabel editMode={editMode}>Is the candidate a rehire?</FieldLabel>
+          {editMode ? (
+            <>
+              <Select value={data.isRehire || ''}
+                onValueChange={(v) => setEditData(prev => ({ ...prev, isRehire: v as YesNo }))}>
+                <SelectTrigger className={`mt-1 h-7 text-xs bg-white ${fieldErrors.isRehire ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                  <SelectValue placeholder="Select Yes / No" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="YES">Yes</SelectItem>
+                  <SelectItem value="NO">No</SelectItem>
+                </SelectContent>
+              </Select>
+              <FieldError error={fieldErrors.isRehire} />
+            </>
+          ) : (
+            <div className="mt-1">
+              <YesNoBadge value={journey.isRehire} />
+            </div>
+          )}
         </FieldContainer>
       </div>
 
