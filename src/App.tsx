@@ -52,7 +52,7 @@ const AppRoutes = () => {
       <Route path="/candidate/assessment-salary-structure" element={<AssessmentSalaryStructure />} />
       <Route path="/candidate/simplified-salary-structure" element={<SimplifiedSalaryStructure />} />
       {/* Public onboarding form - link shared directly with a selected candidate */}
-      <Route path="/onboarding" element={<OnboardingForm />} />
+      <Route path="/complete-the-onboarding-form" element={<OnboardingForm />} />
 
 
 //triggerre
