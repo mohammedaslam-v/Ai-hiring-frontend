@@ -76,7 +76,6 @@ export interface TeacherJourney {
   crossTrainings?: CrossTrainingEntry[];
 
   // Exit Form (all values typed in manually — nothing is pre-filled from the candidate)
-  exitFormEmail?: string | null;
   exitTsmLeadName?: string | null;
   exitTeacherName?: string | null;
   exitTeacherContact?: string | null;
@@ -262,7 +261,6 @@ export interface UpdateTeacherJourneyData {
   crossTrainings?: CrossTrainingEntry[];
 
   // Exit Form
-  exitFormEmail?: string | null;
   exitTsmLeadName?: string | null;
   exitTeacherName?: string | null;
   exitTeacherContact?: string | null;

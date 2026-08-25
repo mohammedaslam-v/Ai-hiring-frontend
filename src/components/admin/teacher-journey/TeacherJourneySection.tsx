@@ -652,7 +652,6 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         };
       case 'exit':
         return {
-          exitFormEmail: data.exitFormEmail,
           exitTsmLeadName: data.exitTsmLeadName,
           exitTeacherName: data.exitTeacherName,
           exitTeacherContact: data.exitTeacherContact,
@@ -3425,19 +3424,6 @@ const ExitSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, 
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* 1. Email */}
-        <ExitField label="Email" editMode={editMode} error={fieldErrors.exitFormEmail}>
-          {editMode ? (
-            <Input
-              type="email"
-              value={data.exitFormEmail || ''}
-              placeholder="name@bambinos.live"
-              className={inputClass(fieldErrors.exitFormEmail)}
-              onChange={(e) => setEditData(prev => ({ ...prev, exitFormEmail: e.target.value }))}
-            />
-          ) : <ExitValue value={journey.exitFormEmail} />}
-        </ExitField>
-
         {/* 2. TSM Lead Name */}
         <ExitField label="TSM Lead Name" editMode={editMode} error={fieldErrors.exitTsmLeadName}>
           {editMode ? (

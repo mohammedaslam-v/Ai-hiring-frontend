@@ -322,10 +322,6 @@ const crossTrainingSectionValidation = Yup.object().shape({
 // exception is the "reason for not serving notice period" question, which only
 // applies when the educator is NOT serving the notice period.
 const exitSectionValidation = Yup.object().shape({
-  exitFormEmail: Yup.string()
-    .required('Email is required')
-    .email('Enter a valid email address'),
-
   exitTsmLeadName: Yup.string()
     .nullable()
     .required('TSM lead name is required'),
