@@ -1,7 +1,7 @@
 // Onboarding module - the public page.
 //
-// Route: /onboarding. Shared with a selected candidate as a plain link, so
-// there is no login and nothing is pre-filled.
+// Route: /complete-the-onboarding-form. Shared with a selected candidate as a
+// plain link, so there is no login and nothing is pre-filled.
 
 import { Button } from '@/components/ui/button';
 import { ClipboardCheck, Send } from 'lucide-react';
