@@ -23,6 +23,7 @@ import {
   Brain,
   Globe,
   Mail,
+  Check,
   ChevronDown,
   Search,
   Video,
@@ -69,6 +70,8 @@ import { toast } from 'react-toastify';
 import { getStatusBadgeColors } from '@/constants/teacherJourney/colors';
 import { getSortedIndianLanguages } from '@/constants/indianLanguages';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -172,13 +175,55 @@ const getStatusBadge = (status: string) => {
 // ============================================
 // CROSS TRAINING HELPERS
 // ============================================
+// Searchable, scrollable person picker for long people lists (styled like SelectTrigger).
+const PersonCombobox: React.FC<{
+  people: { id: number; name: string }[];
+  value: number | null;
+  onSelect: (id: number) => void;
+  placeholder: string;
+  className?: string;
+}> = ({ people, value, onSelect, placeholder, className }) => {
+  const [open, setOpen] = useState(false);
+  const selected = people.find(p => p.id === value);
+  return (
+    // modal so the picker stays clickable when rendered inside the add/edit Dialog
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <PopoverTrigger asChild>
+        <button type="button" role="combobox" aria-expanded={open}
+          className={cn(
+            "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            !selected && "text-muted-foreground",
+            className
+          )}>
+          <span className="truncate">{selected ? selected.name : placeholder}</span>
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-white" align="start">
+        <Command>
+          <CommandInput placeholder="Search..." />
+          <CommandList className="max-h-60 overflow-y-auto">
+            <CommandEmpty>No match found.</CommandEmpty>
+            {people.map(p => (
+              <CommandItem key={p.id} value={`${p.name} ${p.id}`} onSelect={() => { onSelect(p.id); setOpen(false); }}>
+                <Check className={cn("mr-2 h-4 w-4", p.id === value ? "opacity-100" : "opacity-0")} />
+                {p.name}
+              </CommandItem>
+            ))}
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 const blankCrossTraining = (): CrossTrainingEntry => ({
-  trainingType: null, trainingDate: null, subject: null, certifiedTsmId: null, certificationDate: null, feedback: null, trainerId: null, status: 'PENDING',
+  trainingType: null, trainingDate: null, subject: null, certifiedTsmId: null, certificationDate: null, feedback: null, trainerFeedback: null, trainerId: null, status: 'PENDING',
 });
 // A brand-new, untouched entry — used to avoid saving the default first row if left empty.
 const isBlankCrossTraining = (e: CrossTrainingEntry): boolean =>
   !e.trainingType && !e.trainingDate && !e.subject && e.certifiedTsmId == null && !e.certificationDate &&
-  !(e.feedback && e.feedback.trim()) && e.trainerId == null && (!e.status || e.status === 'PENDING');
+  !(e.feedback && e.feedback.trim()) && !(e.trainerFeedback && e.trainerFeedback.trim()) && e.trainerId == null && (!e.status || e.status === 'PENDING');
 
 // ============================================
 // MAIN COMPONENT
@@ -634,7 +679,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         };
       case 'paidCertification':
         return {
-          paidCertificationStatus: data.paidCertificationStatus,
+          // The select falls back to PENDING when unset — send what the UI shows
+          paidCertificationStatus: data.paidCertificationStatus ?? 'PENDING',
           paidCertificationDate: data.paidCertificationDate,
           paidCertificationFeedback: data.paidCertificationFeedback,
           paidCertificationTsmId: data.paidCertificationTsmId,
@@ -2649,7 +2695,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
   return (
     <div className="space-y-5">
       <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
-        <span className={`text-sm font-medium ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>Status</span>
+        <span className={`text-sm font-medium ${editMode ? 'text-[#1E62F2]' : 'text-[hsl(214,100%,15%,0.6)]'}`}>Status{editMode && <span className="text-red-500"> *</span>}</span>
         {editMode ? (
           <div className="flex flex-col items-end">
             <Select value={data.certificationStatus || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, certificationStatus: v as CertificationStatus }))}>
@@ -2670,7 +2716,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
       </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
-        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Certification Date</Label>
+        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Certification Date{editMode && <span className="text-red-500"> *</span>}</Label>
         {editMode ? (
           <>
             <Input type="date" value={data.certificationDate?.split('T')[0] || ''}
@@ -2685,7 +2731,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
 
       {/* Name of the TSM - Dropdown */}
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
-        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Name of the TSM</Label>
+        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Name of the TSM{editMode && <span className="text-red-500"> *</span>}</Label>
         {editMode ? (
           <>
             <Select value={data.certificationTsmId?.toString() || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, certificationTsmId: parseInt(v) }))}>
@@ -2741,7 +2787,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
       </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
-        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Feedback</Label>
+        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Feedback{editMode && <span className="text-red-500"> *</span>}</Label>
         {editMode ? (
           <>
             <Textarea value={data.certificationFeedback || ''} rows={3} placeholder="Add certification feedback..."
@@ -3049,21 +3095,29 @@ const PaidCertificationSectionImpl: React.FC<SectionProps> = ({ journey, editMod
   return (
     <div className="space-y-5">
       <div className={`flex items-center justify-between p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
-        <span className="text-sm font-medium">Status</span>
+        <span className="text-sm font-medium">Status{editMode && <span className="text-red-500"> *</span>}</span>
         {editMode ? (
-          <Select value={data.paidCertificationStatus || 'PENDING'} onValueChange={(v) => setEditData(prev => ({ ...prev, paidCertificationStatus: v as PaidCertificationStatus }))}>
-            <SelectTrigger className="w-48 bg-white border-[#1E62F2]"><SelectValue /></SelectTrigger>
-            <SelectContent>{PAID_CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
-          </Select>
+          <div className="flex flex-col items-end">
+            <Select value={data.paidCertificationStatus || 'PENDING'} onValueChange={(v) => setEditData(prev => ({ ...prev, paidCertificationStatus: v as PaidCertificationStatus }))}>
+              <SelectTrigger className={`w-48 bg-white ${fieldErrors.paidCertificationStatus ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}><SelectValue /></SelectTrigger>
+              <SelectContent>{PAID_CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+            </Select>
+            <FieldError error={fieldErrors.paidCertificationStatus} />
+          </div>
         ) : getStatusBadge(journey.paidCertificationStatus || 'PENDING')}
       </div>
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
-        <Label>Certification Date</Label>
-        {editMode ? <Input type="date" value={data.paidCertificationDate ? new Date(data.paidCertificationDate).toISOString().split('T')[0] : ''} onChange={e => setEditData(prev => ({ ...prev, paidCertificationDate: e.target.value }))} className="mt-1 bg-white border-[#1E62F2]" /> : <p>{data.paidCertificationDate ? new Date(data.paidCertificationDate).toLocaleDateString() : '—'}</p>}
+        <Label>Certification Date{editMode && <span className="text-red-500"> *</span>}</Label>
+        {editMode ? (
+          <>
+            <Input type="date" value={data.paidCertificationDate ? new Date(data.paidCertificationDate).toISOString().split('T')[0] : ''} onChange={e => setEditData(prev => ({ ...prev, paidCertificationDate: e.target.value }))} className={`mt-1 bg-white ${fieldErrors.paidCertificationDate ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`} />
+            <FieldError error={fieldErrors.paidCertificationDate} />
+          </>
+        ) : <p>{data.paidCertificationDate ? new Date(data.paidCertificationDate).toLocaleDateString() : '—'}</p>}
       </div>
       {/* Name of the TSM - Dropdown */}
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>
-        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Name of the TSM</Label>
+        <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>Name of the TSM{editMode && <span className="text-red-500"> *</span>}</Label>
         {editMode ? (
           <>
             <Select value={data.paidCertificationTsmId?.toString() || ''} onValueChange={(v) => setEditData(prev => ({ ...prev, paidCertificationTsmId: parseInt(v) }))}>
@@ -3091,8 +3145,13 @@ const PaidCertificationSectionImpl: React.FC<SectionProps> = ({ journey, editMod
       </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : 'bg-slate-50'}`}>
-        <Label>Feedback</Label>
-        {editMode ? <Textarea value={data.paidCertificationFeedback || ''} onChange={e => setEditData(prev => ({ ...prev, paidCertificationFeedback: e.target.value }))} className="mt-1 bg-white border-[#1E62F2]" /> : <p>{journey.paidCertificationFeedback || '—'}</p>}
+        <Label>Feedback{editMode && <span className="text-red-500"> *</span>}</Label>
+        {editMode ? (
+          <>
+            <Textarea value={data.paidCertificationFeedback || ''} onChange={e => setEditData(prev => ({ ...prev, paidCertificationFeedback: e.target.value }))} className={`mt-1 bg-white ${fieldErrors.paidCertificationFeedback ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`} />
+            <FieldError error={fieldErrors.paidCertificationFeedback} />
+          </>
+        ) : <p>{journey.paidCertificationFeedback || '—'}</p>}
       </div>
     </div>
   );
@@ -3141,7 +3200,6 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
   const [formOpen, setFormOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState<CrossTrainingEntry>(blankCrossTraining());
-  const [draftErrors, setDraftErrors] = useState<Record<string, string>>({});
   const [savingDraft, setSavingDraft] = useState(false);
 
   const subjectLabel = (v: string | null) => SUBJECT_OPTIONS_FOR_UPDATE.find(o => o.value === v)?.label ?? '—';
@@ -3150,26 +3208,18 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
   const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString() : '—';
   const setD = (patch: Partial<CrossTrainingEntry>) => setDraft(prev => ({ ...prev, ...patch }));
 
-  const openAdd = () => { setDraft(blankCrossTraining()); setEditingIndex(null); setDraftErrors({}); setFormOpen(true); };
-  const openEdit = (index: number) => { setDraft({ ...entries[index] }); setEditingIndex(index); setDraftErrors({}); setFormOpen(true); };
+  const openAdd = () => { setDraft(blankCrossTraining()); setEditingIndex(null); setFormOpen(true); };
+  const openEdit = (index: number) => { setDraft({ ...entries[index] }); setEditingIndex(index); setFormOpen(true); };
 
-  const validateDraft = (): boolean => {
-    const e: Record<string, string> = {};
-    if (!draft.trainingType) e.trainingType = 'Type is required';
-    if (!draft.trainingDate) e.trainingDate = 'Date of training is required';
-    if (!draft.subject) e.subject = 'Subject is required';
-    if (draft.certifiedTsmId == null) e.certifiedTsmId = 'TSM is required';
-    if (!draft.certificationDate) e.certificationDate = 'Certification date is required';
-    if (draft.trainerId == null) e.trainerId = 'Trainer is required';
-    if (!(draft.feedback && draft.feedback.trim())) e.feedback = 'Feedback is required';
-    setDraftErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const resetDraft = () => { setDraft(blankCrossTraining()); setEditingIndex(null); setDraftErrors({}); };
+  const resetDraft = () => { setDraft(blankCrossTraining()); setEditingIndex(null); };
 
   const saveDraft = async () => {
-    if (!validateDraft()) return;
+    // No required fields — but don't create a row from a completely untouched form.
+    if (editingIndex === null && isBlankCrossTraining(draft)) {
+      setFormOpen(false);
+      resetDraft();
+      return;
+    }
     const list = [...(editData.crossTrainings ?? journey.crossTrainings ?? [])];
     if (editingIndex === null) list.push(draft); else list[editingIndex] = draft;
     if (onSaveCrossTrainings) {
@@ -3214,81 +3264,69 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
         <div><span className="text-slate-400">Certified: </span><span className="text-slate-700 font-medium">{fmtDate(entry.certificationDate)}</span></div>
         <div><span className="text-slate-400">TSM: </span><span className="text-slate-700 font-medium">{personName(entry.certifiedTsmId)}</span></div>
         <div><span className="text-slate-400">Trainer: </span><span className="text-slate-700 font-medium">{personName(entry.trainerId)}</span></div>
+        <div className="sm:col-span-2"><span className="text-slate-400">Trainer Feedback: </span><span className="text-slate-700">{entry.trainerFeedback || '—'}</span></div>
         <div className="sm:col-span-2"><span className="text-slate-400">Feedback: </span><span className="text-slate-700">{entry.feedback || '—'}</span></div>
       </div>
       {clickable && <div className="mt-2 text-[11px] text-[#1E62F2] font-medium">Click to edit</div>}
     </div>
   );
 
-  const fieldCls = (hasErr?: string) => `mt-1 bg-white ${hasErr ? 'border-[hsl(0,84%,60%)]' : ''}`;
+  const fieldCls = 'mt-1 bg-white';
 
   const renderFields = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-1">
       <div>
-        <Label className="text-xs font-medium">Type <span className="text-red-500">*</span></Label>
+        <Label className="text-xs font-medium">Type</Label>
         <Select value={draft.trainingType || ''} onValueChange={v => setD({ trainingType: v as CrossTrainingType })}>
-          <SelectTrigger className={fieldCls(draftErrors.trainingType)}><SelectValue placeholder="Select type" /></SelectTrigger>
+          <SelectTrigger className={fieldCls}><SelectValue placeholder="Select type" /></SelectTrigger>
           <SelectContent>
             {CROSS_TRAINING_TYPE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
           </SelectContent>
         </Select>
-        <FieldError error={draftErrors.trainingType} />
       </div>
       <div>
-        <Label className="text-xs font-medium">Date of training <span className="text-red-500">*</span></Label>
-        <Input type="date" value={draft.trainingDate?.split('T')[0] || ''} onChange={e => setD({ trainingDate: e.target.value })} className={fieldCls(draftErrors.trainingDate)} />
-        <FieldError error={draftErrors.trainingDate} />
+        <Label className="text-xs font-medium">Date of training</Label>
+        <Input type="date" value={draft.trainingDate?.split('T')[0] || ''} onChange={e => setD({ trainingDate: e.target.value })} className={fieldCls} />
       </div>
       <div>
-        <Label className="text-xs font-medium">Subject <span className="text-red-500">*</span></Label>
+        <Label className="text-xs font-medium">Subject</Label>
         <Select value={draft.subject || ''} onValueChange={v => setD({ subject: v })}>
-          <SelectTrigger className={fieldCls(draftErrors.subject)}><SelectValue placeholder="Select subject" /></SelectTrigger>
+          <SelectTrigger className={fieldCls}><SelectValue placeholder="Select subject" /></SelectTrigger>
           <SelectContent>
             {SUBJECT_OPTIONS_FOR_UPDATE.filter(o => o.value !== 'NONE').map(o => (
               <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <FieldError error={draftErrors.subject} />
       </div>
       <div>
-        <Label className="text-xs font-medium">Cross training Trainer <span className="text-red-500">*</span></Label>
-        <Select value={draft.trainerId?.toString() || ''} onValueChange={v => setD({ trainerId: parseInt(v) })}>
-          <SelectTrigger className={fieldCls(draftErrors.trainerId)}><SelectValue placeholder="Select trainer" /></SelectTrigger>
-          <SelectContent>
-            {interviewers.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <FieldError error={draftErrors.trainerId} />
+        <Label className="text-xs font-medium">Cross training Trainer</Label>
+        <PersonCombobox people={interviewers} value={draft.trainerId} onSelect={id => setD({ trainerId: id })} placeholder="Select trainer" className={fieldCls} />
+      </div>
+      <div className="sm:col-span-2">
+        <Label className="text-xs font-medium">Trainer Feedback</Label>
+        <Textarea value={draft.trainerFeedback || ''} rows={3} placeholder="Add trainer feedback..." onChange={e => setD({ trainerFeedback: e.target.value })} className={fieldCls} />
       </div>
       <div>
-        <Label className="text-xs font-medium">Status <span className="text-red-500">*</span></Label>
+        <Label className="text-xs font-medium">Status</Label>
         <Select value={draft.status || 'PENDING'} onValueChange={v => setD({ status: v as CrossTrainingStatus })}>
-          <SelectTrigger className="mt-1 bg-white"><SelectValue /></SelectTrigger>
+          <SelectTrigger className={fieldCls}><SelectValue /></SelectTrigger>
           <SelectContent>
             {CROSS_TRAINING_STATUS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
       <div>
-        <Label className="text-xs font-medium">Name of the TSM (who certified) <span className="text-red-500">*</span></Label>
-        <Select value={draft.certifiedTsmId?.toString() || ''} onValueChange={v => setD({ certifiedTsmId: parseInt(v) })}>
-          <SelectTrigger className={fieldCls(draftErrors.certifiedTsmId)}><SelectValue placeholder="Select TSM" /></SelectTrigger>
-          <SelectContent>
-            {interviewers.map(i => <SelectItem key={i.id} value={i.id.toString()}>{i.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <FieldError error={draftErrors.certifiedTsmId} />
+        <Label className="text-xs font-medium">Name of the TSM (who certified)</Label>
+        <PersonCombobox people={interviewers} value={draft.certifiedTsmId} onSelect={id => setD({ certifiedTsmId: id })} placeholder="Select TSM" className={fieldCls} />
       </div>
       <div>
-        <Label className="text-xs font-medium">Certification date <span className="text-red-500">*</span></Label>
-        <Input type="date" value={draft.certificationDate?.split('T')[0] || ''} onChange={e => setD({ certificationDate: e.target.value })} className={fieldCls(draftErrors.certificationDate)} />
-        <FieldError error={draftErrors.certificationDate} />
+        <Label className="text-xs font-medium">Certification date</Label>
+        <Input type="date" value={draft.certificationDate?.split('T')[0] || ''} onChange={e => setD({ certificationDate: e.target.value })} className={fieldCls} />
       </div>
       <div className="sm:col-span-2">
-        <Label className="text-xs font-medium">Feedback <span className="text-red-500">*</span></Label>
-        <Textarea value={draft.feedback || ''} rows={3} placeholder="Add feedback..." onChange={e => setD({ feedback: e.target.value })} className={fieldCls(draftErrors.feedback)} />
-        <FieldError error={draftErrors.feedback} />
+        <Label className="text-xs font-medium">Feedback</Label>
+        <Textarea value={draft.feedback || ''} rows={3} placeholder="Add feedback..." onChange={e => setD({ feedback: e.target.value })} className={fieldCls} />
       </div>
     </div>
   );
@@ -3300,7 +3338,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
           // First entry: show the fields inline to fill straight away (no "Add another" yet).
           <div className="rounded-xl border border-[#1E62F2] p-4 bg-white">
             <div className="text-sm font-semibold text-[hsl(214,100%,15%)] mb-1">Add Cross Training</div>
-            <p className="text-xs text-slate-400 mb-2">All fields are required.</p>
+            <p className="text-xs text-slate-400 mb-2">Fill in the details and save.</p>
             {renderFields()}
             <div className="flex justify-end pt-3">
               <Button onClick={saveDraft} disabled={savingDraft} className="bg-[#1E62F2] hover:bg-[#1E62F2]/90 text-white rounded-xl">
@@ -3353,7 +3391,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
             <DialogTitle className="text-[hsl(214,100%,15%)] text-lg font-semibold">
               {editingIndex === null ? 'Add Cross Training' : 'Edit Cross Training'}
             </DialogTitle>
-            <DialogDescription className="text-slate-500 text-xs">All fields are required.</DialogDescription>
+            <DialogDescription className="text-slate-500 text-xs">Fill in the details and save.</DialogDescription>
           </DialogHeader>
           {renderFields()}
           <DialogFooter>

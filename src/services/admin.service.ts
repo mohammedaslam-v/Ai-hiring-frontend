@@ -1,49 +1,49 @@
 import { ServiceResponse } from "@/types/interface";
 import axiosInstance from "./instance";
-
+//f
 // Define types for backend response
 interface BackendApplication {
-  _id?: string;
-  applicationId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  position: string;
-  subjects: string[];
-  additionalLanguages?: string[];
-  availableDays: string[];
-  availableTimeSlots: string[];
-  status: string;
-  interviewStatus: string;
-  score?: number;
-  submittedAt?: string;
-  createdAt: string;
-  updatedAt: string;
+    _id?: string;
+    applicationId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    position: string;
+    subjects: string[];
+    additionalLanguages?: string[];
+    availableDays: string[];
+    availableTimeSlots: string[];
+    status: string;
+    interviewStatus: string;
+    score?: number;
+    submittedAt?: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface BackendResponse {
-  status: boolean;
-  msg?: string;
-  data: {
-    applications: BackendApplication[];
-    pagination?: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-      hasNext: boolean;
-      hasPrev: boolean;
+    status: boolean;
+    msg?: string;
+    data: {
+        applications: BackendApplication[];
+        pagination?: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
+            hasNext: boolean;
+            hasPrev: boolean;
+        };
     };
-  };
 }
 
 interface BackendCountResponse {
-  status: boolean;
-  msg?: string;
-  data: {
-    total: number;
-  };
+    status: boolean;
+    msg?: string;
+    data: {
+        total: number;
+    };
 }
 
 class AdminService {
@@ -60,13 +60,13 @@ class AdminService {
                 activePositions: 15,
 
             };
-            
+
             return {
                 status: true,
                 message: "Admin dashboard stats retrieved successfully",
                 data: mockResponse
             }
-            
+
         } catch (error) {
             return {
                 status: false,
@@ -79,7 +79,7 @@ class AdminService {
         try {
             const response = await axiosInstance.get('/api/admin/applications/count');
             const responseData = response.data as { status: boolean; msg?: string; data: { total: number } };
-            
+
             if (responseData.status) {
                 return {
                     status: true,
@@ -92,7 +92,7 @@ class AdminService {
                     message: responseData.msg || "Failed to retrieve applications count",
                 };
             }
-            
+
         } catch (error: unknown) {
             console.error('Error fetching applications count:', error);
             return {
@@ -115,7 +115,7 @@ class AdminService {
 
             const response = await axiosInstance.get(`/api/admin/applications?${queryParams.toString()}`);
             const responseData = response.data as BackendResponse;
-            
+
             if (responseData.status) {
                 return {
                     status: true,
@@ -128,7 +128,7 @@ class AdminService {
                     message: responseData.msg || "Failed to retrieve applications",
                 };
             }
-            
+
         } catch (error: unknown) {
             console.error('Error fetching applications page:', error);
             return {
@@ -146,7 +146,7 @@ class AdminService {
                 status: status
             });
             const responseData = response.data as BackendResponse;
-            
+
             if (responseData.status) {
                 return {
                     status: true,
@@ -159,10 +159,10 @@ class AdminService {
                     message: responseData.msg || "Failed to update application status",
                 };
             }
-            
+
         } catch (error: unknown) {
             console.error('Error updating application status:', error);
-            
+
             if (error && typeof error === 'object' && 'response' in error && error.response) {
                 const responseError = error as { response: { data: { msg?: string } } };
                 return {
@@ -198,7 +198,7 @@ class AdminService {
                 status: false,
                 message: responseData.msg || "Failed to delete application",
             }
-            
+
         } catch (error) {
             return {
                 status: false,
@@ -219,13 +219,13 @@ class AdminService {
                 lastLogin: new Date().toISOString(),
                 createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
             };
-            
+
             return {
                 status: true,
                 message: "Admin profile retrieved successfully",
                 data: mockResponse
             }
-            
+
         } catch (error) {
             return {
                 status: false,
@@ -255,7 +255,7 @@ class AdminService {
                     }>;
                 };
             };
-            
+
             if (responseData.status && responseData.data) {
                 return {
                     status: true,
@@ -268,7 +268,7 @@ class AdminService {
                     message: responseData.msg || "Failed to retrieve reports analytics",
                 };
             }
-            
+
         } catch (error: unknown) {
             console.error('Error fetching reports analytics:', error);
             return {

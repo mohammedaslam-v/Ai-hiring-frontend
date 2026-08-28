@@ -108,6 +108,7 @@ export interface CrossTrainingEntry {
   certifiedTsmId: number | null;
   certificationDate: string | null;
   feedback: string | null;
+  trainerFeedback: string | null;
   trainerId: number | null;
   status: CrossTrainingStatus;
 }
