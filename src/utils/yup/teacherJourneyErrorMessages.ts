@@ -52,10 +52,10 @@ export const TEACHER_JOURNEY_ERROR_MESSAGES = {
   CERTIFICATION: {
     STATUS_REQUIRED: 'Certification status is required',
     STATUS_INVALID: 'Invalid certification status',
-    DATE_REQUIRED: 'Certification date is required when status is CLEARED or NOT_CLEARED',
+    DATE_REQUIRED: 'Certification date is required',
     DATE_INVALID: 'Certification date must be a valid date',
     DATE_FUTURE: 'Certification date cannot be in the future',
-    FEEDBACK_REQUIRED: 'Certification feedback is required when status is NOT_CLEARED',
+    FEEDBACK_REQUIRED: 'Certification feedback is required',
     FEEDBACK_MIN_LENGTH: 'Certification feedback must be at least 10 characters',
     FEEDBACK_MAX_LENGTH: 'Certification feedback must not exceed 2000 characters',
   },
