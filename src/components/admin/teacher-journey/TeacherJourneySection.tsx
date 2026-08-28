@@ -30,7 +30,8 @@ import {
   Eye,
   Download,
   FileText,
-  ClipboardCheck
+  ClipboardCheck,
+  LogOut
 } from "lucide-react";
 import { teacherJourneyService, MockAssessment } from '@/services/teacherJourney.service';
 import {
@@ -59,6 +60,10 @@ import {
   CrossTrainingType,
   CROSS_TRAINING_STATUS_OPTIONS,
   CROSS_TRAINING_TYPE_OPTIONS,
+  ExitPerformance,
+  EXIT_TSM_LEAD_OPTIONS,
+  EXIT_PERFORMANCE_OPTIONS,
+  EXIT_YES_NO_OPTIONS,
   SUBJECT_OPTIONS_FOR_UPDATE
 } from '@/types/teacherJourney';
 import { toast } from 'react-toastify';
@@ -88,7 +93,7 @@ import ScorecardGraderDialog from './ScorecardGraderDialog';
 // ============================================
 // TYPES
 // ============================================
-type TabKey = 'aiRound' | 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive' | 'crossTraining';
+type TabKey = 'aiRound' | 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive' | 'crossTraining' | 'exit';
 
 interface TeacherJourneySectionProps {
   applicationId: string;
@@ -120,6 +125,7 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: str
   { key: 'paidCertification', label: 'Paid Certification', icon: Award, gradient: 'from-emerald-500 to-teal-500', owner: 'TSM' },
   { key: 'paidGoLive', label: 'Paid Go Live', icon: Rocket, gradient: 'from-teal-500 to-cyan-500', owner: 'TSM' },
   { key: 'crossTraining', label: 'Cross Training', icon: GraduationCap, gradient: 'from-[#1E62F2] to-[hsl(216,88%,64%)]', owner: 'TSM' },
+  { key: 'exit', label: 'Exit', icon: LogOut, gradient: 'from-slate-500 to-slate-700', owner: 'HR' },
 ];
 
 // ============================================
@@ -631,6 +637,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           overallTeachingStyle: data.overallTeachingStyle,
           demoConducted: data.demoConducted,
           demoPaidStatus: data.demoPaidStatus,
+          isRehire: data.isRehire,
           subjectsPrograms: data.subjectsPrograms,
         };
       case 'induction':
@@ -689,6 +696,23 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           // Keep saved rows (have an id) and any filled-in new rows; drop an untouched default row.
           crossTrainings: (data.crossTrainings ?? []).filter(e => e.id != null || !isBlankCrossTraining(e)),
         };
+      case 'exit':
+        return {
+          exitTsmLeadName: data.exitTsmLeadName,
+          exitTeacherName: data.exitTeacherName,
+          exitTeacherContact: data.exitTeacherContact,
+          exitTeacherEmail: data.exitTeacherEmail,
+          exitResignationDate: data.exitResignationDate,
+          exitResignationTicketId: data.exitResignationTicketId,
+          exitResignationReason: data.exitResignationReason,
+          exitServingNoticePeriod: data.exitServingNoticePeriod,
+          exitNoticePeriodReason: data.exitNoticePeriodReason,
+          exitPerformance: data.exitPerformance,
+          exitLossToCompany: data.exitLossToCompany,
+          exitRehire: data.exitRehire,
+          exitHrNotes: data.exitHrNotes,
+          exitManagementNotes: data.exitManagementNotes,
+        };
       default:
         return {};
     }
@@ -711,8 +735,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'paidGoLive': return journey?.paidGoLiveReadiness === 'YES';
       case 'crossTraining': {
         const entries = journey?.crossTrainings ?? [];
-        return entries.length > 0 && entries.every((c) => c.status === 'CERTIFIED');
+        return entries.length > 0 && entries.every((c) => c.status === 'CERTIFIED' || c.status === 'CLEARED');
       }
+      // The exit form is recorded once the resignation date is captured
+      case 'exit': return !!journey?.exitResignationDate;
       default: return false;
     }
   };
@@ -914,7 +940,9 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               const TabIcon = tab.icon;
 
               const isPreviousDone = getTabStatus(visibleTabs[visibleTabs.findIndex(vt => vt.key === tab.key) - 1]?.key);
-              const isLocked = tab.key === 'crossTraining' ? false : !isPreviousDone;
+              // Cross Training and Exit are never gated by the previous stage —
+              // an educator can cross-train or resign at any point in the journey.
+              const isLocked = tab.key === 'crossTraining' || tab.key === 'exit' ? false : !isPreviousDone;
               const isDisabled = editMode && !isActive;
 
               return (
@@ -1034,8 +1062,9 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               ) : !editMode ? (
                 (() => {
                   const currentTabIndex = visibleTabs.findIndex(t => t.key === activeTab);
-                  // Demo and Cross Training sections are always editable
-                  const isLocked = currentTabIndex > 0 && activeTab !== 'demo' && activeTab !== 'crossTraining' && !getTabStatus(visibleTabs[currentTabIndex - 1].key);
+                  // Demo, Cross Training and Exit sections are always editable —
+                  // an educator can resign at any point in the journey.
+                  const isLocked = currentTabIndex > 0 && activeTab !== 'demo' && activeTab !== 'crossTraining' && activeTab !== 'exit' && !getTabStatus(visibleTabs[currentTabIndex - 1].key);
                   const prevStageLabel = currentTabIndex > 0 ? visibleTabs[currentTabIndex - 1].label : '';
 
                   return (
@@ -1128,6 +1157,9 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
               )}
               {activeTab === 'crossTraining' && journey && !isRejected && (
                 <CrossTrainingSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} interviewers={interviewers} onSaveCrossTrainings={saveCrossTrainings} />
+              )}
+              {activeTab === 'exit' && journey && !isRejected && (
+                <ExitSectionImpl journey={journey} editMode={editMode} editData={editData} setEditData={setEditData} fieldErrors={fieldErrors} />
               )}
             </div>
 
@@ -2269,6 +2301,29 @@ const DemoSection: React.FC<DemoSectionProps> = ({
             );
           })()}
         </FieldContainer>
+
+        <FieldContainer editMode={editMode} className="p-2">
+          <FieldLabel editMode={editMode}>Is the candidate a rehire?</FieldLabel>
+          {editMode ? (
+            <>
+              <Select value={data.isRehire || ''}
+                onValueChange={(v) => setEditData(prev => ({ ...prev, isRehire: v as YesNo }))}>
+                <SelectTrigger className={`mt-1 h-7 text-xs bg-white ${fieldErrors.isRehire ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'}`}>
+                  <SelectValue placeholder="Select Yes / No" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="YES">Yes</SelectItem>
+                  <SelectItem value="NO">No</SelectItem>
+                </SelectContent>
+              </Select>
+              <FieldError error={fieldErrors.isRehire} />
+            </>
+          ) : (
+            <div className="mt-1">
+              <YesNoBadge value={journey.isRehire} />
+            </div>
+          )}
+        </FieldContainer>
       </div>
 
       {/* Action Row for Email */}
@@ -3127,6 +3182,16 @@ const PaidGoLiveSectionImpl: React.FC<SectionProps> = ({ journey, editMode, edit
   );
 };
 
+// Badge look for each cross training status (label + icon + colour classes).
+const CROSS_TRAINING_STATUS_BADGE: Record<CrossTrainingStatus, { label: string; icon: React.ElementType; cls: string }> = {
+  PENDING: { label: 'Pending', icon: Clock, cls: 'bg-slate-100 border-slate-200 text-slate-600' },
+  CLEARED: { label: 'Cleared', icon: CheckCircle2, cls: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
+  NOT_CLEARED: { label: 'Not Cleared', icon: XCircle, cls: 'bg-red-50 border-red-200 text-red-700' },
+  RE_TRAINING: { label: 'Re-training', icon: AlertTriangle, cls: 'bg-amber-50 border-amber-200 text-amber-700' },
+  ABSENT: { label: 'Absent', icon: XCircle, cls: 'bg-slate-100 border-slate-200 text-slate-600' },
+  CERTIFIED: { label: 'Certified', icon: Award, cls: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
+};
+
 // CROSS TRAINING SECTION — summary (first entry) + "View all" modal; add/edit via a modal form
 const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, interviewers = [], onSaveCrossTrainings }) => {
   const entries: CrossTrainingEntry[] = (editMode ? editData.crossTrainings : journey.crossTrainings) ?? [];
@@ -3175,12 +3240,16 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
     }
   };
 
-  const renderStatus = (status: CrossTrainingStatus) => (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${status === 'CERTIFIED' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
-      {status === 'CERTIFIED' ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock className="h-3.5 w-3.5" />}
-      {status === 'CERTIFIED' ? 'Certified' : 'Pending'}
-    </span>
-  );
+  const renderStatus = (status: CrossTrainingStatus) => {
+    const meta = CROSS_TRAINING_STATUS_BADGE[status] ?? CROSS_TRAINING_STATUS_BADGE.PENDING;
+    const Icon = meta.icon;
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${meta.cls}`}>
+        <Icon className="h-3.5 w-3.5" />
+        {meta.label}
+      </span>
+    );
+  };
 
   const renderCard = (entry: CrossTrainingEntry, index: number, clickable: boolean) => (
     <div key={entry.id ?? `e-${index}`} onClick={clickable ? () => openEdit(index) : undefined}
@@ -3333,6 +3402,287 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
+// ============================================
+// EXIT SECTION
+// Mirrors the "Exit Form" Google Form question for question. Every value is
+// typed in by HR/TSM — nothing is pre-filled from the candidate record, so the
+// teacher's name, contact and email are captured again here.
+// ============================================
+
+// Label + error wrapper shared by every exit field.
+const ExitField: React.FC<{
+  label: string;
+  hint?: string;
+  editMode: boolean;
+  error?: string;
+  className?: string;
+  children: React.ReactNode;
+}> = ({ label, hint, editMode, error, className = '', children }) => (
+  <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''} ${className}`}>
+    <Label className={`text-xs ${editMode ? 'text-[#1E62F2] font-medium' : 'text-slate-500'}`}>{label}</Label>
+    {hint && editMode && <p className="text-[10px] text-slate-400 mt-0.5">{hint}</p>}
+    {children}
+    <FieldError error={error} />
+  </div>
+);
+
+// Read-only value renderer with a consistent empty state.
+const ExitValue: React.FC<{ value?: string | null }> = ({ value }) => (
+  <p className="text-sm text-slate-700 mt-1 font-medium whitespace-pre-wrap">
+    {value ? value : <span className="text-slate-400 italic">Not recorded</span>}
+  </p>
+);
+
+const ExitSectionImpl: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {} }) => {
+  const data = editMode ? editData : journey;
+
+  const inputClass = (error?: string) =>
+    `mt-1 bg-white ${error ? 'border-[hsl(0,84%,60%)]' : 'border-[#1E62F2]'} focus:ring-[#1E62F2]`;
+
+  const performanceLabel = (value?: string | null) =>
+    EXIT_PERFORMANCE_OPTIONS.find(o => o.value === value)?.label ?? null;
+
+  const yesNoLabel = (value?: string | null) =>
+    EXIT_YES_NO_OPTIONS.find(o => o.value === value)?.label ?? null;
+
+  return (
+    <div className="space-y-4">
+      {editMode && (
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-slate-50 border border-slate-200">
+          <LogOut className="h-4 w-4 text-slate-500 mt-0.5 shrink-0" />
+          <p className="text-xs text-slate-600">
+            Fill in every detail manually, exactly as it appears on the Exit Form. Nothing is copied
+            over from the candidate's application.
+          </p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* 2. TSM Lead Name */}
+        <ExitField label="TSM Lead Name" editMode={editMode} error={fieldErrors.exitTsmLeadName}>
+          {editMode ? (
+            <Select
+              value={data.exitTsmLeadName || ''}
+              onValueChange={(v) => setEditData(prev => ({ ...prev, exitTsmLeadName: v }))}
+            >
+              <SelectTrigger className={inputClass(fieldErrors.exitTsmLeadName)}>
+                <SelectValue placeholder="Select TSM lead" />
+              </SelectTrigger>
+              <SelectContent>
+                {EXIT_TSM_LEAD_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : <ExitValue value={journey.exitTsmLeadName} />}
+        </ExitField>
+
+        {/* 3. Teacher Name */}
+        <ExitField label="Teacher Name" editMode={editMode} error={fieldErrors.exitTeacherName}>
+          {editMode ? (
+            <Input
+              value={data.exitTeacherName || ''}
+              className={inputClass(fieldErrors.exitTeacherName)}
+              onChange={(e) => setEditData(prev => ({ ...prev, exitTeacherName: e.target.value }))}
+            />
+          ) : <ExitValue value={journey.exitTeacherName} />}
+        </ExitField>
+
+        {/* 4. Teacher's contact number */}
+        <ExitField label="Teacher's Contact Number" editMode={editMode} error={fieldErrors.exitTeacherContact}>
+          {editMode ? (
+            <Input
+              type="tel"
+              value={data.exitTeacherContact || ''}
+              className={inputClass(fieldErrors.exitTeacherContact)}
+              onChange={(e) => setEditData(prev => ({ ...prev, exitTeacherContact: e.target.value }))}
+            />
+          ) : <ExitValue value={journey.exitTeacherContact} />}
+        </ExitField>
+
+        {/* 5. Teacher's Email Id */}
+        <ExitField label="Teacher's Email Id" editMode={editMode} error={fieldErrors.exitTeacherEmail}>
+          {editMode ? (
+            <Input
+              type="email"
+              value={data.exitTeacherEmail || ''}
+              className={inputClass(fieldErrors.exitTeacherEmail)}
+              onChange={(e) => setEditData(prev => ({ ...prev, exitTeacherEmail: e.target.value }))}
+            />
+          ) : <ExitValue value={journey.exitTeacherEmail} />}
+        </ExitField>
+
+        {/* 6. Resignation Date */}
+        <ExitField label="Resignation Date" editMode={editMode} error={fieldErrors.exitResignationDate}>
+          {editMode ? (
+            <Input
+              type="date"
+              value={data.exitResignationDate?.split('T')[0] || ''}
+              className={inputClass(fieldErrors.exitResignationDate)}
+              onChange={(e) => setEditData(prev => ({ ...prev, exitResignationDate: e.target.value }))}
+            />
+          ) : (
+            <ExitValue value={journey.exitResignationDate ? new Date(journey.exitResignationDate).toLocaleDateString() : null} />
+          )}
+        </ExitField>
+
+        {/* 7. Resignation Ticket Id */}
+        <ExitField label="Resignation Ticket Id" editMode={editMode} error={fieldErrors.exitResignationTicketId}>
+          {editMode ? (
+            <Input
+              value={data.exitResignationTicketId || ''}
+              className={inputClass(fieldErrors.exitResignationTicketId)}
+              onChange={(e) => setEditData(prev => ({ ...prev, exitResignationTicketId: e.target.value }))}
+            />
+          ) : <ExitValue value={journey.exitResignationTicketId} />}
+        </ExitField>
+
+        {/* 9. Is the educator serving notice period */}
+        <ExitField label="Is the Educator Serving Notice Period?" editMode={editMode} error={fieldErrors.exitServingNoticePeriod}>
+          {editMode ? (
+            <Select
+              value={data.exitServingNoticePeriod || ''}
+              onValueChange={(v) => setEditData(prev => ({ ...prev, exitServingNoticePeriod: v as YesNo }))}
+            >
+              <SelectTrigger className={inputClass(fieldErrors.exitServingNoticePeriod)}>
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                {EXIT_YES_NO_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="mt-1">
+              {journey.exitServingNoticePeriod ? getStatusBadge(journey.exitServingNoticePeriod) : <ExitValue value={null} />}
+            </div>
+          )}
+        </ExitField>
+
+        {/* 11. Educator's performance */}
+        <ExitField label="Educator's Performance" editMode={editMode} error={fieldErrors.exitPerformance}>
+          {editMode ? (
+            <Select
+              value={data.exitPerformance || ''}
+              onValueChange={(v) => setEditData(prev => ({ ...prev, exitPerformance: v as ExitPerformance }))}
+            >
+              <SelectTrigger className={inputClass(fieldErrors.exitPerformance)}>
+                <SelectValue placeholder="Select performance" />
+              </SelectTrigger>
+              <SelectContent>
+                {EXIT_PERFORMANCE_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : <ExitValue value={performanceLabel(journey.exitPerformance)} />}
+        </ExitField>
+
+        {/* 12. Is it a loss to the company */}
+        <ExitField label="Is It a Loss to the Company?" editMode={editMode} error={fieldErrors.exitLossToCompany}>
+          {editMode ? (
+            <Select
+              value={data.exitLossToCompany || ''}
+              onValueChange={(v) => setEditData(prev => ({ ...prev, exitLossToCompany: v as YesNo }))}
+            >
+              <SelectTrigger className={inputClass(fieldErrors.exitLossToCompany)}>
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                {EXIT_YES_NO_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : <ExitValue value={yesNoLabel(journey.exitLossToCompany)} />}
+        </ExitField>
+
+        {/* 13. Rehire */}
+        <ExitField
+          label="Rehire"
+          hint="Exit-time decision — separate from the rehire flag on the Demo section."
+          editMode={editMode}
+          error={fieldErrors.exitRehire}
+        >
+          {editMode ? (
+            <Select
+              value={data.exitRehire || ''}
+              onValueChange={(v) => setEditData(prev => ({ ...prev, exitRehire: v as YesNo }))}
+            >
+              <SelectTrigger className={inputClass(fieldErrors.exitRehire)}>
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                {EXIT_YES_NO_OPTIONS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="mt-1">
+              {journey.exitRehire ? getStatusBadge(journey.exitRehire) : <ExitValue value={null} />}
+            </div>
+          )}
+        </ExitField>
+      </div>
+
+      {/* 8. Reason for Resignation */}
+      <ExitField label="Reason for Resignation" editMode={editMode} error={fieldErrors.exitResignationReason}>
+        {editMode ? (
+          <Textarea
+            rows={3}
+            value={data.exitResignationReason || ''}
+            className={inputClass(fieldErrors.exitResignationReason)}
+            onChange={(e) => setEditData(prev => ({ ...prev, exitResignationReason: e.target.value }))}
+          />
+        ) : <ExitValue value={journey.exitResignationReason} />}
+      </ExitField>
+
+      {/* 10. Reason for not serving the notice period */}
+      <ExitField
+        label="Reason for Not Serving the Notice Period"
+        hint="Required only when the educator is not serving the notice period."
+        editMode={editMode}
+        error={fieldErrors.exitNoticePeriodReason}
+      >
+        {editMode ? (
+          <Textarea
+            rows={3}
+            value={data.exitNoticePeriodReason || ''}
+            className={inputClass(fieldErrors.exitNoticePeriodReason)}
+            onChange={(e) => setEditData(prev => ({ ...prev, exitNoticePeriodReason: e.target.value }))}
+          />
+        ) : <ExitValue value={journey.exitNoticePeriodReason} />}
+      </ExitField>
+
+      {/* 14. HR notes */}
+      <ExitField label="Anything That HR Needs to Know About This Educator?" editMode={editMode} error={fieldErrors.exitHrNotes}>
+        {editMode ? (
+          <Textarea
+            rows={3}
+            value={data.exitHrNotes || ''}
+            className={inputClass(fieldErrors.exitHrNotes)}
+            onChange={(e) => setEditData(prev => ({ ...prev, exitHrNotes: e.target.value }))}
+          />
+        ) : <ExitValue value={journey.exitHrNotes} />}
+      </ExitField>
+
+      {/* 15. Management notes */}
+      <ExitField label="Anything That Management Should Know About This Educator" editMode={editMode} error={fieldErrors.exitManagementNotes}>
+        {editMode ? (
+          <Textarea
+            rows={3}
+            value={data.exitManagementNotes || ''}
+            className={inputClass(fieldErrors.exitManagementNotes)}
+            onChange={(e) => setEditData(prev => ({ ...prev, exitManagementNotes: e.target.value }))}
+          />
+        ) : <ExitValue value={journey.exitManagementNotes} />}
+      </ExitField>
     </div>
   );
 };

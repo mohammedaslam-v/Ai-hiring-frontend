@@ -22,6 +22,8 @@ import ResultsPage from "./pages/candidate/ResultsPage";
 import SalaryStructure from "./pages/candidate/SalaryStructure";
 import AssessmentSalaryStructure from "./pages/candidate/AssessmentSalaryStructure";
 import SimplifiedSalaryStructure from "./pages/candidate/SimplifiedSalaryStructure";
+import OnboardingForm from "./onboarding/OnboardingForm";
+import AdminOnboarding from "./onboarding/AdminOnboarding";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminApplications from "./pages/admin/AdminApplications";
@@ -49,6 +51,8 @@ const AppRoutes = () => {
       <Route path="/candidate/salary-structure" element={<SalaryStructure />} />
       <Route path="/candidate/assessment-salary-structure" element={<AssessmentSalaryStructure />} />
       <Route path="/candidate/simplified-salary-structure" element={<SimplifiedSalaryStructure />} />
+      {/* Public onboarding form - link shared directly with a selected candidate */}
+      <Route path="/complete-the-onboarding-form" element={<OnboardingForm />} />
 
 
 //triggerre
@@ -80,6 +84,13 @@ const AppRoutes = () => {
       <Route path="/admin/reports" element={
         <ProtectedRoute>
           <AdminReports />
+        </ProtectedRoute>
+      } />
+      {/* Onboarding submissions - the backend further restricts these to
+          allow-listed admin accounts (ONBOARDING_ADMIN_EMAILS). */}
+      <Route path="/admin/onboarding" element={
+        <ProtectedRoute>
+          <AdminOnboarding />
         </ProtectedRoute>
       } />
 

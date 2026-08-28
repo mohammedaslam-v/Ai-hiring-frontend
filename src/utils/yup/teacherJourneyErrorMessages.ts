@@ -20,6 +20,7 @@ export const TEACHER_JOURNEY_ERROR_MESSAGES = {
     OVERALL_STYLE_REQUIRED: 'Overall teaching style is required',
     OVERALL_STYLE_INVALID: 'Invalid teaching style rating',
     DEMO_CONDUCTED_REQUIRED: 'Demo conducted status is required',
+    IS_REHIRE_INVALID: 'Rehire selection must be Yes or No',
   },
   
   SUBJECTS: {
