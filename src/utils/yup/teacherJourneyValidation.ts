@@ -4,7 +4,6 @@ import {
   DemoStatus,
   InductionStatus,
   TrainingStatus,
-  CertificationStatus,
   GoLiveStatus,
   Subject,
   TeachingStyleRating,
@@ -162,38 +161,39 @@ export const trainingSectionValidation = Yup.object().shape({
     .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.TRAINING.NOTES_MAX_LENGTH),
 });
 
-// Certification Section Validation Schema
+// Certification Section Validation Schema (all fields mandatory)
 export const certificationSectionValidation = Yup.object().shape({
   certificationStatus: Yup.string()
     .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_REQUIRED)
     .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'DEMO_ONLY', 'DEMO_SALES', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED', 'NOT_INTERESTED'], TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.STATUS_INVALID),
 
   certificationDate: Yup.string()
-    .nullable()
-    .when('certificationStatus', {
-      is: (status: CertificationStatus) => ['CLEARED', 'NOT_CLEARED', 'DEMO_ONLY', 'DEMO_SALES', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'].includes(status),
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_REQUIRED)
-        .test('is-valid-date', TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_INVALID, (value) => isValidDate(value))
-        .test('not-future', TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_FUTURE, (value) => {
-          if (!value) return true;
-          const date = new Date(value);
-          return date <= new Date();
-        }),
-      otherwise: (schema) => schema.nullable(),
+    .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_REQUIRED)
+    .test('is-valid-date', TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_INVALID, (value) => isValidDate(value))
+    .test('not-future', TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.DATE_FUTURE, (value) => {
+      if (!value) return true;
+      const date = new Date(value);
+      return date <= new Date();
     }),
 
+  certificationTsmId: Yup.number()
+    .required('TSM is required'),
+
   certificationFeedback: Yup.string()
-    .nullable()
+    .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.FEEDBACK_REQUIRED)
+    .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.FEEDBACK_MAX_LENGTH)
     .when('certificationStatus', {
       is: 'NOT_CLEARED',
-      then: (schema) => schema
-        .required(TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.FEEDBACK_REQUIRED)
-        .min(10, TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.FEEDBACK_MIN_LENGTH)
-        .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.FEEDBACK_MAX_LENGTH),
-      otherwise: (schema) => schema
-        .nullable()
-        .max(2000, TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.FEEDBACK_MAX_LENGTH),
+      then: (schema) => schema.min(10, TEACHER_JOURNEY_ERROR_MESSAGES.CERTIFICATION.FEEDBACK_MIN_LENGTH),
+    }),
+
+  // Only rendered (and therefore only required) when status is NEED_MORE_TRAINING
+  certificationTrainingCount: Yup.number()
+    .nullable()
+    .when('certificationStatus', {
+      is: 'NEED_MORE_TRAINING',
+      then: (schema) => schema.required('Number of lessons is required'),
+      otherwise: (schema) => schema.nullable(),
     }),
 });
 
@@ -260,7 +260,7 @@ const paidTrainingSectionValidation = Yup.object().shape({
     .max(2000, 'Notes cannot exceed 2000 characters'),
 });
 
-// Paid Certification Section Validation Schema
+// Paid Certification Section Validation Schema (all fields mandatory)
 const paidCertificationSectionValidation = Yup.object().shape({
   paidCertificationStatus: Yup.string()
     .required('Paid certification status is required')
@@ -268,20 +268,14 @@ const paidCertificationSectionValidation = Yup.object().shape({
       'Invalid paid certification status'),
 
   paidCertificationDate: Yup.string()
-    .nullable()
-    .when('paidCertificationStatus', {
-      is: (status: string) => status === 'CLEARED' || status === 'NOT_CLEARED' || status === 'DEMO_ONLY' || status === 'DEMO_SALES' || status === 'OFFER_LETTER_SENT_PORTAL_CREATED' || status === 'PORTAL_HW_SUBMITTED',
-      then: (schema) => schema.required('Certification date is required'),
-      otherwise: (schema) => schema.nullable(),
-    }),
+    .required('Certification date is required'),
+
+  paidCertificationTsmId: Yup.number()
+    .required('TSM is required'),
 
   paidCertificationFeedback: Yup.string()
-    .nullable()
-    .when('paidCertificationStatus', {
-      is: 'NOT_CLEARED',
-      then: (schema) => schema.required('Feedback is required when certification is not cleared'),
-      otherwise: (schema) => schema.nullable().max(2000, 'Feedback cannot exceed 2000 characters'),
-    }),
+    .required('Feedback is required')
+    .max(2000, 'Feedback cannot exceed 2000 characters'),
 });
 
 // Paid Go-Live Section Validation Schema
@@ -299,19 +293,20 @@ const paidGoLiveSectionValidation = Yup.object().shape({
     }),
 });
 
-// Cross Training Section Validation Schema (repeatable entries; every field required per entry)
+// Cross Training Section Validation Schema (repeatable entries; all fields optional)
 const crossTrainingSectionValidation = Yup.object().shape({
   crossTrainings: Yup.array()
     .of(
       Yup.object().shape({
-        trainingType: Yup.string().oneOf(['PAID_TRAINING', 'DEMO_TRAINING'], 'Invalid cross training type').nullable().required('Type is required'),
-        trainingDate: Yup.string().nullable().required('Date of training is required'),
-        subject: Yup.string().nullable().required('Subject is required'),
-        certifiedTsmId: Yup.number().nullable().required('TSM is required'),
-        certificationDate: Yup.string().nullable().required('Certification date is required'),
-        feedback: Yup.string().nullable().required('Feedback is required'),
-        trainerId: Yup.number().nullable().required('Trainer is required'),
-        status: Yup.string().oneOf(['PENDING', 'CERTIFIED', 'CLEARED', 'NOT_CLEARED', 'RE_TRAINING', 'ABSENT'], 'Invalid cross training status').required('Status is required'),
+        trainingType: Yup.string().oneOf(['PAID_TRAINING', 'DEMO_TRAINING'], 'Invalid cross training type').nullable(),
+        trainingDate: Yup.string().nullable(),
+        subject: Yup.string().nullable(),
+        certifiedTsmId: Yup.number().nullable(),
+        certificationDate: Yup.string().nullable(),
+        feedback: Yup.string().nullable(),
+        trainerFeedback: Yup.string().nullable(),
+        trainerId: Yup.number().nullable(),
+        status: Yup.string().oneOf(['PENDING', 'CERTIFIED'], 'Invalid cross training status').nullable(),
       })
     )
     .nullable(),
