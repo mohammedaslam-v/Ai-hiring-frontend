@@ -51,6 +51,7 @@ export interface TeacherJourney {
   overallTeachingStyle: TeachingStyleRating | null;
   demoConducted: YesNo | null;
   demoPaidStatus: DemoPaidType | null;
+  isRehire: YesNo | null;
 
   // Language & Subject Info
   subjectsPrograms: string[] | null;
@@ -74,11 +75,27 @@ export interface TeacherJourney {
   // Cross Training (repeatable entries)
   crossTrainings?: CrossTrainingEntry[];
 
+  // Exit Form (all values typed in manually — nothing is pre-filled from the candidate)
+  exitTsmLeadName?: string | null;
+  exitTeacherName?: string | null;
+  exitTeacherContact?: string | null;
+  exitTeacherEmail?: string | null;
+  exitResignationDate?: string | null;
+  exitResignationTicketId?: string | null;
+  exitResignationReason?: string | null;
+  exitServingNoticePeriod?: YesNo | null;
+  exitNoticePeriodReason?: string | null;
+  exitPerformance?: ExitPerformance | null;
+  exitLossToCompany?: YesNo | null;
+  exitRehire?: YesNo | null;
+  exitHrNotes?: string | null;
+  exitManagementNotes?: string | null;
+
   createdAt: string;
   updatedAt: string;
 }
 
-export type CrossTrainingStatus = 'PENDING' | 'CERTIFIED';
+export type CrossTrainingStatus = 'PENDING' | 'CERTIFIED' | 'CLEARED' | 'NOT_CLEARED' | 'RE_TRAINING' | 'ABSENT';
 export type CrossTrainingType = 'PAID_TRAINING' | 'DEMO_TRAINING';
 
 // One repeatable Cross Training entry. `id` is present for saved rows,
@@ -111,6 +128,7 @@ export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'UNBOX_SCIENCE' | 'PHONIC
 export type TeachingStyleRating = 'BAD' | 'AVERAGE' | 'GOOD' | 'EXCELLENT';
 export type YesNo = 'YES' | 'NO';
 export type DemoPaidType = 'DEMO' | 'PAID' | 'NA';
+export type ExitPerformance = 'EXCEEDED_EXPECTATIONS' | 'MET_EXPECTATIONS' | 'DID_NOT_MEET_EXPECTATIONS';
 export type TimeSlot = 'MORNING_6AM' | 'AFTERNOON_12PM' | 'EVENING_6PM' | 'NIGHT_10PM' | 'FLEXIBLE';
 export type EmploymentType = 'PART_TIME' | 'FULL_TIME';
 export type TrainingBatch = '11AM' | '4PM';
@@ -227,6 +245,7 @@ export interface UpdateTeacherJourneyData {
   overallTeachingStyle?: TeachingStyleRating;
   demoConducted?: YesNo;
   demoPaidStatus?: DemoPaidType;
+  isRehire?: YesNo;
 
   // Language & Subject Info
   subjectsPrograms?: string[];
@@ -241,6 +260,22 @@ export interface UpdateTeacherJourneyData {
 
   // Cross Training (full desired set of entries; backend syncs to this)
   crossTrainings?: CrossTrainingEntry[];
+
+  // Exit Form
+  exitTsmLeadName?: string | null;
+  exitTeacherName?: string | null;
+  exitTeacherContact?: string | null;
+  exitTeacherEmail?: string | null;
+  exitResignationDate?: string | null;
+  exitResignationTicketId?: string | null;
+  exitResignationReason?: string | null;
+  exitServingNoticePeriod?: YesNo | null;
+  exitNoticePeriodReason?: string | null;
+  exitPerformance?: ExitPerformance | null;
+  exitLossToCompany?: YesNo | null;
+  exitRehire?: YesNo | null;
+  exitHrNotes?: string | null;
+  exitManagementNotes?: string | null;
 }
 
 // Constants for dropdown options
@@ -345,12 +380,34 @@ export const READY_FOR_PAID_CLASS_OPTIONS = [
 
 export const CROSS_TRAINING_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
-  { value: 'CERTIFIED', label: 'Certified' }
+  { value: 'CLEARED', label: 'Cleared' },
+  { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'RE_TRAINING', label: 'Re-training' },
+  { value: 'ABSENT', label: 'Absent' }
 ];
 
 export const CROSS_TRAINING_TYPE_OPTIONS = [
   { value: 'PAID_TRAINING', label: 'Paid Training' },
   { value: 'DEMO_TRAINING', label: 'Demo Training' }
+];
+
+// Exit Form options — mirror the "Exit Form" Google Form exactly.
+// TSM Lead is a fixed list on the form; add a name here when the form's list changes.
+export const EXIT_TSM_LEAD_OPTIONS = [
+  { value: 'Kanishka', label: 'Kanishka' },
+  { value: 'Mriduta', label: 'Mriduta' },
+  { value: 'Swagata', label: 'Swagata' }
+];
+
+export const EXIT_PERFORMANCE_OPTIONS = [
+  { value: 'EXCEEDED_EXPECTATIONS', label: 'Exceeded Expectations' },
+  { value: 'MET_EXPECTATIONS', label: 'Met Expectations' },
+  { value: 'DID_NOT_MEET_EXPECTATIONS', label: 'Did Not Meet Expectations' }
+];
+
+export const EXIT_YES_NO_OPTIONS = [
+  { value: 'YES', label: 'Yes' },
+  { value: 'NO', label: 'No' }
 ];
 
 export const CERTIFICATION_TRAINING_COUNT_OPTIONS = [

@@ -96,6 +96,10 @@ export const demoSectionValidation = Yup.object().shape({
     .nullable()
     .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.DEMO_CONDUCTED_REQUIRED),
 
+  isRehire: Yup.string()
+    .nullable()
+    .oneOf(['YES', 'NO'], TEACHER_JOURNEY_ERROR_MESSAGES.DEMO_EVALUATION.IS_REHIRE_INVALID),
+
   // Subjects - Always Required
   subjectsPrograms: Yup.array()
     .of(Yup.string())
@@ -302,10 +306,80 @@ const crossTrainingSectionValidation = Yup.object().shape({
         feedback: Yup.string().nullable(),
         trainerFeedback: Yup.string().nullable(),
         trainerId: Yup.number().nullable(),
-        status: Yup.string().oneOf(['PENDING', 'CERTIFIED'], 'Invalid cross training status').nullable(),
+        status: Yup.string().oneOf(['PENDING', 'CERTIFIED', 'CLEARED', 'NOT_CLEARED', 'RE_TRAINING', 'ABSENT'], 'Invalid cross training status').nullable(),
       })
     )
     .nullable(),
+});
+
+// Exit Section Validation Schema
+// The Exit Form marks every question required, so this mirrors it. The one
+// exception is the "reason for not serving notice period" question, which only
+// applies when the educator is NOT serving the notice period.
+const exitSectionValidation = Yup.object().shape({
+  exitTsmLeadName: Yup.string()
+    .nullable()
+    .required('TSM lead name is required'),
+
+  exitTeacherName: Yup.string()
+    .required('Teacher name is required')
+    .max(255, 'Teacher name cannot exceed 255 characters'),
+
+  exitTeacherContact: Yup.string()
+    .required("Teacher's contact number is required")
+    .matches(/^[0-9+\-\s()]{7,20}$/, 'Enter a valid contact number'),
+
+  exitTeacherEmail: Yup.string()
+    .required("Teacher's email id is required")
+    .email('Enter a valid email address'),
+
+  exitResignationDate: Yup.string()
+    .nullable()
+    .required('Resignation date is required'),
+
+  exitResignationTicketId: Yup.string()
+    .required('Resignation ticket id is required')
+    .max(100, 'Ticket id cannot exceed 100 characters'),
+
+  exitResignationReason: Yup.string()
+    .required('Reason for resignation is required')
+    .max(2000, 'Reason cannot exceed 2000 characters'),
+
+  exitServingNoticePeriod: Yup.string()
+    .nullable()
+    .required('Select whether the educator is serving the notice period')
+    .oneOf(['YES', 'NO'], 'Invalid value'),
+
+  exitNoticePeriodReason: Yup.string()
+    .nullable()
+    .when('exitServingNoticePeriod', {
+      is: 'NO',
+      then: (schema) => schema.required('Reason is required when the notice period is not served'),
+      otherwise: (schema) => schema.nullable().max(2000, 'Reason cannot exceed 2000 characters'),
+    }),
+
+  exitPerformance: Yup.string()
+    .nullable()
+    .required("Educator's performance is required")
+    .oneOf(['EXCEEDED_EXPECTATIONS', 'MET_EXPECTATIONS', 'DID_NOT_MEET_EXPECTATIONS'], 'Invalid performance rating'),
+
+  exitLossToCompany: Yup.string()
+    .nullable()
+    .required('Select whether this is a loss to the company')
+    .oneOf(['YES', 'NO'], 'Invalid value'),
+
+  exitRehire: Yup.string()
+    .nullable()
+    .required('Select whether this educator can be rehired')
+    .oneOf(['YES', 'NO'], 'Invalid value'),
+
+  exitHrNotes: Yup.string()
+    .required('HR notes are required')
+    .max(2000, 'Notes cannot exceed 2000 characters'),
+
+  exitManagementNotes: Yup.string()
+    .required('Management notes are required')
+    .max(2000, 'Notes cannot exceed 2000 characters'),
 });
 
 // Combined validation schema for all sections
@@ -320,11 +394,12 @@ export const teacherJourneyValidation = {
   paidCertification: paidCertificationSectionValidation,
   paidGoLive: paidGoLiveSectionValidation,
   crossTraining: crossTrainingSectionValidation,
+  exit: exitSectionValidation,
 };
 
 // Helper function to validate a specific section
 export const validateTeacherJourneySection = async (
-  section: 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive' | 'crossTraining',
+  section: 'demo' | 'induction' | 'training' | 'certification' | 'goLive' | 'readyForPaidClass' | 'paidTraining' | 'paidCertification' | 'paidGoLive' | 'crossTraining' | 'exit',
   data: Record<string, unknown>
 ): Promise<{ isValid: boolean; errors: Record<string, string> }> => {
   try {
