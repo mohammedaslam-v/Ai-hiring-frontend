@@ -80,6 +80,11 @@ const SECTIONS: Section[] = [
 
 const SCORE_VALUES = [0, 1, 2, 3, 4, 5];
 
+// MTI is scored as the AMOUNT of mother tongue influence (lower = better),
+// so its value is inverted (5 - score) when computing section averages.
+// Must stay in sync with REVERSE_SCORED_KEYS in the backend mock-assessment service.
+const REVERSE_SCORED_KEYS = new Set(['lang_g3']);
+
 // Shared grid template so column headers line up with each criterion row.
 const ROW_GRID = 'grid grid-cols-1 sm:grid-cols-[1.1fr_1.9fr_minmax(170px,auto)] gap-x-4 gap-y-1';
 
@@ -181,7 +186,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
       let count = 0;
       for (const c of section.criteria) {
         if (scores[c.key] !== undefined) {
-          total += scores[c.key];
+          total += REVERSE_SCORED_KEYS.has(c.key) ? 5 - scores[c.key] : scores[c.key];
           count += 1;
         }
       }
