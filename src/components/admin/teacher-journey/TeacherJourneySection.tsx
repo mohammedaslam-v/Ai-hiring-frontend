@@ -1093,14 +1093,18 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
                   >
                     <X className="h-3 w-3 mr-1" /> Cancel
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="h-8 bg-[#1E62F2] hover:bg-[hsl(216,88%,50%)] text-white rounded-xl text-xs"
-                  >
-                    <Save className="h-3 w-3 mr-1" /> {saving ? 'Saving...' : 'Save Changes'}
-                  </Button>
+                  {/* Cross Training entries persist immediately via their own Save button,
+                      so the section-level Save Changes is hidden there. */}
+                  {activeTab !== 'crossTraining' && (
+                    <Button
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="h-8 bg-[#1E62F2] hover:bg-[hsl(216,88%,50%)] text-white rounded-xl text-xs"
+                    >
+                      <Save className="h-3 w-3 mr-1" /> {saving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
@@ -1167,7 +1171,9 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
             {editMode && (
               <div className="px-5 py-3 bg-[#1E62F2]/10 border-t border-[#1E62F2] text-center">
                 <p className="text-xs text-[#1E62F2]">
-                  💡 Changes are only saved when you click <strong>Save Changes</strong>
+                  {activeTab === 'crossTraining'
+                    ? <>💡 Each cross training entry is saved with its own <strong>Save</strong> button</>
+                    : <>💡 Changes are only saved when you click <strong>Save Changes</strong></>}
                 </p>
               </div>
             )}
@@ -2466,33 +2472,8 @@ const InductionSection: React.FC<SectionProps> = ({ journey, editMode, editData,
 };
 
 // TRAINING SECTION
-const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, demoTrainers = [], candidateName }) => {
+const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, setEditData, fieldErrors = {}, demoTrainers = [] }) => {
   const data = editMode ? editData : journey;
-
-  // ---- Demo Training Scorecard ----
-  const [demoTrainingScorecardOpen, setDemoTrainingScorecardOpen] = useState(false);
-  const [demoTrainingLatestScorecard, setDemoTrainingLatestScorecard] = useState<MockAssessment | null>(null);
-
-  const loadDemoTrainingScorecard = useCallback(() => {
-    if (!journey.applicationId) return;
-    teacherJourneyService.getMockAssessments(journey.applicationId, 'DEMO_TRAINING').then(res => {
-      setDemoTrainingLatestScorecard(res.status && res.data && res.data.length > 0 ? res.data[0] : null);
-    });
-  }, [journey.applicationId]);
-
-  useEffect(() => { loadDemoTrainingScorecard(); }, [loadDemoTrainingScorecard]);
-
-  const demoTrainingResult = demoTrainingLatestScorecard?.overallResult;
-  const demoTrainingBadgeClass = demoTrainingResult === 'SELECTED'
-    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-    : demoTrainingResult === 'REJECTED'
-      ? 'bg-red-50 text-red-700 border-red-200'
-      : 'bg-blue-50 text-blue-700 border-blue-200';
-  const demoTrainingBadgeLabel = demoTrainingResult === 'SELECTED'
-    ? 'Scored · Selected'
-    : demoTrainingResult === 'REJECTED'
-      ? 'Scored · Rejected'
-      : 'Scored';
 
   return (
     <div className="space-y-5">
@@ -2624,42 +2605,6 @@ const TrainingSection: React.FC<SectionProps> = ({ journey, editMode, editData, 
           </div>
         )}
       </div>
-      {/* Demo Training Scorecard launcher */}
-      <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 mt-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium text-slate-700">Demo Training Scorecard</p>
-            {demoTrainingLatestScorecard && (
-              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${demoTrainingBadgeClass}`}>
-                {demoTrainingResult === 'SELECTED' ? <CheckCircle2 className="w-3 h-3" />
-                  : demoTrainingResult === 'REJECTED' ? <XCircle className="w-3 h-3" />
-                    : <ClipboardCheck className="w-3 h-3" />}
-                {demoTrainingBadgeLabel}
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-slate-400">
-            {demoTrainingLatestScorecard ? "Scorecard submitted — view or update the candidate's scores." : "Open the rubric grader to score this candidate's demo training."}
-          </p>
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          className="h-8 rounded-xl text-xs bg-[#1E62F2] hover:bg-[#1751cc]"
-          onClick={() => setDemoTrainingScorecardOpen(true)}
-        >
-          <ClipboardCheck className="w-3.5 h-3.5 mr-1.5" /> {demoTrainingLatestScorecard ? 'View / Edit Score' : 'Score'}
-        </Button>
-      </div>
-
-      <ScorecardGraderDialog
-        open={demoTrainingScorecardOpen}
-        onOpenChange={setDemoTrainingScorecardOpen}
-        defaultCandidateName={candidateName}
-        applicationId={journey.applicationId}
-        onSaved={loadDemoTrainingScorecard}
-        phase="DEMO_TRAINING"
-      />
     </div>
   );
 };
