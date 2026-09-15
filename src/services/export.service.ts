@@ -45,7 +45,8 @@ export const exportApplicationsToCSV = async (filters: AppListFilters): Promise<
       'inductionAttendance',
       'trainingStatus',
       'certificationStatus',
-      'goLiveReadiness'
+      'goLiveReadiness',
+      'exitStatus'
     ] as const;
 
     journeyFilters.forEach(filterName => {
@@ -169,7 +170,8 @@ export const exportApplicationsToExcel = async (filters: AppListFilters): Promis
       'inductionAttendance',
       'trainingStatus',
       'certificationStatus',
-      'goLiveReadiness'
+      'goLiveReadiness',
+      'exitStatus'
     ] as const;
 
     journeyFilters.forEach(filterName => {

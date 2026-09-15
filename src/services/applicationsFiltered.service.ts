@@ -60,7 +60,8 @@ class ApplicationsFilteredService {
         'inductionAttendance',
         'trainingStatus',
         'certificationStatus',
-        'goLiveReadiness'
+        'goLiveReadiness',
+        'exitStatus'
       ];
 
       journeyFilters.forEach(filterName => {

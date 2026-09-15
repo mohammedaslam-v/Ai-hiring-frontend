@@ -371,6 +371,14 @@ export const GO_LIVE_OPTIONS = [
   { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
+// Exit filter options for the Applications list. "Exited" means the Exit Form
+// has a resignation date recorded (same rule the journey step tracker uses).
+export const EXIT_STATUS_OPTIONS = [
+  { value: 'all', label: 'All Exit Status' },
+  { value: 'exited', label: 'Exited' },
+  { value: 'not_exited', label: 'Not Exited' }
+];
+
 export const READY_FOR_PAID_CLASS_OPTIONS = [
   { value: 'all', label: 'All Status' },
   { value: 'PENDING', label: 'Pending' },
