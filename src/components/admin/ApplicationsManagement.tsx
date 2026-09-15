@@ -24,7 +24,8 @@ import {
   INDUCTION_OPTIONS,
   TRAINING_STATUS_OPTIONS,
   CERTIFICATION_STATUS_OPTIONS,
-  GO_LIVE_OPTIONS
+  GO_LIVE_OPTIONS,
+  EXIT_STATUS_OPTIONS
 } from '@/types/teacherJourney';
 import FeedbackModal from './FeedbackModal';
 import { MultiSelectFilter } from './MultiSelectFilter';
@@ -134,7 +135,8 @@ const ApplicationsManagement: React.FC = () => {
     (Array.isArray(filters.inductionAttendance) ? filters.inductionAttendance.length > 0 : (filters.inductionAttendance !== 'all' && filters.inductionAttendance !== undefined)) ||
     (Array.isArray(filters.trainingStatus) ? filters.trainingStatus.length > 0 : (filters.trainingStatus !== 'all' && filters.trainingStatus !== undefined)) ||
     (Array.isArray(filters.certificationStatus) ? filters.certificationStatus.length > 0 : (filters.certificationStatus !== 'all' && filters.certificationStatus !== undefined)) ||
-    (Array.isArray(filters.goLiveReadiness) ? filters.goLiveReadiness.length > 0 : (filters.goLiveReadiness !== 'all' && filters.goLiveReadiness !== undefined));
+    (Array.isArray(filters.goLiveReadiness) ? filters.goLiveReadiness.length > 0 : (filters.goLiveReadiness !== 'all' && filters.goLiveReadiness !== undefined)) ||
+    (Array.isArray(filters.exitStatus) ? filters.exitStatus.length > 0 : (filters.exitStatus !== 'all' && filters.exitStatus !== undefined));
 
   // Use applications directly from hook (now server-side filtered)
   const filteredApplications = applications;
@@ -595,6 +597,15 @@ const ApplicationsManagement: React.FC = () => {
                 placeholder="Demo Go Live Status"
                 activeColor="emerald"
               />
+
+              {/* Exit Status */}
+              <MultiSelectFilter
+                options={EXIT_STATUS_OPTIONS}
+                selectedValues={Array.isArray(filters.exitStatus) ? filters.exitStatus : []}
+                onValuesChange={(values) => updateJourneyFilter('exitStatus', values)}
+                placeholder="Exit Status"
+                activeColor="emerald"
+              />
             </div>
           </div>
 
@@ -740,6 +751,11 @@ const ApplicationsManagement: React.FC = () => {
                 {Array.isArray(filters.goLiveReadiness) && filters.goLiveReadiness.length > 0 && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-teal-100 text-teal-700">
                     Demo Go Live: {filters.goLiveReadiness.length > 1 ? `${filters.goLiveReadiness.length} selected` : filters.goLiveReadiness[0].replace(/_/g, ' ')}
+                  </span>
+                )}
+                {Array.isArray(filters.exitStatus) && filters.exitStatus.length > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-rose-100 text-rose-700">
+                    Exit: {filters.exitStatus.length > 1 ? `${filters.exitStatus.length} selected` : (filters.exitStatus[0] === 'exited' ? 'Exited' : 'Not Exited')}
                   </span>
                 )}
                 {Array.isArray(filters.directDemo) && filters.directDemo.length > 0 && (

@@ -19,6 +19,8 @@ export interface AppListFilters {
   trainingStatus?: string | string[];
   certificationStatus?: string | string[];
   goLiveReadiness?: string | string[];
+  // Exit filter: 'exited' | 'not_exited' (exited = resignation date recorded on the journey)
+  exitStatus?: string | string[];
 }
 
 export interface AppListResponse {
@@ -99,5 +101,6 @@ export const DEFAULT_FILTERS: AppListFilters = {
   inductionAttendance: [],
   trainingStatus: [],
   certificationStatus: [],
-  goLiveReadiness: []
+  goLiveReadiness: [],
+  exitStatus: []
 };
