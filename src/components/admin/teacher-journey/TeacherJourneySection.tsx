@@ -3244,7 +3244,7 @@ const CrossTrainingSectionImpl: React.FC<SectionProps> = ({ journey, editMode, e
         <Select value={draft.subject || ''} onValueChange={v => setD({ subject: v })}>
           <SelectTrigger className={fieldCls}><SelectValue placeholder="Select subject" /></SelectTrigger>
           <SelectContent>
-            {SUBJECT_OPTIONS_FOR_UPDATE.filter(o => o.value !== 'NONE').map(o => (
+            {SUBJECT_OPTIONS_FOR_UPDATE.filter(o => !['NONE', 'CHESS', 'ARTIFICIAL_INTELLIGENCE'].includes(o.value)).map(o => (
               <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
             ))}
           </SelectContent>
