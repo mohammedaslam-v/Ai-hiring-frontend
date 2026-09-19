@@ -315,7 +315,7 @@ export const TRAINING_STATUS_OPTIONS = [
 export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'all', label: 'All Certification' },
   { value: 'PENDING', label: 'Pending' },
-  { value: 'CLEARED', label: 'Cleared' },
+  { value: 'CLEARED', label: 'Demo + Paid' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
   { value: 'DEMO_ONLY', label: 'Demo Only' },
   { value: 'DEMO_SALES', label: 'Demo + Sales' },
@@ -336,7 +336,7 @@ export const CERTIFICATION_STATUS_OPTIONS = [
 export const DEMO_CERTIFICATION_STATUS_OPTIONS = [
   { value: 'all', label: 'All Certification' },
   { value: 'PENDING', label: 'Pending' },
-  { value: 'CLEARED', label: 'Cleared' },
+  { value: 'CLEARED', label: 'Demo + Paid' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
   { value: 'DEMO_ONLY', label: 'Demo Only' },
   { value: 'DEMO_SALES', label: 'Demo + Sales' },
@@ -518,7 +518,7 @@ export const getTrainingStatusLabel = (status: TrainingStatus): string => {
 export const getCertificationLabel = (status: CertificationStatus): string => {
   const labels: Record<CertificationStatus, string> = {
     'PENDING': 'Pending',
-    'CLEARED': 'Cleared',
+    'CLEARED': 'Demo + Paid',
     'NOT_CLEARED': 'Not Cleared',
     'DEMO_ONLY': 'Demo Only',
     'DEMO_SALES': 'Demo + Sales',
