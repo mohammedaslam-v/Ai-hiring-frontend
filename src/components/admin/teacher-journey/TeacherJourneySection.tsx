@@ -1882,7 +1882,10 @@ const SUBJECT_OPTIONS = [
   'Kannada',
   'Demo+Sales',
   'Artificial Intelligence',
-  'Chess'
+  'Chess',
+  'Unbox Kannada',
+  'Unbox Chess',
+  'Unbox AI'
 ] as const;
 
 const SubjectsMultiSelect: React.FC<SubjectsMultiSelectProps> = ({ selectedSubjects, onSubjectsChange }) => {
@@ -2843,6 +2846,9 @@ const GoLiveSection: React.FC<SectionProps> = ({ journey, editMode, editData, se
                 { id: 'ALPHA_MATH', label: 'Alpha Math' },
                 { id: 'ARTIFICIAL_INTELLIGENCE', label: 'Artificial Intelligence' },
                 { id: 'CHESS', label: 'Chess' },
+                { id: 'UNBOX_KANNADA', label: 'Unbox Kannada' },
+                { id: 'UNBOX_CHESS', label: 'Unbox Chess' },
+                { id: 'UNBOX_AI', label: 'Unbox AI' },
               ].map((subject) => (
                 <div key={subject.id} className="flex items-center space-x-2">
                   <Checkbox

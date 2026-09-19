@@ -124,6 +124,9 @@ const ApplicationFilters = () => {
           <SelectItem value="kannada">Kannada</SelectItem>
           <SelectItem value="artificial-intelligence">Artificial Intelligence</SelectItem>
           <SelectItem value="chess">Chess</SelectItem>
+          <SelectItem value="unbox-kannada">Unbox Kannada</SelectItem>
+          <SelectItem value="unbox-chess">Unbox Chess</SelectItem>
+          <SelectItem value="unbox-ai">Unbox AI</SelectItem>
         </SelectContent>
       </Select>
 

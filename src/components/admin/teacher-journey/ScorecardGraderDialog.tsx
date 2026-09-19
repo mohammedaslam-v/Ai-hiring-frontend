@@ -31,6 +31,9 @@ const SUBJECTS = [
   { value: 'English', label: 'English' },
   { value: 'Gita', label: 'Gita' },
   { value: 'Phonics', label: 'Phonics' },
+  { value: 'Unbox Kannada', label: 'Unbox Kannada' },
+  { value: 'Unbox Chess', label: 'Unbox Chess' },
+  { value: 'Unbox AI', label: 'Unbox AI' },
 ] as const;
 
 const GRADE_SEGMENTS = [
