@@ -15,6 +15,9 @@ export const ONBOARDING_COURSES = [
   'Sanatan Unbox',
   'Kannada',
   'Chess',
+  'Unbox Kannada',
+  'Unbox Chess',
+  'Unbox AI',
 ];
 
 /**

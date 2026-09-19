@@ -122,7 +122,7 @@ export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
 export type PaidCertificationStatus = CertificationStatus;
 export type PaidGoLiveStatus = GoLiveStatus;
-export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'UNBOX_SCIENCE' | 'PHONICS' | 'ALPHA_MATH' | 'ARTIFICIAL_INTELLIGENCE' | 'CHESS';
+export type Subject = 'LITTLE_YOGI' | 'UNBOX_7_PLUS' | 'UNBOX_SCIENCE' | 'PHONICS' | 'ALPHA_MATH' | 'ARTIFICIAL_INTELLIGENCE' | 'CHESS' | 'UNBOX_KANNADA' | 'UNBOX_CHESS' | 'UNBOX_AI';
 
 // New types for extended fields
 export type TeachingStyleRating = 'BAD' | 'AVERAGE' | 'GOOD' | 'EXCELLENT';
@@ -197,6 +197,9 @@ export interface TeacherJourneyStats {
     alphaMath: number;
     artificialIntelligence: number;
     chess: number;
+    unboxKannada: number;
+    unboxChess: number;
+    unboxAi: number;
     unassigned: number;
   };
 }
@@ -445,7 +448,10 @@ export const SUBJECT_OPTIONS = [
   { value: 'PHONICS', label: 'Phonics' },
   { value: 'ALPHA_MATH', label: 'Alpha Math' },
   { value: 'ARTIFICIAL_INTELLIGENCE', label: 'Artificial Intelligence' },
-  { value: 'CHESS', label: 'Chess' }
+  { value: 'CHESS', label: 'Chess' },
+  { value: 'UNBOX_KANNADA', label: 'Unbox Kannada' },
+  { value: 'UNBOX_CHESS', label: 'Unbox Chess' },
+  { value: 'UNBOX_AI', label: 'Unbox AI' }
 ];
 
 export const SUBJECT_OPTIONS_FOR_UPDATE = [
@@ -456,7 +462,10 @@ export const SUBJECT_OPTIONS_FOR_UPDATE = [
   { value: 'PHONICS', label: 'Phonics' },
   { value: 'ALPHA_MATH', label: 'Alpha Math' },
   { value: 'ARTIFICIAL_INTELLIGENCE', label: 'Artificial Intelligence' },
-  { value: 'CHESS', label: 'Chess' }
+  { value: 'CHESS', label: 'Chess' },
+  { value: 'UNBOX_KANNADA', label: 'Unbox Kannada' },
+  { value: 'UNBOX_CHESS', label: 'Unbox Chess' },
+  { value: 'UNBOX_AI', label: 'Unbox AI' }
 ];
 
 export const SORT_OPTIONS = [
@@ -553,7 +562,10 @@ export const getSubjectLabel = (subject: Subject | Subject[] | null): string => 
     'PHONICS': 'Phonics',
     'ALPHA_MATH': 'Alpha Math',
     'ARTIFICIAL_INTELLIGENCE': 'Artificial Intelligence',
-    'CHESS': 'Chess'
+    'CHESS': 'Chess',
+    'UNBOX_KANNADA': 'Unbox Kannada',
+    'UNBOX_CHESS': 'Unbox Chess',
+    'UNBOX_AI': 'Unbox AI'
   };
 
   if (Array.isArray(subject)) {
