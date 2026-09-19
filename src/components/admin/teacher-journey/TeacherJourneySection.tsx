@@ -395,7 +395,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       const CERTIFICATION_EMAIL_PROMPTS: Record<string, { emailType: string; statusLabel: string; description: string; destructive?: boolean }> = {
         CLEARED: {
           emailType: 'Go Live',
-          statusLabel: 'Cleared',
+          statusLabel: 'Demo + Paid',
           description: 'A congratulations email with offer letter details and portal access information will be sent to the candidate.',
         },
         NOT_CLEARED: {
