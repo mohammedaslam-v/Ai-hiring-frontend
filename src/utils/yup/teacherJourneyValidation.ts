@@ -266,7 +266,7 @@ const paidTrainingSectionValidation = Yup.object().shape({
 const paidCertificationSectionValidation = Yup.object().shape({
   paidCertificationStatus: Yup.string()
     .required('Paid certification status is required')
-    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'DEMO_ONLY', 'DEMO_SALES', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'],
+    .oneOf(['PENDING', 'CLEARED', 'NOT_CLEARED', 'DEMO_ONLY', 'DEMO_SALES', 'NEED_MORE_TRAINING', 'SECOND_MOCK_REQUIRED', 'CALIBRATION_REQUIRED', 'JOINING_FORM_SENT', 'OFFER_LETTER_SENT_PORTAL_CREATED', 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED', 'PORTAL_HW_SUBMITTED'],
       'Invalid paid certification status'),
 
   paidCertificationDate: Yup.string()

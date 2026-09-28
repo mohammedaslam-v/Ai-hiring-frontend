@@ -150,6 +150,7 @@ const getStatusBadge = (status: string) => {
     'NOT_INTERESTED': { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: <XCircle className="h-3.5 w-3.5" /> },
     'OFFER_LETTER_SENT': { bg: 'bg-[hsl(38,92%,50%,0.1)] border-[hsl(38,92%,50%)]', text: 'text-[hsl(38,92%,50%)]', icon: <Mail className="h-3.5 w-3.5" /> },
     'OFFER_LETTER_SENT_PORTAL_CREATED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
+    'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
     'PORTAL_HW_SUBMITTED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
     'JOINING_FORM_SENT': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <FileText className="h-3.5 w-3.5" /> },
     'PORTAL_CREATED': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: <Globe className="h-3.5 w-3.5" /> },
@@ -490,6 +491,11 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           statusLabel: 'Offer Letter Sent / Portal Created',
           description: 'A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
         },
+        CHESS_OFFER_LETTER_SENT_PORTAL_CREATED: {
+          title: '📧 Confirm Chess Offer Letter Email',
+          statusLabel: 'Chess Offer Letter Sent / Portal Created',
+          description: 'A welcome email with 5 PDF attachments (Offer Letter, Chess Executive Payment Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
+        },
         NOT_CLEARED: {
           title: '📧 Confirm Not Cleared Email',
           statusLabel: 'Not Cleared',
@@ -572,7 +578,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           (activeTab === 'certification' &&
             editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED') ||
           (activeTab === 'paidCertification' &&
-            editData.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED');
+            (editData.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' ||
+              editData.paidCertificationStatus === 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED'));
 
         if (isOfferLetterSent) {
           toast.success('✅ Status updated! Offer letter email sent with 5 PDFs (incl. POSH) and POSH training link.');
@@ -731,7 +738,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'goLive': return journey?.goLiveReadiness === 'YES';
       case 'readyForPaidClass': return journey?.readyForPaidClass === 'YES';
       case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
-      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED' || journey?.paidCertificationStatus === 'DEMO_ONLY' || journey?.paidCertificationStatus === 'DEMO_SALES' || journey?.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.paidCertificationStatus === 'PORTAL_HW_SUBMITTED';
+      case 'paidCertification': return journey?.paidCertificationStatus === 'CLEARED' || journey?.paidCertificationStatus === 'DEMO_ONLY' || journey?.paidCertificationStatus === 'DEMO_SALES' || journey?.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.paidCertificationStatus === 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.paidCertificationStatus === 'PORTAL_HW_SUBMITTED';
       case 'paidGoLive': return journey?.paidGoLiveReadiness === 'YES';
       case 'crossTraining': {
         const entries = journey?.crossTrainings ?? [];
