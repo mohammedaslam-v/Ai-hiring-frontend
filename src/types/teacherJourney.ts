@@ -116,7 +116,7 @@ export interface CrossTrainingEntry {
 export type DemoStatus = 'PENDING' | 'SCHEDULED' | 'SELECTED' | 'NOT_SELECTED' | 'HOLD' | 'NOT_INTERESTED';
 export type InductionStatus = 'PENDING' | 'YES' | 'NO' | 'NOT_INTERESTED';
 export type TrainingStatus = 'NOT_JOINED' | 'JOINED' | 'INCOMPLETE' | 'SHIFTED_TO_NEXT_WEEK' | 'DROPPED' | 'COMPLETED' | 'REJECTED_IN_TRAINING' | 'NOT_INTERESTED';
-export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'DEMO_ONLY' | 'DEMO_SALES' | 'NEED_MORE_TRAINING' | 'SECOND_MOCK_REQUIRED' | 'CALIBRATION_REQUIRED' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
+export type CertificationStatus = 'PENDING' | 'CLEARED' | 'NOT_CLEARED' | 'DEMO_ONLY' | 'DEMO_SALES' | 'NEED_MORE_TRAINING' | 'SECOND_MOCK_REQUIRED' | 'CALIBRATION_REQUIRED' | 'JOINING_FORM_SENT' | 'OFFER_LETTER_SENT_PORTAL_CREATED' | 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED' | 'PORTAL_HW_SUBMITTED' | 'NOT_INTERESTED';
 export type GoLiveStatus = 'PENDING' | 'YES' | 'NEEDS_MORE_TRAINING' | 'NOT_INTERESTED';
 export type ReadyForPaidClassStatus = 'PENDING' | 'YES' | 'NO';
 export type PaidTrainingStatus = TrainingStatus;
@@ -363,6 +363,7 @@ export const PAID_CERTIFICATION_STATUS_OPTIONS = [
   { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'CALIBRATION_REQUIRED', label: 'Calibration Required' },
   { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
+  { value: 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Chess Offer Letter Sent / Portal Created' },
   { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
@@ -527,6 +528,7 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
     'CALIBRATION_REQUIRED': 'Calibration Required',
     'JOINING_FORM_SENT': 'Joining Form Sent',
     'OFFER_LETTER_SENT_PORTAL_CREATED': 'Offer Letter Sent / Portal Created',
+    'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED': 'Chess Offer Letter Sent / Portal Created',
     'PORTAL_HW_SUBMITTED': 'Portal HW Submitted',
     'NOT_INTERESTED': 'Not Interested'
   };
