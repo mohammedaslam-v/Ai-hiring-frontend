@@ -20,7 +20,10 @@ export const usePermissions = () => {
   
   // Restricted delete and management access: ONLY these specific emails
   const userEmail = user?.email?.toLowerCase();
-  const isAllowedToManage = userEmail === 'sabreena@bambinos.live' || userEmail === 'krishna.nair@bambinos.live';
+  const isAllowedToManage =
+    userEmail === 'sabreena@bambinos.live' ||
+    userEmail === 'krishna.nair@bambinos.live' ||
+    userEmail === 'adithya@bambinos.live';
   
   return {
     // Delete button: now strictly based on the allowed email list
