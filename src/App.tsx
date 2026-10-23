@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,7 +11,7 @@ import "./styles/toastify.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import CandidateLogin from "./pages/candidate/CandidateLogin";
+// import CandidateLogin from "./pages/candidate/CandidateLogin"; // Login hidden - candidates go straight to the application form
 import CandidateApplication from "./pages/candidate/CandidateApplication";
 import DirectDemoApplication from "./pages/candidate/DirectDemoApplication";
 import DirectDemoConfirmation from "./pages/candidate/DirectDemoConfirmation";
@@ -40,7 +40,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/candidate/login" element={<CandidateLogin />} />
+      {/* Candidate login is hidden - old /candidate/login links land on the application form */}
+      <Route path="/candidate/login" element={<Navigate to="/candidate/application" replace />} />
       <Route path="/candidate/application" element={<CandidateApplication />} />
       <Route path="/direct-demo" element={<DirectDemoApplication />} />
       <Route path="/directdemo-success" element={<DirectDemoConfirmation />} />

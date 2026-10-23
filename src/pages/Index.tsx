@@ -10,7 +10,7 @@ const Index = () => {
   const navigate = useNavigate();
   
   const handleApplyAsTeacher = () => {
-    navigate(ROUTES.CANDIDATE.LOGIN);
+    navigate(ROUTES.CANDIDATE.APPLICATION);
   };
 
   const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
