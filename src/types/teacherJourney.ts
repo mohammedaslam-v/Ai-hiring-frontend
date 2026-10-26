@@ -323,16 +323,18 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'JOINING_FORM_SENT', label: 'Joining Form Sent' },
   { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
+  { value: 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Chess Offer Letter Sent / Portal Created' },
   { value: 'PORTAL_HW_SUBMITTED', label: 'Portal HW Submitted' },
   { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
 // Demo Certification update dropdown options. This list intentionally diverges
-// from CERTIFICATION_STATUS_OPTIONS: it drops the post-clearance statuses
-// (Joining Form Sent, Offer Letter Sent / Portal Created, Portal HW Submitted)
-// and adds the Demo-only "Calibration Required" status after "Second Mock Required".
-// The full CERTIFICATION_STATUS_OPTIONS list above is still used by the Paid
-// Certification dropdown and the certification filters.
+// from CERTIFICATION_STATUS_OPTIONS: it hides "Joining Form Sent" and
+// "Portal HW Submitted", adds the "Calibration Required" status after
+// "Second Mock Required", and keeps both offer-letter statuses (regular and
+// Chess) so a Demo-track educator can be sent either offer email.
+// The full CERTIFICATION_STATUS_OPTIONS list above is still used by the
+// certification filters.
 export const DEMO_CERTIFICATION_STATUS_OPTIONS = [
   { value: 'all', label: 'All Certification' },
   { value: 'PENDING', label: 'Pending' },
@@ -344,6 +346,7 @@ export const DEMO_CERTIFICATION_STATUS_OPTIONS = [
   { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'CALIBRATION_REQUIRED', label: 'Calibration Required' },
   { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
+  { value: 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Chess Offer Letter Sent / Portal Created' },
   { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
