@@ -431,6 +431,11 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           statusLabel: 'Offer Letter Sent / Portal Created',
           description: 'A welcome email with 5 PDF attachments (Offer Letter, Salary Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
         },
+        CHESS_OFFER_LETTER_SENT_PORTAL_CREATED: {
+          emailType: 'Chess Offer Letter',
+          statusLabel: 'Chess Offer Letter Sent / Portal Created',
+          description: 'A welcome email with 5 PDF attachments (Chess Offer Letter, Chess Executive Payment Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
+        },
       };
 
       const targetStatus = editData.certificationStatus;
@@ -576,7 +581,8 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         // Check if offer letter email was sent (free or paid certification tab)
         const isOfferLetterSent =
           (activeTab === 'certification' &&
-            editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED') ||
+            (editData.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' ||
+              editData.certificationStatus === 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED')) ||
           (activeTab === 'paidCertification' &&
             (editData.paidCertificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' ||
               editData.paidCertificationStatus === 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED'));
@@ -734,7 +740,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
       case 'demo': return journey?.demoStatus === 'SELECTED';
       case 'induction': return journey?.inductionAttendance === 'YES';
       case 'training': return journey?.trainingStatus === 'JOINED' || journey?.trainingStatus === 'COMPLETED';
-      case 'certification': return journey?.certificationStatus === 'CLEARED' || journey?.certificationStatus === 'DEMO_ONLY' || journey?.certificationStatus === 'DEMO_SALES' || journey?.certificationStatus === 'JOINING_FORM_SENT' || journey?.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.certificationStatus === 'PORTAL_HW_SUBMITTED';
+      case 'certification': return journey?.certificationStatus === 'CLEARED' || journey?.certificationStatus === 'DEMO_ONLY' || journey?.certificationStatus === 'DEMO_SALES' || journey?.certificationStatus === 'JOINING_FORM_SENT' || journey?.certificationStatus === 'OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.certificationStatus === 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED' || journey?.certificationStatus === 'PORTAL_HW_SUBMITTED';
       case 'goLive': return journey?.goLiveReadiness === 'YES';
       case 'readyForPaidClass': return journey?.readyForPaidClass === 'YES';
       case 'paidTraining': return journey?.paidTrainingStatus === 'JOINED' || journey?.paidTrainingStatus === 'COMPLETED';
