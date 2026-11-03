@@ -6,14 +6,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, CalendarDays, CheckCircle2, RefreshCw } from "lucide-react";
+import { Eye, Download, Trash2, ArrowUpDown, ArrowUp, ArrowDown, CalendarDays, CheckCircle2, RefreshCw, Pencil } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { PASS_SCORE_THRESHOLD } from '@/constants/admin/availabilityConstants';
 import { useFilteredApplications } from '@/hooks/admin/useFilteredApplications';
 import { usePermissions } from '@/hooks/admin/usePermissions';
-import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS } from '@/types/admin/applications';
+import { STATUS_OPTIONS, SORT_OPTIONS, PAGE_SIZE_OPTIONS, ApplicantRow } from '@/types/admin/applications';
 import { useApplicationTableActions } from '@/hooks/admin/useApplicationTableActions';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 import { fetchSecondRoundStatus, SecondRoundMap } from '@/services/secondRound.service';
@@ -28,6 +28,7 @@ import {
   EXIT_STATUS_OPTIONS
 } from '@/types/teacherJourney';
 import FeedbackModal from './FeedbackModal';
+import EditCandidateModal from './EditCandidateModal';
 import { MultiSelectFilter } from './MultiSelectFilter';
 
 // Type for journey progress map
@@ -48,13 +49,17 @@ const ApplicationsManagement: React.FC = () => {
     updateSort,
     toggleSortOrder,
     resetFilters,
+    refetch,
     paginationInfo,
     isEmpty,
     isFiltered
   } = useFilteredApplications();
   const { deletingId, handleDeleteApplication } = useApplicationTableActions(() => updateFilters({ page: 1 }));
   const { confirm, ConfirmDialog } = useConfirmDialog();
-  const { canDelete } = usePermissions();
+  const { canDelete, canEditCandidate } = usePermissions();
+
+  // Row whose name / email / mobile is being edited (null = dialog closed)
+  const [editingApplication, setEditingApplication] = useState<ApplicantRow | null>(null);
 
   const [secondRoundMap, setSecondRoundMap] = useState<SecondRoundMap>({});
   const [srLoading, setSrLoading] = useState(false);
@@ -1038,6 +1043,18 @@ const ApplicationsManagement: React.FC = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
+                        {canEditCandidate && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingApplication(application)}
+                            className="h-8 w-8 p-0 transition-all duration-200 hover:shadow-md"
+                            aria-label="Edit candidate details"
+                            title="Edit name, email or mobile"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
                         {canDelete && (
                           <Button
                             variant="destructive"
@@ -1132,6 +1149,15 @@ const ApplicationsManagement: React.FC = () => {
         onRefresh={handleRefreshFeedback}
         refreshing={refreshingFeedback}
       />
+
+      {/* Edit name / email / mobile - mounted per edit so the form always starts from that row */}
+      {editingApplication && (
+        <EditCandidateModal
+          application={editingApplication}
+          onClose={() => setEditingApplication(null)}
+          onSaved={refetch}
+        />
+      )}
     </Card>
   );
 };

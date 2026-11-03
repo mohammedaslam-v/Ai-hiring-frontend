@@ -111,6 +111,12 @@ export const useFilteredApplications = () => {
     setFilters(DEFAULT_FILTERS);
   }, []);
 
+  // Re-run the current query in place (keeps page, filters and sort) - e.g. after editing a row
+  const refetch = useCallback(
+    () => fetchApplications(debouncedFilters),
+    [fetchApplications, debouncedFilters]
+  );
+
   // Fetch applications when debounced filters change
   useEffect(() => {
     fetchApplications(debouncedFilters);
@@ -158,7 +164,8 @@ export const useFilteredApplications = () => {
     updateSort,
     toggleSortOrder,
     resetFilters,
-    
+    refetch,
+
     // Pagination info
     paginationInfo,
     

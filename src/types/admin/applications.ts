@@ -37,6 +37,9 @@ export interface ApplicantRow {
   id: string;
   applicationId?: string;
   name: string;
+  /** Name parts as stored, so the edit dialog can prefill both fields */
+  firstName?: string;
+  lastName?: string;
   email: string;
   phone: string;
   subjects: string[];
@@ -50,6 +53,14 @@ export interface ApplicantRow {
     view: string;
     result: string;
   };
+}
+
+/** Contact fields an allow-listed admin may edit. Send only the fields that changed. */
+export interface CandidateContactUpdate {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
 }
 
 // Status options for the dropdown

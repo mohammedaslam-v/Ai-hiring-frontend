@@ -1,5 +1,15 @@
 import { useAuth } from '@/contexts/AuthContext';
 
+// Admins who may edit a candidate's name, email and mobile number.
+// Mirrors CANDIDATE_EDIT_ADMIN_EMAILS in the backend
+// (src/middleware/candidateEdit.middleware.ts). This list only hides the
+// button - the backend list is what actually enforces it. Keep both in sync.
+const CANDIDATE_EDIT_ADMIN_EMAILS = [
+  'monika@bambinos.live',
+  'sabreena@bambinos.live',
+  'mohammedaslam9856@gmail.com',
+];
+
 /**
  * Hook to manage user permissions based on their role
  * 
@@ -31,6 +41,9 @@ export const usePermissions = () => {
 
     // Interviewer management: only specific users can see the button
     canManageInterviewers: isAllowedToManage,
+
+    // Edit candidate name / email / mobile: only the candidate-edit allow-list
+    canEditCandidate: !!userEmail && CANDIDATE_EDIT_ADMIN_EMAILS.includes(userEmail),
     
     // Email/WhatsApp redirect: only limited admins can see (hidden for main admin)
     canSeeEmailWhatsApp: isLimitedAdmin,

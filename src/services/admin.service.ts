@@ -1,4 +1,5 @@
 import { ServiceResponse } from "@/types/interface";
+import { CandidateContactUpdate } from "@/types/admin/applications";
 import axiosInstance from "./instance";
 //f
 // Define types for backend response
@@ -204,6 +205,44 @@ class AdminService {
                 status: false,
                 message: "Something went wrong",
             }
+        }
+    }
+
+    /** Edit a candidate's name, email or mobile. Send only the fields that changed. */
+    async updateCandidateContact(applicationId: string, updates: CandidateContactUpdate): Promise<ServiceResponse> {
+        try {
+            const response = await axiosInstance.patch(`/api/admin/applications/${applicationId}/contact`, updates);
+            const responseData = response.data as { status: boolean; msg?: string; data?: unknown };
+            if (responseData.status) {
+                return {
+                    status: true,
+                    message: responseData.msg || "Candidate details updated successfully",
+                    data: responseData.data
+                };
+            }
+            return {
+                status: false,
+                message: responseData.msg || "Failed to update candidate details",
+            };
+
+        } catch (error: unknown) {
+            console.error('Error updating candidate contact:', error);
+
+            // Pass the backend's reason through: field validation, mobile already in use (409), no access (403)
+            if (error && typeof error === 'object' && 'response' in error && error.response) {
+                const data = (error as {
+                    response: { data?: { msg?: string; message?: string; details?: Array<{ message: string }> } }
+                }).response.data;
+                const validationMessage = data?.details?.map(detail => detail.message).join('; ');
+                return {
+                    status: false,
+                    message: validationMessage || data?.msg || data?.message || "Failed to update candidate details",
+                };
+            }
+            return {
+                status: false,
+                message: "Network error - unable to connect to backend",
+            };
         }
     }
 
