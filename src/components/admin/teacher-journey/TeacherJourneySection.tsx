@@ -42,7 +42,8 @@ import {
   TrainingStatus,
   TRAINING_STATUS_OPTIONS,
   CertificationStatus,
-  DEMO_CERTIFICATION_STATUS_OPTIONS,
+  getDemoCertificationStatusOptions,
+  getDemoCertificationBadgeLabel,
   PAID_CERTIFICATION_STATUS_OPTIONS,
   CERTIFICATION_TRAINING_COUNT_OPTIONS,
   GoLiveStatus,
@@ -131,7 +132,8 @@ const TABS: { key: TabKey; label: string; icon: React.ElementType; gradient: str
 // ============================================
 // STATUS BADGE HELPER
 // ============================================
-const getStatusBadge = (status: string) => {
+// `label` replaces the badge text for a status whose display name differs from its stored value.
+const getStatusBadge = (status: string, label?: string) => {
   const configs: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
     'PENDING': { bg: 'bg-[hsl(240,5%,64.9%,0.1)] border-[hsl(240,5%,64.9%)]', text: 'text-[hsl(240,5%,64.9%)]', icon: <Clock className="h-3.5 w-3.5" /> },
     'SCHEDULED': { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700', icon: <Clock className="h-3.5 w-3.5" /> },
@@ -168,7 +170,7 @@ const getStatusBadge = (status: string) => {
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${config.bg} ${config.text}`}>
       {config.icon}
-      {status.replace(/_/g, ' ')}
+      {label ?? status.replace(/_/g, ' ')}
     </span>
   );
 };
@@ -416,9 +418,10 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
           statusLabel: 'Second Mock Required',
           description: 'An email informing the educator that a second mock is required before proceeding with training will be sent. Our HR team will connect with them to schedule it.',
         },
+        // Stored as DEMO_ONLY, shown as "Cleared" in Demo Certification. The email it sends is unchanged.
         DEMO_ONLY: {
           emailType: 'Demo Only',
-          statusLabel: 'Demo Only',
+          statusLabel: 'Cleared',
           description: 'A congratulations email will be sent informing the educator that they cleared the Demo Certification and are selected for Demo only, and will be made live the following week. It includes the joining form link, and Monika will be mentioned as their POC.',
         },
         DEMO_SALES: {
@@ -2664,8 +2667,8 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {DEMO_CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
-                  <SelectItem key={option.value} value={option.value}>
+                {getDemoCertificationStatusOptions(journey.certificationStatus).map(option => (
+                  <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
                     {option.label}
                   </SelectItem>
                 ))}
@@ -2673,7 +2676,7 @@ const CertificationSection: React.FC<SectionProps> = ({ journey, editMode, editD
             </Select>
             <FieldError error={fieldErrors.certificationStatus} />
           </div>
-        ) : getStatusBadge(journey.certificationStatus)}
+        ) : getStatusBadge(journey.certificationStatus, getDemoCertificationBadgeLabel(journey.certificationStatus))}
       </div>
 
       <div className={`p-3 rounded-lg ${editMode ? 'bg-white border border-[#1E62F2]' : ''}`}>

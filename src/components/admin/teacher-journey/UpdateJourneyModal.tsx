@@ -14,7 +14,7 @@ import {
   DEMO_STATUS_OPTIONS,
   INDUCTION_OPTIONS,
   TRAINING_STATUS_OPTIONS,
-  DEMO_CERTIFICATION_STATUS_OPTIONS,
+  getDemoCertificationStatusOptions,
   PAID_CERTIFICATION_STATUS_OPTIONS,
 
   GO_LIVE_OPTIONS,
@@ -424,8 +424,8 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {DEMO_CERTIFICATION_STATUS_OPTIONS.filter(o => o.value !== 'all').map(option => (
-                      <SelectItem key={option.value} value={option.value}>
+                    {getDemoCertificationStatusOptions(journey.certificationStatus).map(option => (
+                      <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
                         {option.label}
                       </SelectItem>
                     ))}
@@ -630,7 +630,7 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                 <>
                   <p>
                     You are about to change the certification status to{' '}
-                    <strong>Cleared</strong>.
+                    <strong>Demo + Paid</strong>.
                   </p>
                   <p>
                     An automated <strong className="text-green-600">congratulations email</strong> will be sent to the candidate with:
@@ -669,7 +669,8 @@ const UpdateJourneyModal: React.FC<UpdateJourneyModalProps> = ({
                   <p>
                     You are about to change the{' '}
                     {pendingEmailType === 'paid_demo_only' ? 'Paid Certification' : 'certification'} status to{' '}
-                    <strong>Demo Only</strong>.
+                    {/* Demo Certification shows DEMO_ONLY as "Cleared"; Paid Certification still calls it "Demo Only" */}
+                    <strong>{pendingEmailType === 'paid_demo_only' ? 'Demo Only' : 'Cleared'}</strong>.
                   </p>
                   <p>
                     An automated <strong className="text-green-600">congratulations email</strong> will be sent to the educator with:
