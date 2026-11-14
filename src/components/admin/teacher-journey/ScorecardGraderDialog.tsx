@@ -44,6 +44,7 @@ const GRADE_SEGMENTS = [
 
 type Criterion = { key: string; title: string; desc: string };
 type Section = { key: string; title: string; summaryLabel: string; criteria: Criterion[] };
+type Phase = 'CERTIFICATION' | 'DEMO_HR' | 'DEMO_TRAINING';
 
 const SECTIONS: Section[] = [
   {
@@ -81,6 +82,15 @@ const SECTIONS: Section[] = [
   },
 ];
 
+// Rubric sections on each phase's scorecard. Demo HR does not assess the parent pitch,
+// so it leaves out "3. Parent Interaction & Pitch": that section is not shown, its scores
+// are not required, and they are not saved (the backend then stores a null parentAverage).
+const SECTIONS_BY_PHASE: Record<Phase, Section[]> = {
+  CERTIFICATION: SECTIONS,
+  DEMO_HR: SECTIONS.filter(s => s.key !== 'parent'),
+  DEMO_TRAINING: SECTIONS,
+};
+
 const SCORE_VALUES = [0, 1, 2, 3, 4, 5];
 
 // MTI is scored as the AMOUNT of mother tongue influence (lower = better),
@@ -97,7 +107,7 @@ interface ScorecardGraderDialogProps {
   defaultCandidateName?: string;
   applicationId?: string;
   onSaved?: () => void;
-  phase?: 'CERTIFICATION' | 'DEMO_HR' | 'DEMO_TRAINING';
+  phase?: Phase;
 }
 
 const PHASE_TITLES: Record<string, { main: string; subtitle: string }> = {
@@ -181,10 +191,14 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
   const setScore = (key: string, value: number) =>
     setScores(prev => ({ ...prev, [key]: value }));
 
+  // Rubric sections on this phase's form — drives the rows shown, the averages,
+  // the required-score validation and the scores that get saved.
+  const sections = SECTIONS_BY_PHASE[phase] ?? SECTIONS;
+
   // Per-section average (null until at least one criterion scored)
   const sectionAverages = useMemo(() => {
     const result: Record<string, number | null> = {};
-    for (const section of SECTIONS) {
+    for (const section of sections) {
       let total = 0;
       let count = 0;
       for (const c of section.criteria) {
@@ -196,13 +210,13 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
       result[section.key] = count === 0 ? null : total / count;
     }
     return result;
-  }, [scores]);
+  }, [scores, sections]);
 
   // Final recommendation — chosen MANUALLY by the evaluator (not auto-derived from scores)
   const [recommendation, setRecommendation] = useState<'YES' | 'NO' | null>(null);
 
   // ----- required-field validation -----
-  const allScoreKeys = useMemo(() => SECTIONS.flatMap(s => s.criteria.map(c => c.key)), []);
+  const allScoreKeys = useMemo(() => sections.flatMap(s => s.criteria.map(c => c.key)), [sections]);
   const missingScoreKeys = allScoreKeys.filter(k => scores[k] === undefined);
   const errors = {
     candidateName: !candidateName.trim(),
@@ -244,6 +258,14 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
     }
     setSaving(true);
     try {
+      // Save only the scores for criteria on this phase's form. A scorecard saved before a
+      // section was removed still has that section's keys in `scores` (loaded on open);
+      // leaving them out keeps the saved record and its averages in step with the form.
+      const formScores: Record<string, number> = {};
+      for (const key of allScoreKeys) {
+        if (scores[key] !== undefined) formScores[key] = scores[key];
+      }
+
       const payload = {
         applicationId,
         evaluatorName: evaluatorName || undefined,
@@ -251,7 +273,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
         subject,
         gradeSegment: grade,
         demoTopic: demoTopic || undefined,
-        scores,
+        scores: formScores,
         overallResult: recommendation === 'YES' ? 'SELECTED' : recommendation === 'NO' ? 'REJECTED' : undefined,
         strengths: strengths || undefined,
         improvements: improvements || undefined,
@@ -349,7 +371,7 @@ const ScorecardGraderDialog: React.FC<ScorecardGraderDialogProps> = ({
 
           {/* Rubric sections */}
           <div className="mt-6 space-y-6">
-            {SECTIONS.map(section => {
+            {sections.map(section => {
               const avg = sectionAverages[section.key];
               return (
                 <div key={section.key} className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">

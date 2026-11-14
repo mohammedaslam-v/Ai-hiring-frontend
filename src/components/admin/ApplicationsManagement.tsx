@@ -750,7 +750,8 @@ const ApplicationsManagement: React.FC = () => {
                 )}
                 {Array.isArray(filters.certificationStatus) && filters.certificationStatus.length > 0 && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-700">
-                    Demo Cert: {filters.certificationStatus.length > 1 ? `${filters.certificationStatus.length} selected` : filters.certificationStatus[0]}
+                    {/* Show the option's label, not the stored value: DEMO_ONLY is "Cleared" and CLEARED is "Demo + Paid" */}
+                    Demo Cert: {filters.certificationStatus.length > 1 ? `${filters.certificationStatus.length} selected` : (CERTIFICATION_STATUS_OPTIONS.find(o => o.value === filters.certificationStatus[0])?.label ?? filters.certificationStatus[0])}
                   </span>
                 )}
                 {Array.isArray(filters.goLiveReadiness) && filters.goLiveReadiness.length > 0 && (

@@ -317,7 +317,7 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'CLEARED', label: 'Demo + Paid' },
   { value: 'NOT_CLEARED', label: 'Not Cleared' },
-  { value: 'DEMO_ONLY', label: 'Demo Only' },
+  { value: 'DEMO_ONLY', label: 'Cleared' },
   { value: 'DEMO_SALES', label: 'Demo + Sales' },
   { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
   { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
@@ -328,27 +328,48 @@ export const CERTIFICATION_STATUS_OPTIONS = [
   { value: 'NOT_INTERESTED', label: 'Not Interested' }
 ];
 
-// Demo Certification update dropdown options. This list intentionally diverges
-// from CERTIFICATION_STATUS_OPTIONS: it hides "Joining Form Sent" and
-// "Portal HW Submitted", adds the "Calibration Required" status after
-// "Second Mock Required", and keeps both offer-letter statuses (regular and
-// Chess) so a Demo-track educator can be sent either offer email.
+// Demo Certification update dropdown options, listed A–Z by label. This list
+// intentionally diverges from CERTIFICATION_STATUS_OPTIONS: it hides "Joining
+// Form Sent", "Portal HW Submitted" and "Demo + Sales", adds the "Calibration
+// Required" status, and keeps both offer-letter statuses (regular and Chess) so
+// a Demo-track educator can be sent either offer email.
+// Naming: the stored value DEMO_ONLY is shown as "Cleared", while the stored
+// value CLEARED is shown as "Demo + Paid". Only the labels differ — the stored
+// values, and the emails they trigger, are unchanged.
 // The full CERTIFICATION_STATUS_OPTIONS list above is still used by the
 // certification filters.
 export const DEMO_CERTIFICATION_STATUS_OPTIONS = [
   { value: 'all', label: 'All Certification' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'CLEARED', label: 'Demo + Paid' },
-  { value: 'NOT_CLEARED', label: 'Not Cleared' },
-  { value: 'DEMO_ONLY', label: 'Demo Only' },
-  { value: 'DEMO_SALES', label: 'Demo + Sales' },
-  { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
-  { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' },
   { value: 'CALIBRATION_REQUIRED', label: 'Calibration Required' },
-  { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
   { value: 'CHESS_OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Chess Offer Letter Sent / Portal Created' },
-  { value: 'NOT_INTERESTED', label: 'Not Interested' }
+  { value: 'DEMO_ONLY', label: 'Cleared' },
+  { value: 'CLEARED', label: 'Demo + Paid' },
+  { value: 'NEED_MORE_TRAINING', label: 'Need More Training' },
+  { value: 'NOT_CLEARED', label: 'Not Cleared' },
+  { value: 'NOT_INTERESTED', label: 'Not Interested' },
+  { value: 'OFFER_LETTER_SENT_PORTAL_CREATED', label: 'Offer Letter Sent / Portal Created' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'SECOND_MOCK_REQUIRED', label: 'Second Mock Required' }
 ];
+
+// Statuses retired from Demo Certification: no longer offered in the dropdown,
+// but still stored on a few saved journeys.
+const RETIRED_DEMO_CERTIFICATION_STATUS_OPTIONS = [
+  { value: 'DEMO_SALES', label: 'Demo + Sales' }
+];
+
+// Options for the Demo Certification status dropdown, always A–Z by label.
+// `savedStatus` is the status currently saved on the journey: if it is a retired
+// one it is listed too, but disabled — so that record's Status field is not left
+// blank, and nobody can newly pick it.
+export const getDemoCertificationStatusOptions = (savedStatus?: string | null) => {
+  const options = DEMO_CERTIFICATION_STATUS_OPTIONS
+    .filter(o => o.value !== 'all')
+    .map(o => ({ ...o, disabled: false }));
+  const retired = RETIRED_DEMO_CERTIFICATION_STATUS_OPTIONS.find(o => o.value === savedStatus);
+  if (retired) options.push({ ...retired, disabled: true });
+  return options.sort((a, b) => a.label.localeCompare(b.label));
+};
 
 // Paid Certification update dropdown options. Like the Demo list it adds
 // "Calibration Required" after "Second Mock Required" and hides "Joining Form
@@ -524,7 +545,7 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
     'PENDING': 'Pending',
     'CLEARED': 'Demo + Paid',
     'NOT_CLEARED': 'Not Cleared',
-    'DEMO_ONLY': 'Demo Only',
+    'DEMO_ONLY': 'Cleared',
     'DEMO_SALES': 'Demo + Sales',
     'NEED_MORE_TRAINING': 'Need More Training',
     'SECOND_MOCK_REQUIRED': 'Second Mock Required',
@@ -537,6 +558,16 @@ export const getCertificationLabel = (status: CertificationStatus): string => {
   };
   return labels[status] || status;
 };
+
+// Text for the read-only Demo Certification status badge. Badges normally print
+// the stored value ("NOT CLEARED"), but two Demo Certification values are named
+// differently from how they are stored — CLEARED is "Demo + Paid" and DEMO_ONLY
+// is "Cleared" — so those two show their label instead. Returns undefined for
+// every other status, which keeps the badge's default text.
+export const getDemoCertificationBadgeLabel = (status?: string | null): string | undefined =>
+  status === 'CLEARED' || status === 'DEMO_ONLY'
+    ? getCertificationLabel(status).toUpperCase()
+    : undefined;
 
 export const getGoLiveLabel = (status: GoLiveStatus): string => {
   const labels: Record<GoLiveStatus, string> = {
