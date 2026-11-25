@@ -437,7 +437,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         CHESS_OFFER_LETTER_SENT_PORTAL_CREATED: {
           emailType: 'Chess Offer Letter',
           statusLabel: 'Chess Offer Letter Sent / Portal Created',
-          description: 'A welcome email with 5 PDF attachments (Chess Offer Letter, Chess Executive Payment Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
+          description: 'A welcome email with 5 PDF attachments (Chess Offer Letter, Chess Executive Fee Structure - Growth Plan, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
         },
       };
 
@@ -502,7 +502,7 @@ const TeacherJourneySection: React.FC<TeacherJourneySectionProps> = ({
         CHESS_OFFER_LETTER_SENT_PORTAL_CREATED: {
           title: '📧 Confirm Chess Offer Letter Email',
           statusLabel: 'Chess Offer Letter Sent / Portal Created',
-          description: 'A welcome email with 5 PDF attachments (Offer Letter, Chess Executive Payment Structure, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
+          description: 'A welcome email with 5 PDF attachments (Offer Letter, Chess Executive Fee Structure - Growth Plan, Terms & Conditions, Leave Policy, POSH) and a mandatory POSH training link will be sent to the educator. The email includes a Google Form link for offer acceptance confirmation.',
         },
         NOT_CLEARED: {
           title: '📧 Confirm Not Cleared Email',
