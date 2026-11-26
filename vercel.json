@@ -2,6 +2,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/direct-demo",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
