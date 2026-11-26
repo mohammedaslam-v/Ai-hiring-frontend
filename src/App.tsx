@@ -3,14 +3,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/toastify.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
+// import Index from "./pages/Index"; // Landing page retired - the root URL now redirects to /direct-demo
 // import CandidateLogin from "./pages/candidate/CandidateLogin"; // Login hidden - candidates go straight to the application form
 import CandidateApplication from "./pages/candidate/CandidateApplication";
 import DirectDemoApplication from "./pages/candidate/DirectDemoApplication";
@@ -34,12 +34,19 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// hiring.bambinos.live/ sends visitors straight to the direct-demo form,
+// keeping any query string (e.g. UTM tags) attached to the shared link.
+const RootRedirect = () => {
+  const { search, hash } = useLocation();
+  return <Navigate to={{ pathname: "/direct-demo", search, hash }} replace />;
+};
+
 const AppRoutes = () => {
   useAnalytics();
 
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
+      <Route path="/" element={<RootRedirect />} />
       {/* Candidate login is hidden - old /candidate/login links land on the application form */}
       <Route path="/candidate/login" element={<Navigate to="/candidate/application" replace />} />
       <Route path="/candidate/application" element={<CandidateApplication />} />
